@@ -1,0 +1,46 @@
+syntax = "proto3";
+package nodes;
+
+option go_package = "snple.com/kokomi/pb/nodes;nodes";
+
+import "proxy_message.proto";
+import "generic_message.proto";
+
+message ListProxyRequest {
+    pb.Page page = 1;
+    string device_id = 2;
+    string tags = 3;
+    string type = 4;
+}
+
+message ListProxyResponse {
+    pb.Page page = 1;
+    uint32 count = 2;
+    repeated pb.Proxy proxy = 3;
+}
+
+message LinkProxyRequest {
+    string id = 1;
+    sint32 status = 2;
+}
+
+message PullProxyRequest {
+    int64 after = 1;
+    uint32 limit = 2;
+    string device_id = 3;
+}
+
+message PullProxyResponse {
+    int64 after = 1;
+    uint32 limit = 2;
+    repeated pb.Proxy proxy = 3;
+}
+
+service ProxyService {
+    rpc View(pb.Id) returns (pb.Proxy) {}
+    rpc ViewByName(pb.Name) returns (pb.Proxy) {}
+    rpc List(ListProxyRequest) returns (ListProxyResponse) {}
+    rpc Link(LinkProxyRequest) returns (pb.MyBool) {}
+    rpc ViewWithDeleted(pb.Id) returns (pb.Proxy) {}
+    rpc Pull(PullProxyRequest) returns (PullProxyResponse) {}
+}

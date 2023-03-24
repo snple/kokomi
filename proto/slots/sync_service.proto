@@ -1,0 +1,39 @@
+syntax = "proto3";
+package slots;
+
+option go_package = "snple.com/kokomi/pb/slots;slots";
+
+import "generic_message.proto";
+
+message SyncUpdated {
+    // string id = 1;
+    int64 updated = 2;
+}
+
+service SyncService {
+    rpc SetDeviceUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetDeviceUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc WaitDeviceUpdated(pb.MyEmpty) returns (stream pb.MyBool) {}
+    rpc SetSlaveUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetSlaveUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc SetSlotUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetSlotUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc SetOptionUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetOptionUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc SetSourceUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetSourceUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc SetTagUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetTagUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc SetVarUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetVarUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc SetEquipUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetEquipUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc SetWireUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetWireUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc SetTagValueUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetTagValueUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc WaitTagValueUpdated(pb.MyEmpty) returns (stream pb.MyBool) {}
+    rpc SetWireValueUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetWireValueUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc WaitWireValueUpdated(pb.MyEmpty) returns (stream pb.MyBool) {}
+}

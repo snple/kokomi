@@ -1,0 +1,112 @@
+syntax = "proto3";
+package nodes;
+
+option go_package = "snple.com/kokomi/pb/nodes;nodes";
+
+import "source_message.proto";
+import "generic_message.proto";
+
+// source
+message ListSourceRequest {
+    pb.Page page = 1;
+    // string device_id = 2;
+    string tags = 3;
+    string type = 4;
+    string source = 5;
+}
+
+message ListSourceResponse {
+    pb.Page page = 1;
+    uint32 count = 2;
+    repeated pb.Source source = 3;
+}
+
+message LinkSourceRequest {
+    string id = 1;
+    sint32 status = 2;
+}
+
+message PullSourceRequest {
+    int64 after = 1;
+    uint32 limit = 2;
+    // string device_id = 3;
+}
+
+message PullSourceResponse {
+    int64 after = 1;
+    uint32 limit = 2;
+    repeated pb.Source source = 3;
+}
+
+service SourceService {
+    rpc Create(pb.Source) returns (pb.Source) {}
+    rpc Update(pb.Source) returns (pb.Source) {}
+    rpc View(pb.Id) returns (pb.Source) {}
+    rpc ViewByName(pb.Name) returns (pb.Source) {}
+    rpc Delete(pb.Id) returns (pb.MyBool) {}
+    rpc List(ListSourceRequest) returns (ListSourceResponse) {}
+    rpc Link(LinkSourceRequest) returns (pb.MyBool) {}
+    rpc ViewWithDeleted(pb.Id) returns (pb.Source) {}
+    rpc Pull(PullSourceRequest) returns (PullSourceResponse) {}
+}
+
+// tag
+message ListTagRequest {
+    pb.Page page = 1;
+    // string device_id = 2;
+    string source_id = 3;
+    string tags = 4;
+    string type = 5;
+}
+
+message ListTagResponse {
+    pb.Page page = 1;
+    uint32 count = 2;
+    repeated pb.Tag tag = 3;
+}
+
+message PullTagRequest {
+    int64 after = 1;
+    uint32 limit = 2;
+    // string device_id = 3;
+    string source_id = 4;
+}
+
+message PullTagResponse {
+    int64 after = 1;
+    uint32 limit = 2;
+    repeated pb.Tag tag = 3;
+}
+
+message PullTagValueRequest {
+    int64 after = 1;
+    uint32 limit = 2;
+    // string device_id = 3;
+    string source_id = 4;
+}
+
+message PullTagValueResponse {
+    int64 after = 1;
+    uint32 limit = 2;
+    repeated pb.TagValueUpdated tag = 3;
+}
+
+service TagService {
+    rpc Create(pb.Tag) returns (pb.Tag) {}
+    rpc Update(pb.Tag) returns (pb.Tag) {}
+    rpc View(pb.Id) returns (pb.Tag) {}
+    rpc ViewByName(pb.Name) returns (pb.Tag) {}
+    rpc Delete(pb.Id) returns (pb.MyBool) {}
+    rpc List(ListTagRequest) returns (ListTagResponse) {}
+    rpc GetValue(pb.Id) returns (pb.TagValue) {}
+    rpc SetValue(pb.TagValue) returns (pb.MyBool) {}
+    rpc SetValueUnchecked(pb.TagValue) returns (pb.MyBool) {}
+    rpc GetValueByName(pb.Name) returns (pb.TagNameValue) {}
+    rpc SetValueByName(pb.TagNameValue) returns (pb.MyBool) {}
+    rpc SetValueByNameUnchecked(pb.TagNameValue) returns (pb.MyBool) {}
+    rpc ViewWithDeleted(pb.Id) returns (pb.Tag) {}
+    rpc Pull(PullTagRequest) returns (PullTagResponse) {}
+    rpc ViewValue(pb.Id) returns (pb.TagValueUpdated) {}
+    rpc DeleteValue(pb.Id) returns (pb.MyBool) {}
+    rpc PullValue(PullTagValueRequest) returns (PullTagValueResponse) {}
+}

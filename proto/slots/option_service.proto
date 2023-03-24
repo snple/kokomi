@@ -1,0 +1,43 @@
+syntax = "proto3";
+package slots;
+
+option go_package = "snple.com/kokomi/pb/slots;slots";
+
+import "option_message.proto";
+import "generic_message.proto";
+
+message ListOptionRequest {
+    pb.Page page = 1;
+    // string device_id = 2;
+    string tags = 3;
+    string type = 4;
+}
+
+message ListOptionResponse {
+    pb.Page page = 1;
+    uint32 count = 2;
+    repeated pb.Option option = 3;
+}
+
+message PullOptionRequest {
+    int64 after = 1;
+    uint32 limit = 2;
+    // string device_id = 3;
+}
+
+message PullOptionResponse {
+    int64 after = 1;
+    uint32 limit = 2;
+    repeated pb.Option option = 3;
+}
+
+service OptionService {
+    rpc Create(pb.Option) returns (pb.Option) {}
+    rpc Update(pb.Option) returns (pb.Option) {}
+    rpc View(pb.Id) returns (pb.Option) {}
+    rpc ViewByName(pb.Name) returns (pb.Option) {}
+    rpc Delete(pb.Id) returns (pb.MyBool) {}
+    rpc List(ListOptionRequest) returns (ListOptionResponse) {}
+    rpc ViewWithDeleted(pb.Id) returns (pb.Option) {}
+    rpc Pull(PullOptionRequest) returns (PullOptionResponse) {}
+}

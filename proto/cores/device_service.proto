@@ -1,0 +1,36 @@
+syntax = "proto3";
+package cores;
+
+option go_package = "snple.com/kokomi/pb/cores;cores";
+
+import "device_message.proto";
+import "generic_message.proto";
+
+message ListDeviceRequest {
+    pb.Page page = 1;
+    string tags = 2;
+    string type = 3;
+}
+
+message ListDeviceResponse {
+    pb.Page page = 1;
+    uint32 count = 2;
+    repeated pb.Device device = 3;
+}
+
+message LinkDeviceRequest {
+    string id = 1;
+    sint32 status = 2;
+}
+
+service DeviceService {
+    rpc Create(pb.Device) returns (pb.Device) {}
+    rpc Update(pb.Device) returns (pb.Device) {}
+    rpc View(pb.Id) returns (pb.Device) {}
+    rpc ViewByName(pb.Name) returns (pb.Device) {}
+    rpc Delete(pb.Id) returns (pb.MyBool) {}
+    rpc List(ListDeviceRequest) returns (ListDeviceResponse) {}
+    rpc Link(LinkDeviceRequest) returns (pb.MyBool) {}
+    rpc Destory(pb.Id) returns (pb.MyBool) {}
+    rpc Clone(pb.Id) returns (pb.MyBool) {}
+}

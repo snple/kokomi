@@ -1,0 +1,20 @@
+syntax = "proto3";
+package pb;
+
+option go_package = "snple.com/kokomi/pb;pb";
+
+message Device {
+    string id = 1;
+    string name = 2;
+    string desc = 3;
+    string tags = 4;
+    string type = 5;
+    string secret = 6;
+    string location = 7;
+    string config = 8;
+    sint32 link = 9;
+    sint32 rtt = 10;
+    sint32 status = 11;
+    int64 created = 12;
+    int64 updated = 13;
+}

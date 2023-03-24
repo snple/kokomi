@@ -1,0 +1,112 @@
+syntax = "proto3";
+package nodes;
+
+option go_package = "snple.com/kokomi/pb/nodes;nodes";
+
+import "cable_message.proto";
+import "generic_message.proto";
+
+// cable
+message ListCableRequest {
+    pb.Page page = 1;
+    // string device_id = 2;
+    string tags = 3;
+    string type = 4;
+}
+
+message ListCableResponse {
+    pb.Page page = 1;
+    uint32 count = 2;
+    repeated pb.Cable cable = 3;
+}
+
+message LinkCableRequest {
+    string id = 1;
+    sint32 status = 2;
+}
+
+message PullCableRequest {
+    int64 after = 1;
+    uint32 limit = 2;
+    string device_id = 3;
+}
+
+message PullCableResponse {
+    int64 after = 1;
+    uint32 limit = 2;
+    repeated pb.Cable cable = 3;
+}
+
+service CableService {
+    rpc Create(pb.Cable) returns (pb.Cable) {}
+    rpc Update(pb.Cable) returns (pb.Cable) {}
+    rpc View(pb.Id) returns (pb.Cable) {}
+    rpc ViewByName(pb.Name) returns (pb.Cable) {}
+    rpc Delete(pb.Id) returns (pb.MyBool) {}
+    rpc List(ListCableRequest) returns (ListCableResponse) {}
+    rpc Link(LinkCableRequest) returns (pb.MyBool) {}
+    rpc ViewWithDeleted(pb.Id) returns (pb.Cable) {}
+    rpc Pull(PullCableRequest) returns (PullCableResponse) {}
+}
+
+// wire
+message ListWireRequest {
+    pb.Page page = 1;
+    // string device_id = 2;
+    string cable_id = 3;
+    string tags = 4;
+    string type = 5;
+}
+
+message ListWireResponse {
+    pb.Page page = 1;
+    uint32 count = 2;
+    repeated pb.Wire wire = 3;
+}
+
+message PullWireRequest {
+    int64 after = 1;
+    uint32 limit = 2;
+    // string device_id = 3;
+    string cable_id = 4;
+}
+
+message PullWireResponse {
+    int64 after = 1;
+    uint32 limit = 2;
+    repeated pb.Wire wire = 3;
+}
+
+message PullWireValueRequest {
+    int64 after = 1;
+    uint32 limit = 2;
+    // string device_id = 3;
+    string cable_id = 4;
+}
+
+message PullWireValueResponse {
+    int64 after = 1;
+    uint32 limit = 2;
+    repeated pb.WireValueUpdated wire = 3;
+}
+
+service WireService {
+    rpc Create(pb.Wire) returns (pb.Wire) {}
+    rpc Update(pb.Wire) returns (pb.Wire) {}
+    rpc View(pb.Id) returns (pb.Wire) {}
+    rpc ViewByName(pb.Name) returns (pb.Wire) {}
+    rpc Delete(pb.Id) returns (pb.MyBool) {}
+    rpc List(ListWireRequest) returns (ListWireResponse) {}
+    rpc GetValue(pb.Id) returns (pb.WireValue) {}
+    rpc SetValue(pb.WireValue) returns (pb.MyBool) {}
+    rpc SetValueUnchecked(pb.WireValue) returns (pb.MyBool) {}
+    rpc GetValueByName(pb.Name) returns (pb.WireNameValue) {}
+    rpc SetValueByName(pb.WireNameValue) returns (pb.MyBool) {}
+    rpc SetValueByNameUnchecked(pb.WireNameValue) returns (pb.MyBool) {}
+    rpc ViewWithDeleted(pb.Id) returns (pb.Wire) {}
+    rpc Pull(PullWireRequest) returns (PullWireResponse) {}
+    rpc ViewValue(pb.Id) returns (pb.WireValueUpdated) {}
+    rpc DeleteValue(pb.Id) returns (pb.MyBool) {}
+    rpc PullValue(PullWireValueRequest) returns (PullWireValueResponse) {}
+}
+

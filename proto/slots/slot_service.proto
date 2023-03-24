@@ -1,0 +1,29 @@
+syntax = "proto3";
+package slots;
+
+option go_package = "snple.com/kokomi/pb/slots;slots";
+
+import "slot_message.proto";
+import "generic_message.proto";
+
+message LoginSlotRequest {
+    string id = 1;
+    string secret = 2;
+}
+
+message LoginSlotReply {
+    string id = 1;
+    string token = 2;
+}
+
+message LinkSlotRequest {
+    // string id = 1;
+    sint32 status = 2;
+}
+
+service SlotService {
+    rpc Login(LoginSlotRequest) returns (LoginSlotReply) {}
+    rpc Update(pb.Slot) returns (pb.Slot) {}
+    rpc View(pb.MyEmpty) returns (pb.Slot) {}
+    rpc Link(LinkSlotRequest) returns (pb.MyBool) {}
+}

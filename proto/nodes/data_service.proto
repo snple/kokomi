@@ -1,0 +1,37 @@
+syntax = "proto3";
+package nodes;
+
+option go_package = "snple.com/kokomi/pb/nodes;nodes";
+
+import "generic_message.proto";
+
+message DataUploadRequest {
+    string id = 1;
+    int32 content_type = 2;
+    bytes content = 3;
+    // string device_id = 4;
+    bool cache = 5;
+    bool save = 6;
+}
+
+message DataUploadResponse {
+    string id = 1;
+    string message = 2;
+}
+
+message DataQueryRequest {
+    string flux = 1;
+    map<string, string> vars = 2;
+}
+
+message DataQueryTagRequest {
+    string id = 1;
+    map<string, string> vars = 2;
+}
+
+service DataService {
+    rpc Upload(DataUploadRequest) returns (DataUploadResponse) {}
+    rpc Compile(DataQueryRequest) returns (pb.Message) {}
+    rpc Query(DataQueryRequest) returns (stream pb.Message) {}
+    rpc QueryTag(DataQueryTagRequest) returns (stream pb.Message) {}
+}

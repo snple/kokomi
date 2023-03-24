@@ -1,0 +1,66 @@
+syntax = "proto3";
+package pb;
+
+option go_package = "snple.com/kokomi/pb;pb";
+
+message Source {
+    string id = 1;
+    string device_id = 2;
+    string name = 3;
+    string desc = 4;
+    string tags = 5;
+    string type = 6;
+    string source = 7;
+    string params = 8;
+    string config = 9;
+    sint32 link = 10;
+    sint32 status = 11;
+    sint32 save = 12;
+    sint32 upload = 13;
+    int64 created = 14;
+    int64 updated = 15;
+    int64 deleted = 16;
+}
+
+message Tag {
+    string id = 1;
+    string device_id = 2;
+    string source_id = 3;
+    string name = 4;
+    string desc = 5;
+    string tags = 6;
+    string type = 7;
+    string data_type = 8;
+    string address = 9;
+    string value = 10;
+    string h_value = 11;
+    string l_value = 12;
+    string config = 13;
+    sint32 status = 14;
+    sint32 access = 15;
+    sint32 save = 16;
+    sint32 upload = 17;
+    int64 created = 18;
+    int64 updated = 19;
+    int64 deleted = 20;
+}
+
+message TagValue {
+    string id = 1;
+    string value = 2;
+    int64 updated = 3;
+}
+
+message TagNameValue {
+    string name = 1;
+    string value = 2;
+    int64 updated = 3;
+}
+
+message TagValueUpdated {
+    string id = 1;
+    string device_id = 2;
+    string source_id = 3;
+    string value = 4;
+    int64 updated = 5;
+}

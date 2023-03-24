@@ -1,0 +1,30 @@
+syntax = "proto3";
+package nodes;
+
+option go_package = "snple.com/kokomi/pb/nodes;nodes";
+
+import "device_message.proto";
+import "generic_message.proto";
+
+message LoginDeviceRequest {
+    string id = 1;
+    string access = 2;
+    string secret = 3;
+}
+
+message LoginDeviceReply {
+    string id = 1;
+    string token = 2;
+}
+
+message LinkDeviceRequest {
+    // string id = 1;
+    sint32 status = 2;
+}
+
+service DeviceService {
+    rpc Login(LoginDeviceRequest) returns (LoginDeviceReply) {}
+    rpc Update(pb.Device) returns (pb.Device) {}
+    rpc View(pb.MyEmpty) returns (pb.Device) {}
+    rpc Link(LinkDeviceRequest) returns (pb.MyBool) {}
+}

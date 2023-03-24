@@ -1,0 +1,18 @@
+syntax = "proto3";
+package pb;
+
+option go_package = "snple.com/kokomi/pb;pb";
+
+message Option {
+    string id = 1;
+    string device_id = 2;
+    string name = 3;
+    string desc = 4;
+    string tags = 5;
+    string type = 6;
+    string value = 7;
+    sint32 status = 8;
+    int64 created = 9;
+    int64 updated = 10;
+    int64 deleted = 11;
+}
