@@ -1,0 +1,86 @@
+package main
+
+import (
+	"math/rand"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/keepalive"
+	"snple.com/kokomi/bin/edge/config"
+	"snple.com/kokomi/bin/edge/log"
+	"snple.com/kokomi/db"
+	"snple.com/kokomi/edge/edge"
+	"snple.com/kokomi/util"
+)
+
+func main() {
+	rand.Seed(time.Now().Unix())
+
+	config.Parse()
+
+	log.Init(config.Config.Debug)
+
+	log.Logger.Info("main : Started")
+	defer log.Logger.Info("main : Completed")
+
+	sqlitedb, err := db.ConnectSqlite(config.Config.DB.File, config.Config.DB.Debug)
+	if err != nil {
+		log.Logger.Sugar().Fatalf("connecting to db: %v", err)
+	}
+
+	defer sqlitedb.Close()
+
+	if err = edge.CreateSchema(sqlitedb); err != nil {
+		log.Logger.Sugar().Fatalf("create schema: %v", err)
+	}
+
+	opts := make([]edge.EdgeOption, 0)
+
+	es, err := edge.Edge(sqlitedb, opts...)
+	if err != nil {
+		log.Logger.Sugar().Fatalf("NewEdgeService: %v", err)
+	}
+
+	es.Start()
+	defer es.Stop()
+
+	if config.Config.EdgeService.Enable {
+		opts := []grpc.ServerOption{
+			grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{PermitWithoutStream: true}),
+		}
+
+		if config.Config.EdgeService.TLS {
+			tlsConfig, err := util.LoadServerCert(config.Config.EdgeService.CA, config.Config.EdgeService.Cert, config.Config.EdgeService.Key)
+			if err != nil {
+				log.Logger.Sugar().Fatal(err)
+			}
+
+			opts = append(opts, grpc.Creds(credentials.NewTLS(tlsConfig)))
+		}
+
+		lis, err := net.Listen("tcp", config.Config.EdgeService.Addr)
+		if err != nil {
+			log.Logger.Sugar().Fatalf("failed to listen: %v", err)
+		}
+
+		s := grpc.NewServer(opts...)
+
+		es.Register(s)
+
+		go func() {
+			log.Logger.Sugar().Infof("edge grpc start: %v, tls: %v", config.Config.EdgeService.Addr, config.Config.EdgeService.TLS)
+			if err := s.Serve(lis); err != nil {
+				log.Logger.Sugar().Fatalf("failed to serve: %v", err)
+			}
+		}()
+	}
+
+	signalCh := make(chan os.Signal, 1)
+	signal.Notify(signalCh, os.Interrupt, syscall.SIGTERM)
+	<-signalCh
+}

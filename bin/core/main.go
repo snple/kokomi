@@ -28,8 +28,8 @@ func main() {
 
 	log.Init(config.Config.Debug)
 
-	log.Logger.Sugar().Info("main : Started")
-	defer log.Logger.Sugar().Info("main : Completed")
+	log.Logger.Info("main : Started")
+	defer log.Logger.Info("main : Completed")
 
 	command := flag.Arg(0)
 	switch command {

@@ -1,4 +1,4 @@
-package core
+package edge
 
 import (
 	"context"
@@ -14,25 +14,25 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"snple.com/kokomi/consts"
-	"snple.com/kokomi/core/model"
+	"snple.com/kokomi/edge/model"
 	"snple.com/kokomi/pb"
-	"snple.com/kokomi/pb/cores"
+	"snple.com/kokomi/pb/edges"
 	"snple.com/kokomi/util"
 	"snple.com/kokomi/util/datatype"
 	"snple.com/kokomi/util/metadata"
 )
 
 type TagService struct {
-	cs *CoreService
+	es *EdgeService
 
 	valueCache *cache.Cache[nson.Value]
 
-	cores.UnimplementedTagServiceServer
+	edges.UnimplementedTagServiceServer
 }
 
-func newTagService(cs *CoreService) *TagService {
+func newTagService(es *EdgeService) *TagService {
 	return &TagService{
-		cs:         cs,
+		es:         es,
 		valueCache: cache.NewCache[nson.Value](nil),
 	}
 }
@@ -78,12 +78,10 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 
 	// source validation
 	{
-		source, err := s.cs.GetSource().view(ctx, in.GetSourceId())
+		_, err = s.es.GetSource().view(ctx, in.GetSourceId())
 		if err != nil {
 			return &output, err
 		}
-
-		item.DeviceID = source.DeviceID
 	}
 
 	// name validation
@@ -92,7 +90,7 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 			return &output, status.Error(codes.InvalidArgument, "tag name min 2 character")
 		}
 
-		err = s.cs.GetDB().NewSelect().Model(&model.Tag{}).Where("name = ?", in.GetName()).Where("source_id = ?", in.GetSourceId()).Scan(ctx)
+		err = s.es.GetDB().NewSelect().Model(&model.Tag{}).Where("name = ?", in.GetName()).Where("source_id = ?", in.GetSourceId()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
@@ -113,7 +111,7 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		item.Updated = time.UnixMilli(in.GetUpdated())
 	}
 
-	_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
+	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -175,14 +173,14 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 			return &output, status.Error(codes.InvalidArgument, "tag name min 2 character")
 		}
 
-		modelItem := model.Tag{}
-		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("source_id = ?", item.SourceID).Where("name = ?", in.GetName()).Scan(ctx)
+		modelTag := model.Tag{}
+		err = s.es.GetDB().NewSelect().Model(&modelTag).Where("source_id = ?", item.SourceID).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			if modelItem.ID != item.ID {
+			if modelTag.ID != item.ID {
 				return &output, status.Error(codes.AlreadyExists, "tag name must be unique")
 			}
 		}
@@ -207,12 +205,12 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		item.Updated = time.UnixMilli(in.GetUpdated())
 		item.Deleted = time.UnixMilli(in.GetDeleted())
 
-		_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
+		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
 		if err != nil {
 			return &output, status.Errorf(codes.Internal, "Update: %v", err)
 		}
 	} else {
-		_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
 		if err != nil {
 			return &output, status.Errorf(codes.Internal, "Update: %v", err)
 		}
@@ -266,45 +264,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 	return &output, nil
 }
 
-func (s *TagService) ViewByName(ctx context.Context, in *cores.ViewTagByNameRequest) (*pb.Tag, error) {
-	var output pb.Tag
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
-		}
-
-		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
-		}
-	}
-
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
-	if err != nil {
-		return &output, err
-	}
-
-	s.copyModelToOutput(&output, &item)
-
-	output.Name = in.GetName()
-
-	value := s.GetTagValue(item.ID)
-
-	output.Value, err = datatype.EncodeNsonValue(value)
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "EncodeValue: %v", err)
-	}
-
-	return &output, nil
-}
-
-func (s *TagService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
+func (s *TagService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
 	var output pb.Tag
 	var err error
 
@@ -319,46 +279,16 @@ func (s *TagService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Tag, 
 		}
 	}
 
-	deviceName := consts.DEFAULT_DEVICE
-	sourceName := consts.DEFAULT_SOURCE
-	itemName := in.GetName()
-
-	if strings.Contains(itemName, ".") {
-		splits := strings.Split(itemName, ".")
-
-		switch len(splits) {
-		case 2:
-			sourceName = splits[0]
-			itemName = splits[1]
-		case 3:
-			deviceName = splits[0]
-			sourceName = splits[1]
-			itemName = splits[2]
-		default:
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
-		}
-	}
-
-	device, err := s.cs.GetDevice().viewByName(ctx, deviceName)
+	tag, err := s.viewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
 
-	source, err := s.cs.GetSource().viewByDeviceIDAndName(ctx, device.ID, sourceName)
-	if err != nil {
-		return &output, err
-	}
-
-	item, err := s.viewBySourceIDAndName(ctx, source.ID, itemName)
-	if err != nil {
-		return &output, err
-	}
-
-	s.copyModelToOutput(&output, &item)
+	s.copyModelToOutput(&output, &tag)
 
 	output.Name = in.GetName()
 
-	value := s.GetTagValue(item.ID)
+	value := s.GetTagValue(tag.ID)
 
 	output.Value, err = datatype.EncodeNsonValue(value)
 	if err != nil {
@@ -391,7 +321,7 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 	item.Updated = time.Now()
 	item.Deleted = time.Now()
 
-	_, err = s.cs.GetDB().NewUpdate().Model(&item).Column("updated", "deleted").WherePK().Exec(ctx)
+	_, err = s.es.GetDB().NewUpdate().Model(&item).Column("updated", "deleted").WherePK().Exec(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Delete: %v", err)
 	}
@@ -405,9 +335,9 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 	return &output, nil
 }
 
-func (s *TagService) List(ctx context.Context, in *cores.ListTagRequest) (*cores.ListTagResponse, error) {
+func (s *TagService) List(ctx context.Context, in *edges.ListTagRequest) (*edges.ListTagResponse, error) {
 	var err error
-	var output cores.ListTagResponse
+	var output edges.ListTagResponse
 
 	// basic validation
 	{
@@ -429,11 +359,7 @@ func (s *TagService) List(ctx context.Context, in *cores.ListTagRequest) (*cores
 
 	var items []model.Tag
 
-	query := s.cs.GetDB().NewSelect().Model(&items)
-
-	if len(in.GetDeviceId()) > 0 {
-		query.Where("device_id = ?", in.GetDeviceId())
-	}
+	query := s.es.GetDB().NewSelect().Model(&items)
 
 	if len(in.GetSourceId()) > 0 {
 		query.Where("source_id = ?", in.GetSourceId())
@@ -507,7 +433,7 @@ func (s *TagService) List(ctx context.Context, in *cores.ListTagRequest) (*cores
 	return &output, nil
 }
 
-func (s *TagService) Clone(ctx context.Context, in *cores.CloneTagRequest) (*pb.MyBool, error) {
+func (s *TagService) Clone(ctx context.Context, in *edges.CloneTagRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -522,7 +448,7 @@ func (s *TagService) Clone(ctx context.Context, in *cores.CloneTagRequest) (*pb.
 		}
 	}
 
-	err = s.cs.getClone().cloneTag(ctx, s.cs.GetDB(), in.GetId(), in.GetSourceId())
+	err = s.es.getClone().cloneTag(ctx, s.es.GetDB(), in.GetId(), in.GetSourceId())
 	if err != nil {
 		return &output, err
 	}
@@ -614,21 +540,9 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 
 	// validation device and source
 	{
-		// device
-		{
-			device, err := s.cs.GetDevice().view(ctx, item.DeviceID)
-			if err != nil {
-				return &output, err
-			}
-
-			if device.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Device Status != ON")
-			}
-		}
-
 		// source
 		{
-			source, err := s.cs.GetSource().view(ctx, item.SourceID)
+			source, err := s.es.GetSource().view(ctx, item.SourceID)
 			if err != nil {
 				return &output, err
 			}
@@ -639,6 +553,10 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 		}
 	}
 
+	if len(item.Address) == 0 {
+		s.SetTagValue(item.ID, nsonValue)
+	}
+
 	if check {
 		if err = s.updateTagValue(ctx, &item, in.GetValue()); err != nil {
 			return &output, err
@@ -647,8 +565,6 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 		if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
 			return &output, err
 		}
-	} else {
-		s.SetTagValue(item.ID, nsonValue)
 	}
 
 	output.Bool = true
@@ -656,9 +572,9 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 	return &output, nil
 }
 
-func (s *TagService) GetValueByName(ctx context.Context, in *cores.GetTagValueByNameRequest) (*cores.TagNameValue, error) {
+func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
 	var err error
-	var output cores.TagNameValue
+	var output pb.TagNameValue
 
 	// basic validation
 	{
@@ -666,21 +582,16 @@ func (s *TagService) GetValueByName(ctx context.Context, in *cores.GetTagValueBy
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
-		}
-
 		if len(in.GetName()) == 0 {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
 		}
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.viewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
 
-	output.DeviceId = in.GetDeviceId()
 	output.Name = in.GetName()
 
 	var value nson.Value = nson.Null{}
@@ -698,15 +609,15 @@ func (s *TagService) GetValueByName(ctx context.Context, in *cores.GetTagValueBy
 	return &output, nil
 }
 
-func (s *TagService) SetValueByName(ctx context.Context, in *cores.TagNameValue) (*pb.MyBool, error) {
+func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
 	return s.setValueByName(ctx, in, true)
 }
 
-func (s *TagService) SetValueByNameUnchecked(ctx context.Context, in *cores.TagNameValue) (*pb.MyBool, error) {
+func (s *TagService) SetValueByNameUnchecked(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
 	return s.setValueByName(ctx, in, false)
 }
 
-func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue, check bool) (*pb.MyBool, error) {
+func (s *TagService) setValueByName(ctx context.Context, in *pb.TagNameValue, check bool) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -716,10 +627,6 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
-		}
-
 		if len(in.GetName()) == 0 {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
 		}
@@ -727,16 +634,6 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 		if len(in.GetValue()) == 0 {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
 		}
-	}
-
-	// device
-	device, err := s.cs.GetDevice().view(ctx, in.GetDeviceId())
-	if err != nil {
-		return &output, err
-	}
-
-	if device.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Device Status != ON")
 	}
 
 	// name
@@ -754,7 +651,7 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 	}
 
 	// source
-	source, err := s.cs.GetSource().viewByDeviceIDAndName(ctx, device.ID, sourceName)
+	source, err := s.es.GetSource().viewByName(ctx, sourceName)
 	if err != nil {
 		return &output, err
 	}
@@ -784,6 +681,10 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
+	if len(item.Address) == 0 {
+		s.SetTagValue(item.ID, nsonValue)
+	}
+
 	if check {
 		if err = s.updateTagValue(ctx, &item, in.GetValue()); err != nil {
 			return &output, err
@@ -792,8 +693,6 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 		if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
 			return &output, err
 		}
-	} else {
-		s.SetTagValue(item.ID, nsonValue)
 	}
 
 	output.Bool = true
@@ -806,7 +705,7 @@ func (s *TagService) view(ctx context.Context, id string) (model.Tag, error) {
 		ID: id,
 	}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
+	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return item, status.Errorf(codes.NotFound, "Query: %v, TagID: %v", err, item.ID)
@@ -818,7 +717,7 @@ func (s *TagService) view(ctx context.Context, id string) (model.Tag, error) {
 	return item, nil
 }
 
-func (s *TagService) viewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Tag, error) {
+func (s *TagService) viewByName(ctx context.Context, name string) (model.Tag, error) {
 	item := model.Tag{}
 
 	sourceName := consts.DEFAULT_SOURCE
@@ -834,7 +733,7 @@ func (s *TagService) viewByDeviceIDAndName(ctx context.Context, deviceID, name s
 		itemName = splits[1]
 	}
 
-	source, err := s.cs.GetSource().viewByDeviceIDAndName(ctx, deviceID, sourceName)
+	source, err := s.es.GetSource().viewByName(ctx, sourceName)
 	if err != nil {
 		return item, err
 	}
@@ -845,10 +744,10 @@ func (s *TagService) viewByDeviceIDAndName(ctx context.Context, deviceID, name s
 func (s *TagService) viewBySourceIDAndName(ctx context.Context, sourceID, name string) (model.Tag, error) {
 	item := model.Tag{}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).Where("source_id = ?", sourceID).Where("name = ?", name).Scan(ctx)
+	err := s.es.GetDB().NewSelect().Model(&item).Where("source_id = ?", sourceID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Tag SourceID: %v, Name: %v", err, sourceID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v, Name: %v", err, sourceID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -860,10 +759,10 @@ func (s *TagService) viewBySourceIDAndName(ctx context.Context, sourceID, name s
 func (s *TagService) viewBySourceIDAndAddress(ctx context.Context, sourceID, address string) (model.Tag, error) {
 	item := model.Tag{}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).Where("source_id = ?", sourceID).Where("address = ?", address).Scan(ctx)
+	err := s.es.GetDB().NewSelect().Model(&item).Where("source_id = ?", sourceID).Where("address = ?", address).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Tag SourceID: %v, Address: %v", err, sourceID, address)
+			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v, Address: %v", err, sourceID, address)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -874,7 +773,6 @@ func (s *TagService) viewBySourceIDAndAddress(ctx context.Context, sourceID, add
 
 func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
 	output.Id = item.ID
-	output.DeviceId = item.DeviceID
 	output.SourceId = item.SourceID
 	output.Name = item.Name
 	output.Desc = item.Desc
@@ -907,13 +805,18 @@ func (s *TagService) GetTagValueValue(id string) types.Option[cache.Value[nson.V
 }
 
 func (s *TagService) SetTagValue(id string, value nson.Value) {
-	s.valueCache.Set(id, value, s.cs.dopts.valueCacheTTL)
+	s.valueCache.Set(id, value, s.es.dopts.valueCacheTTL)
 }
 
 func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	err = s.es.GetSync().setTagUpdated(ctx, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -924,7 +827,12 @@ func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
 func (s *TagService) afterDelete(ctx context.Context, item *model.Tag) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	err = s.es.GetSync().setTagUpdated(ctx, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -937,13 +845,12 @@ func (s *TagService) updateTagValue(ctx context.Context, item *model.Tag, value 
 
 	item2 := model.TagValue{
 		ID:       item.ID,
-		DeviceID: item.DeviceID,
 		SourceID: item.SourceID,
 		Value:    value,
 		Updated:  time.Now(),
 	}
 
-	ret, err := s.cs.GetDB().NewUpdate().Model(&item2).WherePK().WhereAllWithDeleted().Exec(ctx)
+	ret, err := s.es.GetDB().NewUpdate().Model(&item2).WherePK().WhereAllWithDeleted().Exec(ctx)
 	if err != nil {
 		return status.Errorf(codes.Internal, "Update: %v", err)
 	}
@@ -954,7 +861,7 @@ func (s *TagService) updateTagValue(ctx context.Context, item *model.Tag, value 
 	}
 
 	if n < 1 {
-		_, err = s.cs.GetDB().NewInsert().Model(&item2).Exec(ctx)
+		_, err = s.es.GetDB().NewInsert().Model(&item2).Exec(ctx)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}
@@ -966,7 +873,7 @@ func (s *TagService) updateTagValue(ctx context.Context, item *model.Tag, value 
 func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, value string) error {
 	var err error
 
-	err = s.cs.GetSync().setTagValueUpdated(ctx, item.DeviceID, time.Now())
+	err = s.es.GetSync().setTagValueUpdated(ctx, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -1004,7 +911,7 @@ func (s *TagService) viewWithDeleted(ctx context.Context, id string) (model.Tag,
 		ID: id,
 	}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
+	err := s.es.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return item, status.Errorf(codes.NotFound, "Query: %v, TagID: %v", err, item.ID)
@@ -1016,9 +923,9 @@ func (s *TagService) viewWithDeleted(ctx context.Context, id string) (model.Tag,
 	return item, nil
 }
 
-func (s *TagService) Pull(ctx context.Context, in *cores.PullTagRequest) (*cores.PullTagResponse, error) {
+func (s *TagService) Pull(ctx context.Context, in *edges.PullTagRequest) (*edges.PullTagResponse, error) {
 	var err error
-	var output cores.PullTagResponse
+	var output edges.PullTagResponse
 
 	// basic validation
 	{
@@ -1032,11 +939,7 @@ func (s *TagService) Pull(ctx context.Context, in *cores.PullTagRequest) (*cores
 
 	var items []model.Tag
 
-	query := s.cs.GetDB().NewSelect().Model(&items)
-
-	if len(in.GetDeviceId()) > 0 {
-		query.Where("device_id = ?", in.GetDeviceId())
-	}
+	query := s.es.GetDB().NewSelect().Model(&items)
 
 	if len(in.GetSourceId()) > 0 {
 		query.Where("source_id = ?", in.GetSourceId())
@@ -1073,7 +976,7 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		}
 	}
 
-	item, err := s.viewValueUpdated(ctx, in.GetId())
+	item, err := s.viewValueUpdate(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -1098,12 +1001,12 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		}
 	}
 
-	item, err := s.viewValueUpdated(ctx, in.GetId())
+	item, err := s.viewValueUpdate(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
 
-	_, err = s.cs.GetDB().NewDelete().Model(&item).WherePK().Exec(ctx)
+	_, err = s.es.GetDB().NewDelete().Model(&item).WherePK().Exec(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Delete: %v", err)
 	}
@@ -1113,9 +1016,9 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 	return &output, nil
 }
 
-func (s *TagService) PullValue(ctx context.Context, in *cores.PullTagValueRequest) (*cores.PullTagValueResponse, error) {
+func (s *TagService) PullValue(ctx context.Context, in *edges.PullTagValueRequest) (*edges.PullTagValueResponse, error) {
 	var err error
-	var output cores.PullTagValueResponse
+	var output edges.PullTagValueResponse
 
 	// basic validation
 	{
@@ -1129,11 +1032,7 @@ func (s *TagService) PullValue(ctx context.Context, in *cores.PullTagValueReques
 
 	var items []model.TagValue
 
-	query := s.cs.GetDB().NewSelect().Model(&items)
-
-	if len(in.GetDeviceId()) > 0 {
-		query.Where("device_id = ?", in.GetDeviceId())
-	}
+	query := s.es.GetDB().NewSelect().Model(&items)
 
 	if len(in.GetSourceId()) > 0 {
 		query.Where("source_id = ?", in.GetSourceId())
@@ -1155,12 +1054,12 @@ func (s *TagService) PullValue(ctx context.Context, in *cores.PullTagValueReques
 	return &output, nil
 }
 
-func (s *TagService) viewValueUpdated(ctx context.Context, id string) (model.TagValue, error) {
+func (s *TagService) viewValueUpdate(ctx context.Context, id string) (model.TagValue, error) {
 	item := model.TagValue{
 		ID: id,
 	}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
+	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return item, status.Errorf(codes.NotFound, "Query: %v, TagID: %v", err, item.ID)
@@ -1174,7 +1073,6 @@ func (s *TagService) viewValueUpdated(ctx context.Context, id string) (model.Tag
 
 func (s *TagService) copyModelToOutputTagValue(output *pb.TagValueUpdated, item *model.TagValue) {
 	output.Id = item.ID
-	output.DeviceId = item.DeviceID
 	output.SourceId = item.SourceID
 	output.Value = item.Value
 	output.Updated = item.Updated.UnixMilli()

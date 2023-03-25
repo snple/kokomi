@@ -1,4 +1,4 @@
-package core
+package edge
 
 import (
 	"context"
@@ -11,23 +11,23 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"snple.com/kokomi/consts"
-	"snple.com/kokomi/core/model"
+	"snple.com/kokomi/edge/model"
 	"snple.com/kokomi/pb"
-	"snple.com/kokomi/pb/cores"
+	"snple.com/kokomi/pb/edges"
 	"snple.com/kokomi/util"
 	"snple.com/kokomi/util/datatype"
 	"snple.com/kokomi/util/metadata"
 )
 
 type WireService struct {
-	cs *CoreService
+	es *EdgeService
 
-	cores.UnimplementedWireServiceServer
+	edges.UnimplementedWireServiceServer
 }
 
-func newWireService(cs *CoreService) *WireService {
+func newWireService(es *EdgeService) *WireService {
 	return &WireService{
-		cs: cs,
+		es: es,
 	}
 }
 
@@ -71,24 +71,11 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 
 	// cable validation
 	{
-		cable, err := s.cs.GetCable().view(ctx, in.GetCableId())
+		_, err = s.es.GetCable().view(ctx, in.GetCableId())
 		if err != nil {
 			return &output, err
 		}
 
-		item.DeviceID = cable.DeviceID
-	}
-
-	// tag validation
-	if in.GetRef() != "" {
-		tag, err := s.cs.GetTag().view(ctx, in.GetRef())
-		if err != nil {
-			return &output, err
-		}
-
-		if tag.DeviceID != item.DeviceID {
-			return &output, status.Error(codes.NotFound, "Query: tag.DeviceID != item.deviceID")
-		}
 	}
 
 	// name validation
@@ -97,13 +84,21 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 			return &output, status.Error(codes.InvalidArgument, "wire name min 2 character")
 		}
 
-		err = s.cs.GetDB().NewSelect().Model(&model.Wire{}).Where("name = ?", in.GetName()).Where("cable_id = ?", in.GetCableId()).Scan(ctx)
+		err = s.es.GetDB().NewSelect().Model(&model.Wire{}).Where("name = ?", in.GetName()).Where("cable_id = ?", in.GetCableId()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
 			return &output, status.Error(codes.AlreadyExists, "wire name must be unique")
+		}
+	}
+
+	// tag validation
+	if in.GetRef() != "" {
+		_, err = s.es.GetTag().view(ctx, in.GetRef())
+		if err != nil {
+			return &output, err
 		}
 	}
 
@@ -118,7 +113,7 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 		item.Updated = time.UnixMilli(in.GetUpdated())
 	}
 
-	_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
+	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -179,7 +174,7 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 		}
 
 		modelItem := model.Wire{}
-		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("cable_id = ?", item.CableID).Where("name = ?", in.GetName()).Scan(ctx)
+		err = s.es.GetDB().NewSelect().Model(&modelItem).Where("cable_id = ?", item.CableID).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
@@ -193,13 +188,9 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 
 	// tag validation
 	if in.GetRef() != "" {
-		tag, err := s.cs.GetTag().view(ctx, in.GetRef())
+		_, err = s.es.GetTag().view(ctx, in.GetRef())
 		if err != nil {
 			return &output, err
-		}
-
-		if tag.DeviceID != item.DeviceID {
-			return &output, status.Error(codes.NotFound, "Query: tag.DeviceID != item.deviceID")
 		}
 	}
 
@@ -221,12 +212,12 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 		item.Updated = time.UnixMilli(in.GetUpdated())
 		item.Deleted = time.UnixMilli(in.GetDeleted())
 
-		_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
+		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
 		if err != nil {
 			return &output, status.Errorf(codes.Internal, "Update: %v", err)
 		}
 	} else {
-		_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
 		if err != nil {
 			return &output, status.Errorf(codes.Internal, "Update: %v", err)
 		}
@@ -276,43 +267,7 @@ func (s *WireService) View(ctx context.Context, in *pb.Id) (*pb.Wire, error) {
 	return &output, nil
 }
 
-func (s *WireService) ViewByName(ctx context.Context, in *cores.ViewWireByNameRequest) (*pb.Wire, error) {
-	var output pb.Wire
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
-		}
-
-		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire name")
-		}
-	}
-
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
-	if err != nil {
-		return &output, err
-	}
-
-	s.copyModelToOutput(&output, &item)
-
-	output.Name = in.GetName()
-
-	output.Value, err = s.getWireValue(ctx, &item)
-	if err != nil {
-		return &output, err
-	}
-
-	return &output, nil
-}
-
-func (s *WireService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
+func (s *WireService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
 	var output pb.Wire
 	var err error
 
@@ -327,37 +282,7 @@ func (s *WireService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Wire
 		}
 	}
 
-	deviceName := consts.DEFAULT_DEVICE
-	cableName := consts.DEFAULT_CABLE
-	itemName := in.GetName()
-
-	if strings.Contains(itemName, ".") {
-		splits := strings.Split(itemName, ".")
-
-		switch len(splits) {
-		case 2:
-			cableName = splits[0]
-			itemName = splits[1]
-		case 3:
-			deviceName = splits[0]
-			cableName = splits[1]
-			itemName = splits[2]
-		default:
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire name")
-		}
-	}
-
-	device, err := s.cs.GetDevice().viewByName(ctx, deviceName)
-	if err != nil {
-		return &output, err
-	}
-
-	cable, err := s.cs.GetCable().viewByDeviceIDAndName(ctx, device.ID, cableName)
-	if err != nil {
-		return &output, err
-	}
-
-	item, err := s.viewByCableIDAndName(ctx, cable.ID, itemName)
+	item, err := s.viewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -397,7 +322,7 @@ func (s *WireService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 	item.Updated = time.Now()
 	item.Deleted = time.Now()
 
-	_, err = s.cs.GetDB().NewUpdate().Model(&item).Column("updated", "deleted").WherePK().Exec(ctx)
+	_, err = s.es.GetDB().NewUpdate().Model(&item).Column("updated", "deleted").WherePK().Exec(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Delete: %v", err)
 	}
@@ -411,9 +336,9 @@ func (s *WireService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 	return &output, nil
 }
 
-func (s *WireService) List(ctx context.Context, in *cores.ListWireRequest) (*cores.ListWireResponse, error) {
+func (s *WireService) List(ctx context.Context, in *edges.ListWireRequest) (*edges.ListWireResponse, error) {
 	var err error
-	var output cores.ListWireResponse
+	var output edges.ListWireResponse
 
 	// basic validation
 	{
@@ -435,11 +360,7 @@ func (s *WireService) List(ctx context.Context, in *cores.ListWireRequest) (*cor
 
 	var items []model.Wire
 
-	query := s.cs.GetDB().NewSelect().Model(&items)
-
-	if len(in.GetDeviceId()) > 0 {
-		query.Where("device_id = ?", in.GetDeviceId())
-	}
+	query := s.es.GetDB().NewSelect().Model(&items)
 
 	if len(in.GetCableId()) > 0 {
 		query.Where("cable_id = ?", in.GetCableId())
@@ -510,7 +431,7 @@ func (s *WireService) List(ctx context.Context, in *cores.ListWireRequest) (*cor
 	return &output, nil
 }
 
-func (s *WireService) Clone(ctx context.Context, in *cores.CloneWireRequest) (*pb.MyBool, error) {
+func (s *WireService) Clone(ctx context.Context, in *edges.CloneWireRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -525,7 +446,7 @@ func (s *WireService) Clone(ctx context.Context, in *cores.CloneWireRequest) (*p
 		}
 	}
 
-	err = s.cs.getClone().cloneWire(ctx, s.cs.GetDB(), in.GetId(), in.GetCableId())
+	err = s.es.getClone().cloneWire(ctx, s.es.GetDB(), in.GetId(), in.GetCableId())
 	if err != nil {
 		return &output, err
 	}
@@ -558,7 +479,7 @@ func (s *WireService) GetValue(ctx context.Context, in *pb.Id) (*pb.WireValue, e
 	output.Id = in.GetId()
 
 	if len(item.Ref) > 0 {
-		tagValue, err := s.cs.GetTag().GetValue(ctx, &pb.Id{Id: item.Ref})
+		tagValue, err := s.es.GetTag().GetValue(ctx, &pb.Id{Id: item.Ref})
 		if err != nil {
 			return &output, err
 		}
@@ -566,7 +487,7 @@ func (s *WireService) GetValue(ctx context.Context, in *pb.Id) (*pb.WireValue, e
 		output.Value = tagValue.GetValue()
 		output.Updated = tagValue.GetUpdated()
 	} else {
-		item2, err := s.viewValueUpdated(ctx, in.GetId())
+		item2, err := s.viewValueUpdated(ctx, item.ID)
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.NotFound {
@@ -652,21 +573,9 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 
 	// validation device and cable
 	{
-		// device
-		{
-			device, err := s.cs.GetDevice().view(ctx, item.DeviceID)
-			if err != nil {
-				return &output, err
-			}
-
-			if device.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Device Status != ON")
-			}
-		}
-
 		// cable
 		{
-			cable, err := s.cs.GetCable().view(ctx, item.CableID)
+			cable, err := s.es.GetCable().view(ctx, item.CableID)
 			if err != nil {
 				return &output, err
 			}
@@ -679,10 +588,10 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 
 	if len(item.Ref) > 0 {
 		if check {
-			return s.cs.GetTag().SetValue(ctx, &pb.TagValue{Id: item.Ref, Value: in.GetValue()})
+			return s.es.GetTag().SetValue(ctx, &pb.TagValue{Id: item.Ref, Value: in.GetValue()})
 		}
 
-		return s.cs.GetTag().SetValueUnchecked(ctx, &pb.TagValue{Id: item.Ref, Value: in.GetValue()})
+		return s.es.GetTag().SetValueUnchecked(ctx, &pb.TagValue{Id: item.Ref, Value: in.GetValue()})
 	}
 
 	if err = s.updateWireValue(ctx, &item, in.GetValue(), t); err != nil {
@@ -698,9 +607,9 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 	return &output, nil
 }
 
-func (s *WireService) GetValueByName(ctx context.Context, in *cores.GetWireValueByNameRequest) (*cores.WireNameValue, error) {
+func (s *WireService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.WireNameValue, error) {
 	var err error
-	var output cores.WireNameValue
+	var output pb.WireNameValue
 
 	// basic validation
 	{
@@ -708,25 +617,20 @@ func (s *WireService) GetValueByName(ctx context.Context, in *cores.GetWireValue
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
-		}
-
 		if len(in.GetName()) == 0 {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire name")
 		}
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.viewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
 
-	output.DeviceId = in.GetDeviceId()
 	output.Name = in.GetName()
 
 	if len(item.Ref) > 0 {
-		tagValue, err := s.cs.GetTag().GetValue(ctx, &pb.Id{Id: item.Ref})
+		tagValue, err := s.es.GetTag().GetValue(ctx, &pb.Id{Id: item.Ref})
 		if err != nil {
 			return &output, err
 		}
@@ -752,15 +656,15 @@ func (s *WireService) GetValueByName(ctx context.Context, in *cores.GetWireValue
 	return &output, nil
 }
 
-func (s *WireService) SetValueByName(ctx context.Context, in *cores.WireNameValue) (*pb.MyBool, error) {
+func (s *WireService) SetValueByName(ctx context.Context, in *pb.WireNameValue) (*pb.MyBool, error) {
+	return s.setValueByName(ctx, in, true)
+}
+
+func (s *WireService) SetValueByNameUnchecked(ctx context.Context, in *pb.WireNameValue) (*pb.MyBool, error) {
 	return s.setValueByName(ctx, in, false)
 }
 
-func (s *WireService) SetValueByNameUnchecked(ctx context.Context, in *cores.WireNameValue) (*pb.MyBool, error) {
-	return s.setValueByName(ctx, in, false)
-}
-
-func (s *WireService) setValueByName(ctx context.Context, in *cores.WireNameValue, check bool) (*pb.MyBool, error) {
+func (s *WireService) setValueByName(ctx context.Context, in *pb.WireNameValue, check bool) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -770,10 +674,6 @@ func (s *WireService) setValueByName(ctx context.Context, in *cores.WireNameValu
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
-		}
-
 		if len(in.GetName()) == 0 {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire name")
 		}
@@ -781,16 +681,6 @@ func (s *WireService) setValueByName(ctx context.Context, in *cores.WireNameValu
 		if len(in.GetValue()) == 0 {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
 		}
-	}
-
-	// device
-	device, err := s.cs.GetDevice().view(ctx, in.GetDeviceId())
-	if err != nil {
-		return &output, err
-	}
-
-	if device.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Device Status != ON")
 	}
 
 	// name
@@ -808,7 +698,7 @@ func (s *WireService) setValueByName(ctx context.Context, in *cores.WireNameValu
 	}
 
 	// cable
-	cable, err := s.cs.GetCable().viewByDeviceIDAndName(ctx, device.ID, cableName)
+	cable, err := s.es.GetCable().viewByName(ctx, cableName)
 	if err != nil {
 		return &output, err
 	}
@@ -840,10 +730,10 @@ func (s *WireService) setValueByName(ctx context.Context, in *cores.WireNameValu
 
 	if len(item.Ref) > 0 {
 		if check {
-			return s.cs.GetTag().SetValue(ctx, &pb.TagValue{Id: item.Ref, Value: in.GetValue()})
+			return s.es.GetTag().SetValue(ctx, &pb.TagValue{Id: item.Ref, Value: in.GetValue()})
 		}
 
-		return s.cs.GetTag().SetValueUnchecked(ctx, &pb.TagValue{Id: item.Ref, Value: in.GetValue()})
+		return s.es.GetTag().SetValueUnchecked(ctx, &pb.TagValue{Id: item.Ref, Value: in.GetValue()})
 	}
 
 	if err = s.updateWireValue(ctx, &item, in.GetValue(), time.Now()); err != nil {
@@ -864,7 +754,7 @@ func (s *WireService) view(ctx context.Context, id string) (model.Wire, error) {
 		ID: id,
 	}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
+	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return item, status.Errorf(codes.NotFound, "Query: %v, WireID: %v", err, item.ID)
@@ -876,7 +766,7 @@ func (s *WireService) view(ctx context.Context, id string) (model.Wire, error) {
 	return item, nil
 }
 
-func (s *WireService) viewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Wire, error) {
+func (s *WireService) viewByName(ctx context.Context, name string) (model.Wire, error) {
 	item := model.Wire{}
 
 	cableName := consts.DEFAULT_CABLE
@@ -890,9 +780,10 @@ func (s *WireService) viewByDeviceIDAndName(ctx context.Context, deviceID, name 
 
 		cableName = splits[0]
 		itemName = splits[1]
+
 	}
 
-	cable, err := s.cs.GetCable().viewByDeviceIDAndName(ctx, deviceID, cableName)
+	cable, err := s.es.GetCable().viewByName(ctx, cableName)
 	if err != nil {
 		return item, err
 	}
@@ -903,7 +794,7 @@ func (s *WireService) viewByDeviceIDAndName(ctx context.Context, deviceID, name 
 func (s *WireService) viewByCableIDAndName(ctx context.Context, cableID, name string) (model.Wire, error) {
 	item := model.Wire{}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).Where("cable_id = ?", cableID).Where("name = ?", name).Scan(ctx)
+	err := s.es.GetDB().NewSelect().Model(&item).Where("cable_id = ?", cableID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return item, status.Errorf(codes.NotFound, "Query: %v, Wire CableID: %v, Name: %v", err, cableID, name)
@@ -917,7 +808,6 @@ func (s *WireService) viewByCableIDAndName(ctx context.Context, cableID, name st
 
 func (s *WireService) copyModelToOutput(output *pb.Wire, item *model.Wire) {
 	output.Id = item.ID
-	output.DeviceId = item.DeviceID
 	output.CableId = item.CableID
 	output.Name = item.Name
 	output.Desc = item.Desc
@@ -939,7 +829,12 @@ func (s *WireService) copyModelToOutput(output *pb.Wire, item *model.Wire) {
 func (s *WireService) afterUpdate(ctx context.Context, item *model.Wire) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	err = s.es.GetSync().setWireUpdated(ctx, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -950,7 +845,12 @@ func (s *WireService) afterUpdate(ctx context.Context, item *model.Wire) error {
 func (s *WireService) afterDelete(ctx context.Context, item *model.Wire) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	err = s.es.GetSync().setWireUpdated(ctx, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -960,7 +860,7 @@ func (s *WireService) afterDelete(ctx context.Context, item *model.Wire) error {
 
 func (s *WireService) getWireValue(ctx context.Context, item *model.Wire) (string, error) {
 	if len(item.Ref) > 0 {
-		tagValue, err := s.cs.GetTag().GetValue(ctx, &pb.Id{Id: item.Ref})
+		tagValue, err := s.es.GetTag().GetValue(ctx, &pb.Id{Id: item.Ref})
 		if err != nil {
 			return "", err
 		}
@@ -986,14 +886,13 @@ func (s *WireService) updateWireValue(ctx context.Context, item *model.Wire, val
 	var err error
 
 	item2 := model.WireValue{
-		ID:       item.ID,
-		DeviceID: item.DeviceID,
-		CableID:  item.CableID,
-		Value:    value,
-		Updated:  updated,
+		ID:      item.ID,
+		CableID: item.CableID,
+		Value:   value,
+		Updated: updated,
 	}
 
-	ret, err := s.cs.GetDB().NewUpdate().Model(&item2).WherePK().WhereAllWithDeleted().Exec(ctx)
+	ret, err := s.es.GetDB().NewUpdate().Model(&item2).WherePK().WhereAllWithDeleted().Exec(ctx)
 	if err != nil {
 		return status.Errorf(codes.Internal, "Update: %v", err)
 	}
@@ -1004,7 +903,7 @@ func (s *WireService) updateWireValue(ctx context.Context, item *model.Wire, val
 	}
 
 	if n < 1 {
-		_, err = s.cs.GetDB().NewInsert().Model(&item2).Exec(ctx)
+		_, err = s.es.GetDB().NewInsert().Model(&item2).Exec(ctx)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}
@@ -1016,7 +915,7 @@ func (s *WireService) updateWireValue(ctx context.Context, item *model.Wire, val
 func (s *WireService) afterUpdateValue(ctx context.Context, item *model.Wire, value string) error {
 	var err error
 
-	err = s.cs.GetSync().setWireValueUpdated(ctx, item.DeviceID, time.Now())
+	err = s.es.GetSync().setWireValueUpdated(ctx, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -1054,10 +953,10 @@ func (s *WireService) viewWithDeleted(ctx context.Context, id string) (model.Wir
 		ID: id,
 	}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
+	err := s.es.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, wireID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, WireID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -1066,9 +965,9 @@ func (s *WireService) viewWithDeleted(ctx context.Context, id string) (model.Wir
 	return item, nil
 }
 
-func (s *WireService) Pull(ctx context.Context, in *cores.PullWireRequest) (*cores.PullWireResponse, error) {
+func (s *WireService) Pull(ctx context.Context, in *edges.PullWireRequest) (*edges.PullWireResponse, error) {
 	var err error
-	var output cores.PullWireResponse
+	var output edges.PullWireResponse
 
 	// basic validation
 	{
@@ -1082,11 +981,7 @@ func (s *WireService) Pull(ctx context.Context, in *cores.PullWireRequest) (*cor
 
 	var items []model.Wire
 
-	query := s.cs.GetDB().NewSelect().Model(&items)
-
-	if len(in.GetDeviceId()) > 0 {
-		query.Where("device_id = ?", in.GetDeviceId())
-	}
+	query := s.es.GetDB().NewSelect().Model(&items)
 
 	if len(in.GetCableId()) > 0 {
 		query.Where("cable_id = ?", in.GetCableId())
@@ -1153,7 +1048,7 @@ func (s *WireService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, e
 		return &output, err
 	}
 
-	_, err = s.cs.GetDB().NewDelete().Model(&item).WherePK().Exec(ctx)
+	_, err = s.es.GetDB().NewDelete().Model(&item).WherePK().Exec(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Delete: %v", err)
 	}
@@ -1163,9 +1058,9 @@ func (s *WireService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, e
 	return &output, nil
 }
 
-func (s *WireService) PullValue(ctx context.Context, in *cores.PullWireValueRequest) (*cores.PullWireValueResponse, error) {
+func (s *WireService) PullValue(ctx context.Context, in *edges.PullWireValueRequest) (*edges.PullWireValueResponse, error) {
 	var err error
-	var output cores.PullWireValueResponse
+	var output edges.PullWireValueResponse
 
 	// basic validation
 	{
@@ -1179,11 +1074,7 @@ func (s *WireService) PullValue(ctx context.Context, in *cores.PullWireValueRequ
 
 	var items []model.WireValue
 
-	query := s.cs.GetDB().NewSelect().Model(&items)
-
-	if len(in.GetDeviceId()) > 0 {
-		query.Where("device_id = ?", in.GetDeviceId())
-	}
+	query := s.es.GetDB().NewSelect().Model(&items)
 
 	err = query.Where("updated > ?", time.UnixMilli(in.GetAfter())).Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
 	if err != nil {
@@ -1206,7 +1097,7 @@ func (s *WireService) viewValueUpdated(ctx context.Context, id string) (model.Wi
 		ID: id,
 	}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
+	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return item, status.Errorf(codes.NotFound, "Query: %v, WireID: %v", err, item.ID)
@@ -1220,7 +1111,6 @@ func (s *WireService) viewValueUpdated(ctx context.Context, id string) (model.Wi
 
 func (s *WireService) copyModelToOutputWireValue(output *pb.WireValueUpdated, item *model.WireValue) {
 	output.Id = item.ID
-	output.DeviceId = item.DeviceID
 	output.CableId = item.CableID
 	output.Value = item.Value
 	output.Updated = item.Updated.UnixMilli()

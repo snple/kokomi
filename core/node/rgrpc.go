@@ -5,19 +5,19 @@ import (
 	"snple.com/kokomi/pb/edges"
 )
 
-type RrpcService struct {
+type RgrpcService struct {
 	ns *NodeService
 
 	rgrpc.UnimplementedRgrpcServiceServer
 }
 
-var _ rgrpc.RgrpcServiceServer = (*RrpcService)(nil)
+var _ rgrpc.RgrpcServiceServer = (*RgrpcService)(nil)
 
-func newRrpcService(ns *NodeService) *RrpcService {
-	return &RrpcService{ns: ns}
+func newRgrpcService(ns *NodeService) *RgrpcService {
+	return &RgrpcService{ns: ns}
 }
 
-func (s *RrpcService) OpenRgrpc(stream rgrpc.RgrpcService_OpenRgrpcServer) error {
+func (s *RgrpcService) OpenRgrpc(stream rgrpc.RgrpcService_OpenRgrpcServer) error {
 	channel := rgrpc.NewClient(stream)
 	defer channel.Close()
 

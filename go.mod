@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/BurntSushi/toml v1.2.1
+	github.com/cenkalti/backoff/v4 v4.2.0
 	github.com/danclive/nson-go v0.6.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/influxdata/influxdb-client-go/v2 v2.12.2

@@ -2,7 +2,9 @@ package core
 
 import (
 	"context"
+	"log"
 	"sync"
+	"time"
 
 	"github.com/snple/types"
 	"github.com/uptrace/bun"
@@ -29,6 +31,7 @@ type CoreService struct {
 	variable    *VarService
 	cable       *CableService
 	wire        *WireService
+	data        *DataService
 	control     *ControlService
 
 	clone *cloneService
@@ -41,7 +44,7 @@ type CoreService struct {
 }
 
 func Core(db *bun.DB, opts ...CoreOption) (*CoreService, error) {
-	return CoreContext(context.Background(), db)
+	return CoreContext(context.Background(), db, opts...)
 }
 
 func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreService, error) {
@@ -79,6 +82,7 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.variable = newVarService(cs)
 	cs.cable = newCableService(cs)
 	cs.wire = newWireService(cs)
+	cs.data = newDateService(cs)
 	cs.control = newControlService(cs)
 
 	cs.clone = newCloneService(cs)
@@ -161,6 +165,10 @@ func (cs *CoreService) GetWire() *WireService {
 	return cs.wire
 }
 
+func (cs *CoreService) GetData() *DataService {
+	return cs.data
+}
+
 func (cs *CoreService) GetControl() *ControlService {
 	return cs.control
 }
@@ -190,6 +198,7 @@ func (cs *CoreService) Register(server *grpc.Server) {
 	cores.RegisterVarServiceServer(server, cs.variable)
 	cores.RegisterCableServiceServer(server, cs.cable)
 	cores.RegisterWireServiceServer(server, cs.wire)
+	cores.RegisterDataServiceServer(server, cs.data)
 	cores.RegisterControlServiceServer(server, cs.control)
 }
 
@@ -218,4 +227,68 @@ func CreateSchema(db bun.IDB) error {
 		}
 	}
 	return nil
+}
+
+type coreOptions struct {
+	influxdb      *db.InfluxDB
+	linkStatusTTL time.Duration
+	valueCacheTTL time.Duration
+	logger        *zap.Logger
+}
+
+func defaultCoreOptions() coreOptions {
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Fatalf("zap.NewDevelopment(): %v", err)
+	}
+
+	return coreOptions{
+		linkStatusTTL: 3 * time.Minute,
+		valueCacheTTL: 3 * time.Minute,
+		logger:        logger,
+	}
+}
+
+type CoreOption interface {
+	apply(*coreOptions)
+}
+
+var extraCoreOptions []CoreOption
+
+type funcCoreOption struct {
+	f func(*coreOptions)
+}
+
+func (fdo *funcCoreOption) apply(do *coreOptions) {
+	fdo.f(do)
+}
+
+func newFuncCoreOption(f func(*coreOptions)) *funcCoreOption {
+	return &funcCoreOption{
+		f: f,
+	}
+}
+
+func WithInfluxDB(influxdb *db.InfluxDB) CoreOption {
+	return newFuncCoreOption(func(o *coreOptions) {
+		o.influxdb = influxdb
+	})
+}
+
+func WithLinkStatusTTL(d time.Duration) CoreOption {
+	return newFuncCoreOption(func(o *coreOptions) {
+		o.linkStatusTTL = d
+	})
+}
+
+func WithValueCacheTTL(d time.Duration) CoreOption {
+	return newFuncCoreOption(func(o *coreOptions) {
+		o.valueCacheTTL = d
+	})
+}
+
+func WithLogger(logger *zap.Logger) CoreOption {
+	return newFuncCoreOption(func(o *coreOptions) {
+		o.logger = logger
+	})
 }

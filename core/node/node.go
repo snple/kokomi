@@ -2,8 +2,11 @@ package node
 
 import (
 	"context"
+	"crypto/tls"
 	"sync"
+	"time"
 
+	"github.com/quic-go/quic-go"
 	"github.com/snple/rgrpc"
 	"github.com/snple/types"
 	"go.uber.org/zap"
@@ -27,7 +30,8 @@ type NodeService struct {
 	variable    *VarService
 	cable       *CableService
 	wire        *WireService
-	rgrpc       *RrpcService
+	data        *DataService
+	rgrpc       *RgrpcService
 	quic        types.Option[*QuicService]
 
 	ctx     context.Context
@@ -44,6 +48,7 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 		cs:     cs,
 		ctx:    ctx,
 		cancel: cancel,
+		dopts:  defaultNodeOptions(),
 	}
 
 	for _, opt := range extraNodeOptions {
@@ -66,7 +71,8 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 	ns.variable = newVarService(ns)
 	ns.cable = newCableService(ns)
 	ns.wire = newWireService(ns)
-	ns.rgrpc = newRrpcService(ns)
+	ns.data = newDataService(ns)
+	ns.rgrpc = newRgrpcService(ns)
 
 	if ns.dopts.quicOptions != nil {
 		quic, err := newQuicService(ns)
@@ -125,5 +131,63 @@ func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 	nodes.RegisterVarServiceServer(server, ns.variable)
 	nodes.RegisterCableServiceServer(server, ns.cable)
 	nodes.RegisterWireServiceServer(server, ns.wire)
+	nodes.RegisterDataServiceServer(server, ns.data)
 	rgrpc.RegisterRgrpcServiceServer(server, ns.rgrpc)
+}
+
+type nodeOptions struct {
+	quicOptions      *quicOptions
+	quicPingInterval time.Duration
+}
+
+type quicOptions struct {
+	Addr       string
+	TLSConfig  *tls.Config
+	QUICConfig *quic.Config
+}
+
+func defaultNodeOptions() nodeOptions {
+	return nodeOptions{
+		quicPingInterval: 60 * time.Second,
+	}
+}
+
+type NodeOption interface {
+	apply(*nodeOptions)
+}
+
+var extraNodeOptions []NodeOption
+
+type funcNodeOption struct {
+	f func(*nodeOptions)
+}
+
+func (fdo *funcNodeOption) apply(do *nodeOptions) {
+	fdo.f(do)
+}
+
+func newFuncNodeOption(f func(*nodeOptions)) *funcNodeOption {
+	return &funcNodeOption{
+		f: f,
+	}
+}
+
+func WithQuic(addr string, tlsConfig *tls.Config, quicConfig *quic.Config) NodeOption {
+	return newFuncNodeOption(func(o *nodeOptions) {
+		tlsConfig2 := tlsConfig.Clone()
+		if len(tlsConfig2.NextProtos) == 0 {
+			tlsConfig2.NextProtos = []string{"kokomi"}
+		}
+
+		quicConfig2 := quicConfig.Clone()
+		quicConfig2.EnableDatagrams = true
+
+		o.quicOptions = &quicOptions{addr, tlsConfig2, quicConfig2}
+	})
+}
+
+func WithQuicPingInterval(d time.Duration) NodeOption {
+	return newFuncNodeOption(func(o *nodeOptions) {
+		o.quicPingInterval = d
+	})
 }
