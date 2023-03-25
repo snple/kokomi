@@ -3,6 +3,7 @@ package edge
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"log"
 	"sync"
 	"time"
@@ -73,6 +74,10 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 		opt.apply(&es.dopts)
 	}
 
+	if err := es.dopts.check(); err != nil {
+		return nil, err
+	}
+
 	es.status = newStatusService(es)
 	es.sync = newSyncService(es)
 	es.device = newDeviceService(es)
@@ -103,6 +108,13 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 }
 
 func (es *EdgeService) Start() {
+	go func() {
+		es.closeWG.Add(1)
+		defer es.closeWG.Done()
+
+		es.GetWire().Start()
+	}()
+
 	go func() {
 		es.closeWG.Add(1)
 		defer es.closeWG.Done()
@@ -141,6 +153,7 @@ func (es *EdgeService) Stop() {
 		quic.Unwrap().Stop()
 	}
 	es.GetNode().Stop()
+	es.GetWire().Stop()
 }
 
 func (es *EdgeService) GetDB() *bun.DB {
@@ -274,11 +287,24 @@ func CreateSchema(db bun.IDB) error {
 }
 
 type edgeOptions struct {
+	deviceID string
+	secret   string
+
+	nodeOptions   *nodeOptions
 	quicOptions   *quicOptions
 	influxdb      *db.InfluxDB
 	linkStatusTTL time.Duration
 	valueCacheTTL time.Duration
 	logger        *zap.Logger
+
+	tokenRefresh              time.Duration
+	syncLinkStatus            time.Duration
+	syncWireValueFromTagValue time.Duration
+}
+
+type nodeOptions struct {
+	Addr    string
+	Options []grpc.DialOption
 }
 
 type quicOptions struct {
@@ -294,10 +320,21 @@ func defaultEdgeOptions() edgeOptions {
 	}
 
 	return edgeOptions{
-		linkStatusTTL: 3 * time.Minute,
-		valueCacheTTL: 3 * time.Minute,
-		logger:        logger,
+		linkStatusTTL:             3 * time.Minute,
+		valueCacheTTL:             3 * time.Minute,
+		logger:                    logger,
+		tokenRefresh:              30 * time.Minute,
+		syncLinkStatus:            time.Minute,
+		syncWireValueFromTagValue: time.Minute,
 	}
+}
+
+func (o *edgeOptions) check() error {
+	if o.nodeOptions == nil {
+		return errors.New("Please supply valid node options")
+	}
+
+	return nil
 }
 
 type EdgeOption interface {
@@ -318,6 +355,12 @@ func newFuncEdgeOption(f func(*edgeOptions)) *funcEdgeOption {
 	return &funcEdgeOption{
 		f: f,
 	}
+}
+
+func WithNode(addr string, options []grpc.DialOption) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.nodeOptions = &nodeOptions{addr, options}
+	})
 }
 
 func WithQuic(addr string, tlsConfig *tls.Config, quicConfig *quic.Config) EdgeOption {
@@ -355,5 +398,23 @@ func WithValueCacheTTL(d time.Duration) EdgeOption {
 func WithLogger(logger *zap.Logger) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		o.logger = logger
+	})
+}
+
+func WithTokenRefresh(d time.Duration) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.tokenRefresh = d
+	})
+}
+
+func WithSyncLinkStatus(d time.Duration) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.syncLinkStatus = d
+	})
+}
+
+func WithSyncWireValueFromTagValue(d time.Duration) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.syncWireValueFromTagValue = d
 	})
 }

@@ -28,10 +28,10 @@ message Wire {
     string tags = 6;
     string type = 7;
     string data_type = 8;
-    string ref = 9;
-    string value = 10;
-    string h_value = 11;
-    string l_value = 12;
+    string value = 9;
+    string h_value = 10;
+    string l_value = 11;
+    string tag_id = 12;
     string config = 13;
     sint32 status = 14;
     sint32 access = 15;

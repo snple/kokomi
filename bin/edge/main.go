@@ -41,6 +41,37 @@ func main() {
 
 	opts := make([]edge.EdgeOption, 0)
 
+	{
+		kacp := keepalive.ClientParameters{
+			Time:                120 * time.Second, // send pings every 120 seconds if there is no activity
+			Timeout:             10 * time.Second,  // wait 10 second for ping ack before considering the connection dead
+			PermitWithoutStream: true,              // send pings even without active streams
+		}
+
+		grpcOpts := []grpc.DialOption{
+			grpc.WithKeepaliveParams(kacp),
+		}
+
+		if config.Config.NodeClient.TLS {
+			tlsConfig, err := util.LoadClientCert(
+				config.Config.NodeClient.CA,
+				config.Config.NodeClient.Cert,
+				config.Config.NodeClient.Key,
+				config.Config.NodeClient.ServerName,
+				config.Config.NodeClient.InsecureSkipVerify,
+			)
+			if err != nil {
+				log.Logger.Sugar().Fatalf("LoadClientCert: %v", err)
+			}
+
+			grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+		} else {
+			grpcOpts = append(grpcOpts, grpc.WithInsecure())
+		}
+
+		opts = append(opts, edge.WithNode(config.Config.NodeClient.Addr, grpcOpts))
+	}
+
 	es, err := edge.Edge(sqlitedb, opts...)
 	if err != nil {
 		log.Logger.Sugar().Fatalf("NewEdgeService: %v", err)
@@ -68,7 +99,7 @@ func main() {
 			log.Logger.Sugar().Fatalf("failed to listen: %v", err)
 		}
 
-		s := grpc.NewServer(opts...)
+		s := grpc.NewServer(opts)
 
 		es.Register(s)
 

@@ -58,9 +58,9 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 		Type:     in.GetType(),
 		Tags:     in.GetTags(),
 		DataType: in.GetDataType(),
-		Ref:      in.GetRef(),
 		HValue:   in.GetHValue(),
 		LValue:   in.GetLValue(),
+		TagID:    in.GetTagId(),
 		Config:   in.GetConfig(),
 		Status:   in.GetStatus(),
 		Access:   in.GetAccess(),
@@ -80,8 +80,8 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 	}
 
 	// tag validation
-	if in.GetRef() != "" {
-		tag, err := s.cs.GetTag().view(ctx, in.GetRef())
+	if in.GetTagId() != "" {
+		tag, err := s.cs.GetTag().view(ctx, in.GetTagId())
 		if err != nil {
 			return &output, err
 		}
@@ -192,8 +192,8 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 	}
 
 	// tag validation
-	if in.GetRef() != "" {
-		tag, err := s.cs.GetTag().view(ctx, in.GetRef())
+	if in.GetTagId() != "" {
+		tag, err := s.cs.GetTag().view(ctx, in.GetTagId())
 		if err != nil {
 			return &output, err
 		}
@@ -208,9 +208,9 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 	item.Tags = in.GetTags()
 	item.Type = in.GetType()
 	item.DataType = in.GetDataType()
-	item.Ref = in.GetRef()
 	item.HValue = in.GetHValue()
 	item.LValue = in.GetLValue()
+	item.TagID = in.GetTagId()
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
 	item.Access = in.GetAccess()
@@ -550,36 +550,21 @@ func (s *WireService) GetValue(ctx context.Context, in *pb.Id) (*pb.WireValue, e
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	output.Id = in.GetId()
+
+	item2, err := s.viewValueUpdated(ctx, in.GetId())
 	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return &output, nil
+			}
+		}
+
 		return &output, err
 	}
 
-	output.Id = in.GetId()
-
-	if len(item.Ref) > 0 {
-		tagValue, err := s.cs.GetTag().GetValue(ctx, &pb.Id{Id: item.Ref})
-		if err != nil {
-			return &output, err
-		}
-
-		output.Value = tagValue.GetValue()
-		output.Updated = tagValue.GetUpdated()
-	} else {
-		item2, err := s.viewValueUpdated(ctx, in.GetId())
-		if err != nil {
-			if code, ok := status.FromError(err); ok {
-				if code.Code() == codes.NotFound {
-					return &output, nil
-				}
-			}
-
-			return &output, err
-		}
-
-		output.Value = item2.Value
-		output.Updated = item2.Updated.UnixMilli()
-	}
+	output.Value = item2.Value
+	output.Updated = item2.Updated.UnixMilli()
 
 	return &output, nil
 }
@@ -624,10 +609,6 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 	item, err := s.view(ctx, in.GetId())
 	if err != nil {
 		return &output, err
-	}
-
-	if len(item.Ref) > 0 {
-		isSync = false
 	}
 
 	t := time.Now()
@@ -677,14 +658,6 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 		}
 	}
 
-	if len(item.Ref) > 0 {
-		if check {
-			return s.cs.GetTag().SetValue(ctx, &pb.TagValue{Id: item.Ref, Value: in.GetValue()})
-		}
-
-		return s.cs.GetTag().SetValueUnchecked(ctx, &pb.TagValue{Id: item.Ref, Value: in.GetValue()})
-	}
-
 	if err = s.updateWireValue(ctx, &item, in.GetValue(), t); err != nil {
 		return &output, err
 	}
@@ -725,29 +698,19 @@ func (s *WireService) GetValueByName(ctx context.Context, in *cores.GetWireValue
 	output.DeviceId = in.GetDeviceId()
 	output.Name = in.GetName()
 
-	if len(item.Ref) > 0 {
-		tagValue, err := s.cs.GetTag().GetValue(ctx, &pb.Id{Id: item.Ref})
-		if err != nil {
-			return &output, err
-		}
-
-		output.Value = tagValue.GetValue()
-		output.Updated = tagValue.GetUpdated()
-	} else {
-		item2, err := s.viewValueUpdated(ctx, item.ID)
-		if err != nil {
-			if code, ok := status.FromError(err); ok {
-				if code.Code() == codes.NotFound {
-					return &output, nil
-				}
+	item2, err := s.viewValueUpdated(ctx, item.ID)
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return &output, nil
 			}
-
-			return &output, err
 		}
 
-		output.Value = item2.Value
-		output.Updated = item2.Updated.UnixMilli()
+		return &output, err
 	}
+
+	output.Value = item2.Value
+	output.Updated = item2.Updated.UnixMilli()
 
 	return &output, nil
 }
@@ -838,14 +801,6 @@ func (s *WireService) setValueByName(ctx context.Context, in *cores.WireNameValu
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	if len(item.Ref) > 0 {
-		if check {
-			return s.cs.GetTag().SetValue(ctx, &pb.TagValue{Id: item.Ref, Value: in.GetValue()})
-		}
-
-		return s.cs.GetTag().SetValueUnchecked(ctx, &pb.TagValue{Id: item.Ref, Value: in.GetValue()})
-	}
-
 	if err = s.updateWireValue(ctx, &item, in.GetValue(), time.Now()); err != nil {
 		return &output, err
 	}
@@ -924,9 +879,9 @@ func (s *WireService) copyModelToOutput(output *pb.Wire, item *model.Wire) {
 	output.Tags = item.Tags
 	output.Type = item.Type
 	output.DataType = item.DataType
-	output.Ref = item.Ref
 	output.HValue = item.HValue
 	output.LValue = item.LValue
+	output.TagId = item.TagID
 	output.Config = item.Config
 	output.Status = item.Status
 	output.Access = item.Access
@@ -959,15 +914,6 @@ func (s *WireService) afterDelete(ctx context.Context, item *model.Wire) error {
 }
 
 func (s *WireService) getWireValue(ctx context.Context, item *model.Wire) (string, error) {
-	if len(item.Ref) > 0 {
-		tagValue, err := s.cs.GetTag().GetValue(ctx, &pb.Id{Id: item.Ref})
-		if err != nil {
-			return "", err
-		}
-
-		return tagValue.GetValue(), nil
-	}
-
 	item2, err := s.viewValueUpdated(ctx, item.ID)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {

@@ -11,16 +11,12 @@ import (
 	"github.com/snple/rgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/status"
-	"snple.com/kokomi/bin/edge/config"
 	"snple.com/kokomi/consts"
 	"snple.com/kokomi/edge/model"
 	"snple.com/kokomi/pb"
 	"snple.com/kokomi/pb/edges"
 	"snple.com/kokomi/pb/nodes"
-	"snple.com/kokomi/util"
 	"snple.com/kokomi/util/metadata"
 )
 
@@ -42,36 +38,9 @@ type NodeService struct {
 func newNodeService(es *EdgeService) (*NodeService, error) {
 	var err error
 
-	kacp := keepalive.ClientParameters{
-		Time:                120 * time.Second, // send pings every 120 seconds if there is no activity
-		Timeout:             10 * time.Second,  // wait 10 second for ping ack before considering the connection dead
-		PermitWithoutStream: true,              // send pings even without active streams
-	}
+	es.Logger().Sugar().Infof("link node service: %v", es.dopts.nodeOptions.Addr)
 
-	opts := []grpc.DialOption{
-		grpc.WithKeepaliveParams(kacp),
-	}
-
-	if config.Config.NodeClient.TLS {
-		tlsConfig, err := util.LoadClientCert(
-			config.Config.NodeClient.CA,
-			config.Config.NodeClient.Cert,
-			config.Config.NodeClient.Key,
-			config.Config.NodeClient.ServerName,
-			config.Config.NodeClient.InsecureSkipVerify,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
-	} else {
-		opts = append(opts, grpc.WithInsecure())
-	}
-
-	es.Logger().Sugar().Infof("link node service: %v, tls: %v", config.Config.NodeClient.Addr, config.Config.NodeClient.TLS)
-
-	nodeConn, err := grpc.Dial(config.Config.NodeClient.Addr, opts...)
+	nodeConn, err := grpc.Dial(es.dopts.nodeOptions.Addr, es.dopts.nodeOptions.Options)
 	if err != nil {
 		return nil, err
 	}
@@ -159,17 +128,17 @@ func (s *NodeService) ticker() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
-	loginTicker := time.NewTicker(time.Duration(config.Config.Sync.LoginInterval) * time.Second)
-	defer loginTicker.Stop()
+	tokenRefreshTicker := time.NewTicker(s.es.dopts.tokenRefresh)
+	defer tokenRefreshTicker.Stop()
 
-	syncLinkStatusTicker := time.NewTicker(time.Duration(config.Config.Sync.LinkStatusInterval) * time.Second)
+	syncLinkStatusTicker := time.NewTicker(s.es.dopts.syncLinkStatus)
 	defer syncLinkStatusTicker.Stop()
 
 	for {
 		select {
 		case <-s.ctx.Done():
 			return
-		case <-loginTicker.C:
+		case <-tokenRefreshTicker.C:
 			if s.es.GetStatus().GetDeviceLink() == consts.ON {
 				err := s.login(s.ctx)
 				if err != nil {
@@ -177,12 +146,14 @@ func (s *NodeService) ticker() {
 				}
 			}
 		case <-syncLinkStatusTicker.C:
-			if s.es.GetStatus().GetDeviceLink() == consts.ON {
-				err := s.linkDevice()
-				if err != nil {
-					s.es.Logger().Sugar().Errorf("link device : %v", err)
-				} else {
-					s.es.Logger().Sugar().Info("link device ticker success")
+			if option := s.es.GetQuic(); option.IsNone() {
+				if s.es.GetStatus().GetDeviceLink() == consts.ON {
+					err := s.linkDevice()
+					if err != nil {
+						s.es.Logger().Sugar().Errorf("link device : %v", err)
+					} else {
+						s.es.Logger().Sugar().Info("link device ticker success")
+					}
 				}
 			}
 		}
@@ -285,7 +256,7 @@ func (s *NodeService) login(ctx context.Context) error {
 
 	var err error
 
-	option_device_id := config.Config.DeviceID
+	option_device_id := s.es.dopts.deviceID
 
 	{
 		has, err := s.es.GetOption().Has(ctx, model.OPTION_DEVICE_ID)
@@ -301,7 +272,7 @@ func (s *NodeService) login(ctx context.Context) error {
 		}
 	}
 
-	option_secret := config.Config.Secret
+	option_secret := s.es.dopts.secret
 
 	{
 		has, err := s.es.GetOption().Has(ctx, model.OPTION_SECRET)

@@ -553,11 +553,11 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 		}
 	}
 
-	if len(item.Address) == 0 {
-		s.SetTagValue(item.ID, nsonValue)
-	}
-
 	if check {
+		if len(item.Address) == 0 {
+			s.SetTagValue(item.ID, nsonValue)
+		}
+
 		if err = s.updateTagValue(ctx, &item, in.GetValue()); err != nil {
 			return &output, err
 		}
@@ -565,6 +565,8 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 		if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
 			return &output, err
 		}
+	} else {
+		s.SetTagValue(item.ID, nsonValue)
 	}
 
 	output.Bool = true
@@ -681,11 +683,11 @@ func (s *TagService) setValueByName(ctx context.Context, in *pb.TagNameValue, ch
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	if len(item.Address) == 0 {
-		s.SetTagValue(item.ID, nsonValue)
-	}
-
 	if check {
+		if len(item.Address) == 0 {
+			s.SetTagValue(item.ID, nsonValue)
+		}
+
 		if err = s.updateTagValue(ctx, &item, in.GetValue()); err != nil {
 			return &output, err
 		}
@@ -693,6 +695,8 @@ func (s *TagService) setValueByName(ctx context.Context, in *pb.TagNameValue, ch
 		if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
 			return &output, err
 		}
+	} else {
+		s.SetTagValue(item.ID, nsonValue)
 	}
 
 	output.Bool = true

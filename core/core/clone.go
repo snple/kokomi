@@ -260,9 +260,9 @@ func (s *cloneService) cloneDevice(ctx context.Context, db bun.IDB, deviceID str
 					wire.CableID = cable.ID
 					wire.DeviceID = cable.DeviceID
 
-					if wire.Ref != "" {
-						if tagId, ok := tagIdMap[wire.Ref]; ok {
-							wire.Ref = tagId
+					if wire.TagID != "" {
+						if tagId, ok := tagIdMap[wire.TagID]; ok {
+							wire.TagID = tagId
 						}
 					}
 
