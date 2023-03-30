@@ -40,7 +40,7 @@ func newNodeService(es *EdgeService) (*NodeService, error) {
 
 	es.Logger().Sugar().Infof("link node service: %v", es.dopts.nodeOptions.Addr)
 
-	nodeConn, err := grpc.Dial(es.dopts.nodeOptions.Addr, es.dopts.nodeOptions.Options)
+	nodeConn, err := grpc.Dial(es.dopts.nodeOptions.Addr, es.dopts.nodeOptions.Options...)
 	if err != nil {
 		return nil, err
 	}

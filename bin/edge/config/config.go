@@ -15,8 +15,7 @@ type ConfigStruct struct {
 	Secret      string      `toml:"secret"`
 	DB          DB          `toml:"db"`
 	NodeClient  GRPCClient  `toml:"node"`
-	QuicClient  QuicClient  `toml:"quicc"`
-	QuicService QuicService `toml:"quic"`
+	QuicClient  QuicClient  `toml:"quic"`
 	EdgeService GRPCService `toml:"edge"`
 	Status      Status      `toml:"status"`
 	Upload      Upload      `toml:"upload"`
@@ -99,12 +98,6 @@ func DefaultConfig() ConfigStruct {
 			Cert: "certs/client.crt",
 			Key:  "certs/client.key",
 		},
-		QuicService: QuicService{
-			Addr: "127.0.0.1:6009",
-			CA:   "certs/ca.crt",
-			Cert: "certs/server.crt",
-			Key:  "certs/server.key",
-		},
 		EdgeService: GRPCService{
 			Addr: "127.0.0.1:6010",
 			TLS:  true,
@@ -174,24 +167,6 @@ func (c *ConfigStruct) Validate() error {
 
 		if len(c.QuicClient.Key) == 0 {
 			return errors.New("QuicClient.Key must be specified")
-		}
-	}
-
-	if c.QuicService.Enable {
-		if len(c.QuicService.Addr) == 0 {
-			return errors.New("QuicService.Addr must be specified")
-		}
-
-		if len(c.QuicService.CA) == 0 {
-			return errors.New("QuicService.CA must be specified")
-		}
-
-		if len(c.QuicService.Cert) == 0 {
-			return errors.New("QuicService.Cert must be specified")
-		}
-
-		if len(c.QuicService.Key) == 0 {
-			return errors.New("QuicService.Key must be specified")
 		}
 	}
 

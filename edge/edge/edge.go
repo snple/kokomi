@@ -37,6 +37,7 @@ type EdgeService struct {
 	data     *DataService
 	control  *ControlService
 	quic     types.Option[*QuicService]
+	tunnel   types.Option[*TunnelService]
 
 	clone *cloneService
 
@@ -79,6 +80,13 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 	}
 
 	es.status = newStatusService(es)
+
+	node, err := newNodeService(es)
+	if err != nil {
+		return nil, err
+	}
+	es.node = node
+
 	es.sync = newSyncService(es)
 	es.device = newDeviceService(es)
 	es.slot = newSlotService(es)
@@ -100,6 +108,8 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 		}
 
 		es.quic = types.Some(quic)
+
+		es.tunnel = types.Some(newTunnelService(es))
 	}
 
 	es.clone = newCloneService(es)
@@ -131,7 +141,14 @@ func (es *EdgeService) Start() {
 		}()
 	}
 
-	// go GetProxyListener().Start()
+	if tunnel := es.tunnel; tunnel.IsSome() {
+		go func() {
+			es.closeWG.Add(1)
+			defer es.closeWG.Done()
+
+			tunnel.Unwrap().Start()
+		}()
+	}
 
 	// if upload := GetUpload(); upload.IsSome() {
 	// 	go upload.Unwrap().Start()
@@ -140,20 +157,22 @@ func (es *EdgeService) Start() {
 
 func (es *EdgeService) Stop() {
 	es.cancel()
-	es.closeWG.Wait()
 
 	es.dopts.logger.Sync()
 
 	// if upload := GetUpload(); upload.IsSome() {
 	// 	upload.Unwrap().Stop()
 	// }
-
-	// GetProxyListener().Stop()
+	if tunnel := es.tunnel; tunnel.IsSome() {
+		tunnel.Unwrap().Stop()
+	}
 	if quic := es.quic; quic.IsSome() {
 		quic.Unwrap().Stop()
 	}
 	es.GetNode().Stop()
 	es.GetWire().Stop()
+
+	es.closeWG.Wait()
 }
 
 func (es *EdgeService) GetDB() *bun.DB {
@@ -355,6 +374,13 @@ func newFuncEdgeOption(f func(*edgeOptions)) *funcEdgeOption {
 	return &funcEdgeOption{
 		f: f,
 	}
+}
+
+func WithDeviceID(id, secret string) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.deviceID = id
+		o.secret = secret
+	})
 }
 
 func WithNode(addr string, options []grpc.DialOption) EdgeOption {

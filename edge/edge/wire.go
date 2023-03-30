@@ -31,7 +31,7 @@ type WireService struct {
 }
 
 func newWireService(es *EdgeService) *WireService {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(es.Context())
 
 	return &WireService{
 		es:     es,

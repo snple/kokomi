@@ -22,8 +22,8 @@ import (
 type QuicService struct {
 	es *EdgeService
 
-	conn    types.Option[quic.Connection]
-	optLock sync.RWMutex
+	conn types.Option[quic.Connection]
+	lock sync.RWMutex
 
 	ctx     context.Context
 	cancel  func()
@@ -98,9 +98,9 @@ func (s *QuicService) loop() error {
 
 	s.es.Logger().Sugar().Info("quic connect success")
 
-	s.optLock.Lock()
+	s.lock.Lock()
 	s.conn = types.Some(conn)
-	s.optLock.Unlock()
+	s.lock.Unlock()
 
 	go s.accept(conn)
 
@@ -108,9 +108,9 @@ func (s *QuicService) loop() error {
 	<-context.Done()
 	s.es.Logger().Sugar().Errorf("break conn error: %v", context.Err())
 
-	s.optLock.Lock()
+	s.lock.Lock()
 	s.conn.Take()
-	s.optLock.Unlock()
+	s.lock.Unlock()
 
 	return nil
 }
@@ -243,8 +243,8 @@ func (s *QuicService) handleStream(stream quic.Stream) error {
 	s.incLinkNum(portId)
 
 	errChan := make(chan error)
-	go s.StreamCopy1(stream, conn, errChan)
-	go s.StreamCopy2(conn, stream, errChan)
+	go quicStreamCopy1(stream, conn, errChan)
+	go quicStreamCopy2(conn, stream, errChan)
 
 	err = <-errChan
 	if err != nil {
@@ -294,27 +294,9 @@ func (s *QuicService) openPort(rmessage nson.Message) (string, net.Conn, error) 
 	return port.GetId(), conn, nil
 }
 
-func (s *QuicService) StreamCopy1(dst quic.Stream, src net.Conn, errCh chan error) {
-	_, err := io.Copy(dst, src)
-	errCh <- err
-
-	dst.CancelWrite(1)
-}
-
-func (s *QuicService) StreamCopy2(dst net.Conn, src quic.Stream, errCh chan error) {
-	_, err := io.Copy(dst, src)
-	errCh <- err
-
-	if tc, ok := dst.(*net.TCPConn); ok {
-		tc.CloseWrite()
-	} else if tc, ok := dst.(*net.UnixConn); ok {
-		tc.CloseWrite()
-	}
-}
-
 func (s *QuicService) OpenStreamSync() (quic.Stream, error) {
-	s.optLock.RLock()
-	defer s.optLock.RUnlock()
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 
 	if s.conn.IsSome() {
 		return s.conn.Unwrap().OpenStreamSync(context.Background())
@@ -324,8 +306,8 @@ func (s *QuicService) OpenStreamSync() (quic.Stream, error) {
 }
 
 func (s *QuicService) incLinkNum(portId string) {
-	s.optLock.Lock()
-	defer s.optLock.Unlock()
+	s.lock.Lock()
+	defer s.lock.Unlock()
 
 	if num, ok := s.linkNum[portId]; ok {
 		s.linkNum[portId] = num + 1
@@ -335,8 +317,8 @@ func (s *QuicService) incLinkNum(portId string) {
 }
 
 func (s *QuicService) decLinkNum(portId string) {
-	s.optLock.Lock()
-	defer s.optLock.Unlock()
+	s.lock.Lock()
+	defer s.lock.Unlock()
 
 	if num, ok := s.linkNum[portId]; ok {
 		if num-1 == 0 {
@@ -360,7 +342,7 @@ func (s *QuicService) syncLinkStatus() {
 			return
 		case <-ticker.C:
 			{
-				s.optLock.RLock()
+				s.lock.RLock()
 				for portId, num := range s.linkNum {
 					go func(portId string, num int) {
 						request := edges.LinkPortRequest{Id: portId, Status: int32(num)}
@@ -369,8 +351,26 @@ func (s *QuicService) syncLinkStatus() {
 						s.es.GetPort().Link(ctx, &request)
 					}(portId, num)
 				}
-				s.optLock.RUnlock()
+				s.lock.RUnlock()
 			}
 		}
+	}
+}
+
+func quicStreamCopy1(dst quic.Stream, src net.Conn, errCh chan error) {
+	_, err := io.Copy(dst, src)
+	errCh <- err
+
+	dst.CancelWrite(1)
+}
+
+func quicStreamCopy2(dst net.Conn, src quic.Stream, errCh chan error) {
+	_, err := io.Copy(dst, src)
+	errCh <- err
+
+	if tc, ok := dst.(*net.TCPConn); ok {
+		tc.CloseWrite()
+	} else if tc, ok := dst.(*net.UnixConn); ok {
+		tc.CloseWrite()
 	}
 }

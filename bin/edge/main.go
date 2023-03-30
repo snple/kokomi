@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/quic-go/quic-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
@@ -42,6 +43,10 @@ func main() {
 	opts := make([]edge.EdgeOption, 0)
 
 	{
+		opts = append(opts, edge.WithDeviceID(config.Config.DeviceID, config.Config.Secret))
+	}
+
+	{
 		kacp := keepalive.ClientParameters{
 			Time:                120 * time.Second, // send pings every 120 seconds if there is no activity
 			Timeout:             10 * time.Second,  // wait 10 second for ping ack before considering the connection dead
@@ -72,6 +77,26 @@ func main() {
 		opts = append(opts, edge.WithNode(config.Config.NodeClient.Addr, grpcOpts))
 	}
 
+	{
+		tlsConfig, err := util.LoadClientCert(
+			config.Config.QuicClient.CA,
+			config.Config.QuicClient.Cert,
+			config.Config.QuicClient.Key,
+			config.Config.QuicClient.ServerName,
+			config.Config.QuicClient.InsecureSkipVerify,
+		)
+		if err != nil {
+			log.Logger.Sugar().Fatalf("LoadClientCert: %v", err)
+		}
+
+		quicConfig := &quic.Config{
+			EnableDatagrams: true,
+			MaxIdleTimeout:  time.Minute * 3,
+		}
+
+		opts = append(opts, edge.WithQuic(config.Config.QuicClient.Addr, tlsConfig, quicConfig))
+	}
+
 	es, err := edge.Edge(sqlitedb, opts...)
 	if err != nil {
 		log.Logger.Sugar().Fatalf("NewEdgeService: %v", err)
@@ -99,7 +124,7 @@ func main() {
 			log.Logger.Sugar().Fatalf("failed to listen: %v", err)
 		}
 
-		s := grpc.NewServer(opts)
+		s := grpc.NewServer(opts...)
 
 		es.Register(s)
 
