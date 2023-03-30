@@ -666,6 +666,10 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 		return &output, err
 	}
 
+	if err = s.updateValueToJumper(ctx, &item, in.GetValue(), t); err != nil {
+		return &output, err
+	}
+
 	output.Bool = true
 
 	return &output, nil
@@ -801,11 +805,17 @@ func (s *WireService) setValueByName(ctx context.Context, in *cores.WireNameValu
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	if err = s.updateWireValue(ctx, &item, in.GetValue(), time.Now()); err != nil {
+	t := time.Now()
+
+	if err = s.updateWireValue(ctx, &item, in.GetValue(), t); err != nil {
 		return &output, err
 	}
 
 	if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
+		return &output, err
+	}
+
+	if err = s.updateValueToJumper(ctx, &item, in.GetValue(), t); err != nil {
 		return &output, err
 	}
 
@@ -1170,4 +1180,41 @@ func (s *WireService) copyModelToOutputWireValue(output *pb.WireValueUpdated, it
 	output.CableId = item.CableID
 	output.Value = item.Value
 	output.Updated = item.Updated.UnixMilli()
+}
+
+func (s *WireService) updateValueToJumper(ctx context.Context, item *model.Wire, value string, updated time.Time) error {
+	jumpers, err := s.cs.GetJumper().listBySrcAndStatusON(ctx, item.CableID)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < len(jumpers); i++ {
+		cable, err := s.cs.GetCable().view(ctx, jumpers[i].DST)
+		if err != nil {
+			return err
+		}
+
+		if cable.Status != consts.ON {
+			continue
+		}
+
+		wire, err := s.cs.GetWire().viewByCableIDAndName(ctx, cable.ID, item.Name)
+		if err != nil {
+			return err
+		}
+
+		if wire.Status != consts.ON {
+			continue
+		}
+
+		if err = s.updateWireValue(ctx, &wire, value, updated); err != nil {
+			return err
+		}
+
+		if err = s.afterUpdateValue(ctx, &wire, value); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
