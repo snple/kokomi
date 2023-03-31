@@ -10,6 +10,7 @@ import (
 
 	"github.com/danclive/nson-go"
 	"github.com/quic-go/quic-go"
+	"github.com/snple/types"
 	"snple.com/kokomi/consts"
 	"snple.com/kokomi/pb"
 	"snple.com/kokomi/util"
@@ -21,8 +22,8 @@ type QuicService struct {
 
 	listener quic.Listener
 
-	conns   map[string]quic.Connection
-	optLock sync.RWMutex
+	conns map[string]*quicChannels
+	lock  sync.RWMutex
 }
 
 func newQuicService(ns *NodeService) (*QuicService, error) {
@@ -35,7 +36,7 @@ func newQuicService(ns *NodeService) (*QuicService, error) {
 	s := &QuicService{
 		ns:       ns,
 		listener: listener,
-		conns:    make(map[string]quic.Connection),
+		conns:    make(map[string]*quicChannels),
 	}
 
 	return s, nil
@@ -56,13 +57,37 @@ func (s *QuicService) Stop() {
 	s.listener.Close()
 }
 
-func (s *QuicService) GetConn(deviceId string) (quic.Connection, bool) {
-	s.optLock.RLock()
-	defer s.optLock.RUnlock()
+func (s *QuicService) addConn(deviceID string, conn quic.Connection) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
 
-	conn, has := s.conns[deviceId]
+	if chans, ok := s.conns[deviceID]; ok {
+		chans.add(conn)
+	} else {
+		chans := &quicChannels{}
+		chans.add(conn)
+		s.conns[deviceID] = chans
+	}
+}
 
-	return conn, has
+func (s *QuicService) removeConn(deviceID string, conn quic.Connection) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	if chans, ok := s.conns[deviceID]; ok {
+		chans.remove(conn)
+	}
+}
+
+func (s *QuicService) GetConn(deviceID string) types.Option[quic.Connection] {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
+	if chans, ok := s.conns[deviceID]; ok {
+		return chans.pick()
+	}
+
+	return types.None[quic.Connection]()
 }
 
 func (s *QuicService) acceptConn() error {
@@ -84,24 +109,24 @@ func (s *QuicService) acceptConn() error {
 func (s *QuicService) handleConn(conn quic.Connection) error {
 	defer conn.CloseWithError(1, "break")
 
-	deviceId, err := s.handshake(conn)
+	deviceID, err := s.handshake(conn)
 	if err != nil {
 		return err
 	}
 
-	s.optLock.Lock()
-	s.conns[deviceId] = conn
-	s.optLock.Unlock()
+	s.lock.Lock()
+	s.addConn(deviceID, conn)
+	s.lock.Unlock()
 
-	go s.accept(conn, deviceId)
+	go s.accept(conn, deviceID)
 
 	context := conn.Context()
 	<-context.Done()
 	err = context.Err()
 
-	s.optLock.Lock()
-	delete(s.conns, deviceId)
-	s.optLock.Unlock()
+	s.lock.Lock()
+	s.removeConn(deviceID, conn)
+	s.lock.Unlock()
 
 	return err
 }
@@ -348,29 +373,28 @@ func (s *QuicService) openStream(rmessage nson.Message, deviceId string) (quic.S
 		return nil, errors.New("port.network == '' || port.address == ''")
 	}
 
-	conn2, ok := s.GetConn(port.GetDeviceId())
-	if ok == false {
-		return nil, errors.New("target not link")
+	if option := s.GetConn(port.GetDeviceId()); option.IsSome() {
+		stream2, err := option.Unwrap().OpenStreamSync(context.Background())
+		if err != nil {
+			return nil, err
+		}
+
+		wmessage := nson.Message{
+			"method": nson.String("proxy"),
+			"proxy":  nson.String(proxy.GetId()),
+			"port":   nson.String(port.GetId()),
+		}
+
+		err = util.WriteNsonMessage(stream2, wmessage)
+		if err != nil {
+			stream2.Close()
+			return nil, err
+		}
+
+		return stream2, nil
 	}
 
-	stream2, err := conn2.OpenStreamSync(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
-	wmessage := nson.Message{
-		"method": nson.String("proxy"),
-		"proxy":  nson.String(proxy.GetId()),
-		"port":   nson.String(port.GetId()),
-	}
-
-	err = util.WriteNsonMessage(stream2, wmessage)
-	if err != nil {
-		stream2.Close()
-		return nil, err
-	}
-
-	return stream2, nil
+	return nil, errors.New("target not link")
 }
 
 func (s *QuicService) streamCopy(dst, src quic.Stream, errCh chan error) {
@@ -378,4 +402,33 @@ func (s *QuicService) streamCopy(dst, src quic.Stream, errCh chan error) {
 	errCh <- err
 
 	dst.CancelWrite(1)
+}
+
+type quicChannels struct {
+	cs []quic.Connection
+}
+
+func (c *quicChannels) add(conn quic.Connection) {
+	c.cs = append(c.cs, conn)
+}
+
+func (c *quicChannels) remove(conn quic.Connection) {
+	for i := range c.cs {
+		if c.cs[i] == conn {
+			c.cs = append(c.cs[:i], c.cs[i+1:]...)
+			break
+		}
+	}
+}
+
+func (c *quicChannels) pick() types.Option[quic.Connection] {
+	if c == nil {
+		return types.None[quic.Connection]()
+	}
+
+	if len(c.cs) == 0 {
+		return types.None[quic.Connection]()
+	}
+
+	return types.Some(c.cs[len(c.cs)-1])
 }

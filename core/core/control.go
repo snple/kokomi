@@ -17,8 +17,8 @@ import (
 type ControlService struct {
 	cs *CoreService
 
+	clients map[string]*controlChannels
 	lock    sync.RWMutex
-	clients map[string]*channels
 
 	cores.UnimplementedControlServiceServer
 }
@@ -26,7 +26,7 @@ type ControlService struct {
 func newControlService(cs *CoreService) *ControlService {
 	return &ControlService{
 		cs:      cs,
-		clients: make(map[string]*channels),
+		clients: make(map[string]*controlChannels),
 	}
 }
 
@@ -174,7 +174,7 @@ func (s *ControlService) AddClient(deviceID string, client edges.ControlServiceC
 	if chans, ok := s.clients[deviceID]; ok {
 		chans.add(client)
 	} else {
-		chans := &channels{}
+		chans := &controlChannels{}
 		chans.add(client)
 		s.clients[deviceID] = chans
 	}
@@ -200,31 +200,31 @@ func (s *ControlService) GetClient(deviceID string) types.Option[edges.ControlSe
 	return types.None[edges.ControlServiceClient]()
 }
 
-type channels struct {
-	chans []edges.ControlServiceClient
+type controlChannels struct {
+	cs []edges.ControlServiceClient
 }
 
-func (c *channels) add(ch edges.ControlServiceClient) {
-	c.chans = append(c.chans, ch)
+func (c *controlChannels) add(client edges.ControlServiceClient) {
+	c.cs = append(c.cs, client)
 }
 
-func (c *channels) remove(ch edges.ControlServiceClient) {
-	for i := range c.chans {
-		if c.chans[i] == ch {
-			c.chans = append(c.chans[:i], c.chans[i+1:]...)
+func (c *controlChannels) remove(client edges.ControlServiceClient) {
+	for i := range c.cs {
+		if c.cs[i] == client {
+			c.cs = append(c.cs[:i], c.cs[i+1:]...)
 			break
 		}
 	}
 }
 
-func (c *channels) pick() types.Option[edges.ControlServiceClient] {
+func (c *controlChannels) pick() types.Option[edges.ControlServiceClient] {
 	if c == nil {
 		return types.None[edges.ControlServiceClient]()
 	}
 
-	if len(c.chans) == 0 {
+	if len(c.cs) == 0 {
 		return types.None[edges.ControlServiceClient]()
 	}
 
-	return types.Some(c.chans[len(c.chans)-1])
+	return types.Some(c.cs[len(c.cs)-1])
 }

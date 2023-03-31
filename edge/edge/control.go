@@ -18,10 +18,10 @@ import (
 type ControlService struct {
 	es *EdgeService
 
-	lock        sync.RWMutex
-	slots       map[string]*clients
+	slots       map[string]*controlChannels
 	sourceCache *cache.Cache[string]
-	sources     map[string]*servers
+	servers     map[string]*controlServers
+	lock        sync.RWMutex
 
 	edges.UnimplementedControlServiceServer
 }
@@ -29,9 +29,9 @@ type ControlService struct {
 func newControlService(es *EdgeService) *ControlService {
 	return &ControlService{
 		es:          es,
-		slots:       make(map[string]*clients),
+		slots:       make(map[string]*controlChannels),
 		sourceCache: cache.NewCache[string](nil),
-		sources:     make(map[string]*servers),
+		servers:     make(map[string]*controlServers),
 	}
 }
 
@@ -168,12 +168,12 @@ func (s *ControlService) AddSlotClient(slotID string, client slots.ControlServic
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	if items, ok := s.slots[slotID]; ok {
-		items.add(client)
+	if chans, ok := s.slots[slotID]; ok {
+		chans.add(client)
 	} else {
-		items := &clients{}
-		items.add(client)
-		s.slots[slotID] = items
+		chans := &controlChannels{}
+		chans.add(client)
+		s.slots[slotID] = chans
 	}
 }
 
@@ -181,8 +181,8 @@ func (s *ControlService) DeleteSlotClient(slotID string, client slots.ControlSer
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	if items, ok := s.slots[slotID]; ok {
-		items.delete(client)
+	if chans, ok := s.slots[slotID]; ok {
+		chans.delete(client)
 	}
 }
 
@@ -190,8 +190,8 @@ func (s *ControlService) GetSlotClient(slotID string) types.Option[slots.Control
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 
-	if items, ok := s.slots[slotID]; ok {
-		return items.pick()
+	if chans, ok := s.slots[slotID]; ok {
+		return chans.pick()
 	}
 
 	return types.None[slots.ControlServiceClient]()
@@ -212,12 +212,12 @@ func (s *ControlService) AddSourceServer(sourceID string, server slots.ControlSe
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	if items, ok := s.sources[sourceID]; ok {
-		items.add(server)
+	if servers, ok := s.servers[sourceID]; ok {
+		servers.add(server)
 	} else {
-		item := &servers{}
-		item.add(server)
-		s.sources[sourceID] = item
+		servers := &controlServers{}
+		servers.add(server)
+		s.servers[sourceID] = servers
 	}
 }
 
@@ -225,7 +225,7 @@ func (s *ControlService) RemoveSourceServer(sourceID string, server slots.Contro
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	if servers, ok := s.sources[sourceID]; ok {
+	if servers, ok := s.servers[sourceID]; ok {
 		servers.delete(server)
 	}
 }
@@ -234,67 +234,67 @@ func (s *ControlService) GetSourceServer(sourceID string) types.Option[slots.Con
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 
-	if servers, ok := s.sources[sourceID]; ok {
+	if servers, ok := s.servers[sourceID]; ok {
 		return servers.pick()
 	}
 
 	return types.None[slots.ControlServiceServer]()
 }
 
-type clients struct {
-	inner []slots.ControlServiceClient
+type controlChannels struct {
+	cs []slots.ControlServiceClient
 }
 
-func (cs *clients) add(cc slots.ControlServiceClient) {
-	cs.inner = append(cs.inner, cc)
+func (c *controlChannels) add(client slots.ControlServiceClient) {
+	c.cs = append(c.cs, client)
 }
 
-func (cs *clients) delete(cc slots.ControlServiceClient) {
-	for i := range cs.inner {
-		if cs.inner[i] == cc {
-			cs.inner = append(cs.inner[:i], cs.inner[i+1:]...)
+func (c *controlChannels) delete(client slots.ControlServiceClient) {
+	for i := range c.cs {
+		if c.cs[i] == client {
+			c.cs = append(c.cs[:i], c.cs[i+1:]...)
 			break
 		}
 	}
 }
 
-func (cs *clients) pick() types.Option[slots.ControlServiceClient] {
-	if cs == nil {
+func (c *controlChannels) pick() types.Option[slots.ControlServiceClient] {
+	if c == nil {
 		return types.None[slots.ControlServiceClient]()
 	}
 
-	if len(cs.inner) == 0 {
+	if len(c.cs) == 0 {
 		return types.None[slots.ControlServiceClient]()
 	}
 
-	return types.Some(cs.inner[len(cs.inner)-1])
+	return types.Some(c.cs[len(c.cs)-1])
 }
 
-type servers struct {
-	inner []slots.ControlServiceServer
+type controlServers struct {
+	cs []slots.ControlServiceServer
 }
 
-func (cs *servers) add(cc slots.ControlServiceServer) {
-	cs.inner = append(cs.inner, cc)
+func (c *controlServers) add(cc slots.ControlServiceServer) {
+	c.cs = append(c.cs, cc)
 }
 
-func (cs *servers) delete(cc slots.ControlServiceServer) {
-	for i := range cs.inner {
-		if cs.inner[i] == cc {
-			cs.inner = append(cs.inner[:i], cs.inner[i+1:]...)
+func (c *controlServers) delete(cc slots.ControlServiceServer) {
+	for i := range c.cs {
+		if c.cs[i] == cc {
+			c.cs = append(c.cs[:i], c.cs[i+1:]...)
 			break
 		}
 	}
 }
 
-func (cs *servers) pick() types.Option[slots.ControlServiceServer] {
-	if cs == nil {
+func (c *controlServers) pick() types.Option[slots.ControlServiceServer] {
+	if c == nil {
 		return types.None[slots.ControlServiceServer]()
 	}
 
-	if len(cs.inner) == 0 {
+	if len(c.cs) == 0 {
 		return types.None[slots.ControlServiceServer]()
 	}
 
-	return types.Some(cs.inner[len(cs.inner)-1])
+	return types.Some(c.cs[len(c.cs)-1])
 }
