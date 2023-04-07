@@ -3,14 +3,14 @@ package node
 import (
 	"context"
 
+	"github.com/snple/kokomi/consts"
+	"github.com/snple/kokomi/pb"
+	"github.com/snple/kokomi/pb/cores"
+	"github.com/snple/kokomi/pb/nodes"
+	"github.com/snple/kokomi/util/metadata"
+	"github.com/snple/kokomi/util/token"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"snple.com/kokomi/consts"
-	"snple.com/kokomi/pb"
-	"snple.com/kokomi/pb/cores"
-	"snple.com/kokomi/pb/nodes"
-	"snple.com/kokomi/util/metadata"
-	"snple.com/kokomi/util/token"
 )
 
 type DeviceService struct {

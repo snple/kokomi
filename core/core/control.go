@@ -4,14 +4,14 @@ import (
 	"context"
 	"sync"
 
+	"github.com/snple/kokomi/consts"
+	"github.com/snple/kokomi/pb"
+	"github.com/snple/kokomi/pb/cores"
+	"github.com/snple/kokomi/pb/edges"
+	"github.com/snple/kokomi/util/datatype"
 	"github.com/snple/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"snple.com/kokomi/consts"
-	"snple.com/kokomi/pb"
-	"snple.com/kokomi/pb/cores"
-	"snple.com/kokomi/pb/edges"
-	"snple.com/kokomi/util/datatype"
 )
 
 type ControlService struct {

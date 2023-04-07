@@ -9,13 +9,13 @@ import (
 	"time"
 
 	"github.com/quic-go/quic-go"
+	"github.com/snple/kokomi/db"
+	"github.com/snple/kokomi/edge/model"
+	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/types"
 	"github.com/uptrace/bun"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"snple.com/kokomi/db"
-	"snple.com/kokomi/edge/model"
-	"snple.com/kokomi/pb/edges"
 )
 
 type EdgeService struct {

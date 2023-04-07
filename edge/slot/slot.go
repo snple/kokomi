@@ -7,17 +7,17 @@ import (
 	"time"
 
 	"github.com/quic-go/quic-go"
+	"github.com/snple/kokomi/consts"
+	"github.com/snple/kokomi/edge/edge"
+	"github.com/snple/kokomi/pb"
+	"github.com/snple/kokomi/pb/edges"
+	"github.com/snple/kokomi/pb/slots"
+	"github.com/snple/kokomi/util/metadata"
+	"github.com/snple/kokomi/util/token"
 	"github.com/snple/rgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"snple.com/kokomi/consts"
-	"snple.com/kokomi/edge/edge"
-	"snple.com/kokomi/pb"
-	"snple.com/kokomi/pb/edges"
-	"snple.com/kokomi/pb/slots"
-	"snple.com/kokomi/util/metadata"
-	"snple.com/kokomi/util/token"
 )
 
 type SlotService struct {

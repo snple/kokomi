@@ -10,11 +10,11 @@ import (
 
 	"github.com/danclive/nson-go"
 	"github.com/quic-go/quic-go"
+	"github.com/snple/kokomi/consts"
+	"github.com/snple/kokomi/pb"
+	"github.com/snple/kokomi/util"
+	"github.com/snple/kokomi/util/token"
 	"github.com/snple/types"
-	"snple.com/kokomi/consts"
-	"snple.com/kokomi/pb"
-	"snple.com/kokomi/util"
-	"snple.com/kokomi/util/token"
 )
 
 type QuicService struct {

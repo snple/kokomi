@@ -1,4 +1,4 @@
-module snple.com/kokomi
+module github.com/snple/kokomi
 
 go 1.18
 

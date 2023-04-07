@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/danclive/nson-go"
+	"github.com/snple/kokomi/util/datatype"
 	"github.com/uptrace/bun"
-	"snple.com/kokomi/util/datatype"
 )
 
 type Cable struct {

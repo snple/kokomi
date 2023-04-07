@@ -1,8 +1,8 @@
 package node
 
 import (
+	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/rgrpc"
-	"snple.com/kokomi/pb/edges"
 )
 
 type RgrpcService struct {

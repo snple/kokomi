@@ -5,12 +5,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/snple/kokomi/edge/model"
+	"github.com/snple/kokomi/pb"
+	"github.com/snple/kokomi/pb/edges"
+	"github.com/snple/kokomi/pb/nodes"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"snple.com/kokomi/edge/model"
-	"snple.com/kokomi/pb"
-	"snple.com/kokomi/pb/edges"
-	"snple.com/kokomi/pb/nodes"
 )
 
 func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {

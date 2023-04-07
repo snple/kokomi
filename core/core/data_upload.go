@@ -7,14 +7,14 @@ import (
 
 	"github.com/danclive/nson-go"
 	"github.com/influxdata/influxdb-client-go/v2/api/write"
+	"github.com/snple/kokomi/consts"
+	"github.com/snple/kokomi/core/model"
+	"github.com/snple/kokomi/db"
+	"github.com/snple/kokomi/pb/cores"
+	"github.com/snple/kokomi/util/datatype"
 	"github.com/snple/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"snple.com/kokomi/consts"
-	"snple.com/kokomi/core/model"
-	"snple.com/kokomi/db"
-	"snple.com/kokomi/pb/cores"
-	"snple.com/kokomi/util/datatype"
 )
 
 const (

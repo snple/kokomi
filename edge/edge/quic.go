@@ -12,11 +12,11 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"github.com/danclive/nson-go"
 	"github.com/quic-go/quic-go"
+	"github.com/snple/kokomi/consts"
+	"github.com/snple/kokomi/pb"
+	"github.com/snple/kokomi/pb/edges"
+	"github.com/snple/kokomi/util"
 	"github.com/snple/types"
-	"snple.com/kokomi/consts"
-	"snple.com/kokomi/pb"
-	"snple.com/kokomi/pb/edges"
-	"snple.com/kokomi/util"
 )
 
 type QuicService struct {

@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/danclive/nson-go"
+	"github.com/snple/kokomi/edge/model"
+	"github.com/snple/kokomi/pb"
+	"github.com/snple/kokomi/pb/edges"
+	"github.com/snple/kokomi/util"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"snple.com/kokomi/edge/model"
-	"snple.com/kokomi/pb"
-	"snple.com/kokomi/pb/edges"
-	"snple.com/kokomi/util"
 )
 
 type DataService struct {

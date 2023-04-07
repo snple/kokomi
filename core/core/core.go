@@ -6,13 +6,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/snple/kokomi/core/model"
+	"github.com/snple/kokomi/db"
+	"github.com/snple/kokomi/pb/cores"
 	"github.com/snple/types"
 	"github.com/uptrace/bun"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"snple.com/kokomi/core/model"
-	"snple.com/kokomi/db"
-	"snple.com/kokomi/pb/cores"
 )
 
 type CoreService struct {

@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"github.com/danclive/nson-go"
+	"github.com/snple/kokomi/consts"
+	"github.com/snple/kokomi/pb"
+	"github.com/snple/kokomi/pb/edges"
+	"github.com/snple/kokomi/pb/nodes"
+	"github.com/snple/kokomi/util/metadata"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"snple.com/kokomi/consts"
-	"snple.com/kokomi/pb"
-	"snple.com/kokomi/pb/edges"
-	"snple.com/kokomi/pb/nodes"
-	"snple.com/kokomi/util/metadata"
 )
 
 type UploadService struct {

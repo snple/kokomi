@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
-	"snple.com/kokomi/consts"
-	"snple.com/kokomi/pb"
-	"snple.com/kokomi/pb/cores"
+	"github.com/snple/kokomi/consts"
+	"github.com/snple/kokomi/pb"
+	"github.com/snple/kokomi/pb/cores"
 )
 
 func DeviceList(ctx context.Context, client cores.DeviceServiceClient) {

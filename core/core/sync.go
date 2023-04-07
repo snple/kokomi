@@ -6,12 +6,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/snple/kokomi/core/model"
+	"github.com/snple/kokomi/pb"
+	"github.com/snple/kokomi/pb/cores"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"snple.com/kokomi/core/model"
-	"snple.com/kokomi/pb"
-	"snple.com/kokomi/pb/cores"
 )
 
 type SyncService struct {

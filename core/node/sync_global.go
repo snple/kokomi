@@ -1,7 +1,7 @@
 package node
 
 import (
-	"snple.com/kokomi/pb/nodes"
+	"github.com/snple/kokomi/pb/nodes"
 )
 
 type SyncGlobalService struct {

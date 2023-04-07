@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/danclive/nson-go"
+	"github.com/snple/kokomi/consts"
 	"github.com/snple/types"
 	"github.com/snple/types/cache"
-	"snple.com/kokomi/consts"
 )
 
 type StatusService struct {

@@ -9,12 +9,12 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/snple/kokomi/client/core/service"
+	"github.com/snple/kokomi/pb/cores"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
-	"snple.com/kokomi/client/core/service"
-	"snple.com/kokomi/pb/cores"
 )
 
 const (

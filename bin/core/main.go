@@ -10,15 +10,15 @@ import (
 	"time"
 
 	"github.com/quic-go/quic-go"
+	"github.com/snple/kokomi/bin/core/config"
+	"github.com/snple/kokomi/bin/core/log"
+	"github.com/snple/kokomi/core/core"
+	"github.com/snple/kokomi/core/node"
+	"github.com/snple/kokomi/db"
+	"github.com/snple/kokomi/util"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
-	"snple.com/kokomi/bin/core/config"
-	"snple.com/kokomi/bin/core/log"
-	"snple.com/kokomi/core/core"
-	"snple.com/kokomi/core/node"
-	"snple.com/kokomi/db"
-	"snple.com/kokomi/util"
 )
 
 func main() {

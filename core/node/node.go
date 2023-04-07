@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/quic-go/quic-go"
+	"github.com/snple/kokomi/core/core"
+	"github.com/snple/kokomi/pb/nodes"
 	"github.com/snple/rgrpc"
 	"github.com/snple/types"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"snple.com/kokomi/core/core"
-	"snple.com/kokomi/pb/nodes"
 )
 
 type NodeService struct {

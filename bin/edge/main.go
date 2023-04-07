@@ -9,14 +9,14 @@ import (
 	"time"
 
 	"github.com/quic-go/quic-go"
+	"github.com/snple/kokomi/bin/edge/config"
+	"github.com/snple/kokomi/bin/edge/log"
+	"github.com/snple/kokomi/db"
+	"github.com/snple/kokomi/edge/edge"
+	"github.com/snple/kokomi/util"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
-	"snple.com/kokomi/bin/edge/config"
-	"snple.com/kokomi/bin/edge/log"
-	"snple.com/kokomi/db"
-	"snple.com/kokomi/edge/edge"
-	"snple.com/kokomi/util"
 )
 
 func main() {

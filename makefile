@@ -20,7 +20,7 @@ gen:
 	--go-grpc_out=. --go-grpc_opt=paths=import
 
 	rm -r pb || true
-	cp -r snple.com/kokomi/pb .
-	rm -r snple.com
+	cp -r github.com/snple/kokomi/pb .
+	rm -r github.com
 
 .PHONY: gen

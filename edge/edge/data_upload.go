@@ -6,12 +6,12 @@ import (
 	"encoding/json"
 
 	"github.com/danclive/nson-go"
+	"github.com/snple/kokomi/consts"
+	"github.com/snple/kokomi/edge/model"
+	"github.com/snple/kokomi/pb/edges"
+	"github.com/snple/kokomi/util/datatype"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"snple.com/kokomi/consts"
-	"snple.com/kokomi/edge/model"
-	"snple.com/kokomi/pb/edges"
-	"snple.com/kokomi/util/datatype"
 )
 
 const (

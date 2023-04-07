@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/snple/kokomi/consts"
+	"github.com/snple/kokomi/core/model"
+	"github.com/snple/kokomi/util"
 	"github.com/uptrace/bun"
-	"snple.com/kokomi/consts"
-	"snple.com/kokomi/core/model"
-	"snple.com/kokomi/util"
 )
 
 func Seed(db *bun.DB) error {

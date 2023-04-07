@@ -1,8 +1,8 @@
 package slot
 
 import (
+	"github.com/snple/kokomi/pb/slots"
 	"github.com/snple/rgrpc"
-	"snple.com/kokomi/pb/slots"
 )
 
 type RgrpcService struct {

@@ -3,11 +3,11 @@ package node
 import (
 	"context"
 
+	"github.com/snple/kokomi/pb"
+	"github.com/snple/kokomi/pb/cores"
+	"github.com/snple/kokomi/pb/nodes"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"snple.com/kokomi/pb"
-	"snple.com/kokomi/pb/cores"
-	"snple.com/kokomi/pb/nodes"
 )
 
 type OptionService struct {
