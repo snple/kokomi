@@ -279,16 +279,16 @@ func (s *TagService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Tag, erro
 		}
 	}
 
-	tag, err := s.viewByName(ctx, in.GetName())
+	item, err := s.viewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
 
-	s.copyModelToOutput(&output, &tag)
+	s.copyModelToOutput(&output, &item)
 
 	output.Name = in.GetName()
 
-	value := s.GetTagValue(tag.ID)
+	value := s.GetTagValue(item.ID)
 
 	output.Value, err = datatype.EncodeNsonValue(value)
 	if err != nil {
