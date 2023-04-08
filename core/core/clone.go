@@ -731,7 +731,7 @@ func (s *cloneService) cloneCable(ctx context.Context, db bun.IDB, cableID, devi
 	{
 		var wires []model.Wire
 
-		err = db.NewSelect().Model(&wires).Where("equip_id = ?", cableID).Order("id ASC").Scan(ctx)
+		err = db.NewSelect().Model(&wires).Where("cable_id = ?", cableID).Order("id ASC").Scan(ctx)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Query: %v", err)
 		}

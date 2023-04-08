@@ -14,8 +14,6 @@ service SyncService {
     rpc SetDeviceUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetDeviceUpdated(pb.MyEmpty) returns (SyncUpdated) {}
     rpc WaitDeviceUpdated(pb.MyEmpty) returns (stream pb.MyBool) {}
-    rpc SetSlaveUpdated(SyncUpdated) returns (pb.MyBool) {}
-    rpc GetSlaveUpdated(pb.MyEmpty) returns (SyncUpdated) {}
     rpc SetSlotUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetSlotUpdated(pb.MyEmpty) returns (SyncUpdated) {}
     rpc SetOptionUpdated(SyncUpdated) returns (pb.MyBool) {}
@@ -26,8 +24,8 @@ service SyncService {
     rpc GetTagUpdated(pb.MyEmpty) returns (SyncUpdated) {}
     rpc SetVarUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetVarUpdated(pb.MyEmpty) returns (SyncUpdated) {}
-    rpc SetEquipUpdated(SyncUpdated) returns (pb.MyBool) {}
-    rpc GetEquipUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc SetCableUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetCableUpdated(pb.MyEmpty) returns (SyncUpdated) {}
     rpc SetWireUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetWireUpdated(pb.MyEmpty) returns (SyncUpdated) {}
     rpc SetTagValueUpdated(SyncUpdated) returns (pb.MyBool) {}

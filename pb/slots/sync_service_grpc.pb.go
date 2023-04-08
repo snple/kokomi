@@ -26,8 +26,6 @@ type SyncServiceClient interface {
 	SetDeviceUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	WaitDeviceUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (SyncService_WaitDeviceUpdatedClient, error)
-	SetSlaveUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetSlaveUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetSlotUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetSlotUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetOptionUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
@@ -38,8 +36,8 @@ type SyncServiceClient interface {
 	GetTagUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetVarUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetVarUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetEquipUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetEquipUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
+	SetCableUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetCableUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetWireUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetWireUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetTagValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
@@ -106,24 +104,6 @@ func (x *syncServiceWaitDeviceUpdatedClient) Recv() (*pb.MyBool, error) {
 		return nil, err
 	}
 	return m, nil
-}
-
-func (c *syncServiceClient) SetSlaveUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, "/slots.SyncService/SetSlaveUpdated", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) GetSlaveUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
-	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, "/slots.SyncService/GetSlaveUpdated", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *syncServiceClient) SetSlotUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
@@ -216,18 +196,18 @@ func (c *syncServiceClient) GetVarUpdated(ctx context.Context, in *pb.MyEmpty, o
 	return out, nil
 }
 
-func (c *syncServiceClient) SetEquipUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *syncServiceClient) SetCableUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, "/slots.SyncService/SetEquipUpdated", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/slots.SyncService/SetCableUpdated", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *syncServiceClient) GetEquipUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
+func (c *syncServiceClient) GetCableUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
 	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, "/slots.SyncService/GetEquipUpdated", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/slots.SyncService/GetCableUpdated", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -359,8 +339,6 @@ type SyncServiceServer interface {
 	SetDeviceUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetDeviceUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	WaitDeviceUpdated(*pb.MyEmpty, SyncService_WaitDeviceUpdatedServer) error
-	SetSlaveUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetSlaveUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetSlotUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetSlotUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetOptionUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
@@ -371,8 +349,8 @@ type SyncServiceServer interface {
 	GetTagUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetVarUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetVarUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetEquipUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetEquipUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
+	SetCableUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
+	GetCableUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetWireUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetWireUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetTagValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
@@ -396,12 +374,6 @@ func (UnimplementedSyncServiceServer) GetDeviceUpdated(context.Context, *pb.MyEm
 }
 func (UnimplementedSyncServiceServer) WaitDeviceUpdated(*pb.MyEmpty, SyncService_WaitDeviceUpdatedServer) error {
 	return status.Errorf(codes.Unimplemented, "method WaitDeviceUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) SetSlaveUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetSlaveUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) GetSlaveUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetSlaveUpdated not implemented")
 }
 func (UnimplementedSyncServiceServer) SetSlotUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetSlotUpdated not implemented")
@@ -433,11 +405,11 @@ func (UnimplementedSyncServiceServer) SetVarUpdated(context.Context, *SyncUpdate
 func (UnimplementedSyncServiceServer) GetVarUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetVarUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) SetEquipUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetEquipUpdated not implemented")
+func (UnimplementedSyncServiceServer) SetCableUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetCableUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) GetEquipUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetEquipUpdated not implemented")
+func (UnimplementedSyncServiceServer) GetCableUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCableUpdated not implemented")
 }
 func (UnimplementedSyncServiceServer) SetWireUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetWireUpdated not implemented")
@@ -531,42 +503,6 @@ type syncServiceWaitDeviceUpdatedServer struct {
 
 func (x *syncServiceWaitDeviceUpdatedServer) Send(m *pb.MyBool) error {
 	return x.ServerStream.SendMsg(m)
-}
-
-func _SyncService_SetSlaveUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUpdated)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).SetSlaveUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/slots.SyncService/SetSlaveUpdated",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetSlaveUpdated(ctx, req.(*SyncUpdated))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_GetSlaveUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.MyEmpty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).GetSlaveUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/slots.SyncService/GetSlaveUpdated",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetSlaveUpdated(ctx, req.(*pb.MyEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _SyncService_SetSlotUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -749,38 +685,38 @@ func _SyncService_GetVarUpdated_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_SetEquipUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SyncService_SetCableUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncUpdated)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SyncServiceServer).SetEquipUpdated(ctx, in)
+		return srv.(SyncServiceServer).SetCableUpdated(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/slots.SyncService/SetEquipUpdated",
+		FullMethod: "/slots.SyncService/SetCableUpdated",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetEquipUpdated(ctx, req.(*SyncUpdated))
+		return srv.(SyncServiceServer).SetCableUpdated(ctx, req.(*SyncUpdated))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_GetEquipUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SyncService_GetCableUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.MyEmpty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SyncServiceServer).GetEquipUpdated(ctx, in)
+		return srv.(SyncServiceServer).GetCableUpdated(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/slots.SyncService/GetEquipUpdated",
+		FullMethod: "/slots.SyncService/GetCableUpdated",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetEquipUpdated(ctx, req.(*pb.MyEmpty))
+		return srv.(SyncServiceServer).GetCableUpdated(ctx, req.(*pb.MyEmpty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -951,14 +887,6 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SyncService_GetDeviceUpdated_Handler,
 		},
 		{
-			MethodName: "SetSlaveUpdated",
-			Handler:    _SyncService_SetSlaveUpdated_Handler,
-		},
-		{
-			MethodName: "GetSlaveUpdated",
-			Handler:    _SyncService_GetSlaveUpdated_Handler,
-		},
-		{
 			MethodName: "SetSlotUpdated",
 			Handler:    _SyncService_SetSlotUpdated_Handler,
 		},
@@ -999,12 +927,12 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SyncService_GetVarUpdated_Handler,
 		},
 		{
-			MethodName: "SetEquipUpdated",
-			Handler:    _SyncService_SetEquipUpdated_Handler,
+			MethodName: "SetCableUpdated",
+			Handler:    _SyncService_SetCableUpdated_Handler,
 		},
 		{
-			MethodName: "GetEquipUpdated",
-			Handler:    _SyncService_GetEquipUpdated_Handler,
+			MethodName: "GetCableUpdated",
+			Handler:    _SyncService_GetCableUpdated_Handler,
 		},
 		{
 			MethodName: "SetWireUpdated",

@@ -140,6 +140,56 @@ func (s *SyncService) GetSlotUpdated(ctx context.Context, in *pb.MyEmpty) (*slot
 	return &output, nil
 }
 
+func (s *SyncService) SetOptionUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
+	var output pb.MyBool
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid option updated")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.es.GetSync().SetOptionUpdated(ctx,
+		&edges.SyncUpdated{Updated: in.GetUpdated()})
+}
+
+func (s *SyncService) GetOptionUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
+	var output slots.SyncUpdated
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	reply, err := s.ss.es.GetSync().GetOptionUpdated(ctx, in)
+	if err != nil {
+		return &output, err
+	}
+
+	output.Updated = reply.GetUpdated()
+
+	return &output, nil
+}
+
 func (s *SyncService) SetSourceUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
