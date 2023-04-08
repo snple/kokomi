@@ -173,14 +173,14 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 			return &output, status.Error(codes.InvalidArgument, "tag name min 2 character")
 		}
 
-		modelTag := model.Tag{}
-		err = s.es.GetDB().NewSelect().Model(&modelTag).Where("source_id = ?", item.SourceID).Where("name = ?", in.GetName()).Scan(ctx)
+		modelItem := model.Tag{}
+		err = s.es.GetDB().NewSelect().Model(&modelItem).Where("source_id = ?", item.SourceID).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			if modelTag.ID != item.ID {
+			if modelItem.ID != item.ID {
 				return &output, status.Error(codes.AlreadyExists, "tag name must be unique")
 			}
 		}

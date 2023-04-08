@@ -154,14 +154,14 @@ func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 			return &output, status.Error(codes.InvalidArgument, "slot name min 2 character")
 		}
 
-		modelSlot := model.Slot{}
-		err = s.cs.GetDB().NewSelect().Model(&modelSlot).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
+		modelItem := model.Slot{}
+		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			if modelSlot.ID != item.ID {
+			if modelItem.ID != item.ID {
 				return &output, status.Error(codes.AlreadyExists, "slot name must be unique")
 			}
 		}

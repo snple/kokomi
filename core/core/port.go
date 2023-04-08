@@ -154,14 +154,14 @@ func (s *PortService) Update(ctx context.Context, in *pb.Port) (*pb.Port, error)
 			return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
 		}
 
-		modelPort := model.Port{}
-		err = s.cs.GetDB().NewSelect().Model(&modelPort).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
+		modelItem := model.Port{}
+		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			if modelPort.ID != item.ID {
+			if modelItem.ID != item.ID {
 				return &output, status.Error(codes.AlreadyExists, "port name must be unique")
 			}
 		}

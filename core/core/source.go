@@ -156,14 +156,14 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 			return &output, status.Error(codes.InvalidArgument, "source name min 2 character")
 		}
 
-		modelSource := model.Source{}
-		err = s.cs.GetDB().NewSelect().Model(&modelSource).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
+		modelItem := model.Source{}
+		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			if modelSource.ID != item.ID {
+			if modelItem.ID != item.ID {
 				return &output, status.Error(codes.AlreadyExists, "source name must be unique")
 			}
 		}

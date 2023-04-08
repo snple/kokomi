@@ -146,14 +146,14 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 			return &output, status.Error(codes.InvalidArgument, "var name min 2 character")
 		}
 
-		modelVar := model.Var{}
-		err = s.es.GetDB().NewSelect().Model(&modelVar).Where("name = ?", in.GetName()).Scan(ctx)
+		modelItem := model.Var{}
+		err = s.es.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			if modelVar.ID != item.ID {
+			if modelItem.ID != item.ID {
 				return &output, status.Error(codes.AlreadyExists, "var name must be unique")
 			}
 		}

@@ -188,14 +188,14 @@ func (s *JumperService) Update(ctx context.Context, in *cores.Jumper) (*cores.Ju
 			return &output, status.Error(codes.InvalidArgument, "jumper name min 2 character")
 		}
 
-		modelDevice := model.Jumper{}
-		err = s.cs.GetDB().NewSelect().Model(&modelDevice).Where("name = ?", in.GetName()).Scan(ctx)
+		modelItem := model.Jumper{}
+		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			if modelDevice.ID != item.ID {
+			if modelItem.ID != item.ID {
 				return &output, status.Error(codes.AlreadyExists, "jumper name must be unique")
 			}
 		}

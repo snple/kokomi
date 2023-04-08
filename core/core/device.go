@@ -145,14 +145,14 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 			return &output, status.Error(codes.InvalidArgument, "device name min 2 character")
 		}
 
-		modelDevice := model.Device{}
-		err = s.cs.GetDB().NewSelect().Model(&modelDevice).Where("name = ?", in.GetName()).Scan(ctx)
+		modelItem := model.Device{}
+		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			if modelDevice.ID != item.ID {
+			if modelItem.ID != item.ID {
 				return &output, status.Error(codes.AlreadyExists, "device name must be unique")
 			}
 		}

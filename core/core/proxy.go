@@ -155,14 +155,14 @@ func (s *ProxyService) Update(ctx context.Context, in *pb.Proxy) (*pb.Proxy, err
 			return &output, status.Error(codes.InvalidArgument, "proxy name min 2 character")
 		}
 
-		modelProxy := model.Proxy{}
-		err = s.cs.GetDB().NewSelect().Model(&modelProxy).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
+		modelItem := model.Proxy{}
+		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			if modelProxy.ID != item.ID {
+			if modelItem.ID != item.ID {
 				return &output, status.Error(codes.AlreadyExists, "proxy name must be unique")
 			}
 		}
