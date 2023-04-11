@@ -18,20 +18,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type JumperService struct {
+type RouteService struct {
 	cs *CoreService
 
-	cores.UnimplementedJumperServiceServer
+	cores.UnimplementedRouteServiceServer
 }
 
-func newJumperService(cs *CoreService) *JumperService {
-	return &JumperService{
+func newRouteService(cs *CoreService) *RouteService {
+	return &RouteService{
 		cs: cs,
 	}
 }
 
-func (s *JumperService) Create(ctx context.Context, in *cores.Jumper) (*cores.Jumper, error) {
-	var output cores.Jumper
+func (s *RouteService) Create(ctx context.Context, in *cores.Route) (*cores.Route, error) {
+	var output cores.Route
 	var err error
 
 	// basic validation
@@ -41,15 +41,15 @@ func (s *JumperService) Create(ctx context.Context, in *cores.Jumper) (*cores.Ju
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid jumper name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid route name")
 		}
 
 		if in.GetSrc() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid jumper src")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid route src")
 		}
 
 		if in.GetDst() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid jumper dst")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid route dst")
 		}
 
 	}
@@ -57,16 +57,16 @@ func (s *JumperService) Create(ctx context.Context, in *cores.Jumper) (*cores.Ju
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "jumper name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "route name min 2 character")
 		}
 
-		err = s.cs.GetDB().NewSelect().Model(&model.Jumper{}).Where("name = ?", in.GetName()).Scan(ctx)
+		err = s.cs.GetDB().NewSelect().Model(&model.Route{}).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "jumper name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "route name must be unique")
 		}
 	}
 
@@ -83,7 +83,7 @@ func (s *JumperService) Create(ctx context.Context, in *cores.Jumper) (*cores.Ju
 		}
 
 		{
-			modelItems := []model.Jumper{}
+			modelItems := []model.Route{}
 			err = s.cs.GetDB().NewSelect().Model(&modelItems).Where("src = ?", in.GetDst()).Scan(ctx)
 			if err != nil {
 				return &output, err
@@ -103,7 +103,7 @@ func (s *JumperService) Create(ctx context.Context, in *cores.Jumper) (*cores.Ju
 		}
 
 		{
-			modelItems := []model.Jumper{}
+			modelItems := []model.Route{}
 			err = s.cs.GetDB().NewSelect().Model(&modelItems).Where("dst = ?", in.GetSrc()).Scan(ctx)
 			if err != nil {
 				return &output, err
@@ -121,9 +121,21 @@ func (s *JumperService) Create(ctx context.Context, in *cores.Jumper) (*cores.Ju
 
 		ALLOW2:
 		}
+
+		{
+			err = s.cs.GetDB().NewSelect().Model(&model.Route{}).
+				Where("src = ?", in.GetSrc()).Where("dst = ?", in.GetDst()).Scan(ctx)
+			if err != nil {
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				return &output, status.Error(codes.AlreadyExists, "route src-dst must be unique")
+			}
+		}
 	}
 
-	item := model.Jumper{
+	item := model.Route{
 		ID:      in.GetId(),
 		Name:    in.GetName(),
 		Desc:    in.GetDesc(),
@@ -158,8 +170,8 @@ func (s *JumperService) Create(ctx context.Context, in *cores.Jumper) (*cores.Ju
 	return &output, nil
 }
 
-func (s *JumperService) Update(ctx context.Context, in *cores.Jumper) (*cores.Jumper, error) {
-	var output cores.Jumper
+func (s *RouteService) Update(ctx context.Context, in *cores.Route) (*cores.Route, error) {
+	var output cores.Route
 	var err error
 
 	// basic validation
@@ -169,11 +181,11 @@ func (s *JumperService) Update(ctx context.Context, in *cores.Jumper) (*cores.Ju
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid jumper id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid route id")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid jumper name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid route name")
 		}
 	}
 
@@ -185,10 +197,10 @@ func (s *JumperService) Update(ctx context.Context, in *cores.Jumper) (*cores.Ju
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "jumper name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "route name min 2 character")
 		}
 
-		modelItem := model.Jumper{}
+		modelItem := model.Route{}
 		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
@@ -196,7 +208,7 @@ func (s *JumperService) Update(ctx context.Context, in *cores.Jumper) (*cores.Ju
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "jumper name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "route name must be unique")
 			}
 		}
 	}
@@ -221,8 +233,8 @@ func (s *JumperService) Update(ctx context.Context, in *cores.Jumper) (*cores.Ju
 	return &output, nil
 }
 
-func (s *JumperService) View(ctx context.Context, in *pb.Id) (*cores.Jumper, error) {
-	var output cores.Jumper
+func (s *RouteService) View(ctx context.Context, in *pb.Id) (*cores.Route, error) {
+	var output cores.Route
 	var err error
 
 	// basic validation
@@ -232,7 +244,7 @@ func (s *JumperService) View(ctx context.Context, in *pb.Id) (*cores.Jumper, err
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid jumper id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid route id")
 		}
 	}
 
@@ -246,8 +258,8 @@ func (s *JumperService) View(ctx context.Context, in *pb.Id) (*cores.Jumper, err
 	return &output, nil
 }
 
-func (s *JumperService) ViewByName(ctx context.Context, in *pb.Name) (*cores.Jumper, error) {
-	var output cores.Jumper
+func (s *RouteService) ViewByName(ctx context.Context, in *pb.Name) (*cores.Route, error) {
+	var output cores.Route
 	var err error
 
 	// basic validation
@@ -257,7 +269,7 @@ func (s *JumperService) ViewByName(ctx context.Context, in *pb.Name) (*cores.Jum
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid jumper name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid route name")
 		}
 	}
 
@@ -271,7 +283,7 @@ func (s *JumperService) ViewByName(ctx context.Context, in *pb.Name) (*cores.Jum
 	return &output, nil
 }
 
-func (s *JumperService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *RouteService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -282,7 +294,7 @@ func (s *JumperService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid jumper id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid route id")
 		}
 	}
 
@@ -304,9 +316,9 @@ func (s *JumperService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 	return &output, nil
 }
 
-func (s *JumperService) List(ctx context.Context, in *cores.ListJumperRequest) (*cores.ListJumperResponse, error) {
+func (s *RouteService) List(ctx context.Context, in *cores.ListRouteRequest) (*cores.ListRouteResponse, error) {
 	var err error
-	var output cores.ListJumperResponse
+	var output cores.ListRouteResponse
 
 	// basic validation
 	{
@@ -326,7 +338,7 @@ func (s *JumperService) List(ctx context.Context, in *cores.ListJumperRequest) (
 
 	output.Page = in.GetPage()
 
-	var items []model.Jumper
+	var items []model.Route
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -388,25 +400,25 @@ func (s *JumperService) List(ctx context.Context, in *cores.ListJumperRequest) (
 	output.Count = uint32(count)
 
 	for i := 0; i < len(items); i++ {
-		item := cores.Jumper{}
+		item := cores.Route{}
 
 		s.copyModelToOutput(&item, &items[i])
 
-		output.Jumper = append(output.Jumper, &item)
+		output.Route = append(output.Route, &item)
 	}
 
 	return &output, nil
 }
 
-func (s *JumperService) view(ctx context.Context, id string) (model.Jumper, error) {
-	item := model.Jumper{
+func (s *RouteService) view(ctx context.Context, id string) (model.Route, error) {
+	item := model.Route{
 		ID: id,
 	}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, JumperID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, RouteID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -415,13 +427,13 @@ func (s *JumperService) view(ctx context.Context, id string) (model.Jumper, erro
 	return item, nil
 }
 
-func (s *JumperService) viewByName(ctx context.Context, name string) (model.Jumper, error) {
-	item := model.Jumper{}
+func (s *RouteService) viewByName(ctx context.Context, name string) (model.Route, error) {
+	item := model.Route{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, jumper Name: %v", err, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, route Name: %v", err, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -430,7 +442,7 @@ func (s *JumperService) viewByName(ctx context.Context, name string) (model.Jump
 	return item, nil
 }
 
-func (s *JumperService) copyModelToOutput(output *cores.Jumper, item *model.Jumper) {
+func (s *RouteService) copyModelToOutput(output *cores.Route, item *model.Route) {
 	output.Id = item.ID
 	output.Name = item.Name
 	output.Desc = item.Desc
@@ -444,8 +456,8 @@ func (s *JumperService) copyModelToOutput(output *cores.Jumper, item *model.Jump
 	output.Updated = item.Updated.UnixMilli()
 }
 
-func (s *JumperService) listBySrcAndStatusON(ctx context.Context, src string) ([]model.Jumper, error) {
-	var items []model.Jumper
+func (s *RouteService) listBySrcAndStatusON(ctx context.Context, src string) ([]model.Route, error) {
+	var items []model.Route
 
 	err := s.cs.GetDB().NewSelect().Model(&items).
 		Where("src = ?", src).Where("status = ?", consts.ON).Scan(ctx)

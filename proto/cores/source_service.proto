@@ -136,6 +136,7 @@ service TagService {
     rpc Clone(CloneTagRequest) returns (pb.MyBool) {}
     rpc GetValue(pb.Id) returns (pb.TagValue) {}
     rpc SetValue(pb.TagValue) returns (pb.MyBool) {}
+    rpc SyncValue(pb.TagValue) returns (pb.MyBool) {}
     rpc SetValueUnchecked(pb.TagValue) returns (pb.MyBool) {}
     rpc GetValueByName(GetTagValueByNameRequest) returns (TagNameValue) {}
     rpc SetValueByName(TagNameValue) returns (pb.MyBool) {}

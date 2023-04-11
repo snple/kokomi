@@ -114,9 +114,7 @@ func (s *QuicService) handleConn(conn quic.Connection) error {
 		return err
 	}
 
-	s.lock.Lock()
 	s.addConn(deviceID, conn)
-	s.lock.Unlock()
 
 	go s.accept(conn, deviceID)
 
@@ -124,9 +122,7 @@ func (s *QuicService) handleConn(conn quic.Connection) error {
 	<-context.Done()
 	err = context.Err()
 
-	s.lock.Lock()
 	s.removeConn(deviceID, conn)
-	s.lock.Unlock()
 
 	return err
 }

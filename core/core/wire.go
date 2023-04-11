@@ -60,7 +60,6 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 		DataType: in.GetDataType(),
 		HValue:   in.GetHValue(),
 		LValue:   in.GetLValue(),
-		TagID:    in.GetTagId(),
 		Config:   in.GetConfig(),
 		Status:   in.GetStatus(),
 		Access:   in.GetAccess(),
@@ -77,18 +76,6 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 		}
 
 		item.DeviceID = cable.DeviceID
-	}
-
-	// tag validation
-	if in.GetTagId() != "" {
-		tag, err := s.cs.GetTag().view(ctx, in.GetTagId())
-		if err != nil {
-			return &output, err
-		}
-
-		if tag.DeviceID != item.DeviceID {
-			return &output, status.Error(codes.NotFound, "Query: tag.DeviceID != item.deviceID")
-		}
 	}
 
 	// name validation
@@ -191,18 +178,6 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 		}
 	}
 
-	// tag validation
-	if in.GetTagId() != "" {
-		tag, err := s.cs.GetTag().view(ctx, in.GetTagId())
-		if err != nil {
-			return &output, err
-		}
-
-		if tag.DeviceID != item.DeviceID {
-			return &output, status.Error(codes.NotFound, "Query: tag.DeviceID != item.deviceID")
-		}
-	}
-
 	item.Name = in.GetName()
 	item.Desc = in.GetDesc()
 	item.Tags = in.GetTags()
@@ -210,7 +185,6 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 	item.DataType = in.GetDataType()
 	item.HValue = in.GetHValue()
 	item.LValue = in.GetLValue()
-	item.TagID = in.GetTagId()
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
 	item.Access = in.GetAccess()
@@ -581,11 +555,6 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 	var err error
 	var output pb.MyBool
 
-	isSync := false
-	if !check {
-		isSync = metadata.IsSync(ctx)
-	}
-
 	// basic validation
 	{
 		if in == nil {
@@ -600,9 +569,6 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
 		}
 
-		if isSync && in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var value updated")
-		}
 	}
 
 	// wire
@@ -611,18 +577,13 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 		return &output, err
 	}
 
-	t := time.Now()
-	if isSync {
-		t = time.UnixMilli(in.GetUpdated())
-	} else {
-		if item.Status != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Wire Status != ON")
-		}
+	if item.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Wire Status != ON")
+	}
 
-		if check {
-			if item.Access != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Wire Access != ON")
-			}
+	if check {
+		if item.Access != consts.ON {
+			return &output, status.Errorf(codes.FailedPrecondition, "Wire Access != ON")
 		}
 	}
 
@@ -658,6 +619,8 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 		}
 	}
 
+	t := time.Now()
+
 	if err = s.updateWireValue(ctx, &item, in.GetValue(), t); err != nil {
 		return &output, err
 	}
@@ -666,7 +629,60 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 		return &output, err
 	}
 
-	if err = s.updateValueToJumper(ctx, &item, in.GetValue(), t); err != nil {
+	if err = s.updateValueToRoute(ctx, &item, in.GetValue(), t); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
+		}
+
+		if len(in.GetValue()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid var value updated")
+		}
+	}
+
+	// wire
+	item, err := s.view(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
+	if err != nil {
+		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	}
+
+	t := time.UnixMilli(in.GetUpdated())
+
+	if err = s.updateWireValue(ctx, &item, in.GetValue(), t); err != nil {
+		return &output, err
+	}
+
+	if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
+		return &output, err
+	}
+
+	if err = s.updateValueToRoute(ctx, &item, in.GetValue(), t); err != nil {
 		return &output, err
 	}
 
@@ -815,7 +831,7 @@ func (s *WireService) setValueByName(ctx context.Context, in *cores.WireNameValu
 		return &output, err
 	}
 
-	if err = s.updateValueToJumper(ctx, &item, in.GetValue(), t); err != nil {
+	if err = s.updateValueToRoute(ctx, &item, in.GetValue(), t); err != nil {
 		return &output, err
 	}
 
@@ -891,7 +907,6 @@ func (s *WireService) copyModelToOutput(output *pb.Wire, item *model.Wire) {
 	output.DataType = item.DataType
 	output.HValue = item.HValue
 	output.LValue = item.LValue
-	output.TagId = item.TagID
 	output.Config = item.Config
 	output.Status = item.Status
 	output.Access = item.Access
@@ -1182,14 +1197,14 @@ func (s *WireService) copyModelToOutputWireValue(output *pb.WireValueUpdated, it
 	output.Updated = item.Updated.UnixMilli()
 }
 
-func (s *WireService) updateValueToJumper(ctx context.Context, item *model.Wire, value string, updated time.Time) error {
-	jumpers, err := s.cs.GetJumper().listBySrcAndStatusON(ctx, item.CableID)
+func (s *WireService) updateValueToRoute(ctx context.Context, item *model.Wire, value string, updated time.Time) error {
+	routes, err := s.cs.GetRoute().listBySrcAndStatusON(ctx, item.CableID)
 	if err != nil {
 		return err
 	}
 
-	for i := 0; i < len(jumpers); i++ {
-		cable, err := s.cs.GetCable().view(ctx, jumpers[i].DST)
+	for i := 0; i < len(routes); i++ {
+		cable, err := s.cs.GetCable().view(ctx, routes[i].DST)
 		if err != nil {
 			return err
 		}

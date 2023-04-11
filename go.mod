@@ -8,6 +8,7 @@ require (
 	github.com/danclive/nson-go v0.6.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/influxdata/influxdb-client-go/v2 v2.12.3
+	github.com/klauspost/compress v1.16.4
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/quic-go/quic-go v0.33.0
 	github.com/snple/rgrpc v0.2.0

@@ -480,6 +480,7 @@ type WireServiceClient interface {
 	GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.WireValue, error)
 	SetValue(ctx context.Context, in *pb.WireValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueUnchecked(ctx context.Context, in *pb.WireValue, opts ...grpc.CallOption) (*pb.MyBool, error)
+	SyncValue(ctx context.Context, in *pb.WireValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetValueByName(ctx context.Context, in *GetWireValueByNameRequest, opts ...grpc.CallOption) (*WireNameValue, error)
 	SetValueByName(ctx context.Context, in *WireNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueByNameUnchecked(ctx context.Context, in *WireNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
@@ -597,6 +598,15 @@ func (c *wireServiceClient) SetValueUnchecked(ctx context.Context, in *pb.WireVa
 	return out, nil
 }
 
+func (c *wireServiceClient) SyncValue(ctx context.Context, in *pb.WireValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, "/cores.WireService/SyncValue", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *wireServiceClient) GetValueByName(ctx context.Context, in *GetWireValueByNameRequest, opts ...grpc.CallOption) (*WireNameValue, error) {
 	out := new(WireNameValue)
 	err := c.cc.Invoke(ctx, "/cores.WireService/GetValueByName", in, out, opts...)
@@ -684,6 +694,7 @@ type WireServiceServer interface {
 	GetValue(context.Context, *pb.Id) (*pb.WireValue, error)
 	SetValue(context.Context, *pb.WireValue) (*pb.MyBool, error)
 	SetValueUnchecked(context.Context, *pb.WireValue) (*pb.MyBool, error)
+	SyncValue(context.Context, *pb.WireValue) (*pb.MyBool, error)
 	GetValueByName(context.Context, *GetWireValueByNameRequest) (*WireNameValue, error)
 	SetValueByName(context.Context, *WireNameValue) (*pb.MyBool, error)
 	SetValueByNameUnchecked(context.Context, *WireNameValue) (*pb.MyBool, error)
@@ -731,6 +742,9 @@ func (UnimplementedWireServiceServer) SetValue(context.Context, *pb.WireValue) (
 }
 func (UnimplementedWireServiceServer) SetValueUnchecked(context.Context, *pb.WireValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetValueUnchecked not implemented")
+}
+func (UnimplementedWireServiceServer) SyncValue(context.Context, *pb.WireValue) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SyncValue not implemented")
 }
 func (UnimplementedWireServiceServer) GetValueByName(context.Context, *GetWireValueByNameRequest) (*WireNameValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValueByName not implemented")
@@ -967,6 +981,24 @@ func _WireService_SetValueUnchecked_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WireService_SyncValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.WireValue)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WireServiceServer).SyncValue(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cores.WireService/SyncValue",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WireServiceServer).SyncValue(ctx, req.(*pb.WireValue))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _WireService_GetValueByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetWireValueByNameRequest)
 	if err := dec(in); err != nil {
@@ -1161,6 +1193,10 @@ var WireService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetValueUnchecked",
 			Handler:    _WireService_SetValueUnchecked_Handler,
+		},
+		{
+			MethodName: "SyncValue",
+			Handler:    _WireService_SyncValue_Handler,
 		},
 		{
 			MethodName: "GetValueByName",

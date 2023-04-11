@@ -34,6 +34,8 @@ type EdgeService struct {
 	variable *VarService
 	cable    *CableService
 	wire     *WireService
+	class    *ClassService
+	attr     *AttrService
 	data     *DataService
 	control  *ControlService
 	quic     types.Option[*QuicService]
@@ -98,6 +100,8 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 	es.variable = newVarService(es)
 	es.cable = newCableService(es)
 	es.wire = newWireService(es)
+	es.class = newClassService(es)
+	es.attr = newAttrService(es)
 	es.data = newDataService(es)
 	es.control = newControlService(es)
 
@@ -122,13 +126,6 @@ func (es *EdgeService) Start() {
 		es.closeWG.Add(1)
 		defer es.closeWG.Done()
 
-		es.GetWire().Start()
-	}()
-
-	go func() {
-		es.closeWG.Add(1)
-		defer es.closeWG.Done()
-
 		es.GetNode().Start()
 	}()
 
@@ -149,10 +146,6 @@ func (es *EdgeService) Start() {
 			tunnel.Unwrap().Start()
 		}()
 	}
-
-	// if upload := GetUpload(); upload.IsSome() {
-	// 	go upload.Unwrap().Start()
-	// }
 }
 
 func (es *EdgeService) Stop() {
@@ -160,9 +153,6 @@ func (es *EdgeService) Stop() {
 
 	es.dopts.logger.Sync()
 
-	// if upload := GetUpload(); upload.IsSome() {
-	// 	upload.Unwrap().Stop()
-	// }
 	if tunnel := es.tunnel; tunnel.IsSome() {
 		tunnel.Unwrap().Stop()
 	}
@@ -170,7 +160,6 @@ func (es *EdgeService) Stop() {
 		quic.Unwrap().Stop()
 	}
 	es.GetNode().Stop()
-	es.GetWire().Stop()
 
 	es.closeWG.Wait()
 }
@@ -239,6 +228,14 @@ func (es *EdgeService) GetWire() *WireService {
 	return es.wire
 }
 
+func (es *EdgeService) GetClass() *ClassService {
+	return es.class
+}
+
+func (es *EdgeService) GetAttr() *AttrService {
+	return es.attr
+}
+
 func (es *EdgeService) GetData() *DataService {
 	return es.data
 }
@@ -275,6 +272,8 @@ func (es *EdgeService) Register(server *grpc.Server) {
 	edges.RegisterVarServiceServer(server, es.variable)
 	edges.RegisterCableServiceServer(server, es.cable)
 	edges.RegisterWireServiceServer(server, es.wire)
+	edges.RegisterClassServiceServer(server, es.class)
+	edges.RegisterAttrServiceServer(server, es.attr)
 	edges.RegisterDataServiceServer(server, es.data)
 	edges.RegisterControlServiceServer(server, es.control)
 }
@@ -292,6 +291,8 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Var)(nil),
 		(*model.Cable)(nil),
 		(*model.Wire)(nil),
+		(*model.Class)(nil),
+		(*model.Attr)(nil),
 		(*model.TagValue)(nil),
 		(*model.WireValue)(nil),
 	}
@@ -313,7 +314,6 @@ type edgeOptions struct {
 	quicOptions   *quicOptions
 	influxdb      *db.InfluxDB
 	linkStatusTTL time.Duration
-	valueCacheTTL time.Duration
 	logger        *zap.Logger
 
 	tokenRefresh              time.Duration
@@ -340,7 +340,6 @@ func defaultEdgeOptions() edgeOptions {
 
 	return edgeOptions{
 		linkStatusTTL:             3 * time.Minute,
-		valueCacheTTL:             3 * time.Minute,
 		logger:                    logger,
 		tokenRefresh:              30 * time.Minute,
 		syncLinkStatus:            time.Minute,
@@ -412,12 +411,6 @@ func WithInfluxDB(influxdb *db.InfluxDB) EdgeOption {
 func WithLinkStatusTTL(d time.Duration) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		o.linkStatusTTL = d
-	})
-}
-
-func WithValueCacheTTL(d time.Duration) EdgeOption {
-	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.valueCacheTTL = d
 	})
 }
 

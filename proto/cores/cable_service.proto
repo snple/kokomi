@@ -136,6 +136,7 @@ service WireService {
     rpc GetValue(pb.Id) returns (pb.WireValue) {}
     rpc SetValue(pb.WireValue) returns (pb.MyBool) {}
     rpc SetValueUnchecked(pb.WireValue) returns (pb.MyBool) {}
+    rpc SyncValue(pb.WireValue) returns (pb.MyBool) {}
     rpc GetValueByName(GetWireValueByNameRequest) returns (WireNameValue) {}
     rpc SetValueByName(WireNameValue) returns (pb.MyBool) {}
     rpc SetValueByNameUnchecked(WireNameValue) returns (pb.MyBool) {}

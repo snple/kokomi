@@ -16,8 +16,10 @@ import (
 	"github.com/snple/kokomi/core/node"
 	"github.com/snple/kokomi/db"
 	"github.com/snple/kokomi/util"
+	"github.com/snple/kokomi/util/compress/zstd"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	_ "google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/keepalive"
 )
 
@@ -80,6 +82,8 @@ func main() {
 
 	cs.Start()
 	defer cs.Stop()
+
+	zstd.Register()
 
 	if config.Config.CoreService.Enable {
 		tlsConfig, err := util.LoadServerCert(config.Config.CoreService.CA, config.Config.CoreService.Cert, config.Config.CoreService.Key)

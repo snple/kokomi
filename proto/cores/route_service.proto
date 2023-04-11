@@ -5,7 +5,7 @@ option go_package = "github.com/snple/kokomi/pb/cores;cores";
 
 import "generic_message.proto";
 
-message Jumper {
+message Route {
     string id = 1;
     string name = 2;
     string desc = 3;
@@ -20,7 +20,7 @@ message Jumper {
     int64 deleted = 12;
 }
 
-message ListJumperRequest {
+message ListRouteRequest {
     pb.Page page = 1;
     string src = 2;
     string dst = 3;
@@ -28,17 +28,17 @@ message ListJumperRequest {
     string type = 5;
 }
 
-message ListJumperResponse {
+message ListRouteResponse {
     pb.Page page = 1;
     uint32 count = 2;
-    repeated Jumper jumper = 3;
+    repeated Route route = 3;
 }
 
-service JumperService {
-    rpc Create(Jumper) returns (Jumper) {}
-    rpc Update(Jumper) returns (Jumper) {}
-    rpc View(pb.Id) returns (Jumper) {}
-    rpc ViewByName(pb.Name) returns (Jumper) {}
+service RouteService {
+    rpc Create(Route) returns (Route) {}
+    rpc Update(Route) returns (Route) {}
+    rpc View(pb.Id) returns (Route) {}
+    rpc ViewByName(pb.Name) returns (Route) {}
     rpc Delete(pb.Id) returns (pb.MyBool) {}
-    rpc List(ListJumperRequest) returns (ListJumperResponse) {}
+    rpc List(ListRouteRequest) returns (ListRouteResponse) {}
 }

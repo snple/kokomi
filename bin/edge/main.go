@@ -14,6 +14,7 @@ import (
 	"github.com/snple/kokomi/db"
 	"github.com/snple/kokomi/edge/edge"
 	"github.com/snple/kokomi/util"
+	"github.com/snple/kokomi/util/compress/zstd"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
@@ -55,7 +56,10 @@ func main() {
 
 		grpcOpts := []grpc.DialOption{
 			grpc.WithKeepaliveParams(kacp),
+			grpc.WithDefaultCallOptions(grpc.UseCompressor(zstd.Name)),
 		}
+
+		zstd.Register()
 
 		if config.Config.NodeClient.TLS {
 			tlsConfig, err := util.LoadClientCert(

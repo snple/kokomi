@@ -31,6 +31,8 @@ type NodeService struct {
 	cable       *CableService
 	wire        *WireService
 	data        *DataService
+	class       *ClassService
+	attr        *AttrService
 	rgrpc       *RgrpcService
 	quic        types.Option[*QuicService]
 
@@ -71,6 +73,8 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 	ns.variable = newVarService(ns)
 	ns.cable = newCableService(ns)
 	ns.wire = newWireService(ns)
+	ns.class = newClassService(ns)
+	ns.attr = newAttrService(ns)
 	ns.data = newDataService(ns)
 	ns.rgrpc = newRgrpcService(ns)
 
@@ -131,6 +135,8 @@ func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 	nodes.RegisterVarServiceServer(server, ns.variable)
 	nodes.RegisterCableServiceServer(server, ns.cable)
 	nodes.RegisterWireServiceServer(server, ns.wire)
+	nodes.RegisterClassServiceServer(server, ns.class)
+	nodes.RegisterAttrServiceServer(server, ns.attr)
 	nodes.RegisterDataServiceServer(server, ns.data)
 	rgrpc.RegisterRgrpcServiceServer(server, ns.rgrpc)
 }

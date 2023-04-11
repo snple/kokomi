@@ -440,6 +440,106 @@ func (s *SyncService) GetWireUpdated(ctx context.Context, in *pb.MyEmpty) (*slot
 	return &output, nil
 }
 
+func (s *SyncService) SetClassUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
+	var output pb.MyBool
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid class updated")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.es.GetSync().SetClassUpdated(ctx,
+		&edges.SyncUpdated{Updated: in.GetUpdated()})
+}
+
+func (s *SyncService) GetClassUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
+	var output slots.SyncUpdated
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	reply, err := s.ss.es.GetSync().GetClassUpdated(ctx, in)
+	if err != nil {
+		return &output, err
+	}
+
+	output.Updated = reply.GetUpdated()
+
+	return &output, nil
+}
+
+func (s *SyncService) SetAttrUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
+	var output pb.MyBool
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr updated")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.es.GetSync().SetAttrUpdated(ctx,
+		&edges.SyncUpdated{Updated: in.GetUpdated()})
+}
+
+func (s *SyncService) GetAttrUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
+	var output slots.SyncUpdated
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	reply, err := s.ss.es.GetSync().GetAttrUpdated(ctx, in)
+	if err != nil {
+		return &output, err
+	}
+
+	output.Updated = reply.GetUpdated()
+
+	return &output, nil
+}
+
 func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error

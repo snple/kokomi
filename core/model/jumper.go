@@ -6,8 +6,8 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type Jumper struct {
-	bun.BaseModel `bun:"jumper"`
+type Route struct {
+	bun.BaseModel `bun:"route"`
 	ID            string    `bun:"type:TEXT,pk" json:"id"`
 	Name          string    `bun:"name,type:TEXT" json:"name"`
 	Desc          string    `bun:"desc,type:TEXT" json:"desc"`

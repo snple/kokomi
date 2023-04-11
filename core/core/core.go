@@ -31,12 +31,14 @@ type CoreService struct {
 	variable    *VarService
 	cable       *CableService
 	wire        *WireService
+	class       *ClassService
+	attr        *AttrService
 	data        *DataService
 	control     *ControlService
 
 	clone *cloneService
 
-	jumper *JumperService
+	route *RouteService
 
 	ctx     context.Context
 	cancel  func()
@@ -84,12 +86,14 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.variable = newVarService(cs)
 	cs.cable = newCableService(cs)
 	cs.wire = newWireService(cs)
+	cs.class = newClassService(cs)
+	cs.attr = newAttrService(cs)
 	cs.data = newDateService(cs)
 	cs.control = newControlService(cs)
 
 	cs.clone = newCloneService(cs)
 
-	cs.jumper = newJumperService(cs)
+	cs.route = newRouteService(cs)
 
 	return cs, nil
 }
@@ -169,6 +173,14 @@ func (cs *CoreService) GetWire() *WireService {
 	return cs.wire
 }
 
+func (cs *CoreService) GetClass() *ClassService {
+	return cs.class
+}
+
+func (cs *CoreService) GetAttr() *AttrService {
+	return cs.attr
+}
+
 func (cs *CoreService) GetData() *DataService {
 	return cs.data
 }
@@ -181,8 +193,8 @@ func (cs *CoreService) getClone() *cloneService {
 	return cs.clone
 }
 
-func (cs *CoreService) GetJumper() *JumperService {
-	return cs.jumper
+func (cs *CoreService) GetRoute() *RouteService {
+	return cs.route
 }
 
 func (cs *CoreService) Context() context.Context {
@@ -206,9 +218,11 @@ func (cs *CoreService) Register(server *grpc.Server) {
 	cores.RegisterVarServiceServer(server, cs.variable)
 	cores.RegisterCableServiceServer(server, cs.cable)
 	cores.RegisterWireServiceServer(server, cs.wire)
+	cores.RegisterClassServiceServer(server, cs.class)
+	cores.RegisterAttrServiceServer(server, cs.attr)
 	cores.RegisterDataServiceServer(server, cs.data)
 	cores.RegisterControlServiceServer(server, cs.control)
-	cores.RegisterJumperServiceServer(server, cs.jumper)
+	cores.RegisterRouteServiceServer(server, cs.route)
 }
 
 func CreateSchema(db bun.IDB) error {
@@ -225,9 +239,11 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Var)(nil),
 		(*model.Cable)(nil),
 		(*model.Wire)(nil),
+		(*model.Class)(nil),
+		(*model.Attr)(nil),
 		(*model.TagValue)(nil),
 		(*model.WireValue)(nil),
-		(*model.Jumper)(nil),
+		(*model.Route)(nil),
 	}
 
 	for _, model := range models {
@@ -242,7 +258,6 @@ func CreateSchema(db bun.IDB) error {
 type coreOptions struct {
 	influxdb      *db.InfluxDB
 	linkStatusTTL time.Duration
-	valueCacheTTL time.Duration
 	logger        *zap.Logger
 }
 
@@ -254,7 +269,6 @@ func defaultCoreOptions() coreOptions {
 
 	return coreOptions{
 		linkStatusTTL: 3 * time.Minute,
-		valueCacheTTL: 3 * time.Minute,
 		logger:        logger,
 	}
 }
@@ -288,12 +302,6 @@ func WithInfluxDB(influxdb *db.InfluxDB) CoreOption {
 func WithLinkStatusTTL(d time.Duration) CoreOption {
 	return newFuncCoreOption(func(o *coreOptions) {
 		o.linkStatusTTL = d
-	})
-}
-
-func WithValueCacheTTL(d time.Duration) CoreOption {
-	return newFuncCoreOption(func(o *coreOptions) {
-		o.valueCacheTTL = d
 	})
 }
 

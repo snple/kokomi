@@ -64,3 +64,9 @@ message TagValueUpdated {
     string value = 4;
     int64 updated = 5;
 }
+
+message TagValue2 {
+    bytes id = 1;
+    string value = 2;
+    int64 updated = 3;
+}

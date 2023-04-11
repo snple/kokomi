@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/danclive/nson-go"
 	"github.com/snple/kokomi/consts"
 	"github.com/snple/kokomi/core/model"
 	"github.com/snple/kokomi/pb"
@@ -15,8 +14,6 @@ import (
 	"github.com/snple/kokomi/util"
 	"github.com/snple/kokomi/util/datatype"
 	"github.com/snple/kokomi/util/metadata"
-	"github.com/snple/types"
-	"github.com/snple/types/cache"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -25,15 +22,12 @@ import (
 type TagService struct {
 	cs *CoreService
 
-	valueCache *cache.Cache[nson.Value]
-
 	cores.UnimplementedTagServiceServer
 }
 
 func newTagService(cs *CoreService) *TagService {
 	return &TagService{
-		cs:         cs,
-		valueCache: cache.NewCache[nson.Value](nil),
+		cs: cs,
 	}
 }
 
@@ -124,11 +118,9 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 
 	s.copyModelToOutput(&output, &item)
 
-	value := s.GetTagValue(item.ID)
-
-	output.Value, err = datatype.EncodeNsonValue(value)
+	output.Value, err = s.getTagValue(ctx, item.ID)
 	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "EncodeValue: %v", err)
+		return &output, err
 	}
 
 	return &output, nil
@@ -224,11 +216,9 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 
 	s.copyModelToOutput(&output, &item)
 
-	value := s.GetTagValue(item.ID)
-
-	output.Value, err = datatype.EncodeNsonValue(value)
+	output.Value, err = s.getTagValue(ctx, item.ID)
 	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "EncodeValue: %v", err)
+		return &output, err
 	}
 
 	return &output, nil
@@ -256,11 +246,9 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 
 	s.copyModelToOutput(&output, &item)
 
-	value := s.GetTagValue(item.ID)
-
-	output.Value, err = datatype.EncodeNsonValue(value)
+	output.Value, err = s.getTagValue(ctx, item.ID)
 	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "EncodeValue: %v", err)
+		return &output, err
 	}
 
 	return &output, nil
@@ -294,11 +282,9 @@ func (s *TagService) ViewByName(ctx context.Context, in *cores.ViewTagByNameRequ
 
 	output.Name = in.GetName()
 
-	value := s.GetTagValue(item.ID)
-
-	output.Value, err = datatype.EncodeNsonValue(value)
+	output.Value, err = s.getTagValue(ctx, item.ID)
 	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "EncodeValue: %v", err)
+		return &output, err
 	}
 
 	return &output, nil
@@ -358,11 +344,9 @@ func (s *TagService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Tag, 
 
 	output.Name = in.GetName()
 
-	value := s.GetTagValue(item.ID)
-
-	output.Value, err = datatype.EncodeNsonValue(value)
+	output.Value, err = s.getTagValue(ctx, item.ID)
 	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "EncodeValue: %v", err)
+		return &output, err
 	}
 
 	return &output, nil
@@ -494,11 +478,9 @@ func (s *TagService) List(ctx context.Context, in *cores.ListTagRequest) (*cores
 
 		s.copyModelToOutput(&item, &items[i])
 
-		value := s.GetTagValue(items[i].ID)
-
-		item.Value, err = datatype.EncodeNsonValue(value)
+		item.Value, err = s.getTagValue(ctx, items[i].ID)
 		if err != nil {
-			return &output, status.Errorf(codes.InvalidArgument, "EncodeValue: %v", err)
+			return &output, err
 		}
 
 		output.Tag = append(output.Tag, &item)
@@ -549,17 +531,19 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 
 	output.Id = in.GetId()
 
-	var value nson.Value = nson.Null{}
-	if v := s.GetTagValueValue(in.GetId()); v.IsSome() {
-		cv := v.Unwrap()
-		value = cv.Data
-		output.Updated = cv.Updated.UnixMilli()
+	item2, err := s.viewValueUpdated(ctx, in.GetId())
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return &output, nil
+			}
+		}
+
+		return &output, err
 	}
 
-	output.Value, err = datatype.EncodeNsonValue(value)
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "EncodeValue: %v", err)
-	}
+	output.Value = item2.Value
+	output.Updated = item2.Updated.UnixMilli()
 
 	return &output, nil
 }
@@ -607,7 +591,7 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 		}
 	}
 
-	nsonValue, err := datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
+	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
 	if err != nil {
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
@@ -639,16 +623,59 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 		}
 	}
 
-	if check {
-		if err = s.updateTagValue(ctx, &item, in.GetValue()); err != nil {
-			return &output, err
+	if err = s.updateTagValue(ctx, &item, in.GetValue(), time.Now()); err != nil {
+		return &output, err
+	}
+
+	if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
-			return &output, err
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
 		}
-	} else {
-		s.SetTagValue(item.ID, nsonValue)
+
+		if len(in.GetValue()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid var value updated")
+		}
+	}
+
+	// tag
+	item, err := s.view(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
+	if err != nil {
+		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	}
+
+	if err = s.updateTagValue(ctx, &item, in.GetValue(), time.UnixMilli(in.GetUpdated())); err != nil {
+		return &output, err
+	}
+
+	if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
+		return &output, err
 	}
 
 	output.Bool = true
@@ -683,17 +710,19 @@ func (s *TagService) GetValueByName(ctx context.Context, in *cores.GetTagValueBy
 	output.DeviceId = in.GetDeviceId()
 	output.Name = in.GetName()
 
-	var value nson.Value = nson.Null{}
-	if v := s.GetTagValueValue(item.ID); v.IsSome() {
-		cv := v.Unwrap()
-		value = cv.Data
-		output.Updated = cv.Updated.UnixMilli()
+	item2, err := s.viewValueUpdated(ctx, item.ID)
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return &output, nil
+			}
+		}
+
+		return &output, err
 	}
 
-	output.Value, err = datatype.EncodeNsonValue(value)
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "EncodeValue: %v", err)
-	}
+	output.Value = item2.Value
+	output.Updated = item2.Updated.UnixMilli()
 
 	return &output, nil
 }
@@ -779,21 +808,17 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 		}
 	}
 
-	nsonValue, err := datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
+	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
 	if err != nil {
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	if check {
-		if err = s.updateTagValue(ctx, &item, in.GetValue()); err != nil {
-			return &output, err
-		}
+	if err = s.updateTagValue(ctx, &item, in.GetValue(), time.Now()); err != nil {
+		return &output, err
+	}
 
-		if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
-			return &output, err
-		}
-	} else {
-		s.SetTagValue(item.ID, nsonValue)
+	if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
+		return &output, err
 	}
 
 	output.Bool = true
@@ -894,22 +919,6 @@ func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
 	output.Deleted = item.Deleted.UnixMilli()
 }
 
-func (s *TagService) GetTagValue(id string) nson.Value {
-	if v := s.valueCache.Get(id); v.IsSome() {
-		return v.Unwrap()
-	}
-
-	return nson.Null{}
-}
-
-func (s *TagService) GetTagValueValue(id string) types.Option[cache.Value[nson.Value]] {
-	return s.valueCache.GetValue(id)
-}
-
-func (s *TagService) SetTagValue(id string, value nson.Value) {
-	s.valueCache.Set(id, value, s.cs.dopts.valueCacheTTL)
-}
-
 func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
 	var err error
 
@@ -932,7 +941,22 @@ func (s *TagService) afterDelete(ctx context.Context, item *model.Tag) error {
 	return nil
 }
 
-func (s *TagService) updateTagValue(ctx context.Context, item *model.Tag, value string) error {
+func (s *TagService) getTagValue(ctx context.Context, id string) (string, error) {
+	item2, err := s.viewValueUpdated(ctx, id)
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return "", nil
+			}
+		}
+
+		return "", err
+	}
+
+	return item2.Value, nil
+}
+
+func (s *TagService) updateTagValue(ctx context.Context, item *model.Tag, value string, updated time.Time) error {
 	var err error
 
 	item2 := model.TagValue{
@@ -940,7 +964,7 @@ func (s *TagService) updateTagValue(ctx context.Context, item *model.Tag, value 
 		DeviceID: item.DeviceID,
 		SourceID: item.SourceID,
 		Value:    value,
-		Updated:  time.Now(),
+		Updated:  updated,
 	}
 
 	ret, err := s.cs.GetDB().NewUpdate().Model(&item2).WherePK().WhereAllWithDeleted().Exec(ctx)

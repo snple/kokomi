@@ -1,0 +1,89 @@
+syntax = "proto3";
+package nodes;
+
+option go_package = "github.com/snple/kokomi/pb/nodes;nodes";
+
+import "class_message.proto";
+import "generic_message.proto";
+
+// class
+message ListClassRequest {
+    pb.Page page = 1;
+    // string device_id = 2;
+    string tags = 3;
+    string type = 4;
+}
+
+message ListClassResponse {
+    pb.Page page = 1;
+    uint32 count = 2;
+    repeated pb.Class class = 3;
+}
+
+message PullClassRequest {
+    int64 after = 1;
+    uint32 limit = 2;
+    // string device_id = 3;
+}
+
+message PullClassResponse {
+    int64 after = 1;
+    uint32 limit = 2;
+    repeated pb.Class class = 3;
+}
+
+service ClassService {
+    rpc Create(pb.Class) returns (pb.Class) {}
+    rpc Update(pb.Class) returns (pb.Class) {}
+    rpc View(pb.Id) returns (pb.Class) {}
+    rpc ViewByName(pb.Name) returns (pb.Class) {}
+    rpc Delete(pb.Id) returns (pb.MyBool) {}
+    rpc List(ListClassRequest) returns (ListClassResponse) {}
+    rpc ViewWithDeleted(pb.Id) returns (pb.Class) {}
+    rpc Pull(PullClassRequest) returns (PullClassResponse) {}
+}
+
+// attr
+message ListAttrRequest {
+    pb.Page page = 1;
+    // string device_id = 2;
+    string class_id = 3;
+    string tags = 4;
+    string type = 5;
+}
+
+message ListAttrResponse {
+    pb.Page page = 1;
+    uint32 count = 2;
+    repeated pb.Attr attr = 3;
+}
+
+message PullAttrRequest {
+    int64 after = 1;
+    uint32 limit = 2;
+    // string device_id = 3;
+    string class_id = 4;
+}
+
+message PullAttrResponse {
+    int64 after = 1;
+    uint32 limit = 2;
+    repeated pb.Attr attr = 3;
+}
+
+service AttrService {
+    rpc Create(pb.Attr) returns (pb.Attr) {}
+    rpc Update(pb.Attr) returns (pb.Attr) {}
+    rpc View(pb.Id) returns (pb.Attr) {}
+    rpc ViewByName(pb.Name) returns (pb.Attr) {}
+    rpc Delete(pb.Id) returns (pb.MyBool) {}
+    rpc List(ListAttrRequest) returns (ListAttrResponse) {}
+    rpc GetValue(pb.Id) returns (pb.AttrValue) {}
+    rpc SetValue(pb.AttrValue) returns (pb.MyBool) {}
+    rpc SetValueUnchecked(pb.AttrValue) returns (pb.MyBool) {}
+    rpc GetValueByName(pb.Name) returns (pb.AttrNameValue) {}
+    rpc SetValueByName(pb.AttrNameValue) returns (pb.MyBool) {}
+    rpc SetValueByNameUnchecked(pb.AttrNameValue) returns (pb.MyBool) {}
+    rpc ViewWithDeleted(pb.Id) returns (pb.Attr) {}
+    rpc Pull(PullAttrRequest) returns (PullAttrResponse) {}
+}

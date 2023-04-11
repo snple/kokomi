@@ -413,6 +413,8 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.Id) (*pb.MyBool, err
 			(*model.Var)(nil),
 			(*model.Cable)(nil),
 			(*model.Wire)(nil),
+			(*model.Class)(nil),
+			(*model.Attr)(nil),
 			(*model.TagValue)(nil),
 			(*model.WireValue)(nil),
 		}

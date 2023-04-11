@@ -443,6 +443,7 @@ type TagServiceClient interface {
 	GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValue, error)
 	SetValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueUnchecked(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
+	SyncValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetValueByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.TagNameValue, error)
 	SetValueByName(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueByNameUnchecked(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
@@ -551,6 +552,15 @@ func (c *tagServiceClient) SetValueUnchecked(ctx context.Context, in *pb.TagValu
 	return out, nil
 }
 
+func (c *tagServiceClient) SyncValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, "/edges.TagService/SyncValue", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *tagServiceClient) GetValueByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.TagNameValue, error) {
 	out := new(pb.TagNameValue)
 	err := c.cc.Invoke(ctx, "/edges.TagService/GetValueByName", in, out, opts...)
@@ -637,6 +647,7 @@ type TagServiceServer interface {
 	GetValue(context.Context, *pb.Id) (*pb.TagValue, error)
 	SetValue(context.Context, *pb.TagValue) (*pb.MyBool, error)
 	SetValueUnchecked(context.Context, *pb.TagValue) (*pb.MyBool, error)
+	SyncValue(context.Context, *pb.TagValue) (*pb.MyBool, error)
 	GetValueByName(context.Context, *pb.Name) (*pb.TagNameValue, error)
 	SetValueByName(context.Context, *pb.TagNameValue) (*pb.MyBool, error)
 	SetValueByNameUnchecked(context.Context, *pb.TagNameValue) (*pb.MyBool, error)
@@ -681,6 +692,9 @@ func (UnimplementedTagServiceServer) SetValue(context.Context, *pb.TagValue) (*p
 }
 func (UnimplementedTagServiceServer) SetValueUnchecked(context.Context, *pb.TagValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetValueUnchecked not implemented")
+}
+func (UnimplementedTagServiceServer) SyncValue(context.Context, *pb.TagValue) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SyncValue not implemented")
 }
 func (UnimplementedTagServiceServer) GetValueByName(context.Context, *pb.Name) (*pb.TagNameValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValueByName not implemented")
@@ -899,6 +913,24 @@ func _TagService_SetValueUnchecked_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TagService_SyncValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.TagValue)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).SyncValue(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/edges.TagService/SyncValue",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).SyncValue(ctx, req.(*pb.TagValue))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TagService_GetValueByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
@@ -1089,6 +1121,10 @@ var TagService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetValueUnchecked",
 			Handler:    _TagService_SetValueUnchecked_Handler,
+		},
+		{
+			MethodName: "SyncValue",
+			Handler:    _TagService_SyncValue_Handler,
 		},
 		{
 			MethodName: "GetValueByName",

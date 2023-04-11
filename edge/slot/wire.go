@@ -209,6 +209,25 @@ func (s *WireService) SetValueUnchecked(ctx context.Context, in *pb.WireValue) (
 	return s.ss.es.GetWire().SetValueUnchecked(ctx, in)
 }
 
+func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.es.GetWire().SyncValue(ctx, in)
+}
+
 func (s *WireService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.WireNameValue, error) {
 	var err error
 	var output pb.WireNameValue

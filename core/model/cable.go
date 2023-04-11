@@ -36,7 +36,6 @@ type Wire struct {
 	DataType      string    `bun:"data_type,type:TEXT" json:"data_type"`
 	HValue        string    `bun:"h_value,type:TEXT" json:"h_value"`
 	LValue        string    `bun:"l_value,type:TEXT" json:"l_value"`
-	TagID         string    `bun:"tag_id,type:TEXT" json:"tag_id"`
 	Config        string    `bun:"config,type:TEXT" json:"config"`
 	Status        int32     `bun:"status" json:"status"`
 	Access        int32     `bun:"access" json:"access"`

@@ -1,0 +1,61 @@
+syntax = "proto3";
+package pb;
+
+option go_package = "github.com/snple/kokomi/pb;pb";
+
+message Class {
+    string id = 1;
+    string device_id = 2;
+    string name = 3;
+    string desc = 4;
+    string tags = 5;
+    string type = 6;
+    string config = 7;
+    sint32 status = 8;
+    sint32 save = 9;
+    int64 created = 10;
+    int64 updated = 11;
+    int64 deleted = 12;
+}
+
+message Attr {
+    string id = 1;
+    string device_id = 2;
+    string class_id = 3;
+    string name = 4;
+    string desc = 5;
+    string tags = 6;
+    string type = 7;
+    string data_type = 8;
+    string value = 9;
+    string h_value = 10;
+    string l_value = 11;
+    string tag_id = 12;
+    string config = 13;
+    sint32 status = 14;
+    sint32 access = 15;
+    sint32 save = 16;
+    int64 created = 17;
+    int64 updated = 18;
+    int64 deleted = 19;
+}
+
+message AttrValue {
+    string id = 1;
+    string value = 2;
+    int64 updated = 3;
+}
+
+message AttrNameValue {
+    string name = 1;
+    string value = 2;
+    int64 updated = 3;
+}
+
+message AttrValueUpdated {
+    string id = 1;
+    string device_id = 2;
+    string cable_id = 3;
+    string value = 4;
+    int64 updated = 5;
+}

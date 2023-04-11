@@ -146,7 +146,7 @@ func (s *cloneService) cloneDevice(ctx context.Context, db bun.IDB, deviceID str
 		}
 	}
 
-	tagIdMap := make(map[string]string, 0)
+	tagIDMap := make(map[string]string, 0)
 
 	// source
 	{
@@ -182,7 +182,7 @@ func (s *cloneService) cloneDevice(ctx context.Context, db bun.IDB, deviceID str
 
 				for _, tag := range tags {
 					newId := util.RandomID()
-					tagIdMap[tag.ID] = newId
+					tagIDMap[tag.ID] = newId
 
 					tag.ID = newId
 					tag.SourceID = source.ID
@@ -260,16 +260,65 @@ func (s *cloneService) cloneDevice(ctx context.Context, db bun.IDB, deviceID str
 					wire.CableID = cable.ID
 					wire.DeviceID = cable.DeviceID
 
-					if wire.TagID != "" {
-						if tagId, ok := tagIdMap[wire.TagID]; ok {
-							wire.TagID = tagId
-						}
-					}
-
 					wire.Created = time.Now()
 					wire.Updated = time.Now()
 
 					_, err = db.NewInsert().Model(&wire).Exec(ctx)
+					if err != nil {
+						return status.Errorf(codes.Internal, "Insert: %v", err)
+					}
+				}
+			}
+		}
+	}
+
+	// class
+	{
+		var classes []model.Class
+
+		err = db.NewSelect().Model(&classes).Where("device_id = ?", deviceID).Order("id ASC").Scan(ctx)
+		if err != nil {
+			return status.Errorf(codes.Internal, "Query: %v", err)
+		}
+
+		for _, class := range classes {
+			oldClassId := class.ID
+
+			class.ID = util.RandomID()
+			class.DeviceID = device.ID
+
+			class.Created = time.Now()
+			class.Updated = time.Now()
+
+			_, err = db.NewInsert().Model(&class).Exec(ctx)
+			if err != nil {
+				return status.Errorf(codes.Internal, "Insert: %v", err)
+			}
+
+			// attr
+			{
+				var attrs []model.Attr
+
+				err = db.NewSelect().Model(&attrs).Where("class_id = ?", oldClassId).Order("id ASC").Scan(ctx)
+				if err != nil {
+					return status.Errorf(codes.Internal, "Query: %v", err)
+				}
+
+				for _, attr := range attrs {
+					attr.ID = util.RandomID()
+					attr.ClassID = class.ID
+					attr.DeviceID = class.DeviceID
+
+					if attr.TagID != "" {
+						if tagId, ok := tagIDMap[attr.TagID]; ok {
+							attr.TagID = tagId
+						}
+					}
+
+					attr.Created = time.Now()
+					attr.Updated = time.Now()
+
+					_, err = db.NewInsert().Model(&attr).Exec(ctx)
 					if err != nil {
 						return status.Errorf(codes.Internal, "Insert: %v", err)
 					}
@@ -792,6 +841,137 @@ func (s *cloneService) cloneWire(ctx context.Context, db bun.IDB, wireID, cableI
 
 		item.CableID = cable.ID
 		item.DeviceID = cable.DeviceID
+	}
+
+	item.ID = util.RandomID()
+	item.Name = fmt.Sprintf("%v_clone_%v", item.Name, randNameSuffix())
+
+	item.Created = time.Now()
+	item.Updated = time.Now()
+
+	_, err = db.NewInsert().Model(&item).Exec(ctx)
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	return nil
+}
+
+func (s *cloneService) cloneClass(ctx context.Context, db bun.IDB, classID, deviceID string) error {
+	var err error
+
+	item := model.Class{
+		ID: classID,
+	}
+
+	err = db.NewSelect().Model(&item).WherePK().Scan(ctx)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return status.Errorf(codes.NotFound, "Query: %v", err)
+		}
+
+		return status.Errorf(codes.Internal, "Query: %v", err)
+	}
+
+	// device validation
+	if len(deviceID) > 0 {
+		device := model.Device{
+			ID: deviceID,
+		}
+
+		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return status.Error(codes.InvalidArgument, "Please supply valid device id")
+			}
+
+			return status.Errorf(codes.Internal, "Query: %v", err)
+		}
+
+		item.DeviceID = device.ID
+	}
+
+	item.ID = util.RandomID()
+	item.Name = fmt.Sprintf("%v_clone_%v", item.Name, randNameSuffix())
+
+	item.Created = time.Now()
+	item.Updated = time.Now()
+
+	_, err = db.NewInsert().Model(&item).Exec(ctx)
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	// clone attrs
+	{
+		var attrs []model.Attr
+
+		err = db.NewSelect().Model(&attrs).Where("class_id = ?", classID).Order("id ASC").Scan(ctx)
+		if err != nil {
+			return status.Errorf(codes.Internal, "Query: %v", err)
+		}
+
+		for _, attr := range attrs {
+			attr.ID = util.RandomID()
+			attr.ClassID = item.ID
+			attr.DeviceID = item.DeviceID
+
+			attr.Created = time.Now()
+			attr.Updated = time.Now()
+
+			_, err = db.NewInsert().Model(&attr).Exec(ctx)
+			if err != nil {
+				return status.Errorf(codes.Internal, "Insert: %v", err)
+			}
+		}
+	}
+
+	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	return nil
+}
+
+func (s *cloneService) cloneAttr(ctx context.Context, db bun.IDB, attrID, classID string) error {
+	var err error
+
+	item := model.Attr{
+		ID: attrID,
+	}
+
+	err = db.NewSelect().Model(&item).WherePK().Scan(ctx)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return status.Errorf(codes.NotFound, "Query: %v", err)
+		}
+
+		return status.Errorf(codes.Internal, "Query: %v", err)
+	}
+
+	// class validation
+	if len(classID) > 0 {
+		class := model.Class{
+			ID: classID,
+		}
+
+		err = db.NewSelect().Model(&class).WherePK().Scan(ctx)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return status.Error(codes.InvalidArgument, "Please supply valid class_id")
+			}
+
+			return status.Errorf(codes.Internal, "Query: %v", err)
+		}
+
+		item.ClassID = class.ID
+		item.DeviceID = class.DeviceID
 	}
 
 	item.ID = util.RandomID()

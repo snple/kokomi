@@ -294,6 +294,36 @@ func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*p
 	return s.ns.cs.GetTag().SetValueUnchecked(ctx, in)
 }
 
+func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	request := &pb.Id{Id: in.GetId()}
+
+	reply, err := s.ns.cs.GetTag().View(ctx, request)
+	if err != nil {
+		return &output, err
+	}
+
+	if reply.GetDeviceId() != deviceID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	}
+
+	return s.ns.cs.GetTag().SyncValue(ctx, in)
+}
+
 func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
 	var err error
 	var output pb.TagNameValue

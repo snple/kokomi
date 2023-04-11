@@ -31,14 +31,13 @@ message Wire {
     string value = 9;
     string h_value = 10;
     string l_value = 11;
-    string tag_id = 12;
-    string config = 13;
-    sint32 status = 14;
-    sint32 access = 15;
-    sint32 save = 16;
-    int64 created = 17;
-    int64 updated = 18;
-    int64 deleted = 19;
+    string config = 12;
+    sint32 status = 13;
+    sint32 access = 14;
+    sint32 save = 15;
+    int64 created = 16;
+    int64 updated = 17;
+    int64 deleted = 18;
 }
 
 message WireValue {

@@ -63,7 +63,7 @@ func (s *DataService) Upload(ctx context.Context, in *edges.DataUploadRequest) (
 }
 
 func (s *DataService) CacheTagValue(tag *model.Tag, value nson.Value) {
-	s.es.GetTag().SetTagValue(tag.ID, value)
+	// s.es.GetTag().SetTagValue(tag.ID, value)
 }
 
 func (s *DataService) Compile(ctx context.Context, in *edges.DataQueryRequest) (*pb.Message, error) {

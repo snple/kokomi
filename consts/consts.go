@@ -12,4 +12,5 @@ const (
 	DEFAULT_VAR    = "var"
 	DEFAULT_CABLE  = "cable"
 	DEFAULT_WIRE   = "wire"
+	DEFAULT_CLASS  = "class"
 )

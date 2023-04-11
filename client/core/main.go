@@ -66,25 +66,58 @@ func main() {
 	// service.DeviceDestory(ctx, device)
 	// service.SyncFull(ctx, device)
 
-	port := cores.NewPortServiceClient(conn)
-	service.PortList(ctx, port)
+	// port := cores.NewPortServiceClient(conn)
+	// service.PortList(ctx, port)
 	// service.PortView(ctx, port)
 	// service.PortCreate(ctx, port)
 	// service.PortUpdate(ctx, port)
 	// service.PortDelete(ctx, port)
 
-	proxy := cores.NewProxyServiceClient(conn)
-	service.ProxyList(ctx, proxy)
+	// proxy := cores.NewProxyServiceClient(conn)
+	// service.ProxyList(ctx, proxy)
 	// service.ProxyView(ctx, proxy)
 	// service.ProxyCreate(ctx, proxy)
 	// service.ProxyUpdate(ctx, proxy)
 	// service.ProxyDelete(ctx, proxy)
+
+	cable := cores.NewCableServiceClient(conn)
+	service.CableList(ctx, cable)
+	// service.CableView(ctx, cable)
+	// service.CableViewByName(ctx, cable)
+	// service.CableViewByNameFull(ctx, cable)
+	// service.CableCreate(ctx, cable)
+	// service.CableUpdate(ctx, cable)
+	// service.CableDelete(ctx, cable)
+
+	wire := cores.NewWireServiceClient(conn)
+	service.WireList(ctx, wire)
+	// service.WireView(ctx, wire)
+	// service.WireViewByName(ctx, wire)
+	// service.WireViewByNameFull(ctx, wire)
+	// service.WireCreate(ctx, wire)
+	// service.WireUpdate(ctx, wire)
+	// service.WireDelete(ctx, wire)
+	// service.WireGetValue(ctx, wire)
+	// for {
+	service.WireSetValue(ctx, wire)
+	//	time.Sleep(time.Second * 5)
+	// }
+	// service.WireGetValueByName(ctx, wire)
+	// service.WireSetValueByName(ctx, wire)
+
+	route := cores.NewRouteServiceClient(conn)
+	service.RouteList(ctx, route)
+	// service.RouteView(ctx, route)
+	// service.RouteViewByName(ctx, route)
+	// service.RouteCreate(ctx, route)
+	// service.RouteUpdate(ctx, route)
+	// service.RouteDelete(ctx, route)
 }
 
 func loadCert() (*tls.Config, error) {
 	pool := x509.NewCertPool()
 
-	ca, err := ioutil.ReadFile("../certs/ca.crt")
+	ca, err := ioutil.ReadFile("certs/ca.crt")
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +126,7 @@ func loadCert() (*tls.Config, error) {
 		return nil, errors.New("pool.AppendCertsFromPEM err")
 	}
 
-	cert, err := tls.LoadX509KeyPair("../certs/client.crt", "../certs/client.key")
+	cert, err := tls.LoadX509KeyPair("certs/client.crt", "certs/client.key")
 	if err != nil {
 		return nil, err
 	}

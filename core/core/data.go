@@ -77,7 +77,7 @@ func (s *DataService) Upload(ctx context.Context, in *cores.DataUploadRequest) (
 }
 
 func (s *DataService) CacheTagValue(tag *model.Tag, value nson.Value) {
-	s.cs.GetTag().SetTagValue(tag.ID, value)
+	// s.cs.GetTag().SetTagValue(tag.ID, value)
 }
 
 func (s *DataService) Compile(ctx context.Context, in *cores.DataQueryRequest) (*pb.Message, error) {

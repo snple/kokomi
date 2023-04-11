@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/snple/kokomi/consts"
@@ -23,20 +22,12 @@ import (
 type WireService struct {
 	es *EdgeService
 
-	ctx     context.Context
-	cancel  func()
-	closeWG sync.WaitGroup
-
 	edges.UnimplementedWireServiceServer
 }
 
 func newWireService(es *EdgeService) *WireService {
-	ctx, cancel := context.WithCancel(es.Context())
-
 	return &WireService{
-		es:     es,
-		ctx:    ctx,
-		cancel: cancel,
+		es: es,
 	}
 }
 
@@ -69,7 +60,6 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 		DataType: in.GetDataType(),
 		HValue:   in.GetHValue(),
 		LValue:   in.GetLValue(),
-		TagID:    in.GetTagId(),
 		Config:   in.GetConfig(),
 		Status:   in.GetStatus(),
 		Access:   in.GetAccess(),
@@ -100,14 +90,6 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 			}
 		} else {
 			return &output, status.Error(codes.AlreadyExists, "wire name must be unique")
-		}
-	}
-
-	// tag validation
-	if in.GetTagId() != "" {
-		_, err = s.es.GetTag().view(ctx, in.GetTagId())
-		if err != nil {
-			return &output, err
 		}
 	}
 
@@ -195,14 +177,6 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 		}
 	}
 
-	// tag validation
-	if in.GetTagId() != "" {
-		_, err = s.es.GetTag().view(ctx, in.GetTagId())
-		if err != nil {
-			return &output, err
-		}
-	}
-
 	item.Name = in.GetName()
 	item.Desc = in.GetDesc()
 	item.Tags = in.GetTags()
@@ -210,7 +184,6 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 	item.DataType = in.GetDataType()
 	item.HValue = in.GetHValue()
 	item.LValue = in.GetLValue()
-	item.TagID = in.GetTagId()
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
 	item.Access = in.GetAccess()
@@ -511,11 +484,6 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 	var err error
 	var output pb.MyBool
 
-	isSync := false
-	if !check {
-		isSync = metadata.IsSync(ctx)
-	}
-
 	// basic validation
 	{
 		if in == nil {
@@ -529,10 +497,6 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 		if len(in.GetValue()) == 0 {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
 		}
-
-		if isSync && in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var value updated")
-		}
 	}
 
 	// wire
@@ -541,18 +505,13 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 		return &output, err
 	}
 
-	t := time.Now()
-	if isSync {
-		t = time.UnixMilli(in.GetUpdated())
-	} else {
-		if item.Status != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Wire Status != ON")
-		}
+	if item.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Wire Status != ON")
+	}
 
-		if check {
-			if item.Access != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Wire Access != ON")
-			}
+	if check {
+		if item.Access != consts.ON {
+			return &output, status.Errorf(codes.FailedPrecondition, "Wire Access != ON")
 		}
 	}
 
@@ -573,7 +532,7 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 		}
 	}
 
-	if err = s.updateWireValue(ctx, &item, in.GetValue(), t); err != nil {
+	if err = s.updateWireValue(ctx, &item, in.GetValue(), time.Now()); err != nil {
 		return &output, err
 	}
 
@@ -581,11 +540,51 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 		return &output, err
 	}
 
-	if item.TagID != "" {
-		_, err = s.es.GetTag().SetValue(ctx, &pb.TagValue{Id: item.TagID, Value: in.GetValue()})
-		if err != nil {
-			return &output, err
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
+		}
+
+		if len(in.GetValue()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid var value updated")
+		}
+	}
+
+	// wire
+	item, err := s.view(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
+	if err != nil {
+		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	}
+
+	if err = s.updateWireValue(ctx, &item, in.GetValue(), time.UnixMilli(in.GetUpdated())); err != nil {
+		return &output, err
+	}
+
+	if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
+		return &output, err
 	}
 
 	output.Bool = true
@@ -712,13 +711,6 @@ func (s *WireService) setValueByName(ctx context.Context, in *pb.WireNameValue, 
 		return &output, err
 	}
 
-	if item.TagID != "" {
-		_, err = s.es.GetTag().SetValue(ctx, &pb.TagValue{Id: item.TagID, Value: in.GetValue()})
-		if err != nil {
-			return &output, err
-		}
-	}
-
 	output.Bool = true
 
 	return &output, nil
@@ -791,7 +783,6 @@ func (s *WireService) copyModelToOutput(output *pb.Wire, item *model.Wire) {
 	output.DataType = item.DataType
 	output.HValue = item.HValue
 	output.LValue = item.LValue
-	output.TagId = item.TagID
 	output.Config = item.Config
 	output.Status = item.Status
 	output.Access = item.Access
@@ -1080,90 +1071,4 @@ func (s *WireService) copyModelToOutputWireValue(output *pb.WireValueUpdated, it
 	output.CableId = item.CableID
 	output.Value = item.Value
 	output.Updated = item.Updated.UnixMilli()
-}
-
-func (s *WireService) Start() {
-	s.closeWG.Add(1)
-	defer s.closeWG.Done()
-
-	ticker := time.NewTicker(s.es.dopts.syncWireValueFromTagValue)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-s.ctx.Done():
-			return
-		case <-ticker.C:
-			err := s.syncValueFromTagValue(s.ctx)
-			if err != nil {
-				s.es.Logger().Sugar().Errorf("syncWireValueFromTag: %v", err)
-			}
-		}
-	}
-}
-
-func (s *WireService) Stop() {
-	s.cancel()
-	s.closeWG.Wait()
-}
-
-func (s *WireService) syncValueFromTagValue(ctx context.Context) error {
-	var err error
-	var items []model.Wire
-
-	err = s.es.GetDB().NewSelect().Model(&items).
-		Where("tag_id <> ?", "").Where("status = ?", consts.ON).Scan(ctx)
-	if err != nil {
-		return err
-	}
-
-	for i := 0; i < len(items); i++ {
-		if option := s.es.GetTag().GetTagValueValue(items[i].TagID); option.IsSome() {
-			// cable
-			{
-				cable, err := s.es.GetCable().view(ctx, items[i].CableID)
-				if err != nil {
-					return err
-				}
-
-				if cable.Status != consts.ON {
-					continue
-				}
-			}
-
-			tagValue := option.Unwrap()
-
-			value, err := datatype.EncodeNsonValue(tagValue.Data)
-			if err != nil {
-				return status.Errorf(codes.InvalidArgument, "EncodeValue: %v", err)
-			}
-
-			item2, err := s.viewValueUpdated(ctx, items[i].TagID)
-			if err != nil {
-				if code, ok := status.FromError(err); ok {
-					if code.Code() == codes.NotFound {
-						goto NOT_FOUND
-					}
-				}
-
-				return err
-			}
-
-			if tagValue.Updated == item2.Updated {
-				continue
-			}
-
-		NOT_FOUND:
-
-			if err = s.updateWireValue(ctx, &items[i], value, tagValue.Updated); err != nil {
-				return err
-			}
-
-			if err = s.afterUpdateValue(ctx, &items[i], value); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }

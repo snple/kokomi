@@ -195,6 +195,8 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.MyEmpty) (*pb.MyBool
 			(*model.Var)(nil),
 			(*model.Cable)(nil),
 			(*model.Wire)(nil),
+			(*model.Class)(nil),
+			(*model.Attr)(nil),
 			(*model.TagValue)(nil),
 			(*model.WireValue)(nil),
 		}

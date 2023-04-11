@@ -294,6 +294,36 @@ func (s *WireService) SetValueUnchecked(ctx context.Context, in *pb.WireValue) (
 	return s.ns.cs.GetWire().SetValueUnchecked(ctx, in)
 }
 
+func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	request := &pb.Id{Id: in.GetId()}
+
+	reply, err := s.ns.cs.GetWire().View(ctx, request)
+	if err != nil {
+		return &output, err
+	}
+
+	if reply.GetDeviceId() != deviceID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	}
+
+	return s.ns.cs.GetWire().SyncValue(ctx, in)
+}
+
 func (s *WireService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.WireNameValue, error) {
 	var err error
 	var output pb.WireNameValue

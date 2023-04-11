@@ -45,7 +45,7 @@ func (s *TunnelService) Start() {
 
 	go s.waitDeviceUpdated()
 
-	ticker := time.NewTicker(30 * time.Second)
+	ticker := time.NewTicker(60 * 3 * time.Second)
 	defer ticker.Stop()
 
 	for {

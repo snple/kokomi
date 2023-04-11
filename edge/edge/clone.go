@@ -472,6 +472,131 @@ func (s *cloneService) cloneWire(ctx context.Context, db bun.IDB, wireID, cableI
 	return nil
 }
 
+func (s *cloneService) cloneClass(ctx context.Context, db bun.IDB, classID string) error {
+	var err error
+
+	item := model.Class{
+		ID: classID,
+	}
+
+	err = db.NewSelect().Model(&item).WherePK().Scan(ctx)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return status.Errorf(codes.NotFound, "Query: %v", err)
+		}
+
+		return status.Errorf(codes.Internal, "Query: %v", err)
+	}
+
+	item.ID = util.RandomID()
+	item.Name = fmt.Sprintf("%v_clone_%v", item.Name, randNameSuffix())
+
+	item.Created = time.Now()
+	item.Updated = time.Now()
+
+	_, err = db.NewInsert().Model(&item).Exec(ctx)
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	// clone attrs
+	{
+		var attrs []model.Attr
+
+		err = db.NewSelect().Model(&attrs).Where("class_id = ?", classID).Order("id ASC").Scan(ctx)
+		if err != nil {
+			return status.Errorf(codes.Internal, "Query: %v", err)
+		}
+
+		for _, attr := range attrs {
+			attr.ID = util.RandomID()
+			attr.ClassID = item.ID
+
+			attr.Created = time.Now()
+			attr.Updated = time.Now()
+
+			_, err = db.NewInsert().Model(&attr).Exec(ctx)
+			if err != nil {
+				return status.Errorf(codes.Internal, "Insert: %v", err)
+			}
+		}
+	}
+
+	{
+		err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+		if err != nil {
+			return status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+
+		err = s.es.GetSync().setClassUpdated(ctx, time.Now())
+		if err != nil {
+			return status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (s *cloneService) cloneAttr(ctx context.Context, db bun.IDB, attrID, classID string) error {
+	var err error
+
+	item := model.Attr{
+		ID: attrID,
+	}
+
+	err = db.NewSelect().Model(&item).WherePK().Scan(ctx)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return status.Errorf(codes.NotFound, "Query: %v", err)
+		}
+
+		return status.Errorf(codes.Internal, "Query: %v", err)
+	}
+
+	// class validation
+	if len(classID) > 0 {
+		class := model.Class{
+			ID: classID,
+		}
+
+		err = db.NewSelect().Model(&class).WherePK().Scan(ctx)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return status.Error(codes.InvalidArgument, "Please supply valid class_id")
+			}
+
+			return status.Errorf(codes.Internal, "Query: %v", err)
+		}
+
+		item.ClassID = class.ID
+	}
+
+	item.ID = util.RandomID()
+	item.Name = fmt.Sprintf("%v_clone_%v", item.Name, randNameSuffix())
+
+	item.Created = time.Now()
+	item.Updated = time.Now()
+
+	_, err = db.NewInsert().Model(&item).Exec(ctx)
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	{
+		err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+		if err != nil {
+			return status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+
+		err = s.es.GetSync().setAttrUpdated(ctx, time.Now())
+		if err != nil {
+			return status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+	}
+
+	return nil
+}
+
 func randNameSuffix() string {
 	buf := new(bytes.Buffer)
 
