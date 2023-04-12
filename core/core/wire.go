@@ -1055,12 +1055,16 @@ func (s *WireService) Pull(ctx context.Context, in *cores.PullWireRequest) (*cor
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if len(in.GetDeviceId()) > 0 {
+	if in.GetDeviceId() != "" {
 		query.Where("device_id = ?", in.GetDeviceId())
 	}
 
-	if len(in.GetCableId()) > 0 {
+	if in.GetCableId() != "" {
 		query.Where("cable_id = ?", in.GetCableId())
+	}
+
+	if in.GetType() != "" {
+		query.Where(`type = ?`, in.GetType())
 	}
 
 	err = query.Where("updated > ?", time.UnixMilli(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)

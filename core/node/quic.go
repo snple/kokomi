@@ -248,6 +248,9 @@ func (s *QuicService) ping(conn quic.Connection, stream quic.Stream, deviceId st
 		}
 
 		rtt := time.Now().UnixMilli() - t
+		if rtt == 0 {
+			rtt = 1
+		}
 		s.ns.cs.GetStatus().SetLink(rttKey, int32(rtt))
 
 		s.ns.Logger().Sugar().Debugf("quic deviceId: %v, rtt %v", deviceId, rtt)

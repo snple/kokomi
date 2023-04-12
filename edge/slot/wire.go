@@ -332,6 +332,7 @@ func (s *WireService) Pull(ctx context.Context, in *slots.PullWireRequest) (*slo
 		After:   in.GetAfter(),
 		Limit:   in.GetLimit(),
 		CableId: in.GetCableId(),
+		Type:    in.GetType(),
 	}
 
 	reply, err := s.ss.es.GetWire().Pull(ctx, request)

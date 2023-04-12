@@ -40,6 +40,8 @@ message PullSourceRequest {
     int64 after = 1;
     uint32 limit = 2;
     string device_id = 3;
+    string type = 4;
+    string source = 5;
 }
 
 message PullSourceResponse {
@@ -104,6 +106,7 @@ message PullTagRequest {
     uint32 limit = 2;
     string device_id = 3;
     string source_id = 4;
+    string type = 5;
 }
 
 message PullTagResponse {

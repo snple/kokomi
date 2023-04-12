@@ -332,6 +332,7 @@ func (s *TagService) Pull(ctx context.Context, in *slots.PullTagRequest) (*slots
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		SourceId: in.GetSourceId(),
+		Type:     in.GetType(),
 	}
 
 	reply, err := s.ss.es.GetTag().Pull(ctx, request)

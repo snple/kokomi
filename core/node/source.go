@@ -278,6 +278,8 @@ func (s *SourceService) Pull(ctx context.Context, in *nodes.PullSourceRequest) (
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
+		Type:     in.GetType(),
+		Source:   in.GetSource(),
 	}
 
 	reply, err := s.ns.cs.GetSource().Pull(ctx, request)

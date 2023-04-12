@@ -911,8 +911,12 @@ func (s *TagService) Pull(ctx context.Context, in *edges.PullTagRequest) (*edges
 
 	query := s.es.GetDB().NewSelect().Model(&items)
 
-	if len(in.GetSourceId()) > 0 {
+	if in.GetSourceId() != "" {
 		query.Where("source_id = ?", in.GetSourceId())
+	}
+
+	if in.GetType() != "" {
+		query.Where(`type = ?`, in.GetType())
 	}
 
 	err = query.Where("updated > ?", time.UnixMilli(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)

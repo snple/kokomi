@@ -310,6 +310,7 @@ func (s *VarService) Pull(ctx context.Context, in *slots.PullVarRequest) (*slots
 	request := &edges.PullVarRequest{
 		After: in.GetAfter(),
 		Limit: in.GetLimit(),
+		Type:  in.GetType(),
 	}
 
 	reply, err := s.ss.es.GetVar().Pull(ctx, request)

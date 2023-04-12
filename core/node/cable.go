@@ -277,6 +277,7 @@ func (s *CableService) Pull(ctx context.Context, in *nodes.PullCableRequest) (*n
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
+		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.cs.GetCable().Pull(ctx, request)

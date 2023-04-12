@@ -197,6 +197,7 @@ func (s *ClassService) Pull(ctx context.Context, in *slots.PullClassRequest) (*s
 	request := &edges.PullClassRequest{
 		After: in.GetAfter(),
 		Limit: in.GetLimit(),
+		Type:  in.GetType(),
 	}
 
 	reply, err := s.ss.es.GetClass().Pull(ctx, request)

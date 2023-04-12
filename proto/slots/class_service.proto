@@ -29,6 +29,7 @@ message PullClassRequest {
     int64 after = 1;
     uint32 limit = 2;
     // string device_id = 3;
+    string type = 4;
 }
 
 message PullClassResponse {
@@ -68,6 +69,7 @@ message PullAttrRequest {
     uint32 limit = 2;
     // string device_id = 3;
     string class_id = 4;
+    string type = 5;
 }
 
 message PullAttrResponse {

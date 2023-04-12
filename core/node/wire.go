@@ -445,6 +445,7 @@ func (s *WireService) Pull(ctx context.Context, in *nodes.PullWireRequest) (*nod
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
 		CableId:  in.GetCableId(),
+		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.cs.GetWire().Pull(ctx, request)

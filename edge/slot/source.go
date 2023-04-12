@@ -224,8 +224,10 @@ func (s *SourceService) Pull(ctx context.Context, in *slots.PullSourceRequest) (
 	}
 
 	request := &edges.PullSourceRequest{
-		After: in.GetAfter(),
-		Limit: in.GetLimit(),
+		After:  in.GetAfter(),
+		Limit:  in.GetLimit(),
+		Type:   in.GetType(),
+		Source: in.GetSource(),
 	}
 
 	reply, err := s.ss.es.GetSource().Pull(ctx, request)

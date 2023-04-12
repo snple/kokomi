@@ -888,8 +888,12 @@ func (s *WireService) Pull(ctx context.Context, in *edges.PullWireRequest) (*edg
 
 	query := s.es.GetDB().NewSelect().Model(&items)
 
-	if len(in.GetCableId()) > 0 {
+	if in.GetCableId() != "" {
 		query.Where("cable_id = ?", in.GetCableId())
+	}
+
+	if in.GetType() != "" {
+		query.Where(`type = ?`, in.GetType())
 	}
 
 	err = query.Where("updated > ?", time.UnixMilli(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)

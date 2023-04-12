@@ -404,6 +404,7 @@ func (s *VarService) Pull(ctx context.Context, in *nodes.PullVarRequest) (*nodes
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
+		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.cs.GetVar().Pull(ctx, request)

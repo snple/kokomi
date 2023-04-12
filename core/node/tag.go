@@ -445,6 +445,7 @@ func (s *TagService) Pull(ctx context.Context, in *nodes.PullTagRequest) (*nodes
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
 		SourceId: in.GetSourceId(),
+		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.cs.GetTag().Pull(ctx, request)

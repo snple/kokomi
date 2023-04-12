@@ -282,6 +282,7 @@ func (s *PortService) Pull(ctx context.Context, in *nodes.PullPortRequest) (*nod
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
+		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.cs.GetPort().Pull(ctx, request)

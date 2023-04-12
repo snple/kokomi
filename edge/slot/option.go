@@ -197,6 +197,7 @@ func (s *OptionService) Pull(ctx context.Context, in *slots.PullOptionRequest) (
 	request := &edges.PullOptionRequest{
 		After: in.GetAfter(),
 		Limit: in.GetLimit(),
+		Type:  in.GetType(),
 	}
 
 	reply, err := s.ss.es.GetOption().Pull(ctx, request)

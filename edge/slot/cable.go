@@ -223,6 +223,7 @@ func (s *CableService) Pull(ctx context.Context, in *slots.PullCableRequest) (*s
 	request := &edges.PullCableRequest{
 		After: in.GetAfter(),
 		Limit: in.GetLimit(),
+		Type:  in.GetType(),
 	}
 
 	reply, err := s.ss.es.GetCable().Pull(ctx, request)

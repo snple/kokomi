@@ -589,6 +589,14 @@ func (s *SourceService) Pull(ctx context.Context, in *edges.PullSourceRequest) (
 
 	query := s.es.GetDB().NewSelect().Model(&items)
 
+	if in.GetType() != "" {
+		query = query.Where(`type = ?`, in.GetType())
+	}
+
+	if in.GetSource() != "" {
+		query = query.Where(`source = ?`, in.GetSource())
+	}
+
 	err = query.Where("updated > ?", time.UnixMilli(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)

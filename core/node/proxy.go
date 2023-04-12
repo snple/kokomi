@@ -203,6 +203,7 @@ func (s *ProxyService) Pull(ctx context.Context, in *nodes.PullProxyRequest) (*n
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
+		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.cs.GetProxy().Pull(ctx, request)

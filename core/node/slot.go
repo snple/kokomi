@@ -282,6 +282,7 @@ func (s *SlotService) Pull(ctx context.Context, in *nodes.PullSlotRequest) (*nod
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
+		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.cs.GetSlot().Pull(ctx, request)

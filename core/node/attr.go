@@ -415,6 +415,7 @@ func (s *AttrService) Pull(ctx context.Context, in *nodes.PullAttrRequest) (*nod
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
 		ClassId:  in.GetClassId(),
+		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.cs.GetAttr().Pull(ctx, request)

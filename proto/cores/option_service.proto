@@ -33,6 +33,7 @@ message PullOptionRequest {
     int64 after = 1;
     uint32 limit = 2;
     string device_id = 3;
+    string type = 4;
 }
 
 message PullOptionResponse {

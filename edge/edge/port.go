@@ -580,6 +580,10 @@ func (s *PortService) Pull(ctx context.Context, in *edges.PullPortRequest) (*edg
 
 	query := s.es.GetDB().NewSelect().Model(&items)
 
+	if in.GetType() != "" {
+		query.Where(`type = ?`, in.GetType())
+	}
+
 	err = query.Where("updated > ?", time.UnixMilli(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)

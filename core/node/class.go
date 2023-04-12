@@ -245,6 +245,7 @@ func (s *ClassService) Pull(ctx context.Context, in *nodes.PullClassRequest) (*n
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
+		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.cs.GetClass().Pull(ctx, request)

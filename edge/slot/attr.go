@@ -313,6 +313,7 @@ func (s *AttrService) Pull(ctx context.Context, in *slots.PullAttrRequest) (*slo
 		After:   in.GetAfter(),
 		Limit:   in.GetLimit(),
 		ClassId: in.GetClassId(),
+		Type:    in.GetType(),
 	}
 
 	reply, err := s.ss.es.GetAttr().Pull(ctx, request)
