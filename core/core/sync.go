@@ -416,19 +416,19 @@ func (s *SyncService) waitUpdated2(ctx context.Context,
 	}
 	s.lock.Unlock()
 
-	defer func() {
-		s.lock.Lock()
-		if chans, ok := waits[id]; ok {
-			delete(chans, wait)
-
-			if len(chans) == 0 {
-				delete(waits, id)
-			}
-		}
-		s.lock.Unlock()
-	}()
-
 	go func() {
+		defer func() {
+			s.lock.Lock()
+			if chans, ok := waits[id]; ok {
+				delete(chans, wait)
+
+				if len(chans) == 0 {
+					delete(waits, id)
+				}
+			}
+			s.lock.Unlock()
+		}()
+
 		select {
 		case <-wait:
 			output <- true
