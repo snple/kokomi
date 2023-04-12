@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/dgraph-io/badger/v4"
 	"github.com/quic-go/quic-go"
 	"github.com/snple/kokomi/bin/edge/config"
 	"github.com/snple/kokomi/bin/edge/log"
@@ -40,6 +41,12 @@ func main() {
 	if err = edge.CreateSchema(sqlitedb); err != nil {
 		log.Logger.Sugar().Fatalf("create schema: %v", err)
 	}
+
+	badgerdb, err := badger.Open(badger.DefaultOptions("badger"))
+	if err != nil {
+		log.Logger.Sugar().Fatalf("badger open db: %v", err)
+	}
+	defer badgerdb.Close()
 
 	opts := make([]edge.EdgeOption, 0)
 
@@ -101,7 +108,7 @@ func main() {
 		opts = append(opts, edge.WithQuic(config.Config.QuicClient.Addr, tlsConfig, quicConfig))
 	}
 
-	es, err := edge.Edge(sqlitedb, opts...)
+	es, err := edge.Edge(sqlitedb, badgerdb, opts...)
 	if err != nil {
 		log.Logger.Sugar().Fatalf("NewEdgeService: %v", err)
 	}

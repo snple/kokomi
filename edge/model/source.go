@@ -57,10 +57,12 @@ func (t *Tag) ValueTag() uint8 {
 }
 
 type TagValue struct {
-	bun.BaseModel `bun:"tag_value"`
-	ID            string    `bun:"type:TEXT,pk" json:"id"`
-	SourceID      string    `bun:"source_id,type:TEXT" json:"source_id"`
-	Value         string    `bun:"value,type:TEXT" json:"value"`
-	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
-	Updated       time.Time `bun:"updated" json:"updated"`
+	ID       string    `bun:"type:TEXT,pk" json:"id"`
+	SourceID string    `bun:"source_id,type:TEXT" json:"source_id"`
+	Value    string    `bun:"value,type:TEXT" json:"value"`
+	Updated  time.Time `bun:"updated" json:"updated"`
 }
+
+const (
+	TAG_VALUE_PREFIX = "tgv_"
+)

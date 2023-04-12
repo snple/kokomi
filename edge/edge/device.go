@@ -186,7 +186,6 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.MyEmpty) (*pb.MyBool
 
 	err = func() error {
 		models := []interface{}{
-			(*model.Sync)(nil),
 			(*model.Option)(nil),
 			(*model.Port)(nil),
 			(*model.Proxy)(nil),
@@ -197,8 +196,6 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.MyEmpty) (*pb.MyBool
 			(*model.Wire)(nil),
 			(*model.Class)(nil),
 			(*model.Attr)(nil),
-			(*model.TagValue)(nil),
-			(*model.WireValue)(nil),
 		}
 
 		tx, err := s.es.GetDB().BeginTx(ctx, nil)

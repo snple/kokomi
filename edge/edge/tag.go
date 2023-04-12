@@ -3,10 +3,14 @@ package edge
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
+	"github.com/danclive/nson-go"
+	"github.com/dgraph-io/badger/v4"
 	"github.com/snple/kokomi/consts"
 	"github.com/snple/kokomi/edge/model"
 	"github.com/snple/kokomi/pb"
@@ -571,7 +575,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var value updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag value updated")
 		}
 	}
 
@@ -847,62 +851,6 @@ func (s *TagService) afterDelete(ctx context.Context, item *model.Tag) error {
 	return nil
 }
 
-func (s *TagService) getTagValue(ctx context.Context, id string) (string, error) {
-	item2, err := s.viewValueUpdated(ctx, id)
-	if err != nil {
-		if code, ok := status.FromError(err); ok {
-			if code.Code() == codes.NotFound {
-				return "", nil
-			}
-		}
-
-		return "", err
-	}
-
-	return item2.Value, nil
-}
-
-func (s *TagService) updateTagValue(ctx context.Context, item *model.Tag, value string, updated time.Time) error {
-	var err error
-
-	item2 := model.TagValue{
-		ID:       item.ID,
-		SourceID: item.SourceID,
-		Value:    value,
-		Updated:  updated,
-	}
-
-	ret, err := s.es.GetDB().NewUpdate().Model(&item2).WherePK().WhereAllWithDeleted().Exec(ctx)
-	if err != nil {
-		return status.Errorf(codes.Internal, "Update: %v", err)
-	}
-
-	n, err := ret.RowsAffected()
-	if err != nil {
-		return status.Errorf(codes.Internal, "RowsAffected: %v", err)
-	}
-
-	if n < 1 {
-		_, err = s.es.GetDB().NewInsert().Model(&item2).Exec(ctx)
-		if err != nil {
-			return status.Errorf(codes.Internal, "Insert: %v", err)
-		}
-	}
-
-	return nil
-}
-
-func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, value string) error {
-	var err error
-
-	err = s.es.GetSync().setTagValueUpdated(ctx, time.Now())
-	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
-	}
-
-	return nil
-}
-
 func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 	var output pb.Tag
 	var err error
@@ -983,6 +931,60 @@ func (s *TagService) Pull(ctx context.Context, in *edges.PullTagRequest) (*edges
 	return &output, nil
 }
 
+func (s *TagService) getTagValue(ctx context.Context, id string) (string, error) {
+	item2, err := s.viewValueUpdated(ctx, id)
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return "", nil
+			}
+		}
+
+		return "", err
+	}
+
+	return item2.Value, nil
+}
+
+func (s *TagService) updateTagValue(ctx context.Context, item *model.Tag, value string, updated time.Time) error {
+	item2 := model.TagValue{
+		ID:       item.ID,
+		SourceID: item.SourceID,
+		Value:    value,
+		Updated:  updated,
+	}
+
+	idb, err := nson.MessageIdFromHex(item.ID)
+	if err != nil {
+		return status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
+	}
+
+	data, err := json.Marshal(item2)
+	if err != nil {
+		return status.Errorf(codes.Internal, "json.Marshal: %v", err)
+	}
+
+	err = s.es.GetBadgerDB().Update(func(txn *badger.Txn) error {
+		return txn.Set(append([]byte(model.TAG_VALUE_PREFIX), idb...), data)
+	})
+	if err != nil {
+		return status.Errorf(codes.Internal, "BadgerDB Set: %v", err)
+	}
+
+	return nil
+}
+
+func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, value string) error {
+	var err error
+
+	err = s.es.GetSync().setTagValueUpdated(ctx, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	return nil
+}
+
 func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
 	var output pb.TagValueUpdated
 	var err error
@@ -1028,9 +1030,16 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, err
 	}
 
-	_, err = s.es.GetDB().NewDelete().Model(&item).WherePK().Exec(ctx)
+	idb, err := nson.MessageIdFromHex(item.ID)
 	if err != nil {
-		return &output, status.Errorf(codes.Internal, "Delete: %v", err)
+		return &output, status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
+	}
+
+	err = s.es.GetBadgerDB().Update(func(txn *badger.Txn) error {
+		return txn.Delete(append([]byte(model.TAG_VALUE_PREFIX), idb...))
+	})
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "BadgerDB Update: %v", err)
 	}
 
 	output.Bool = true
@@ -1054,15 +1063,44 @@ func (s *TagService) PullValue(ctx context.Context, in *edges.PullTagValueReques
 
 	var items []model.TagValue
 
-	query := s.es.GetDB().NewSelect().Model(&items)
+	{
+		after := time.UnixMilli(in.GetAfter())
 
-	if len(in.GetSourceId()) > 0 {
-		query.Where("source_id = ?", in.GetSourceId())
-	}
+		txn := s.es.GetBadgerDB().NewTransaction(false)
+		defer txn.Discard()
 
-	err = query.Where("updated > ?", time.UnixMilli(in.GetAfter())).Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
-	if err != nil {
-		return &output, status.Errorf(codes.Internal, "Query: %v", err)
+		opts := badger.DefaultIteratorOptions
+		opts.PrefetchSize = 10
+		it := txn.NewIterator(opts)
+		defer it.Close()
+
+		prefix := []byte(model.TAG_VALUE_PREFIX)
+
+		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
+			dbitem := it.Item()
+
+			item := model.TagValue{}
+			err = dbitem.Value(func(val []byte) error {
+				return json.Unmarshal(val, &item)
+			})
+			if err != nil {
+				return &output, status.Errorf(codes.Internal, "BadgerDB view value: %v", err)
+			}
+
+			if in.GetSourceId() != "" && in.GetSourceId() != item.SourceID {
+				continue
+			}
+
+			if item.Updated.After(after) {
+				items = append(items, item)
+			}
+		}
+
+		sort.Sort(sortTagValue(items))
+
+		if len(items) > int(in.GetLimit()) {
+			items = items[0:in.GetLimit()]
+		}
 	}
 
 	for i := 0; i < len(items); i++ {
@@ -1076,18 +1114,38 @@ func (s *TagService) PullValue(ctx context.Context, in *edges.PullTagValueReques
 	return &output, nil
 }
 
+type sortTagValue []model.TagValue
+
+func (a sortTagValue) Len() int           { return len(a) }
+func (a sortTagValue) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a sortTagValue) Less(i, j int) bool { return a[i].Updated.Before(a[j].Updated) }
+
 func (s *TagService) viewValueUpdated(ctx context.Context, id string) (model.TagValue, error) {
 	item := model.TagValue{
 		ID: id,
 	}
 
-	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
+	idb, err := nson.MessageIdFromHex(item.ID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, TagID: %v", err, item.ID)
-		}
+		return item, status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
+	}
 
-		return item, status.Errorf(codes.Internal, "Query: %v", err)
+	txn := s.es.GetBadgerDB().NewTransaction(false)
+	defer txn.Discard()
+
+	dbitem, err := txn.Get(append([]byte(model.TAG_VALUE_PREFIX), idb...))
+	if err != nil {
+		if err == badger.ErrKeyNotFound {
+			return item, status.Errorf(codes.NotFound, "TagID: %v", item.ID)
+		}
+		return item, status.Errorf(codes.Internal, "BadgerDB Get: %v", err)
+	}
+
+	err = dbitem.Value(func(val []byte) error {
+		return json.Unmarshal(val, &item)
+	})
+	if err != nil {
+		return item, status.Errorf(codes.Internal, "BadgerDB Get Value: %v", err)
 	}
 
 	return item, nil

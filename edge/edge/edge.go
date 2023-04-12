@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/dgraph-io/badger/v4"
 	"github.com/quic-go/quic-go"
 	"github.com/snple/kokomi/db"
 	"github.com/snple/kokomi/edge/model"
@@ -19,7 +20,8 @@ import (
 )
 
 type EdgeService struct {
-	db *bun.DB
+	db     *bun.DB
+	badger *badger.DB
 
 	status   *StatusService
 	node     *NodeService
@@ -50,20 +52,25 @@ type EdgeService struct {
 	dopts edgeOptions
 }
 
-func Edge(db *bun.DB, opts ...EdgeOption) (*EdgeService, error) {
+func Edge(db *bun.DB, badger *badger.DB, opts ...EdgeOption) (*EdgeService, error) {
 	ctx := context.Background()
-	return EdgeContext(ctx, db, opts...)
+	return EdgeContext(ctx, db, badger, opts...)
 }
 
-func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeService, error) {
+func EdgeContext(ctx context.Context, db *bun.DB, badger *badger.DB, opts ...EdgeOption) (*EdgeService, error) {
 	ctx, cancel := context.WithCancel(ctx)
 
 	if db == nil {
 		panic("db == nil")
 	}
 
+	if badger == nil {
+		panic("badger == nil")
+	}
+
 	es := &EdgeService{
 		db:     db,
+		badger: badger,
 		ctx:    ctx,
 		cancel: cancel,
 		dopts:  defaultEdgeOptions(),
@@ -166,6 +173,10 @@ func (es *EdgeService) Stop() {
 
 func (es *EdgeService) GetDB() *bun.DB {
 	return es.db
+}
+
+func (es *EdgeService) GetBadgerDB() *badger.DB {
+	return es.badger
 }
 
 func (es *EdgeService) GetInfluxDB() types.Option[*db.InfluxDB] {
@@ -280,7 +291,6 @@ func (es *EdgeService) Register(server *grpc.Server) {
 
 func CreateSchema(db bun.IDB) error {
 	models := []interface{}{
-		(*model.Sync)(nil),
 		(*model.Device)(nil),
 		(*model.Slot)(nil),
 		(*model.Option)(nil),
@@ -293,8 +303,6 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Wire)(nil),
 		(*model.Class)(nil),
 		(*model.Attr)(nil),
-		(*model.TagValue)(nil),
-		(*model.WireValue)(nil),
 	}
 
 	for _, model := range models {

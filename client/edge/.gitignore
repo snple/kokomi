@@ -16,12 +16,9 @@
 
 .DS_Store
 .env
-#go.mod
+# go.mod
 go.sum
-# client
 
 certs
-dist
-badger
 edge
 *.db

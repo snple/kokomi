@@ -2,10 +2,11 @@ package edge
 
 import (
 	"context"
-	"database/sql"
+	"encoding/json"
 	"sync"
 	"time"
 
+	"github.com/dgraph-io/badger/v4"
 	"github.com/snple/kokomi/edge/model"
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/edges"
@@ -894,18 +895,22 @@ func (s *SyncService) getUpdated(ctx context.Context, key string) (time.Time, er
 		Key: key,
 	}
 
-	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
-			if err != nil {
-				return time.Time{}, status.Errorf(codes.Internal, "Insert: %v", err)
-			}
+	txn := s.es.GetBadgerDB().NewTransaction(false)
+	defer txn.Discard()
 
+	dbitem, err := txn.Get([]byte(key))
+	if err != nil {
+		if err == badger.ErrKeyNotFound {
 			return time.Time{}, nil
 		}
+		return time.Time{}, status.Errorf(codes.Internal, "BadgerDB Get: %v", err)
+	}
 
-		return time.Time{}, status.Errorf(codes.Internal, "Query: %v", err)
+	err = dbitem.Value(func(val []byte) error {
+		return json.Unmarshal(val, &item)
+	})
+	if err != nil {
+		return time.Time{}, status.Errorf(codes.Internal, "BadgerDB Get Value: %v", err)
 	}
 
 	return item.Updated, nil
@@ -917,21 +922,16 @@ func (s *SyncService) setUpdated(ctx context.Context, key string, updated time.T
 		Updated: updated,
 	}
 
-	ret, err := s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+	data, err := json.Marshal(item)
 	if err != nil {
-		return status.Errorf(codes.Internal, "Update: %v", err)
+		return status.Errorf(codes.Internal, "json.Marshal: %v", err)
 	}
 
-	n, err := ret.RowsAffected()
+	err = s.es.GetBadgerDB().Update(func(txn *badger.Txn) error {
+		return txn.Set([]byte(key), data)
+	})
 	if err != nil {
-		return status.Errorf(codes.Internal, "RowsAffected: %v", err)
-	}
-
-	if n < 1 {
-		_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
-		if err != nil {
-			return status.Errorf(codes.Internal, "Insert: %v", err)
-		}
+		return status.Errorf(codes.Internal, "BadgerDB Set: %v", err)
 	}
 
 	return nil
@@ -999,15 +999,15 @@ func (s *SyncService) waitUpdated2(ctx context.Context,
 	chans[wait] = struct{}{}
 	s.lock.Unlock()
 
-	defer func() {
-		s.lock.Lock()
-		delete(chans, wait)
-		s.lock.Unlock()
-	}()
-
 	output <- true
 
 	go func() {
+		defer func() {
+			s.lock.Lock()
+			delete(chans, wait)
+			s.lock.Unlock()
+		}()
+
 		select {
 		case <-wait:
 			output <- true

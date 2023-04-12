@@ -52,10 +52,12 @@ func (t *Wire) ValueTag() uint8 {
 }
 
 type WireValue struct {
-	bun.BaseModel `bun:"wire_value"`
-	ID            string    `bun:"type:TEXT,pk" json:"id"`
-	CableID       string    `bun:"cable_id,type:TEXT" json:"cable_id"`
-	Value         string    `bun:"value,type:TEXT" json:"value"`
-	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
-	Updated       time.Time `bun:"updated" json:"updated"`
+	ID      string    `bun:"type:TEXT,pk" json:"id"`
+	CableID string    `bun:"cable_id,type:TEXT" json:"cable_id"`
+	Value   string    `bun:"value,type:TEXT" json:"value"`
+	Updated time.Time `bun:"updated" json:"updated"`
 }
+
+const (
+	WIRE_VALUE_PREFIX = "wev_"
+)

@@ -841,9 +841,10 @@ func (s *NodeService) syncRemoteToLocalTagValue(ctx context.Context) error {
 		}
 
 		for _, value := range remoteValues.GetTag() {
-			_, err = s.es.GetTag().SyncValue(ctx, &pb.TagValue{Id: value.GetId(), Value: value.GetValue()})
+			_, err = s.es.GetTag().SyncValue(ctx,
+				&pb.TagValue{Id: value.GetId(), Value: value.GetValue(), Updated: value.GetUpdated()})
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("SetValue: %v", err)
+				s.es.Logger().Sugar().Errorf("SyncValue: %v", err)
 				return err
 			}
 
@@ -886,7 +887,7 @@ func (s *NodeService) syncLocalToRemoteTagValue(ctx context.Context) error {
 			_, err = s.TagServiceClient().SyncValue(ctx,
 				&pb.TagValue{Id: local.GetId(), Value: local.GetValue(), Updated: local.GetUpdated()})
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("SetWireValue: %v", err)
+				s.es.Logger().Sugar().Errorf("SyncValue: %v", err)
 				return err
 			}
 
@@ -927,9 +928,9 @@ func (s *NodeService) syncRemoteToLocalWireValue(ctx context.Context) error {
 
 		for _, remote := range remoteValues.GetWire() {
 			_, err = s.es.GetWire().SyncValue(ctx,
-				&pb.WireValue{Id: remote.GetId(), Value: remote.GetValue(), Updated: remote.Updated})
+				&pb.WireValue{Id: remote.GetId(), Value: remote.GetValue(), Updated: remote.GetUpdated()})
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("SetWireValue: %v", err)
+				s.es.Logger().Sugar().Errorf("SyncValue: %v", err)
 				return err
 			}
 
@@ -972,7 +973,7 @@ func (s *NodeService) syncLocalToRemoteWireValue(ctx context.Context) error {
 			_, err = s.WireServiceClient().SyncValue(ctx,
 				&pb.WireValue{Id: local.GetId(), Value: local.GetValue(), Updated: local.GetUpdated()})
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("SetWireValue: %v", err)
+				s.es.Logger().Sugar().Errorf("SyncValue: %v", err)
 				return err
 			}
 

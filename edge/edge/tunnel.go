@@ -286,6 +286,10 @@ func (tl *tunnelListener) accept() {
 	for {
 		conn, err := tl.nl.Accept()
 		if err != nil {
+			if errors.Is(err, net.ErrClosed) {
+				return
+			}
+
 			tl.logger().Sugar().Errorf("net.Listener accept error: %v", err)
 			return
 		}

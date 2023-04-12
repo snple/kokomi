@@ -108,6 +108,7 @@ func (s *NodeService) loop() {
 
 	if err := s.sync(s.ctx); err != nil {
 		s.es.Logger().Sugar().Errorf("sync: %v", err)
+		time.Sleep(time.Second * 3)
 		return
 	}
 
@@ -605,7 +606,7 @@ func (s *NodeService) syncTagValue1(ctx context.Context) error {
 func (s *NodeService) syncTagValue2(ctx context.Context) error {
 	ctx = metadata.SetToken(ctx, s.GetToken())
 
-	return s.syncRemoteToLocalTagValue(ctx)
+	return s.syncLocalToRemoteTagValue(ctx)
 }
 
 func (s *NodeService) syncWireValue1(ctx context.Context) error {
