@@ -6,4 +6,4 @@ An IoT development framework
 
 ## run
 
-see `bin/core/main.go`
+see `bin/core/main.go` and `bin/edge/main.go`
