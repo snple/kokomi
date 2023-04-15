@@ -539,7 +539,6 @@ func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device)
 	output.Location = item.Location
 	output.Config = item.Config
 	output.Link = s.cs.GetStatus().GetLink(item.ID)
-	output.Rtt = s.cs.GetStatus().GetLink(item.ID + "_rtt")
 	output.Status = item.Status
 	output.Created = item.Created.UnixMilli()
 	output.Updated = item.Updated.UnixMilli()

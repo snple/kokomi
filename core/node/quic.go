@@ -205,8 +205,6 @@ func (s *QuicService) ping(conn quic.Connection, stream quic.Stream, deviceId st
 	defer conn.CloseWithError(1, "ping error")
 	defer stream.Close()
 
-	rttKey := deviceId + "_rtt"
-
 	handle := func() error {
 		wmessage := nson.Message{
 			"method": nson.String("ping"),
@@ -251,7 +249,7 @@ func (s *QuicService) ping(conn quic.Connection, stream quic.Stream, deviceId st
 		if rtt == 0 {
 			rtt = 1
 		}
-		s.ns.cs.GetStatus().SetLink(rttKey, int32(rtt))
+		s.ns.cs.GetStatus().SetLink(deviceId, int32(rtt))
 
 		s.ns.Logger().Sugar().Debugf("quic deviceId: %v, rtt %v", deviceId, rtt)
 

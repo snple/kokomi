@@ -13,8 +13,7 @@ message Device {
     string location = 7;
     string config = 8;
     sint32 link = 9;
-    sint32 rtt = 10;
-    sint32 status = 11;
-    int64 created = 12;
-    int64 updated = 13;
+    sint32 status = 10;
+    int64 created = 11;
+    int64 updated = 12;
 }

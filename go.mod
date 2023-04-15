@@ -8,7 +8,6 @@ require (
 	github.com/danclive/nson-go v0.6.0
 	github.com/dgraph-io/badger/v4 v4.1.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
-	github.com/influxdata/influxdb-client-go/v2 v2.12.3
 	github.com/klauspost/compress v1.16.4
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/quic-go/quic-go v0.33.0
@@ -24,9 +23,7 @@ require (
 )
 
 require (
-	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
-	github.com/deepmap/oapi-codegen v1.12.4 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fatih/color v1.15.0 // indirect
@@ -40,7 +37,6 @@ require (
 	github.com/google/flatbuffers v23.3.3+incompatible // indirect
 	github.com/google/pprof v0.0.0-20230406165453-00490a63f317 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/influxdata/line-protocol v0.0.0-20210922203350-b1ad95c89adf // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
