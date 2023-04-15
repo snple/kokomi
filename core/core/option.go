@@ -241,7 +241,7 @@ func (s *OptionService) ViewByName(ctx context.Context, in *cores.ViewOptionByNa
 		}
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -284,7 +284,7 @@ func (s *OptionService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Op
 		return &output, err
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, device.ID, itemName)
+	item, err := s.ViewByDeviceIDAndName(ctx, device.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -465,7 +465,7 @@ func (s *OptionService) view(ctx context.Context, id string) (model.Option, erro
 	return item, nil
 }
 
-func (s *OptionService) viewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Option, error) {
+func (s *OptionService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Option, error) {
 	item := model.Option{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)

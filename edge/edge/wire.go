@@ -687,7 +687,7 @@ func (s *WireService) setValueByName(ctx context.Context, in *pb.WireNameValue, 
 	}
 
 	// wire
-	item, err := s.viewByCableIDAndName(ctx, cable.ID, itemName)
+	item, err := s.ViewByCableIDAndName(ctx, cable.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -759,10 +759,10 @@ func (s *WireService) viewByName(ctx context.Context, name string) (model.Wire, 
 		return item, err
 	}
 
-	return s.viewByCableIDAndName(ctx, cable.ID, itemName)
+	return s.ViewByCableIDAndName(ctx, cable.ID, itemName)
 }
 
-func (s *WireService) viewByCableIDAndName(ctx context.Context, cableID, name string) (model.Wire, error) {
+func (s *WireService) ViewByCableIDAndName(ctx context.Context, cableID, name string) (model.Wire, error) {
 	item := model.Wire{}
 
 	err := s.es.GetDB().NewSelect().Model(&item).Where("cable_id = ?", cableID).Where("name = ?", name).Scan(ctx)

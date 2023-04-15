@@ -243,7 +243,7 @@ func (s *CableService) ViewByName(ctx context.Context, in *cores.ViewCableByName
 		}
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -286,7 +286,7 @@ func (s *CableService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Cab
 		return &output, err
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, device.ID, itemName)
+	item, err := s.ViewByDeviceIDAndName(ctx, device.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -511,7 +511,7 @@ func (s *CableService) view(ctx context.Context, id string) (model.Cable, error)
 	return item, nil
 }
 
-func (s *CableService) viewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Cable, error) {
+func (s *CableService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Cable, error) {
 	item := model.Cable{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)

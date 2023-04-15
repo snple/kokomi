@@ -245,7 +245,7 @@ func (s *PortService) ViewByName(ctx context.Context, in *cores.ViewPortByNameRe
 		}
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -288,7 +288,7 @@ func (s *PortService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Port
 		return &output, err
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, device.ID, itemName)
+	item, err := s.ViewByDeviceIDAndName(ctx, device.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -496,7 +496,7 @@ func (s *PortService) view(ctx context.Context, id string) (model.Port, error) {
 	return item, nil
 }
 
-func (s *PortService) viewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Port, error) {
+func (s *PortService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Port, error) {
 	item := model.Port{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)

@@ -301,7 +301,7 @@ func (s *AttrService) ViewByName(ctx context.Context, in *cores.ViewAttrByNameRe
 		}
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -358,12 +358,12 @@ func (s *AttrService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Attr
 		return &output, err
 	}
 
-	class, err := s.cs.GetClass().viewByDeviceIDAndName(ctx, device.ID, className)
+	class, err := s.cs.GetClass().ViewByDeviceIDAndName(ctx, device.ID, className)
 	if err != nil {
 		return &output, err
 	}
 
-	item, err := s.viewByClassIDAndName(ctx, class.ID, itemName)
+	item, err := s.ViewByClassIDAndName(ctx, class.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -698,7 +698,7 @@ func (s *AttrService) GetValueByName(ctx context.Context, in *cores.GetAttrValue
 		}
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -787,7 +787,7 @@ func (s *AttrService) setValueByName(ctx context.Context, in *cores.AttrNameValu
 	}
 
 	// class
-	class, err := s.cs.GetClass().viewByDeviceIDAndName(ctx, device.ID, className)
+	class, err := s.cs.GetClass().ViewByDeviceIDAndName(ctx, device.ID, className)
 	if err != nil {
 		return &output, err
 	}
@@ -797,7 +797,7 @@ func (s *AttrService) setValueByName(ctx context.Context, in *cores.AttrNameValu
 	}
 
 	// attr
-	item, err := s.viewByClassIDAndName(ctx, class.ID, itemName)
+	item, err := s.ViewByClassIDAndName(ctx, class.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -849,7 +849,7 @@ func (s *AttrService) view(ctx context.Context, id string) (model.Attr, error) {
 	return item, nil
 }
 
-func (s *AttrService) viewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Attr, error) {
+func (s *AttrService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Attr, error) {
 	item := model.Attr{}
 
 	className := consts.DEFAULT_CLASS
@@ -865,36 +865,21 @@ func (s *AttrService) viewByDeviceIDAndName(ctx context.Context, deviceID, name 
 		itemName = splits[1]
 	}
 
-	class, err := s.cs.GetClass().viewByDeviceIDAndName(ctx, deviceID, className)
+	class, err := s.cs.GetClass().ViewByDeviceIDAndName(ctx, deviceID, className)
 	if err != nil {
 		return item, err
 	}
 
-	return s.viewByClassIDAndName(ctx, class.ID, itemName)
+	return s.ViewByClassIDAndName(ctx, class.ID, itemName)
 }
 
-func (s *AttrService) viewByClassIDAndName(ctx context.Context, classID, name string) (model.Attr, error) {
+func (s *AttrService) ViewByClassIDAndName(ctx context.Context, classID, name string) (model.Attr, error) {
 	item := model.Attr{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("class_id = ?", classID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return item, status.Errorf(codes.NotFound, "Query: %v, Tag ClassID: %v, Name: %v", err, classID, name)
-		}
-
-		return item, status.Errorf(codes.Internal, "Query: %v", err)
-	}
-
-	return item, nil
-}
-
-func (s *AttrService) viewByClassIDAndAddress(ctx context.Context, classID, address string) (model.Attr, error) {
-	item := model.Attr{}
-
-	err := s.cs.GetDB().NewSelect().Model(&item).Where("class_id = ?", classID).Where("address = ?", address).Scan(ctx)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Tag ClassID: %v, Address: %v", err, classID, address)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)

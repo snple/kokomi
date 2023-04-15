@@ -269,7 +269,7 @@ func (s *WireService) ViewByName(ctx context.Context, in *cores.ViewWireByNameRe
 		}
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -326,12 +326,12 @@ func (s *WireService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Wire
 		return &output, err
 	}
 
-	cable, err := s.cs.GetCable().viewByDeviceIDAndName(ctx, device.ID, cableName)
+	cable, err := s.cs.GetCable().ViewByDeviceIDAndName(ctx, device.ID, cableName)
 	if err != nil {
 		return &output, err
 	}
 
-	item, err := s.viewByCableIDAndName(ctx, cable.ID, itemName)
+	item, err := s.ViewByCableIDAndName(ctx, cable.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -710,7 +710,7 @@ func (s *WireService) GetValueByName(ctx context.Context, in *cores.GetWireValue
 		}
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -791,7 +791,7 @@ func (s *WireService) setValueByName(ctx context.Context, in *cores.WireNameValu
 	}
 
 	// cable
-	cable, err := s.cs.GetCable().viewByDeviceIDAndName(ctx, device.ID, cableName)
+	cable, err := s.cs.GetCable().ViewByDeviceIDAndName(ctx, device.ID, cableName)
 	if err != nil {
 		return &output, err
 	}
@@ -801,7 +801,7 @@ func (s *WireService) setValueByName(ctx context.Context, in *cores.WireNameValu
 	}
 
 	// wire
-	item, err := s.viewByCableIDAndName(ctx, cable.ID, itemName)
+	item, err := s.ViewByCableIDAndName(ctx, cable.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -857,7 +857,7 @@ func (s *WireService) view(ctx context.Context, id string) (model.Wire, error) {
 	return item, nil
 }
 
-func (s *WireService) viewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Wire, error) {
+func (s *WireService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Wire, error) {
 	item := model.Wire{}
 
 	cableName := consts.DEFAULT_CABLE
@@ -873,15 +873,15 @@ func (s *WireService) viewByDeviceIDAndName(ctx context.Context, deviceID, name 
 		itemName = splits[1]
 	}
 
-	cable, err := s.cs.GetCable().viewByDeviceIDAndName(ctx, deviceID, cableName)
+	cable, err := s.cs.GetCable().ViewByDeviceIDAndName(ctx, deviceID, cableName)
 	if err != nil {
 		return item, err
 	}
 
-	return s.viewByCableIDAndName(ctx, cable.ID, itemName)
+	return s.ViewByCableIDAndName(ctx, cable.ID, itemName)
 }
 
-func (s *WireService) viewByCableIDAndName(ctx context.Context, cableID, name string) (model.Wire, error) {
+func (s *WireService) ViewByCableIDAndName(ctx context.Context, cableID, name string) (model.Wire, error) {
 	item := model.Wire{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("cable_id = ?", cableID).Where("name = ?", name).Scan(ctx)
@@ -931,63 +931,6 @@ func (s *WireService) afterDelete(ctx context.Context, item *model.Wire) error {
 	var err error
 
 	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
-	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
-	}
-
-	return nil
-}
-
-func (s *WireService) getWireValue(ctx context.Context, item *model.Wire) (string, error) {
-	item2, err := s.viewValueUpdated(ctx, item.ID)
-	if err != nil {
-		if code, ok := status.FromError(err); ok {
-			if code.Code() == codes.NotFound {
-				return "", nil
-			}
-		}
-
-		return "", err
-	}
-
-	return item2.Value, nil
-}
-
-func (s *WireService) updateWireValue(ctx context.Context, item *model.Wire, value string, updated time.Time) error {
-	var err error
-
-	item2 := model.WireValue{
-		ID:       item.ID,
-		DeviceID: item.DeviceID,
-		CableID:  item.CableID,
-		Value:    value,
-		Updated:  updated,
-	}
-
-	ret, err := s.cs.GetDB().NewUpdate().Model(&item2).WherePK().WhereAllWithDeleted().Exec(ctx)
-	if err != nil {
-		return status.Errorf(codes.Internal, "Update: %v", err)
-	}
-
-	n, err := ret.RowsAffected()
-	if err != nil {
-		return status.Errorf(codes.Internal, "RowsAffected: %v", err)
-	}
-
-	if n < 1 {
-		_, err = s.cs.GetDB().NewInsert().Model(&item2).Exec(ctx)
-		if err != nil {
-			return status.Errorf(codes.Internal, "Insert: %v", err)
-		}
-	}
-
-	return nil
-}
-
-func (s *WireService) afterUpdateValue(ctx context.Context, item *model.Wire, value string) error {
-	var err error
-
-	err = s.cs.GetSync().setWireValueUpdated(ctx, item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -1081,6 +1024,63 @@ func (s *WireService) Pull(ctx context.Context, in *cores.PullWireRequest) (*cor
 	}
 
 	return &output, nil
+}
+
+func (s *WireService) getWireValue(ctx context.Context, item *model.Wire) (string, error) {
+	item2, err := s.viewValueUpdated(ctx, item.ID)
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return "", nil
+			}
+		}
+
+		return "", err
+	}
+
+	return item2.Value, nil
+}
+
+func (s *WireService) updateWireValue(ctx context.Context, item *model.Wire, value string, updated time.Time) error {
+	var err error
+
+	item2 := model.WireValue{
+		ID:       item.ID,
+		DeviceID: item.DeviceID,
+		CableID:  item.CableID,
+		Value:    value,
+		Updated:  updated,
+	}
+
+	ret, err := s.cs.GetDB().NewUpdate().Model(&item2).WherePK().WhereAllWithDeleted().Exec(ctx)
+	if err != nil {
+		return status.Errorf(codes.Internal, "Update: %v", err)
+	}
+
+	n, err := ret.RowsAffected()
+	if err != nil {
+		return status.Errorf(codes.Internal, "RowsAffected: %v", err)
+	}
+
+	if n < 1 {
+		_, err = s.cs.GetDB().NewInsert().Model(&item2).Exec(ctx)
+		if err != nil {
+			return status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (s *WireService) afterUpdateValue(ctx context.Context, item *model.Wire, value string) error {
+	var err error
+
+	err = s.cs.GetSync().setWireValueUpdated(ctx, item.DeviceID, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	return nil
 }
 
 func (s *WireService) ViewValue(ctx context.Context, in *pb.Id) (*pb.WireValueUpdated, error) {
@@ -1217,7 +1217,7 @@ func (s *WireService) updateValueToRoute(ctx context.Context, item *model.Wire, 
 			continue
 		}
 
-		wire, err := s.cs.GetWire().viewByCableIDAndName(ctx, cable.ID, item.Name)
+		wire, err := s.cs.GetWire().ViewByCableIDAndName(ctx, cable.ID, item.Name)
 		if err != nil {
 			return err
 		}

@@ -249,7 +249,7 @@ func (s *SourceService) ViewByName(ctx context.Context, in *cores.ViewSourceByNa
 		}
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -292,7 +292,7 @@ func (s *SourceService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.So
 		return &output, err
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, device.ID, itemName)
+	item, err := s.ViewByDeviceIDAndName(ctx, device.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -521,7 +521,7 @@ func (s *SourceService) view(ctx context.Context, id string) (model.Source, erro
 	return item, nil
 }
 
-func (s *SourceService) viewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Source, error) {
+func (s *SourceService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Source, error) {
 	item := model.Source{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)

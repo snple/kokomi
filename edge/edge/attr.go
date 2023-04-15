@@ -686,7 +686,7 @@ func (s *AttrService) setValueByName(ctx context.Context, in *pb.AttrNameValue, 
 	}
 
 	// attr
-	item, err := s.viewByClassIDAndName(ctx, class.ID, itemName)
+	item, err := s.ViewByClassIDAndName(ctx, class.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -759,10 +759,10 @@ func (s *AttrService) viewByName(ctx context.Context, name string) (model.Attr, 
 		return item, err
 	}
 
-	return s.viewByClassIDAndName(ctx, class.ID, itemName)
+	return s.ViewByClassIDAndName(ctx, class.ID, itemName)
 }
 
-func (s *AttrService) viewByClassIDAndName(ctx context.Context, classID, name string) (model.Attr, error) {
+func (s *AttrService) ViewByClassIDAndName(ctx context.Context, classID, name string) (model.Attr, error) {
 	item := model.Attr{}
 
 	err := s.es.GetDB().NewSelect().Model(&item).Where("class_id = ?", classID).Where("name = ?", name).Scan(ctx)

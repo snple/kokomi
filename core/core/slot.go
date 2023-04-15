@@ -245,7 +245,7 @@ func (s *SlotService) ViewByName(ctx context.Context, in *cores.ViewSlotByNameRe
 		}
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -288,7 +288,7 @@ func (s *SlotService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Slot
 		return &output, err
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, device.ID, itemName)
+	item, err := s.ViewByDeviceIDAndName(ctx, device.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -496,7 +496,7 @@ func (s *SlotService) view(ctx context.Context, id string) (model.Slot, error) {
 	return item, nil
 }
 
-func (s *SlotService) viewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Slot, error) {
+func (s *SlotService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Slot, error) {
 	item := model.Slot{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)

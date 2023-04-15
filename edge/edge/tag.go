@@ -694,7 +694,7 @@ func (s *TagService) setValueByName(ctx context.Context, in *pb.TagNameValue, ch
 	}
 
 	// tag
-	item, err := s.viewBySourceIDAndName(ctx, source.ID, itemName)
+	item, err := s.ViewBySourceIDAndName(ctx, source.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -765,10 +765,10 @@ func (s *TagService) viewByName(ctx context.Context, name string) (model.Tag, er
 		return item, err
 	}
 
-	return s.viewBySourceIDAndName(ctx, source.ID, itemName)
+	return s.ViewBySourceIDAndName(ctx, source.ID, itemName)
 }
 
-func (s *TagService) viewBySourceIDAndName(ctx context.Context, sourceID, name string) (model.Tag, error) {
+func (s *TagService) ViewBySourceIDAndName(ctx context.Context, sourceID, name string) (model.Tag, error) {
 	item := model.Tag{}
 
 	err := s.es.GetDB().NewSelect().Model(&item).Where("source_id = ?", sourceID).Where("name = ?", name).Scan(ctx)
@@ -783,7 +783,7 @@ func (s *TagService) viewBySourceIDAndName(ctx context.Context, sourceID, name s
 	return item, nil
 }
 
-func (s *TagService) viewBySourceIDAndAddress(ctx context.Context, sourceID, address string) (model.Tag, error) {
+func (s *TagService) ViewBySourceIDAndAddress(ctx context.Context, sourceID, address string) (model.Tag, error) {
 	item := model.Tag{}
 
 	err := s.es.GetDB().NewSelect().Model(&item).Where("source_id = ?", sourceID).Where("address = ?", address).Scan(ctx)

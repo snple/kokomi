@@ -243,7 +243,7 @@ func (s *ClassService) ViewByName(ctx context.Context, in *cores.ViewClassByName
 		}
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -286,7 +286,7 @@ func (s *ClassService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Cla
 		return &output, err
 	}
 
-	item, err := s.viewByDeviceIDAndName(ctx, device.ID, itemName)
+	item, err := s.ViewByDeviceIDAndName(ctx, device.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -484,7 +484,7 @@ func (s *ClassService) view(ctx context.Context, id string) (model.Class, error)
 	return item, nil
 }
 
-func (s *ClassService) viewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Class, error) {
+func (s *ClassService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Class, error) {
 	item := model.Class{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)
