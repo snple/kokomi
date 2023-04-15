@@ -220,10 +220,6 @@ func (s *NodeService) WireServiceClient() nodes.WireServiceClient {
 	return nodes.NewWireServiceClient(s.NodeConn)
 }
 
-func (s *NodeService) DataServiceClient() nodes.DataServiceClient {
-	return nodes.NewDataServiceClient(s.NodeConn)
-}
-
 func (s *NodeService) RrpcServiceClient() rgrpc.RgrpcServiceClient {
 	return rgrpc.NewRgrpcServiceClient(s.NodeConn)
 }
