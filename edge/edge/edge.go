@@ -348,8 +348,8 @@ func defaultEdgeOptions() edgeOptions {
 	}
 
 	return edgeOptions{
-		linkStatusTTL:  3 * time.Minute,
 		logger:         logger,
+		linkStatusTTL:  3 * time.Minute,
 		tokenRefresh:   30 * time.Minute,
 		syncLinkStatus: time.Minute,
 		syncInterval:   time.Minute,
