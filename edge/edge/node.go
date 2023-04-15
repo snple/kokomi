@@ -112,12 +112,14 @@ func (s *NodeService) loop() {
 		return
 	}
 
-	go s.waitRemoteDeviceUpdated()
-	go s.waitLocalDeviceUpdated()
-	go s.waitRemoteTagValueUpdated()
-	go s.waitLocalTagValueUpdated()
-	go s.waitRemoteWireValueUpdated()
-	go s.waitLocalWireValueUpdated()
+	if s.es.dopts.syncRealtime {
+		go s.waitRemoteDeviceUpdated()
+		go s.waitLocalDeviceUpdated()
+		go s.waitRemoteTagValueUpdated()
+		go s.waitLocalTagValueUpdated()
+		go s.waitRemoteWireValueUpdated()
+		go s.waitLocalWireValueUpdated()
+	}
 
 	err = s.linkRgrpc(s.ctx)
 	if err != nil {
@@ -141,6 +143,9 @@ func (s *NodeService) ticker() {
 	syncLinkStatusTicker := time.NewTicker(s.es.dopts.syncLinkStatus)
 	defer syncLinkStatusTicker.Stop()
 
+	syncTicker := time.NewTicker(s.es.dopts.syncInterval)
+	defer syncTicker.Stop()
+
 	for {
 		select {
 		case <-s.ctx.Done():
@@ -162,6 +167,10 @@ func (s *NodeService) ticker() {
 						s.es.Logger().Sugar().Info("link device ticker success")
 					}
 				}
+			}
+		case <-syncTicker.C:
+			if err := s.sync(s.ctx); err != nil {
+				s.es.Logger().Sugar().Errorf("sync: %v", err)
 			}
 		}
 	}

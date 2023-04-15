@@ -382,7 +382,7 @@ func (tl *tunnelListener) openProxy(stream quic.Stream) error {
 }
 
 func (tl *tunnelListener) syncLinkStatus() {
-	ticker := time.NewTicker(tl.ts.es.dopts.linkStatusTTL)
+	ticker := time.NewTicker(tl.ts.es.dopts.syncLinkStatus)
 	defer ticker.Stop()
 
 	defer func() {

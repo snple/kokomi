@@ -318,15 +318,16 @@ type edgeOptions struct {
 	deviceID string
 	secret   string
 
-	nodeOptions   *nodeOptions
-	quicOptions   *quicOptions
-	influxdb      *db.InfluxDB
-	linkStatusTTL time.Duration
-	logger        *zap.Logger
+	nodeOptions *nodeOptions
+	quicOptions *quicOptions
+	influxdb    *db.InfluxDB
+	logger      *zap.Logger
 
-	tokenRefresh              time.Duration
-	syncLinkStatus            time.Duration
-	syncWireValueFromTagValue time.Duration
+	linkStatusTTL  time.Duration
+	tokenRefresh   time.Duration
+	syncLinkStatus time.Duration
+	syncInterval   time.Duration
+	syncRealtime   bool
 }
 
 type nodeOptions struct {
@@ -347,11 +348,12 @@ func defaultEdgeOptions() edgeOptions {
 	}
 
 	return edgeOptions{
-		linkStatusTTL:             3 * time.Minute,
-		logger:                    logger,
-		tokenRefresh:              30 * time.Minute,
-		syncLinkStatus:            time.Minute,
-		syncWireValueFromTagValue: time.Minute,
+		linkStatusTTL:  3 * time.Minute,
+		logger:         logger,
+		tokenRefresh:   30 * time.Minute,
+		syncLinkStatus: time.Minute,
+		syncInterval:   time.Minute,
+		syncRealtime:   false,
 	}
 }
 
@@ -416,15 +418,15 @@ func WithInfluxDB(influxdb *db.InfluxDB) EdgeOption {
 	})
 }
 
-func WithLinkStatusTTL(d time.Duration) EdgeOption {
-	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.linkStatusTTL = d
-	})
-}
-
 func WithLogger(logger *zap.Logger) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		o.logger = logger
+	})
+}
+
+func WithLinkStatusTTL(d time.Duration) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.linkStatusTTL = d
 	})
 }
 
@@ -440,8 +442,14 @@ func WithSyncLinkStatus(d time.Duration) EdgeOption {
 	})
 }
 
-func WithSyncWireValueFromTagValue(d time.Duration) EdgeOption {
+func WithSyncInterval(d time.Duration) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.syncWireValueFromTagValue = d
+		o.syncInterval = d
+	})
+}
+
+func WithSyncRealtime(realtime bool) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.syncRealtime = realtime
 	})
 }
