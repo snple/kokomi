@@ -30,7 +30,6 @@ type NodeService struct {
 	variable    *VarService
 	cable       *CableService
 	wire        *WireService
-	data        *DataService
 	class       *ClassService
 	attr        *AttrService
 	rgrpc       *RgrpcService
@@ -75,7 +74,6 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 	ns.wire = newWireService(ns)
 	ns.class = newClassService(ns)
 	ns.attr = newAttrService(ns)
-	ns.data = newDataService(ns)
 	ns.rgrpc = newRgrpcService(ns)
 
 	if ns.dopts.quicOptions != nil {
@@ -137,7 +135,6 @@ func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 	nodes.RegisterWireServiceServer(server, ns.wire)
 	nodes.RegisterClassServiceServer(server, ns.class)
 	nodes.RegisterAttrServiceServer(server, ns.attr)
-	nodes.RegisterDataServiceServer(server, ns.data)
 	rgrpc.RegisterRgrpcServiceServer(server, ns.rgrpc)
 }
 

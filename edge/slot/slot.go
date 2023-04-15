@@ -33,7 +33,6 @@ type SlotService struct {
 	wire     *WireService
 	class    *ClassService
 	attr     *AttrService
-	data     *DataService
 	rgrpc    *RgrpcService
 
 	ctx     context.Context
@@ -73,7 +72,6 @@ func Slot(es *edge.EdgeService, opts ...SlotOption) (*SlotService, error) {
 	ss.wire = newWireService(ss)
 	ss.class = newClassService(ss)
 	ss.attr = newAttrService(ss)
-	ss.data = newDataService(ss)
 	ss.rgrpc = newRgrpcService(ss)
 
 	return ss, nil
@@ -100,7 +98,6 @@ func (ss *SlotService) RegisterGrpc(server *grpc.Server) {
 	slots.RegisterWireServiceServer(server, ss.wire)
 	slots.RegisterClassServiceServer(server, ss.class)
 	slots.RegisterAttrServiceServer(server, ss.attr)
-	slots.RegisterDataServiceServer(server, ss.data)
 	rgrpc.RegisterRgrpcServiceServer(server, ss.rgrpc)
 }
 

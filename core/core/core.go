@@ -7,9 +7,7 @@ import (
 	"time"
 
 	"github.com/snple/kokomi/core/model"
-	"github.com/snple/kokomi/db"
 	"github.com/snple/kokomi/pb/cores"
-	"github.com/snple/types"
 	"github.com/uptrace/bun"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -33,7 +31,6 @@ type CoreService struct {
 	wire        *WireService
 	class       *ClassService
 	attr        *AttrService
-	data        *DataService
 	control     *ControlService
 
 	clone *cloneService
@@ -88,7 +85,6 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.wire = newWireService(cs)
 	cs.class = newClassService(cs)
 	cs.attr = newAttrService(cs)
-	cs.data = newDateService(cs)
 	cs.control = newControlService(cs)
 
 	cs.clone = newCloneService(cs)
@@ -111,14 +107,6 @@ func (cs *CoreService) Stop() {
 
 func (cs *CoreService) GetDB() *bun.DB {
 	return cs.db
-}
-
-func (cs *CoreService) GetInfluxDB() types.Option[*db.InfluxDB] {
-	if cs.dopts.influxdb != nil {
-		return types.Some(cs.dopts.influxdb)
-	}
-
-	return types.None[*db.InfluxDB]()
 }
 
 func (cs *CoreService) GetStatus() *StatusService {
@@ -181,10 +169,6 @@ func (cs *CoreService) GetAttr() *AttrService {
 	return cs.attr
 }
 
-func (cs *CoreService) GetData() *DataService {
-	return cs.data
-}
-
 func (cs *CoreService) GetControl() *ControlService {
 	return cs.control
 }
@@ -220,7 +204,6 @@ func (cs *CoreService) Register(server *grpc.Server) {
 	cores.RegisterWireServiceServer(server, cs.wire)
 	cores.RegisterClassServiceServer(server, cs.class)
 	cores.RegisterAttrServiceServer(server, cs.attr)
-	cores.RegisterDataServiceServer(server, cs.data)
 	cores.RegisterControlServiceServer(server, cs.control)
 	cores.RegisterRouteServiceServer(server, cs.route)
 }
@@ -256,7 +239,6 @@ func CreateSchema(db bun.IDB) error {
 }
 
 type coreOptions struct {
-	influxdb      *db.InfluxDB
 	linkStatusTTL time.Duration
 	logger        *zap.Logger
 }
@@ -291,12 +273,6 @@ func newFuncCoreOption(f func(*coreOptions)) *funcCoreOption {
 	return &funcCoreOption{
 		f: f,
 	}
-}
-
-func WithInfluxDB(influxdb *db.InfluxDB) CoreOption {
-	return newFuncCoreOption(func(o *coreOptions) {
-		o.influxdb = influxdb
-	})
 }
 
 func WithLinkStatusTTL(d time.Duration) CoreOption {

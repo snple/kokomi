@@ -10,7 +10,6 @@ import (
 
 	"github.com/dgraph-io/badger/v4"
 	"github.com/quic-go/quic-go"
-	"github.com/snple/kokomi/db"
 	"github.com/snple/kokomi/edge/model"
 	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/types"
@@ -38,7 +37,6 @@ type EdgeService struct {
 	wire     *WireService
 	class    *ClassService
 	attr     *AttrService
-	data     *DataService
 	control  *ControlService
 	quic     types.Option[*QuicService]
 	tunnel   types.Option[*TunnelService]
@@ -109,7 +107,6 @@ func EdgeContext(ctx context.Context, db *bun.DB, badger *badger.DB, opts ...Edg
 	es.wire = newWireService(es)
 	es.class = newClassService(es)
 	es.attr = newAttrService(es)
-	es.data = newDataService(es)
 	es.control = newControlService(es)
 
 	if es.dopts.quicOptions != nil {
@@ -179,14 +176,6 @@ func (es *EdgeService) GetBadgerDB() *badger.DB {
 	return es.badger
 }
 
-func (es *EdgeService) GetInfluxDB() types.Option[*db.InfluxDB] {
-	if es.dopts.influxdb != nil {
-		return types.Some(es.dopts.influxdb)
-	}
-
-	return types.None[*db.InfluxDB]()
-}
-
 func (es *EdgeService) GetStatus() *StatusService {
 	return es.status
 }
@@ -247,10 +236,6 @@ func (es *EdgeService) GetAttr() *AttrService {
 	return es.attr
 }
 
-func (es *EdgeService) GetData() *DataService {
-	return es.data
-}
-
 func (es *EdgeService) GetControl() *ControlService {
 	return es.control
 }
@@ -285,7 +270,6 @@ func (es *EdgeService) Register(server *grpc.Server) {
 	edges.RegisterWireServiceServer(server, es.wire)
 	edges.RegisterClassServiceServer(server, es.class)
 	edges.RegisterAttrServiceServer(server, es.attr)
-	edges.RegisterDataServiceServer(server, es.data)
 	edges.RegisterControlServiceServer(server, es.control)
 }
 
@@ -320,7 +304,6 @@ type edgeOptions struct {
 
 	nodeOptions *nodeOptions
 	quicOptions *quicOptions
-	influxdb    *db.InfluxDB
 	logger      *zap.Logger
 
 	linkStatusTTL  time.Duration
@@ -409,12 +392,6 @@ func WithQuic(addr string, tlsConfig *tls.Config, quicConfig *quic.Config) EdgeO
 		quicConfig2.EnableDatagrams = true
 
 		o.quicOptions = &quicOptions{addr, tlsConfig2, quicConfig2}
-	})
-}
-
-func WithInfluxDB(influxdb *db.InfluxDB) EdgeOption {
-	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.influxdb = influxdb
 	})
 }
 
