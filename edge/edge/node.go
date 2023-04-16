@@ -64,7 +64,7 @@ func (s *NodeService) Start() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
-	s.es.Logger().Sugar().Info("start node service")
+	s.es.Logger().Sugar().Info("node service started")
 
 	go s.ticker()
 
@@ -169,8 +169,10 @@ func (s *NodeService) ticker() {
 				}
 			}
 		case <-syncTicker.C:
-			if err := s.sync(s.ctx); err != nil {
-				s.es.Logger().Sugar().Errorf("sync: %v", err)
+			if s.es.GetStatus().GetDeviceLink() == consts.ON {
+				if err := s.sync(s.ctx); err != nil {
+					s.es.Logger().Sugar().Errorf("sync: %v", err)
+				}
 			}
 		}
 	}
@@ -388,8 +390,6 @@ func (s *NodeService) waitRemoteDeviceUpdated() {
 				s.es.Logger().Sugar().Errorf("sync1: %v", err)
 			}
 		}
-
-		time.Sleep(time.Second)
 	}
 }
 
@@ -415,8 +415,6 @@ func (s *NodeService) waitLocalDeviceUpdated() {
 		} else {
 			return
 		}
-
-		time.Sleep(time.Second)
 	}
 }
 
@@ -460,8 +458,6 @@ func (s *NodeService) waitRemoteTagValueUpdated() {
 				s.es.Logger().Sugar().Errorf("syncTagValue1: %v", err)
 			}
 		}
-
-		time.Sleep(time.Second)
 	}
 }
 
@@ -487,8 +483,6 @@ func (s *NodeService) waitLocalTagValueUpdated() {
 		} else {
 			return
 		}
-
-		time.Sleep(time.Second)
 	}
 }
 
@@ -532,8 +526,6 @@ func (s *NodeService) waitRemoteWireValueUpdated() {
 				s.es.Logger().Sugar().Errorf("syncWireValue1: %v", err)
 			}
 		}
-
-		time.Sleep(time.Second)
 	}
 }
 
@@ -559,8 +551,6 @@ func (s *NodeService) waitLocalWireValueUpdated() {
 		} else {
 			return
 		}
-
-		time.Sleep(time.Second)
 	}
 }
 

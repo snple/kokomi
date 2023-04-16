@@ -21,6 +21,7 @@ type TunnelService struct {
 	es *EdgeService
 
 	listens map[string]*tunnelListener
+	updated int64
 	lock    sync.RWMutex
 
 	ctx     context.Context
@@ -45,7 +46,7 @@ func (s *TunnelService) Start() {
 
 	go s.waitDeviceUpdated()
 
-	ticker := time.NewTicker(60 * 3 * time.Second)
+	ticker := time.NewTicker(60 * time.Second)
 	defer ticker.Stop()
 
 	for {
@@ -70,47 +71,45 @@ func (s *TunnelService) waitDeviceUpdated() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
-	updated := int64(0)
-
 	for {
 		output := s.es.GetSync().WaitDeviceUpdated2(s.ctx)
 
 		<-output
-		err := s.syncProxy(s.ctx, &updated)
+		err := s.checkProxyUpdated()
 		if err != nil {
-			s.es.Logger().Sugar().Errorf("device sync: %v", err)
+			s.es.Logger().Sugar().Errorf("tunnel checkProxyUpdated: %v", err)
 		}
 
 		ok := <-output
 		if ok {
-			err := s.syncProxy(s.ctx, &updated)
+			err := s.checkProxyUpdated()
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("device sync: %v", err)
+				s.es.Logger().Sugar().Errorf("tunnel checkProxyUpdated: %v", err)
 			}
 		} else {
 			return
 		}
-
-		time.Sleep(time.Second)
 	}
 }
 
-func (s *TunnelService) syncProxy(ctx context.Context, updated *int64) error {
-	proxyUpdated, err := s.es.GetSync().GetProxyUpdated(ctx, &pb.MyEmpty{})
+func (s *TunnelService) checkProxyUpdated() error {
+	proxyUpdated, err := s.es.GetSync().GetProxyUpdated(s.ctx, &pb.MyEmpty{})
 	if err != nil {
 		return err
 	}
 
-	if proxyUpdated.GetUpdated() <= *updated {
+	updated := s.getUpdated()
+
+	if proxyUpdated.GetUpdated() <= updated {
 		return nil
 	}
 
 	{
-		after := *updated
+		after := updated
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.es.GetProxy().Pull(ctx, &edges.PullProxyRequest{After: after, Limit: limit})
+			remotes, err := s.es.GetProxy().Pull(s.ctx, &edges.PullProxyRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -119,17 +118,12 @@ func (s *TunnelService) syncProxy(ctx context.Context, updated *int64) error {
 				after = remote.GetUpdated()
 
 				if remote.GetDeleted() > 0 {
-					s.lock.RLock()
-					listen, ok := s.listens[remote.GetId()]
-					s.lock.RUnlock()
-
-					if ok {
+					s.lock.Lock()
+					if listen, ok := s.listens[remote.GetId()]; ok {
 						listen.stop()
-
-						s.lock.Lock()
 						delete(s.listens, remote.GetId())
-						s.lock.Unlock()
 					}
+					s.lock.Unlock()
 				} else {
 					s.checkProxy(remote)
 				}
@@ -141,9 +135,23 @@ func (s *TunnelService) syncProxy(ctx context.Context, updated *int64) error {
 		}
 	}
 
-	*updated = proxyUpdated.GetUpdated()
+	s.setUpdated(proxyUpdated.GetUpdated())
 
 	return nil
+}
+
+func (s *TunnelService) getUpdated() int64 {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
+	return s.updated
+}
+
+func (s *TunnelService) setUpdated(updated int64) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	s.updated = updated
 }
 
 func (s *TunnelService) ticker() error {
@@ -175,32 +183,36 @@ func (s *TunnelService) openStreamSync() (quic.Stream, error) {
 
 func (s *TunnelService) checkProxy(proxy *pb.Proxy) {
 	{
-		s.lock.RLock()
-		listen, ok := s.listens[proxy.GetId()]
-		s.lock.RUnlock()
+		s.lock.Lock()
+		defer s.lock.Unlock()
 
-		if ok {
-			index1 := genProxyIndex(proxy)
-			index2 := genProxyIndex(listen.proxy)
-			if index1 == index2 {
+		if listen, ok := s.listens[proxy.GetId()]; ok {
+			if proxy.GetStatus() != consts.ON {
+				listen.stop()
+				delete(s.listens, proxy.GetId())
+				return
+			}
+
+			if proxy.GetName() == listen.proxy.GetName() &&
+				proxy.GetNetwork() == listen.proxy.GetNetwork() &&
+				proxy.GetAddress() == listen.proxy.GetAddress() &&
+				proxy.GetTarget() == listen.proxy.GetTarget() {
 				return
 			}
 
 			listen.stop()
-
-			s.lock.Lock()
 			delete(s.listens, proxy.GetId())
-			s.lock.Unlock()
 		}
 
-		if proxy.GetNetwork() == "" || proxy.GetTarget() == "" || proxy.GetStatus() != consts.ON {
+		if proxy.GetNetwork() == "" || proxy.GetAddress() == "" ||
+			proxy.GetTarget() == "" || proxy.GetStatus() != consts.ON {
 			return
 		}
 	}
 
-	listen, err := tunnelListen(s, proxy)
+	listen, err := newListen(s, proxy)
 	if err != nil {
-		s.es.Logger().Sugar().Errorf("tunnelListen error: %v", err)
+		s.es.Logger().Sugar().Errorf("newListen error: %v", err)
 		return
 	}
 
@@ -234,7 +246,7 @@ type tunnelListener struct {
 	closeWG sync.WaitGroup
 }
 
-func tunnelListen(ts *TunnelService, proxy *pb.Proxy) (*tunnelListener, error) {
+func newListen(ts *TunnelService, proxy *pb.Proxy) (*tunnelListener, error) {
 	// The network must be "tcp", "tcp4", "tcp6", "unix" or "unixpacket".
 	nl, err := net.Listen(proxy.Network, proxy.Address)
 	if err != nil {
@@ -412,9 +424,4 @@ func (tl *tunnelListener) syncLinkStatus() {
 
 func (tl *tunnelListener) logger() *zap.Logger {
 	return tl.ts.es.Logger()
-}
-
-func genProxyIndex(proxy *pb.Proxy) string {
-	return fmt.Sprintf("%v-%v-%v-%v-%v",
-		proxy.GetName(), proxy.GetNetwork(), proxy.GetAddress(), proxy.GetTarget(), proxy.GetStatus())
 }

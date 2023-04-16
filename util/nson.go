@@ -6,11 +6,10 @@ import (
 	"io"
 
 	"github.com/danclive/nson-go"
-	"github.com/quic-go/quic-go"
 )
 
-func ReadNsonMessage(stream quic.Stream) (nson.Message, error) {
-	rb, err := ReadNsonBytes(stream)
+func ReadNsonMessage(reader io.Reader) (nson.Message, error) {
+	rb, err := ReadNsonBytes(reader)
 	if err != nil {
 		return nil, err
 	}
@@ -24,14 +23,14 @@ func ReadNsonMessage(stream quic.Stream) (nson.Message, error) {
 	return value.(nson.Message), nil
 }
 
-func WriteNsonMessage(stream quic.Stream, message nson.Message) error {
+func WriteNsonMessage(writer io.Writer, message nson.Message) error {
 	wbuff := new(bytes.Buffer)
 	err := message.Encode(wbuff)
 	if err != nil {
 		return err
 	}
 
-	_, err = stream.Write(wbuff.Bytes())
+	_, err = writer.Write(wbuff.Bytes())
 	if err != nil {
 		return err
 	}
