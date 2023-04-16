@@ -394,6 +394,9 @@ func (tl *tunnelListener) openProxy(stream quic.Stream) error {
 }
 
 func (tl *tunnelListener) syncLinkStatus() {
+	tl.closeWG.Add(1)
+	defer tl.closeWG.Done()
+
 	ticker := time.NewTicker(tl.ts.es.dopts.syncLinkStatus)
 	defer ticker.Stop()
 
@@ -416,7 +419,10 @@ func (tl *tunnelListener) syncLinkStatus() {
 
 				request := edges.LinkProxyRequest{Id: tl.proxy.GetId(), Status: int32(n)}
 
-				tl.ts.es.GetProxy().Link(tl.ctx, &request)
+				_, err := tl.ts.es.GetProxy().Link(tl.ctx, &request)
+				if err != nil {
+					tl.logger().Sugar().Errorf("proxy link error: %v", err)
+				}
 			}
 		}
 	}
