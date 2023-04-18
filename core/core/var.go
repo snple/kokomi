@@ -368,7 +368,7 @@ func (s *VarService) List(ctx context.Context, in *cores.ListVarRequest) (*cores
 
 	output.Page = in.GetPage()
 
-	var items []model.Var
+	items := make([]model.Var, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -777,7 +777,7 @@ func (s *VarService) Pull(ctx context.Context, in *cores.PullVarRequest) (*cores
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	var items []model.Var
+	items := make([]model.Var, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 

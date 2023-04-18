@@ -407,7 +407,7 @@ func (s *WireService) List(ctx context.Context, in *cores.ListWireRequest) (*cor
 
 	output.Page = in.GetPage()
 
-	var items []model.Wire
+	items := make([]model.Wire, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -994,7 +994,7 @@ func (s *WireService) Pull(ctx context.Context, in *cores.PullWireRequest) (*cor
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	var items []model.Wire
+	items := make([]model.Wire, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -1152,7 +1152,7 @@ func (s *WireService) PullValue(ctx context.Context, in *cores.PullWireValueRequ
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	var items []model.WireValue
+	items := make([]model.WireValue, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 

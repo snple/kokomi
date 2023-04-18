@@ -306,7 +306,7 @@ func (s *VarService) List(ctx context.Context, in *edges.ListVarRequest) (*edges
 
 	output.Page = in.GetPage()
 
-	var items []model.Var
+	items := make([]model.Var, 0, 10)
 
 	query := s.es.GetDB().NewSelect().Model(&items)
 
@@ -711,7 +711,7 @@ func (s *VarService) Pull(ctx context.Context, in *edges.PullVarRequest) (*edges
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	var items []model.Var
+	items := make([]model.Var, 0, 10)
 
 	query := s.es.GetDB().NewSelect().Model(&items)
 

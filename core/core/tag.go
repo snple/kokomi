@@ -411,7 +411,7 @@ func (s *TagService) List(ctx context.Context, in *cores.ListTagRequest) (*cores
 
 	output.Page = in.GetPage()
 
-	var items []model.Tag
+	items := make([]model.Tag, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -997,7 +997,7 @@ func (s *TagService) Pull(ctx context.Context, in *cores.PullTagRequest) (*cores
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	var items []model.Tag
+	items := make([]model.Tag, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -1155,7 +1155,7 @@ func (s *TagService) PullValue(ctx context.Context, in *cores.PullTagValueReques
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	var items []model.TagValue
+	items := make([]model.TagValue, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 

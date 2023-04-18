@@ -344,7 +344,7 @@ func (s *WireService) List(ctx context.Context, in *edges.ListWireRequest) (*edg
 
 	output.Page = in.GetPage()
 
-	var items []model.Wire
+	items := make([]model.Wire, 0, 10)
 
 	query := s.es.GetDB().NewSelect().Model(&items)
 
@@ -884,7 +884,7 @@ func (s *WireService) Pull(ctx context.Context, in *edges.PullWireRequest) (*edg
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	var items []model.Wire
+	items := make([]model.Wire, 0, 10)
 
 	query := s.es.GetDB().NewSelect().Model(&items)
 
@@ -1042,7 +1042,7 @@ func (s *WireService) PullValue(ctx context.Context, in *edges.PullWireValueRequ
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	var items []model.WireValue
+	items := make([]model.WireValue, 0, 10)
 
 	{
 		after := time.UnixMilli(in.GetAfter())
@@ -1068,13 +1068,15 @@ func (s *WireService) PullValue(ctx context.Context, in *edges.PullWireValueRequ
 				return &output, status.Errorf(codes.Internal, "BadgerDB view value: %v", err)
 			}
 
+			if !item.Updated.After(after) {
+				continue
+			}
+
 			if in.GetCableId() != "" && in.GetCableId() != item.CableID {
 				continue
 			}
 
-			if item.Updated.After(after) {
-				items = append(items, item)
-			}
+			items = append(items, item)
 		}
 
 		sort.Sort(sortWireValue(items))

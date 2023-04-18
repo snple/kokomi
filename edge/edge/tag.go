@@ -347,7 +347,7 @@ func (s *TagService) List(ctx context.Context, in *edges.ListTagRequest) (*edges
 
 	output.Page = in.GetPage()
 
-	var items []model.Tag
+	items := make([]model.Tag, 0, 10)
 
 	query := s.es.GetDB().NewSelect().Model(&items)
 
@@ -907,7 +907,7 @@ func (s *TagService) Pull(ctx context.Context, in *edges.PullTagRequest) (*edges
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	var items []model.Tag
+	items := make([]model.Tag, 0, 10)
 
 	query := s.es.GetDB().NewSelect().Model(&items)
 
@@ -1065,7 +1065,7 @@ func (s *TagService) PullValue(ctx context.Context, in *edges.PullTagValueReques
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	var items []model.TagValue
+	items := make([]model.TagValue, 0, 10)
 
 	{
 		after := time.UnixMilli(in.GetAfter())
@@ -1091,13 +1091,15 @@ func (s *TagService) PullValue(ctx context.Context, in *edges.PullTagValueReques
 				return &output, status.Errorf(codes.Internal, "BadgerDB view value: %v", err)
 			}
 
+			if !item.Updated.After(after) {
+				continue
+			}
+
 			if in.GetSourceId() != "" && in.GetSourceId() != item.SourceID {
 				continue
 			}
 
-			if item.Updated.After(after) {
-				items = append(items, item)
-			}
+			items = append(items, item)
 		}
 
 		sort.Sort(sortTagValue(items))
