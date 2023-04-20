@@ -45,7 +45,7 @@ func newQuicService(es *EdgeService) (*QuicService, error) {
 	return s, nil
 }
 
-func (s *QuicService) Start() {
+func (s *QuicService) start() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
@@ -63,7 +63,7 @@ func (s *QuicService) Start() {
 	}
 }
 
-func (s *QuicService) Stop() {
+func (s *QuicService) stop() {
 	s.cancel()
 	s.closeWG.Wait()
 }

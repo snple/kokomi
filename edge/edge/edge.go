@@ -130,24 +130,24 @@ func (es *EdgeService) Start() {
 		es.closeWG.Add(1)
 		defer es.closeWG.Done()
 
-		es.GetNode().Start()
+		es.GetNode().start()
 	}()
 
-	if quic := es.quic; quic.IsSome() {
+	if es.quic.IsSome() {
 		go func() {
 			es.closeWG.Add(1)
 			defer es.closeWG.Done()
 
-			quic.Unwrap().Start()
+			es.quic.Unwrap().start()
 		}()
 	}
 
-	if tunnel := es.tunnel; tunnel.IsSome() {
+	if es.tunnel.IsSome() {
 		go func() {
 			es.closeWG.Add(1)
 			defer es.closeWG.Done()
 
-			tunnel.Unwrap().Start()
+			es.tunnel.Unwrap().start()
 		}()
 	}
 }
@@ -155,16 +155,15 @@ func (es *EdgeService) Start() {
 func (es *EdgeService) Stop() {
 	es.cancel()
 
+	if es.tunnel.IsSome() {
+		es.tunnel.Unwrap().stop()
+	}
+	if es.quic.IsSome() {
+		es.quic.Unwrap().stop()
+	}
+	es.GetNode().stop()
+
 	es.dopts.logger.Sync()
-
-	if tunnel := es.tunnel; tunnel.IsSome() {
-		tunnel.Unwrap().Stop()
-	}
-	if quic := es.quic; quic.IsSome() {
-		quic.Unwrap().Stop()
-	}
-	es.GetNode().Stop()
-
 	es.closeWG.Wait()
 }
 

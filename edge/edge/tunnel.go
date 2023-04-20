@@ -40,7 +40,7 @@ func newTunnelService(es *EdgeService) *TunnelService {
 	}
 }
 
-func (s *TunnelService) Start() {
+func (s *TunnelService) start() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
@@ -62,7 +62,7 @@ func (s *TunnelService) Start() {
 	}
 }
 
-func (s *TunnelService) Stop() {
+func (s *TunnelService) stop() {
 	s.cancel()
 	s.closeWG.Wait()
 }

@@ -60,7 +60,7 @@ func newNodeService(es *EdgeService) (*NodeService, error) {
 	return s, nil
 }
 
-func (s *NodeService) Start() {
+func (s *NodeService) start() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
@@ -78,7 +78,7 @@ func (s *NodeService) Start() {
 	}
 }
 
-func (s *NodeService) Stop() {
+func (s *NodeService) stop() {
 	s.cancel()
 	s.closeWG.Wait()
 }
@@ -102,7 +102,7 @@ func (s *NodeService) loop() {
 
 	s.es.Logger().Sugar().Info("device login success")
 
-	s.linkDevice()
+	s.linkDevice(s.ctx)
 	s.es.GetStatus().SetDeviceLink(consts.ON)
 	defer s.es.GetStatus().SetDeviceLink(consts.OFF)
 
@@ -160,7 +160,7 @@ func (s *NodeService) ticker() {
 		case <-syncLinkStatusTicker.C:
 			if option := s.es.GetQuic(); option.IsNone() {
 				if s.es.GetStatus().GetDeviceLink() == consts.ON {
-					err := s.linkDevice()
+					err := s.linkDevice(s.ctx)
 					if err != nil {
 						s.es.Logger().Sugar().Errorf("link device : %v", err)
 					} else {
@@ -238,8 +238,8 @@ func (s *NodeService) setToken(token string) {
 	s.token = token
 }
 
-func (s *NodeService) linkDevice() error {
-	ctx := metadata.SetToken(context.Background(), s.GetToken())
+func (s *NodeService) linkDevice(ctx context.Context) error {
+	ctx = metadata.SetToken(ctx, s.GetToken())
 
 	request := &nodes.LinkDeviceRequest{Status: consts.ON}
 	_, err := s.DeviceServiceClient().Link(ctx, request)
