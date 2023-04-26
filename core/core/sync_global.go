@@ -210,15 +210,15 @@ func (s *SyncGlobalService) waitUpdated2(ctx context.Context,
 	chans[wait] = struct{}{}
 	s.lock.Unlock()
 
-	defer func() {
-		s.lock.Lock()
-		delete(chans, wait)
-		s.lock.Unlock()
-	}()
-
 	output <- true
 
 	go func() {
+		defer func() {
+			s.lock.Lock()
+			delete(chans, wait)
+			s.lock.Unlock()
+		}()
+
 		select {
 		case <-wait:
 			output <- true
