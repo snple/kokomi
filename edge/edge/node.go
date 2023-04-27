@@ -25,8 +25,8 @@ type NodeService struct {
 
 	NodeConn *grpc.ClientConn
 
-	token   string
-	optLock sync.RWMutex
+	token string
+	lock  sync.RWMutex
 
 	handlerMap rgrpc.HandlerMap
 
@@ -227,15 +227,15 @@ func (s *NodeService) RrpcServiceClient() rgrpc.RgrpcServiceClient {
 }
 
 func (s *NodeService) GetToken() string {
-	s.optLock.RLock()
-	defer s.optLock.RUnlock()
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	return s.token
 }
 
-func (s *NodeService) setToken(token string) {
-	s.optLock.RLock()
-	defer s.optLock.RUnlock()
-	s.token = token
+func (s *NodeService) SetToken(ctx context.Context) context.Context {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+	return metadata.SetToken(ctx, s.token)
 }
 
 func (s *NodeService) linkDevice(ctx context.Context) error {
@@ -344,7 +344,9 @@ func (s *NodeService) login(ctx context.Context) error {
 	}
 
 	// set token
-	s.setToken(reply.GetToken())
+	s.lock.Lock()
+	s.token = reply.GetToken()
+	s.lock.Unlock()
 
 	return nil
 }

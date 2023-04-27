@@ -388,13 +388,15 @@ func (s *SourceService) Link(ctx context.Context, in *edges.LinkSourceRequest) (
 	s.es.GetStatus().SetLink(item.ID, in.GetStatus())
 
 	{
-		syncService := s.es.GetNode()
-		ctx := metadata.SetToken(context.Background(), syncService.GetToken())
+		if option := s.es.GetNode(); option.IsSome() {
+			node := option.Unwrap()
 
-		request := &nodes.LinkSourceRequest{Id: in.GetId(), Status: in.GetStatus()}
-		_, err := syncService.SourceServiceClient().Link(ctx, request)
-		if err != nil {
-			return &output, err
+			ctx := node.SetToken(context.Background())
+			request := &nodes.LinkSourceRequest{Id: in.GetId(), Status: in.GetStatus()}
+			_, err := node.SourceServiceClient().Link(ctx, request)
+			if err != nil {
+				return &output, err
+			}
 		}
 	}
 

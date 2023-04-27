@@ -382,13 +382,15 @@ func (s *ProxyService) Link(ctx context.Context, in *edges.LinkProxyRequest) (*p
 	s.es.GetStatus().SetLink(item.ID, in.GetStatus())
 
 	{
-		syncService := s.es.GetNode()
-		ctx := metadata.SetToken(context.Background(), syncService.GetToken())
+		if option := s.es.GetNode(); option.IsSome() {
+			node := option.Unwrap()
 
-		request := &nodes.LinkProxyRequest{Id: in.GetId(), Status: in.GetStatus()}
-		_, err := syncService.ProxyServiceClient().Link(ctx, request)
-		if err != nil {
-			return &output, err
+			ctx := node.SetToken(context.Background())
+			request := &nodes.LinkProxyRequest{Id: in.GetId(), Status: in.GetStatus()}
+			_, err := node.ProxyServiceClient().Link(ctx, request)
+			if err != nil {
+				return &output, err
+			}
 		}
 	}
 

@@ -386,13 +386,15 @@ func (s *CableService) Link(ctx context.Context, in *edges.LinkCableRequest) (*p
 	s.es.GetStatus().SetLink(item.ID, in.GetStatus())
 
 	{
-		syncService := s.es.GetNode()
-		ctx := metadata.SetToken(context.Background(), syncService.GetToken())
+		if option := s.es.GetNode(); option.IsSome() {
+			node := option.Unwrap()
 
-		request := &nodes.LinkCableRequest{Id: in.GetId(), Status: in.GetStatus()}
-		_, err := syncService.CableServiceClient().Link(ctx, request)
-		if err != nil {
-			return &output, err
+			ctx := node.SetToken(context.Background())
+			request := &nodes.LinkCableRequest{Id: in.GetId(), Status: in.GetStatus()}
+			_, err := node.CableServiceClient().Link(ctx, request)
+			if err != nil {
+				return &output, err
+			}
 		}
 	}
 

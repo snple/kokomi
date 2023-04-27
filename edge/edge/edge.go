@@ -22,7 +22,6 @@ type EdgeService struct {
 	db       *bun.DB
 	badger   *BadgerService
 	status   *StatusService
-	node     *NodeService
 	sync     *SyncService
 	device   *DeviceService
 	slot     *SlotService
@@ -37,8 +36,10 @@ type EdgeService struct {
 	class    *ClassService
 	attr     *AttrService
 	control  *ControlService
-	quic     types.Option[*QuicService]
-	tunnel   types.Option[*TunnelService]
+
+	node   types.Option[*NodeService]
+	quic   types.Option[*QuicService]
+	tunnel types.Option[*TunnelService]
 
 	clone *cloneService
 
@@ -86,13 +87,6 @@ func EdgeContext(ctx context.Context, db *bun.DB, badger *badger.DB, opts ...Edg
 
 	es.badger = newBadgerService(es, badger)
 	es.status = newStatusService(es)
-
-	node, err := newNodeService(es)
-	if err != nil {
-		return nil, err
-	}
-	es.node = node
-
 	es.sync = newSyncService(es)
 	es.device = newDeviceService(es)
 	es.slot = newSlotService(es)
@@ -108,15 +102,23 @@ func EdgeContext(ctx context.Context, db *bun.DB, badger *badger.DB, opts ...Edg
 	es.attr = newAttrService(es)
 	es.control = newControlService(es)
 
-	if es.dopts.quicOptions != nil {
-		quic, err := newQuicService(es)
+	if es.dopts.nodeOptions != nil {
+		node, err := newNodeService(es)
 		if err != nil {
-			return es, err
+			return nil, err
 		}
+		es.node = types.Some(node)
 
-		es.quic = types.Some(quic)
+		if es.dopts.quicOptions != nil {
+			quic, err := newQuicService(es)
+			if err != nil {
+				return es, err
+			}
 
-		es.tunnel = types.Some(newTunnelService(es))
+			es.quic = types.Some(quic)
+
+			es.tunnel = types.Some(newTunnelService(es))
+		}
 	}
 
 	es.clone = newCloneService(es)
@@ -125,42 +127,48 @@ func EdgeContext(ctx context.Context, db *bun.DB, badger *badger.DB, opts ...Edg
 }
 
 func (es *EdgeService) Start() {
-	go func() {
-		es.closeWG.Add(1)
-		defer es.closeWG.Done()
-
-		es.GetNode().start()
-	}()
-
-	if es.quic.IsSome() {
+	if es.node.IsSome() {
 		go func() {
 			es.closeWG.Add(1)
 			defer es.closeWG.Done()
 
-			es.quic.Unwrap().start()
+			es.node.Unwrap().start()
 		}()
-	}
 
-	if es.tunnel.IsSome() {
-		go func() {
-			es.closeWG.Add(1)
-			defer es.closeWG.Done()
+		if es.quic.IsSome() {
+			go func() {
+				es.closeWG.Add(1)
+				defer es.closeWG.Done()
 
-			es.tunnel.Unwrap().start()
-		}()
+				es.quic.Unwrap().start()
+			}()
+
+			if es.tunnel.IsSome() {
+				go func() {
+					es.closeWG.Add(1)
+					defer es.closeWG.Done()
+
+					es.tunnel.Unwrap().start()
+				}()
+			}
+		}
 	}
 }
 
 func (es *EdgeService) Stop() {
 	es.cancel()
 
-	if es.tunnel.IsSome() {
-		es.tunnel.Unwrap().stop()
+	if es.node.IsSome() {
+		if es.quic.IsSome() {
+			if es.tunnel.IsSome() {
+				es.tunnel.Unwrap().stop()
+			}
+
+			es.quic.Unwrap().stop()
+		}
+
+		es.node.Unwrap().stop()
 	}
-	if es.quic.IsSome() {
-		es.quic.Unwrap().stop()
-	}
-	es.GetNode().stop()
 
 	es.dopts.logger.Sync()
 	es.closeWG.Wait()
@@ -176,10 +184,6 @@ func (es *EdgeService) GetBadgerDB() *badger.DB {
 
 func (es *EdgeService) GetStatus() *StatusService {
 	return es.status
-}
-
-func (es *EdgeService) GetNode() *NodeService {
-	return es.node
 }
 
 func (es *EdgeService) GetSync() *SyncService {
@@ -236,6 +240,10 @@ func (es *EdgeService) GetAttr() *AttrService {
 
 func (es *EdgeService) GetControl() *ControlService {
 	return es.control
+}
+
+func (es *EdgeService) GetNode() types.Option[*NodeService] {
+	return es.node
 }
 
 func (es *EdgeService) GetQuic() types.Option[*QuicService] {

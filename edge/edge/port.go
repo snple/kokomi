@@ -380,14 +380,15 @@ func (s *PortService) Link(ctx context.Context, in *edges.LinkPortRequest) (*pb.
 	s.es.GetStatus().SetLink(item.ID, in.GetStatus())
 
 	{
+		if option := s.es.GetNode(); option.IsSome() {
+			node := option.Unwrap()
 
-		syncService := s.es.GetNode()
-		ctx := metadata.SetToken(context.Background(), syncService.GetToken())
-
-		request := &nodes.LinkPortRequest{Id: in.GetId(), Status: in.GetStatus()}
-		_, err := syncService.PortServiceClient().Link(ctx, request)
-		if err != nil {
-			return &output, err
+			ctx := node.SetToken(context.Background())
+			request := &nodes.LinkPortRequest{Id: in.GetId(), Status: in.GetStatus()}
+			_, err := node.PortServiceClient().Link(ctx, request)
+			if err != nil {
+				return &output, err
+			}
 		}
 	}
 

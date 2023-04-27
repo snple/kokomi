@@ -44,6 +44,10 @@ func (s *TunnelService) start() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
+	if option := s.es.GetQuic(); option.IsNone() {
+		panic("quic not enable")
+	}
+
 	go s.waitDeviceUpdated()
 
 	ticker := time.NewTicker(60 * time.Second)

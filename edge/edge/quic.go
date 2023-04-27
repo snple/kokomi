@@ -49,6 +49,10 @@ func (s *QuicService) start() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
+	if option := s.es.GetNode(); option.IsNone() {
+		panic("node not enable")
+	}
+
 	s.es.Logger().Info("start quic service")
 
 	go s.syncLinkStatus()
@@ -69,8 +73,12 @@ func (s *QuicService) stop() {
 }
 
 func (s *QuicService) loop() error {
-	token := s.es.GetNode().GetToken()
+	option := s.es.GetNode()
+	if option.IsNone() {
+		panic("node not enable")
+	}
 
+	token := option.Unwrap().GetToken()
 	if token == "" {
 		time.Sleep(time.Second)
 		return nil
@@ -138,9 +146,14 @@ func (s *QuicService) handshake(conn quic.Connection) error {
 	}
 
 	{
+		option := s.es.GetNode()
+		if option.IsNone() {
+			panic("node not enable")
+		}
+
 		wmessage := nson.Message{
 			"method": nson.String("handshake"),
-			"token":  nson.String(s.es.GetNode().GetToken()),
+			"token":  nson.String(option.Unwrap().GetToken()),
 		}
 
 		err = util.WriteNsonMessage(stream, wmessage)
