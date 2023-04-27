@@ -19,9 +19,8 @@ import (
 )
 
 type EdgeService struct {
-	db     *bun.DB
-	badger *badger.DB
-
+	db       *bun.DB
+	badger   *BadgerService
 	status   *StatusService
 	node     *NodeService
 	sync     *SyncService
@@ -68,7 +67,6 @@ func EdgeContext(ctx context.Context, db *bun.DB, badger *badger.DB, opts ...Edg
 
 	es := &EdgeService{
 		db:     db,
-		badger: badger,
 		ctx:    ctx,
 		cancel: cancel,
 		dopts:  defaultEdgeOptions(),
@@ -86,6 +84,7 @@ func EdgeContext(ctx context.Context, db *bun.DB, badger *badger.DB, opts ...Edg
 		return nil, err
 	}
 
+	es.badger = newBadgerService(es, badger)
 	es.status = newStatusService(es)
 
 	node, err := newNodeService(es)
@@ -172,7 +171,7 @@ func (es *EdgeService) GetDB() *bun.DB {
 }
 
 func (es *EdgeService) GetBadgerDB() *badger.DB {
-	return es.badger
+	return es.badger.GetDB()
 }
 
 func (es *EdgeService) GetStatus() *StatusService {
@@ -310,6 +309,9 @@ type edgeOptions struct {
 	syncLinkStatus time.Duration
 	syncInterval   time.Duration
 	syncRealtime   bool
+
+	badgerGCInterval     time.Duration
+	badgerGCDiscardRatio float64
 }
 
 type nodeOptions struct {
@@ -330,12 +332,14 @@ func defaultEdgeOptions() edgeOptions {
 	}
 
 	return edgeOptions{
-		logger:         logger,
-		linkStatusTTL:  3 * time.Minute,
-		tokenRefresh:   30 * time.Minute,
-		syncLinkStatus: time.Minute,
-		syncInterval:   time.Minute,
-		syncRealtime:   false,
+		logger:               logger,
+		linkStatusTTL:        3 * time.Minute,
+		tokenRefresh:         30 * time.Minute,
+		syncLinkStatus:       time.Minute,
+		syncInterval:         time.Minute,
+		syncRealtime:         false,
+		badgerGCInterval:     time.Hour,
+		badgerGCDiscardRatio: 0.7,
 	}
 }
 
@@ -427,5 +431,17 @@ func WithSyncInterval(d time.Duration) EdgeOption {
 func WithSyncRealtime(realtime bool) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		o.syncRealtime = realtime
+	})
+}
+
+func WithBadgerGCInterval(d time.Duration) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.badgerGCInterval = d
+	})
+}
+
+func WithBadgerGCDiscardRatio(discardRatio float64) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.badgerGCDiscardRatio = discardRatio
 	})
 }
