@@ -437,6 +437,90 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		}
 	}
 
+	// class
+	{
+		after := remoteDeviceUpdated.UnixMilli()
+		limit := uint32(10)
+
+		for {
+			remotes, err := s.ClassServiceClient().Pull(ctx, &nodes.PullClassRequest{After: after, Limit: limit})
+			if err != nil {
+				return err
+			}
+
+			for _, remote := range remotes.GetClass() {
+				local, err := s.es.GetClass().ViewWithDeleted(ctx, &pb.Id{Id: remote.GetId()})
+				if err != nil {
+					if code, ok := status.FromError(err); ok {
+						if code.Code() == codes.NotFound {
+							_, err = s.es.GetClass().Create(ctx, remote)
+							if err != nil {
+								return err
+							}
+						} else {
+							return err
+						}
+					} else {
+						return err
+					}
+				} else if remote.GetUpdated() > local.GetUpdated() {
+					_, err = s.es.GetClass().Update(ctx, remote)
+					if err != nil {
+						return err
+					}
+				}
+
+				after = remote.GetUpdated()
+			}
+
+			if len(remotes.GetClass()) < int(limit) {
+				break
+			}
+		}
+	}
+
+	// attr
+	{
+		after := remoteDeviceUpdated.UnixMilli()
+		limit := uint32(10)
+
+		for {
+			remotes, err := s.AttrServiceClient().Pull(ctx, &nodes.PullAttrRequest{After: after, Limit: limit})
+			if err != nil {
+				return err
+			}
+
+			for _, remote := range remotes.GetAttr() {
+				local, err := s.es.GetAttr().ViewWithDeleted(ctx, &pb.Id{Id: remote.GetId()})
+				if err != nil {
+					if code, ok := status.FromError(err); ok {
+						if code.Code() == codes.NotFound {
+							_, err = s.es.GetAttr().Create(ctx, remote)
+							if err != nil {
+								return err
+							}
+						} else {
+							return err
+						}
+					} else {
+						return err
+					}
+				} else if remote.GetUpdated() > local.GetUpdated() {
+					_, err = s.es.GetAttr().Update(ctx, remote)
+					if err != nil {
+						return err
+					}
+				}
+
+				after = remote.GetUpdated()
+			}
+
+			if len(remotes.GetAttr()) < int(limit) {
+				break
+			}
+		}
+	}
+
 	return s.es.GetSync().setRemoteDeviceUpdated(ctx, time.UnixMilli(deviceUpdated.GetUpdated()))
 }
 
@@ -808,6 +892,90 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 			}
 
 			if len(locals.GetWire()) < int(limit) {
+				break
+			}
+		}
+	}
+
+	// class
+	{
+		after := localDeviceUpdated.UnixMilli()
+		limit := uint32(10)
+
+		for {
+			locals, err := s.es.GetClass().Pull(ctx, &edges.PullClassRequest{After: after, Limit: limit})
+			if err != nil {
+				return err
+			}
+
+			for _, local := range locals.GetClass() {
+				remote, err := s.ClassServiceClient().ViewWithDeleted(ctx, &pb.Id{Id: local.GetId()})
+				if err != nil {
+					if code, ok := status.FromError(err); ok {
+						if code.Code() == codes.NotFound {
+							_, err = s.ClassServiceClient().Create(ctx, local)
+							if err != nil {
+								return err
+							}
+						} else {
+							return err
+						}
+					} else {
+						return err
+					}
+				} else if local.GetUpdated() > remote.GetUpdated() {
+					_, err = s.ClassServiceClient().Update(ctx, local)
+					if err != nil {
+						return err
+					}
+				}
+
+				after = local.GetUpdated()
+			}
+
+			if len(locals.GetClass()) < int(limit) {
+				break
+			}
+		}
+	}
+
+	// attr
+	{
+		after := localDeviceUpdated.UnixMilli()
+		limit := uint32(10)
+
+		for {
+			locals, err := s.es.GetAttr().Pull(ctx, &edges.PullAttrRequest{After: after, Limit: limit})
+			if err != nil {
+				return err
+			}
+
+			for _, local := range locals.GetAttr() {
+				remote, err := s.AttrServiceClient().ViewWithDeleted(ctx, &pb.Id{Id: local.GetId()})
+				if err != nil {
+					if code, ok := status.FromError(err); ok {
+						if code.Code() == codes.NotFound {
+							_, err = s.AttrServiceClient().Create(ctx, local)
+							if err != nil {
+								return err
+							}
+						} else {
+							return err
+						}
+					} else {
+						return err
+					}
+				} else if local.GetUpdated() > remote.GetUpdated() {
+					_, err = s.AttrServiceClient().Update(ctx, local)
+					if err != nil {
+						return err
+					}
+				}
+
+				after = local.GetUpdated()
+			}
+
+			if len(locals.GetAttr()) < int(limit) {
 				break
 			}
 		}

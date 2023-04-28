@@ -222,6 +222,14 @@ func (s *NodeService) WireServiceClient() nodes.WireServiceClient {
 	return nodes.NewWireServiceClient(s.NodeConn)
 }
 
+func (s *NodeService) ClassServiceClient() nodes.ClassServiceClient {
+	return nodes.NewClassServiceClient(s.NodeConn)
+}
+
+func (s *NodeService) AttrServiceClient() nodes.AttrServiceClient {
+	return nodes.NewAttrServiceClient(s.NodeConn)
+}
+
 func (s *NodeService) RrpcServiceClient() rgrpc.RgrpcServiceClient {
 	return rgrpc.NewRgrpcServiceClient(s.NodeConn)
 }
