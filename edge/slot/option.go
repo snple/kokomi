@@ -38,7 +38,7 @@ func (s *OptionService) Create(ctx context.Context, in *pb.Option) (*pb.Option, 
 		return &output, err
 	}
 
-	return s.ss.es.GetOption().Create(ctx, in)
+	return s.ss.Edge().GetOption().Create(ctx, in)
 }
 
 func (s *OptionService) Update(ctx context.Context, in *pb.Option) (*pb.Option, error) {
@@ -57,7 +57,7 @@ func (s *OptionService) Update(ctx context.Context, in *pb.Option) (*pb.Option, 
 		return &output, err
 	}
 
-	return s.ss.es.GetOption().Update(ctx, in)
+	return s.ss.Edge().GetOption().Update(ctx, in)
 }
 
 func (s *OptionService) View(ctx context.Context, in *pb.Id) (*pb.Option, error) {
@@ -76,7 +76,7 @@ func (s *OptionService) View(ctx context.Context, in *pb.Id) (*pb.Option, error)
 		return &output, err
 	}
 
-	return s.ss.es.GetOption().View(ctx, in)
+	return s.ss.Edge().GetOption().View(ctx, in)
 }
 
 func (s *OptionService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Option, error) {
@@ -95,7 +95,7 @@ func (s *OptionService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Option
 		return &output, err
 	}
 
-	return s.ss.es.GetOption().ViewByName(ctx, in)
+	return s.ss.Edge().GetOption().ViewByName(ctx, in)
 }
 
 func (s *OptionService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
@@ -114,7 +114,7 @@ func (s *OptionService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		return &output, err
 	}
 
-	return s.ss.es.GetOption().Delete(ctx, in)
+	return s.ss.Edge().GetOption().Delete(ctx, in)
 }
 
 func (s *OptionService) List(ctx context.Context, in *slots.ListOptionRequest) (*slots.ListOptionResponse, error) {
@@ -139,7 +139,7 @@ func (s *OptionService) List(ctx context.Context, in *slots.ListOptionRequest) (
 		Type: in.GetType(),
 	}
 
-	reply, err := s.ss.es.GetOption().List(ctx, request)
+	reply, err := s.ss.Edge().GetOption().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -167,7 +167,7 @@ func (s *OptionService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Opt
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetOption().ViewWithDeleted(ctx, in)
+	reply, err := s.ss.Edge().GetOption().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -200,7 +200,7 @@ func (s *OptionService) Pull(ctx context.Context, in *slots.PullOptionRequest) (
 		Type:  in.GetType(),
 	}
 
-	reply, err := s.ss.es.GetOption().Pull(ctx, request)
+	reply, err := s.ss.Edge().GetOption().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

@@ -38,7 +38,7 @@ func (s *CableService) Create(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 		return &output, err
 	}
 
-	return s.ss.es.GetCable().Create(ctx, in)
+	return s.ss.Edge().GetCable().Create(ctx, in)
 }
 
 func (s *CableService) Update(ctx context.Context, in *pb.Cable) (*pb.Cable, error) {
@@ -57,7 +57,7 @@ func (s *CableService) Update(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 		return &output, err
 	}
 
-	return s.ss.es.GetCable().Update(ctx, in)
+	return s.ss.Edge().GetCable().Update(ctx, in)
 }
 
 func (s *CableService) View(ctx context.Context, in *pb.Id) (*pb.Cable, error) {
@@ -76,7 +76,7 @@ func (s *CableService) View(ctx context.Context, in *pb.Id) (*pb.Cable, error) {
 		return &output, err
 	}
 
-	return s.ss.es.GetCable().View(ctx, in)
+	return s.ss.Edge().GetCable().View(ctx, in)
 }
 
 func (s *CableService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Cable, error) {
@@ -95,7 +95,7 @@ func (s *CableService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Cable, 
 		return &output, err
 	}
 
-	return s.ss.es.GetCable().ViewByName(ctx, in)
+	return s.ss.Edge().GetCable().ViewByName(ctx, in)
 }
 
 func (s *CableService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
@@ -114,7 +114,7 @@ func (s *CableService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		return &output, err
 	}
 
-	return s.ss.es.GetCable().Delete(ctx, in)
+	return s.ss.Edge().GetCable().Delete(ctx, in)
 }
 
 func (s *CableService) List(ctx context.Context, in *slots.ListCableRequest) (*slots.ListCableResponse, error) {
@@ -139,7 +139,7 @@ func (s *CableService) List(ctx context.Context, in *slots.ListCableRequest) (*s
 		Type: in.GetType(),
 	}
 
-	reply, err := s.ss.es.GetCable().List(ctx, request)
+	reply, err := s.ss.Edge().GetCable().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -169,7 +169,7 @@ func (s *CableService) Link(ctx context.Context, in *slots.LinkCableRequest) (*p
 
 	request2 := &edges.LinkCableRequest{Id: in.GetId(), Status: in.GetStatus()}
 
-	reply, err := s.ss.es.GetCable().Link(ctx, request2)
+	reply, err := s.ss.Edge().GetCable().Link(ctx, request2)
 	if err != nil {
 		return &output, err
 	}
@@ -193,7 +193,7 @@ func (s *CableService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Cabl
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetCable().ViewWithDeleted(ctx, in)
+	reply, err := s.ss.Edge().GetCable().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -226,7 +226,7 @@ func (s *CableService) Pull(ctx context.Context, in *slots.PullCableRequest) (*s
 		Type:  in.GetType(),
 	}
 
-	reply, err := s.ss.es.GetCable().Pull(ctx, request)
+	reply, err := s.ss.Edge().GetCable().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

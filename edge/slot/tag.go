@@ -38,7 +38,7 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().Create(ctx, in)
+	return s.ss.Edge().GetTag().Create(ctx, in)
 }
 
 func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
@@ -57,7 +57,7 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().Update(ctx, in)
+	return s.ss.Edge().GetTag().Update(ctx, in)
 }
 
 func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
@@ -76,7 +76,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().View(ctx, in)
+	return s.ss.Edge().GetTag().View(ctx, in)
 }
 
 func (s *TagService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
@@ -95,7 +95,7 @@ func (s *TagService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Tag, erro
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().ViewByName(ctx, in)
+	return s.ss.Edge().GetTag().ViewByName(ctx, in)
 }
 
 func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
@@ -114,7 +114,7 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().Delete(ctx, in)
+	return s.ss.Edge().GetTag().Delete(ctx, in)
 }
 
 func (s *TagService) List(ctx context.Context, in *slots.ListTagRequest) (*slots.ListTagResponse, error) {
@@ -140,7 +140,7 @@ func (s *TagService) List(ctx context.Context, in *slots.ListTagRequest) (*slots
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ss.es.GetTag().List(ctx, request)
+	reply, err := s.ss.Edge().GetTag().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -168,7 +168,7 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().GetValue(ctx, in)
+	return s.ss.Edge().GetTag().GetValue(ctx, in)
 }
 
 func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
@@ -187,7 +187,7 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().SetValue(ctx, in)
+	return s.ss.Edge().GetTag().SetValue(ctx, in)
 }
 
 func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
@@ -206,7 +206,7 @@ func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*p
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().SetValueUnchecked(ctx, in)
+	return s.ss.Edge().GetTag().SetValueUnchecked(ctx, in)
 }
 
 func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
@@ -225,7 +225,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().SyncValue(ctx, in)
+	return s.ss.Edge().GetTag().SyncValue(ctx, in)
 }
 
 func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
@@ -244,7 +244,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().GetValueByName(ctx, in)
+	return s.ss.Edge().GetTag().GetValueByName(ctx, in)
 }
 
 func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
@@ -263,7 +263,7 @@ func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().SetValueByName(ctx, in)
+	return s.ss.Edge().GetTag().SetValueByName(ctx, in)
 }
 
 func (s *TagService) SetValueByNameUnchecked(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
@@ -282,7 +282,7 @@ func (s *TagService) SetValueByNameUnchecked(ctx context.Context, in *pb.TagName
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().SetValueByNameUnchecked(ctx, in)
+	return s.ss.Edge().GetTag().SetValueByNameUnchecked(ctx, in)
 }
 
 func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
@@ -301,7 +301,7 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetTag().ViewWithDeleted(ctx, in)
+	reply, err := s.ss.Edge().GetTag().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -335,7 +335,7 @@ func (s *TagService) Pull(ctx context.Context, in *slots.PullTagRequest) (*slots
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ss.es.GetTag().Pull(ctx, request)
+	reply, err := s.ss.Edge().GetTag().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -361,7 +361,7 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetTag().ViewValue(ctx, in)
+	reply, err := s.ss.Edge().GetTag().ViewValue(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -385,7 +385,7 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, err
 	}
 
-	return s.ss.es.GetTag().DeleteValue(ctx, in)
+	return s.ss.Edge().GetTag().DeleteValue(ctx, in)
 }
 
 func (s *TagService) PullValue(ctx context.Context, in *slots.PullTagValueRequest) (*slots.PullTagValueResponse, error) {
@@ -413,7 +413,7 @@ func (s *TagService) PullValue(ctx context.Context, in *slots.PullTagValueReques
 		SourceId: in.GetSourceId(),
 	}
 
-	reply, err := s.ss.es.GetTag().PullValue(ctx, request)
+	reply, err := s.ss.Edge().GetTag().PullValue(ctx, request)
 	if err != nil {
 		return &output, err
 	}

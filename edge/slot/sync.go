@@ -42,7 +42,7 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *slots.SyncUpdate
 		return &output, err
 	}
 
-	return s.ss.es.GetSync().SetDeviceUpdated(ctx,
+	return s.ss.Edge().GetSync().SetDeviceUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
@@ -62,7 +62,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*sl
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSync().GetDeviceUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetDeviceUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -87,7 +87,7 @@ func (s *SyncService) WaitDeviceUpdated(in *pb.MyEmpty, stream slots.SyncService
 		return err
 	}
 
-	return s.ss.es.GetSync().WaitDeviceUpdated(in, stream)
+	return s.ss.Edge().GetSync().WaitDeviceUpdated(in, stream)
 }
 
 func (s *SyncService) SetSlotUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
@@ -110,7 +110,7 @@ func (s *SyncService) SetSlotUpdated(ctx context.Context, in *slots.SyncUpdated)
 		return &output, err
 	}
 
-	return s.ss.es.GetSync().SetSlotUpdated(ctx,
+	return s.ss.Edge().GetSync().SetSlotUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
@@ -130,7 +130,7 @@ func (s *SyncService) GetSlotUpdated(ctx context.Context, in *pb.MyEmpty) (*slot
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSync().GetSlotUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetSlotUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -160,7 +160,7 @@ func (s *SyncService) SetOptionUpdated(ctx context.Context, in *slots.SyncUpdate
 		return &output, err
 	}
 
-	return s.ss.es.GetSync().SetOptionUpdated(ctx,
+	return s.ss.Edge().GetSync().SetOptionUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
@@ -180,7 +180,7 @@ func (s *SyncService) GetOptionUpdated(ctx context.Context, in *pb.MyEmpty) (*sl
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSync().GetOptionUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetOptionUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -210,7 +210,7 @@ func (s *SyncService) SetSourceUpdated(ctx context.Context, in *slots.SyncUpdate
 		return &output, err
 	}
 
-	return s.ss.es.GetSync().SetSourceUpdated(ctx,
+	return s.ss.Edge().GetSync().SetSourceUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
@@ -230,7 +230,7 @@ func (s *SyncService) GetSourceUpdated(ctx context.Context, in *pb.MyEmpty) (*sl
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSync().GetSourceUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetSourceUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -260,7 +260,7 @@ func (s *SyncService) SetTagUpdated(ctx context.Context, in *slots.SyncUpdated) 
 		return &output, err
 	}
 
-	return s.ss.es.GetSync().SetTagUpdated(ctx,
+	return s.ss.Edge().GetSync().SetTagUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
@@ -280,7 +280,7 @@ func (s *SyncService) GetTagUpdated(ctx context.Context, in *pb.MyEmpty) (*slots
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSync().GetTagUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetTagUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -310,7 +310,7 @@ func (s *SyncService) SetVarUpdated(ctx context.Context, in *slots.SyncUpdated) 
 		return &output, err
 	}
 
-	return s.ss.es.GetSync().SetVarUpdated(ctx,
+	return s.ss.Edge().GetSync().SetVarUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
@@ -330,7 +330,7 @@ func (s *SyncService) GetVarUpdated(ctx context.Context, in *pb.MyEmpty) (*slots
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSync().GetVarUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetVarUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -360,7 +360,7 @@ func (s *SyncService) SetCableUpdated(ctx context.Context, in *slots.SyncUpdated
 		return &output, err
 	}
 
-	return s.ss.es.GetSync().SetCableUpdated(ctx,
+	return s.ss.Edge().GetSync().SetCableUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
@@ -380,7 +380,7 @@ func (s *SyncService) GetCableUpdated(ctx context.Context, in *pb.MyEmpty) (*slo
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSync().GetCableUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetCableUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -410,7 +410,7 @@ func (s *SyncService) SetWireUpdated(ctx context.Context, in *slots.SyncUpdated)
 		return &output, err
 	}
 
-	return s.ss.es.GetSync().SetWireUpdated(ctx,
+	return s.ss.Edge().GetSync().SetWireUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
@@ -430,7 +430,7 @@ func (s *SyncService) GetWireUpdated(ctx context.Context, in *pb.MyEmpty) (*slot
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSync().GetWireUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetWireUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -460,7 +460,7 @@ func (s *SyncService) SetClassUpdated(ctx context.Context, in *slots.SyncUpdated
 		return &output, err
 	}
 
-	return s.ss.es.GetSync().SetClassUpdated(ctx,
+	return s.ss.Edge().GetSync().SetClassUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
@@ -480,7 +480,7 @@ func (s *SyncService) GetClassUpdated(ctx context.Context, in *pb.MyEmpty) (*slo
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSync().GetClassUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetClassUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -510,7 +510,7 @@ func (s *SyncService) SetAttrUpdated(ctx context.Context, in *slots.SyncUpdated)
 		return &output, err
 	}
 
-	return s.ss.es.GetSync().SetAttrUpdated(ctx,
+	return s.ss.Edge().GetSync().SetAttrUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
@@ -530,7 +530,7 @@ func (s *SyncService) GetAttrUpdated(ctx context.Context, in *pb.MyEmpty) (*slot
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSync().GetAttrUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetAttrUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -560,7 +560,7 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *slots.SyncUpda
 		return &output, err
 	}
 
-	return s.ss.es.GetSync().SetTagValueUpdated(ctx,
+	return s.ss.Edge().GetSync().SetTagValueUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
@@ -580,7 +580,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSync().GetTagValueUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetTagValueUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -605,7 +605,7 @@ func (s *SyncService) WaitTagValueUpdated(in *pb.MyEmpty, stream slots.SyncServi
 		return err
 	}
 
-	return s.ss.es.GetSync().WaitTagValueUpdated(in, stream)
+	return s.ss.Edge().GetSync().WaitTagValueUpdated(in, stream)
 }
 
 func (s *SyncService) SetWireValueUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
@@ -628,7 +628,7 @@ func (s *SyncService) SetWireValueUpdated(ctx context.Context, in *slots.SyncUpd
 		return &output, err
 	}
 
-	return s.ss.es.GetSync().SetWireValueUpdated(ctx,
+	return s.ss.Edge().GetSync().SetWireValueUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
@@ -648,7 +648,7 @@ func (s *SyncService) GetWireValueUpdated(ctx context.Context, in *pb.MyEmpty) (
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSync().GetWireValueUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetWireValueUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -673,5 +673,5 @@ func (s *SyncService) WaitWireValueUpdated(in *pb.MyEmpty, stream slots.SyncServ
 		return err
 	}
 
-	return s.ss.es.GetSync().WaitWireValueUpdated(in, stream)
+	return s.ss.Edge().GetSync().WaitWireValueUpdated(in, stream)
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/snple/kokomi/util/metadata"
 	"github.com/snple/kokomi/util/token"
 	"github.com/snple/rgrpc"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -84,6 +85,18 @@ func (ss *SlotService) Start() {
 func (ss *SlotService) Stop() {
 	ss.cancel()
 	ss.closeWG.Wait()
+}
+
+func (ss *SlotService) Edge() *edge.EdgeService {
+	return ss.es
+}
+
+func (ss *SlotService) Context() context.Context {
+	return ss.ctx
+}
+
+func (ss *SlotService) Logger() *zap.Logger {
+	return ss.es.Logger()
 }
 
 func (ss *SlotService) RegisterGrpc(server *grpc.Server) {

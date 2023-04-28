@@ -38,7 +38,7 @@ func (s *AttrService) Create(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 		return &output, err
 	}
 
-	return s.ss.es.GetAttr().Create(ctx, in)
+	return s.ss.Edge().GetAttr().Create(ctx, in)
 }
 
 func (s *AttrService) Update(ctx context.Context, in *pb.Attr) (*pb.Attr, error) {
@@ -57,7 +57,7 @@ func (s *AttrService) Update(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 		return &output, err
 	}
 
-	return s.ss.es.GetAttr().Update(ctx, in)
+	return s.ss.Edge().GetAttr().Update(ctx, in)
 }
 
 func (s *AttrService) View(ctx context.Context, in *pb.Id) (*pb.Attr, error) {
@@ -76,7 +76,7 @@ func (s *AttrService) View(ctx context.Context, in *pb.Id) (*pb.Attr, error) {
 		return &output, err
 	}
 
-	return s.ss.es.GetAttr().View(ctx, in)
+	return s.ss.Edge().GetAttr().View(ctx, in)
 }
 
 func (s *AttrService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Attr, error) {
@@ -95,7 +95,7 @@ func (s *AttrService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Attr, er
 		return &output, err
 	}
 
-	return s.ss.es.GetAttr().ViewByName(ctx, in)
+	return s.ss.Edge().GetAttr().ViewByName(ctx, in)
 }
 
 func (s *AttrService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
@@ -114,7 +114,7 @@ func (s *AttrService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		return &output, err
 	}
 
-	return s.ss.es.GetAttr().Delete(ctx, in)
+	return s.ss.Edge().GetAttr().Delete(ctx, in)
 }
 
 func (s *AttrService) List(ctx context.Context, in *slots.ListAttrRequest) (*slots.ListAttrResponse, error) {
@@ -140,7 +140,7 @@ func (s *AttrService) List(ctx context.Context, in *slots.ListAttrRequest) (*slo
 		Type:    in.GetType(),
 	}
 
-	reply, err := s.ss.es.GetAttr().List(ctx, request)
+	reply, err := s.ss.Edge().GetAttr().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -168,7 +168,7 @@ func (s *AttrService) GetValue(ctx context.Context, in *pb.Id) (*pb.AttrValue, e
 		return &output, err
 	}
 
-	return s.ss.es.GetAttr().GetValue(ctx, in)
+	return s.ss.Edge().GetAttr().GetValue(ctx, in)
 }
 
 func (s *AttrService) SetValue(ctx context.Context, in *pb.AttrValue) (*pb.MyBool, error) {
@@ -187,7 +187,7 @@ func (s *AttrService) SetValue(ctx context.Context, in *pb.AttrValue) (*pb.MyBoo
 		return &output, err
 	}
 
-	return s.ss.es.GetAttr().SetValue(ctx, in)
+	return s.ss.Edge().GetAttr().SetValue(ctx, in)
 }
 
 func (s *AttrService) SetValueUnchecked(ctx context.Context, in *pb.AttrValue) (*pb.MyBool, error) {
@@ -206,7 +206,7 @@ func (s *AttrService) SetValueUnchecked(ctx context.Context, in *pb.AttrValue) (
 		return &output, err
 	}
 
-	return s.ss.es.GetAttr().SetValueUnchecked(ctx, in)
+	return s.ss.Edge().GetAttr().SetValueUnchecked(ctx, in)
 }
 
 func (s *AttrService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.AttrNameValue, error) {
@@ -225,7 +225,7 @@ func (s *AttrService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Attr
 		return &output, err
 	}
 
-	return s.ss.es.GetAttr().GetValueByName(ctx, in)
+	return s.ss.Edge().GetAttr().GetValueByName(ctx, in)
 }
 
 func (s *AttrService) SetValueByName(ctx context.Context, in *pb.AttrNameValue) (*pb.MyBool, error) {
@@ -244,7 +244,7 @@ func (s *AttrService) SetValueByName(ctx context.Context, in *pb.AttrNameValue) 
 		return &output, err
 	}
 
-	return s.ss.es.GetAttr().SetValueByName(ctx, in)
+	return s.ss.Edge().GetAttr().SetValueByName(ctx, in)
 }
 
 func (s *AttrService) SetValueByNameUnchecked(ctx context.Context, in *pb.AttrNameValue) (*pb.MyBool, error) {
@@ -263,7 +263,7 @@ func (s *AttrService) SetValueByNameUnchecked(ctx context.Context, in *pb.AttrNa
 		return &output, err
 	}
 
-	return s.ss.es.GetAttr().SetValueByNameUnchecked(ctx, in)
+	return s.ss.Edge().GetAttr().SetValueByNameUnchecked(ctx, in)
 }
 
 func (s *AttrService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Attr, error) {
@@ -282,7 +282,7 @@ func (s *AttrService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Attr,
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetAttr().ViewWithDeleted(ctx, in)
+	reply, err := s.ss.Edge().GetAttr().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -316,7 +316,7 @@ func (s *AttrService) Pull(ctx context.Context, in *slots.PullAttrRequest) (*slo
 		Type:    in.GetType(),
 	}
 
-	reply, err := s.ss.es.GetAttr().Pull(ctx, request)
+	reply, err := s.ss.Edge().GetAttr().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

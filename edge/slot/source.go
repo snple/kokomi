@@ -38,7 +38,7 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 		return &output, err
 	}
 
-	return s.ss.es.GetSource().Create(ctx, in)
+	return s.ss.Edge().GetSource().Create(ctx, in)
 }
 
 func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, error) {
@@ -57,7 +57,7 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 		return &output, err
 	}
 
-	return s.ss.es.GetSource().Update(ctx, in)
+	return s.ss.Edge().GetSource().Update(ctx, in)
 }
 
 func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error) {
@@ -76,7 +76,7 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 		return &output, err
 	}
 
-	return s.ss.es.GetSource().View(ctx, in)
+	return s.ss.Edge().GetSource().View(ctx, in)
 }
 
 func (s *SourceService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Source, error) {
@@ -95,7 +95,7 @@ func (s *SourceService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Source
 		return &output, err
 	}
 
-	return s.ss.es.GetSource().ViewByName(ctx, in)
+	return s.ss.Edge().GetSource().ViewByName(ctx, in)
 }
 
 func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
@@ -114,7 +114,7 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		return &output, err
 	}
 
-	return s.ss.es.GetSource().Delete(ctx, in)
+	return s.ss.Edge().GetSource().Delete(ctx, in)
 }
 
 func (s *SourceService) List(ctx context.Context, in *slots.ListSourceRequest) (*slots.ListSourceResponse, error) {
@@ -140,7 +140,7 @@ func (s *SourceService) List(ctx context.Context, in *slots.ListSourceRequest) (
 		Source: in.GetSource(),
 	}
 
-	reply, err := s.ss.es.GetSource().List(ctx, request)
+	reply, err := s.ss.Edge().GetSource().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -170,12 +170,12 @@ func (s *SourceService) Link(ctx context.Context, in *slots.LinkSourceRequest) (
 
 	request2 := &edges.LinkSourceRequest{Id: in.GetId(), Status: in.GetStatus()}
 
-	reply, err := s.ss.es.GetSource().Link(ctx, request2)
+	reply, err := s.ss.Edge().GetSource().Link(ctx, request2)
 	if err != nil {
 		return &output, err
 	}
 
-	s.ss.es.GetControl().LinkSource(slotID, in.GetId(), in.GetStatus())
+	s.ss.Edge().GetControl().LinkSource(slotID, in.GetId(), in.GetStatus())
 
 	return reply, nil
 }
@@ -196,7 +196,7 @@ func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Sou
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetSource().ViewWithDeleted(ctx, in)
+	reply, err := s.ss.Edge().GetSource().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -230,7 +230,7 @@ func (s *SourceService) Pull(ctx context.Context, in *slots.PullSourceRequest) (
 		Source: in.GetSource(),
 	}
 
-	reply, err := s.ss.es.GetSource().Pull(ctx, request)
+	reply, err := s.ss.Edge().GetSource().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

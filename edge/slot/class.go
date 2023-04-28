@@ -38,7 +38,7 @@ func (s *ClassService) Create(ctx context.Context, in *pb.Class) (*pb.Class, err
 		return &output, err
 	}
 
-	return s.ss.es.GetClass().Create(ctx, in)
+	return s.ss.Edge().GetClass().Create(ctx, in)
 }
 
 func (s *ClassService) Update(ctx context.Context, in *pb.Class) (*pb.Class, error) {
@@ -57,7 +57,7 @@ func (s *ClassService) Update(ctx context.Context, in *pb.Class) (*pb.Class, err
 		return &output, err
 	}
 
-	return s.ss.es.GetClass().Update(ctx, in)
+	return s.ss.Edge().GetClass().Update(ctx, in)
 }
 
 func (s *ClassService) View(ctx context.Context, in *pb.Id) (*pb.Class, error) {
@@ -76,7 +76,7 @@ func (s *ClassService) View(ctx context.Context, in *pb.Id) (*pb.Class, error) {
 		return &output, err
 	}
 
-	return s.ss.es.GetClass().View(ctx, in)
+	return s.ss.Edge().GetClass().View(ctx, in)
 }
 
 func (s *ClassService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Class, error) {
@@ -95,7 +95,7 @@ func (s *ClassService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Class, 
 		return &output, err
 	}
 
-	return s.ss.es.GetClass().ViewByName(ctx, in)
+	return s.ss.Edge().GetClass().ViewByName(ctx, in)
 }
 
 func (s *ClassService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
@@ -114,7 +114,7 @@ func (s *ClassService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		return &output, err
 	}
 
-	return s.ss.es.GetClass().Delete(ctx, in)
+	return s.ss.Edge().GetClass().Delete(ctx, in)
 }
 
 func (s *ClassService) List(ctx context.Context, in *slots.ListClassRequest) (*slots.ListClassResponse, error) {
@@ -139,7 +139,7 @@ func (s *ClassService) List(ctx context.Context, in *slots.ListClassRequest) (*s
 		Type: in.GetType(),
 	}
 
-	reply, err := s.ss.es.GetClass().List(ctx, request)
+	reply, err := s.ss.Edge().GetClass().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -167,7 +167,7 @@ func (s *ClassService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Clas
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetClass().ViewWithDeleted(ctx, in)
+	reply, err := s.ss.Edge().GetClass().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -200,7 +200,7 @@ func (s *ClassService) Pull(ctx context.Context, in *slots.PullClassRequest) (*s
 		Type:  in.GetType(),
 	}
 
-	reply, err := s.ss.es.GetClass().Pull(ctx, request)
+	reply, err := s.ss.Edge().GetClass().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

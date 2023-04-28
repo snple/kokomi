@@ -37,14 +37,14 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 		return &output, err
 	}
 
-	reply, err := s.ss.es.GetDevice().View(ctx, &pb.MyEmpty{})
+	reply, err := s.ss.Edge().GetDevice().View(ctx, &pb.MyEmpty{})
 	if err != nil {
 		return &output, err
 	}
 
 	in.Status = reply.GetStatus()
 
-	return s.ss.es.GetDevice().Update(ctx, in)
+	return s.ss.Edge().GetDevice().Update(ctx, in)
 }
 
 func (s *DeviceService) View(ctx context.Context, in *pb.MyEmpty) (*pb.Device, error) {
@@ -63,5 +63,5 @@ func (s *DeviceService) View(ctx context.Context, in *pb.MyEmpty) (*pb.Device, e
 		return &output, err
 	}
 
-	return s.ss.es.GetDevice().View(ctx, in)
+	return s.ss.Edge().GetDevice().View(ctx, in)
 }
