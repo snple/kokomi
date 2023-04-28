@@ -40,7 +40,7 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 
 	in.DeviceId = deviceID
 
-	return s.ns.cs.GetSlot().Create(ctx, in)
+	return s.ns.Core().GetSlot().Create(ctx, in)
 }
 
 func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error) {
@@ -61,7 +61,7 @@ func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetSlot().View(ctx, request)
+	reply, err := s.ns.Core().GetSlot().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -70,7 +70,7 @@ func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetSlot().Update(ctx, in)
+	return s.ns.Core().GetSlot().Update(ctx, in)
 }
 
 func (s *SlotService) View(ctx context.Context, in *pb.Id) (*pb.Slot, error) {
@@ -89,7 +89,7 @@ func (s *SlotService) View(ctx context.Context, in *pb.Id) (*pb.Slot, error) {
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetSlot().View(ctx, in)
+	reply, err := s.ns.Core().GetSlot().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -119,7 +119,7 @@ func (s *SlotService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Slot, er
 
 	request := &cores.ViewSlotByNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.cs.GetSlot().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetSlot().ViewByName(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -147,7 +147,7 @@ func (s *SlotService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetSlot().View(ctx, in)
+	reply, err := s.ns.Core().GetSlot().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -156,7 +156,7 @@ func (s *SlotService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetSlot().Delete(ctx, in)
+	return s.ns.Core().GetSlot().Delete(ctx, in)
 }
 
 func (s *SlotService) List(ctx context.Context, in *nodes.ListSlotRequest) (*nodes.ListSlotResponse, error) {
@@ -182,7 +182,7 @@ func (s *SlotService) List(ctx context.Context, in *nodes.ListSlotRequest) (*nod
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetSlot().List(ctx, request)
+	reply, err := s.ns.Core().GetSlot().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -212,7 +212,7 @@ func (s *SlotService) Link(ctx context.Context, in *nodes.LinkSlotRequest) (*pb.
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetSlot().View(ctx, request)
+	reply, err := s.ns.Core().GetSlot().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -223,7 +223,7 @@ func (s *SlotService) Link(ctx context.Context, in *nodes.LinkSlotRequest) (*pb.
 
 	request2 := &cores.LinkSlotRequest{Id: in.GetId(), Status: in.GetStatus()}
 
-	reply2, err := s.ns.cs.GetSlot().Link(ctx, request2)
+	reply2, err := s.ns.Core().GetSlot().Link(ctx, request2)
 	if err != nil {
 		return &output, err
 	}
@@ -247,7 +247,7 @@ func (s *SlotService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Slot,
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetSlot().ViewWithDeleted(ctx, in)
+	reply, err := s.ns.Core().GetSlot().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -285,7 +285,7 @@ func (s *SlotService) Pull(ctx context.Context, in *nodes.PullSlotRequest) (*nod
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetSlot().Pull(ctx, request)
+	reply, err := s.ns.Core().GetSlot().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

@@ -45,7 +45,7 @@ func (s *DeviceService) Login(ctx context.Context, in *nodes.LoginDeviceRequest)
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetDevice().View(ctx, request)
+	reply, err := s.ns.Core().GetDevice().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -104,7 +104,7 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 
 	request := &pb.Id{Id: deviceID}
 
-	reply, err := s.ns.cs.GetDevice().View(ctx, request)
+	reply, err := s.ns.Core().GetDevice().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -112,7 +112,7 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 	in.Secret = reply.GetSecret()
 	in.Status = reply.GetStatus()
 
-	return s.ns.cs.GetDevice().Update(ctx, in)
+	return s.ns.Core().GetDevice().Update(ctx, in)
 }
 
 func (s *DeviceService) View(ctx context.Context, in *pb.MyEmpty) (*pb.Device, error) {
@@ -133,7 +133,7 @@ func (s *DeviceService) View(ctx context.Context, in *pb.MyEmpty) (*pb.Device, e
 
 	request := &pb.Id{Id: deviceID}
 
-	reply, err := s.ns.cs.GetDevice().View(ctx, request)
+	reply, err := s.ns.Core().GetDevice().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -161,5 +161,5 @@ func (s *DeviceService) Link(ctx context.Context, in *nodes.LinkDeviceRequest) (
 
 	request := &cores.LinkDeviceRequest{Id: deviceID, Status: in.GetStatus()}
 
-	return s.ns.cs.GetDevice().Link(ctx, request)
+	return s.ns.Core().GetDevice().Link(ctx, request)
 }

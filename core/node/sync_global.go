@@ -36,7 +36,7 @@ func newSyncGlobalService(ns *NodeService) *SyncGlobalService {
 // 		return &output, err
 // 	}
 
-// 	return s.ns.cs.GetSyncGlobal().SetUserUpdated(ctx,
+// 	return s.ns.Core().GetSyncGlobal().SetUserUpdated(ctx,
 // 		&clouds.SyncUpdated{Updated: in.GetUpdated()})
 // }
 
@@ -56,7 +56,7 @@ func newSyncGlobalService(ns *NodeService) *SyncGlobalService {
 // 		return &output, err
 // 	}
 
-// 	reply, err := s.ns.cs.GetSyncGlobal().GetUserUpdated(ctx, in)
+// 	reply, err := s.ns.Core().GetSyncGlobal().GetUserUpdated(ctx, in)
 // 	if err != nil {
 // 		return &output, err
 // 	}
@@ -81,5 +81,5 @@ func newSyncGlobalService(ns *NodeService) *SyncGlobalService {
 // 		return err
 // 	}
 
-// 	return s.ns.cs.GetSyncGlobal().WaitUserUpdated(&pb.MyEmpty{}, stream)
+// 	return s.ns.Core().GetSyncGlobal().WaitUserUpdated(&pb.MyEmpty{}, stream)
 // }

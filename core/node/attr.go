@@ -41,7 +41,7 @@ func (s *AttrService) Create(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 
 		request := &pb.Id{Id: in.GetClassId()}
 
-		reply, err := s.ns.cs.GetClass().View(ctx, request)
+		reply, err := s.ns.Core().GetClass().View(ctx, request)
 		if err != nil {
 			return &output, err
 		}
@@ -51,7 +51,7 @@ func (s *AttrService) Create(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 		}
 	}
 
-	return s.ns.cs.GetAttr().Create(ctx, in)
+	return s.ns.Core().GetAttr().Create(ctx, in)
 }
 
 func (s *AttrService) Update(ctx context.Context, in *pb.Attr) (*pb.Attr, error) {
@@ -72,7 +72,7 @@ func (s *AttrService) Update(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetAttr().View(ctx, request)
+	reply, err := s.ns.Core().GetAttr().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -81,7 +81,7 @@ func (s *AttrService) Update(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetAttr().Update(ctx, in)
+	return s.ns.Core().GetAttr().Update(ctx, in)
 }
 
 func (s *AttrService) View(ctx context.Context, in *pb.Id) (*pb.Attr, error) {
@@ -100,7 +100,7 @@ func (s *AttrService) View(ctx context.Context, in *pb.Id) (*pb.Attr, error) {
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetAttr().View(ctx, in)
+	reply, err := s.ns.Core().GetAttr().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -130,7 +130,7 @@ func (s *AttrService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Attr, er
 
 	request := &cores.ViewAttrByNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.cs.GetAttr().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetAttr().ViewByName(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -158,7 +158,7 @@ func (s *AttrService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetAttr().View(ctx, in)
+	reply, err := s.ns.Core().GetAttr().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -167,7 +167,7 @@ func (s *AttrService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetAttr().Delete(ctx, in)
+	return s.ns.Core().GetAttr().Delete(ctx, in)
 }
 
 func (s *AttrService) List(ctx context.Context, in *nodes.ListAttrRequest) (*nodes.ListAttrResponse, error) {
@@ -194,7 +194,7 @@ func (s *AttrService) List(ctx context.Context, in *nodes.ListAttrRequest) (*nod
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetAttr().List(ctx, request)
+	reply, err := s.ns.Core().GetAttr().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -222,7 +222,7 @@ func (s *AttrService) GetValue(ctx context.Context, in *pb.Id) (*pb.AttrValue, e
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetAttr().View(ctx, in)
+	reply, err := s.ns.Core().GetAttr().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -231,7 +231,7 @@ func (s *AttrService) GetValue(ctx context.Context, in *pb.Id) (*pb.AttrValue, e
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetAttr().GetValue(ctx, in)
+	return s.ns.Core().GetAttr().GetValue(ctx, in)
 }
 
 func (s *AttrService) SetValue(ctx context.Context, in *pb.AttrValue) (*pb.MyBool, error) {
@@ -252,7 +252,7 @@ func (s *AttrService) SetValue(ctx context.Context, in *pb.AttrValue) (*pb.MyBoo
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetAttr().View(ctx, request)
+	reply, err := s.ns.Core().GetAttr().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -261,7 +261,7 @@ func (s *AttrService) SetValue(ctx context.Context, in *pb.AttrValue) (*pb.MyBoo
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetAttr().SetValue(ctx, in)
+	return s.ns.Core().GetAttr().SetValue(ctx, in)
 }
 
 func (s *AttrService) SetValueUnchecked(ctx context.Context, in *pb.AttrValue) (*pb.MyBool, error) {
@@ -282,7 +282,7 @@ func (s *AttrService) SetValueUnchecked(ctx context.Context, in *pb.AttrValue) (
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetAttr().View(ctx, request)
+	reply, err := s.ns.Core().GetAttr().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -291,7 +291,7 @@ func (s *AttrService) SetValueUnchecked(ctx context.Context, in *pb.AttrValue) (
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetAttr().SetValueUnchecked(ctx, in)
+	return s.ns.Core().GetAttr().SetValueUnchecked(ctx, in)
 }
 
 func (s *AttrService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.AttrNameValue, error) {
@@ -310,7 +310,7 @@ func (s *AttrService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Attr
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetAttr().GetValueByName(ctx,
+	reply, err := s.ns.Core().GetAttr().GetValueByName(ctx,
 		&cores.GetAttrValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
 	if err != nil {
 		return &output, err
@@ -339,7 +339,7 @@ func (s *AttrService) SetValueByName(ctx context.Context, in *pb.AttrNameValue) 
 		return &output, err
 	}
 
-	return s.ns.cs.GetAttr().SetValueByName(ctx,
+	return s.ns.Core().GetAttr().SetValueByName(ctx,
 		&cores.AttrNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 
@@ -359,7 +359,7 @@ func (s *AttrService) SetValueByNameUnchecked(ctx context.Context, in *pb.AttrNa
 		return &output, err
 	}
 
-	return s.ns.cs.GetAttr().SetValueByNameUnchecked(ctx,
+	return s.ns.Core().GetAttr().SetValueByNameUnchecked(ctx,
 		&cores.AttrNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 
@@ -379,7 +379,7 @@ func (s *AttrService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Attr,
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetAttr().ViewWithDeleted(ctx, in)
+	reply, err := s.ns.Core().GetAttr().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -418,7 +418,7 @@ func (s *AttrService) Pull(ctx context.Context, in *nodes.PullAttrRequest) (*nod
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetAttr().Pull(ctx, request)
+	reply, err := s.ns.Core().GetAttr().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

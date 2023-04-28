@@ -40,7 +40,7 @@ func (s *CableService) Create(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 
 	in.DeviceId = deviceID
 
-	return s.ns.cs.GetCable().Create(ctx, in)
+	return s.ns.Core().GetCable().Create(ctx, in)
 }
 
 func (s *CableService) Update(ctx context.Context, in *pb.Cable) (*pb.Cable, error) {
@@ -61,7 +61,7 @@ func (s *CableService) Update(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetCable().View(ctx, request)
+	reply, err := s.ns.Core().GetCable().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -70,7 +70,7 @@ func (s *CableService) Update(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetCable().Update(ctx, in)
+	return s.ns.Core().GetCable().Update(ctx, in)
 }
 
 func (s *CableService) View(ctx context.Context, in *pb.Id) (*pb.Cable, error) {
@@ -89,7 +89,7 @@ func (s *CableService) View(ctx context.Context, in *pb.Id) (*pb.Cable, error) {
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetCable().View(ctx, in)
+	reply, err := s.ns.Core().GetCable().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -119,7 +119,7 @@ func (s *CableService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Cable, 
 
 	request := &cores.ViewCableByNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.cs.GetCable().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetCable().ViewByName(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -147,7 +147,7 @@ func (s *CableService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetCable().View(ctx, in)
+	reply, err := s.ns.Core().GetCable().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -156,7 +156,7 @@ func (s *CableService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetCable().Delete(ctx, in)
+	return s.ns.Core().GetCable().Delete(ctx, in)
 }
 
 func (s *CableService) List(ctx context.Context, in *nodes.ListCableRequest) (*nodes.ListCableResponse, error) {
@@ -182,7 +182,7 @@ func (s *CableService) List(ctx context.Context, in *nodes.ListCableRequest) (*n
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetCable().List(ctx, request)
+	reply, err := s.ns.Core().GetCable().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -212,7 +212,7 @@ func (s *CableService) Link(ctx context.Context, in *nodes.LinkCableRequest) (*p
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetCable().View(ctx, request)
+	reply, err := s.ns.Core().GetCable().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -223,7 +223,7 @@ func (s *CableService) Link(ctx context.Context, in *nodes.LinkCableRequest) (*p
 
 	request2 := &cores.LinkCableRequest{Id: in.GetId(), Status: in.GetStatus()}
 
-	return s.ns.cs.GetCable().Link(ctx, request2)
+	return s.ns.Core().GetCable().Link(ctx, request2)
 }
 
 func (s *CableService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Cable, error) {
@@ -242,7 +242,7 @@ func (s *CableService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Cabl
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetCable().ViewWithDeleted(ctx, in)
+	reply, err := s.ns.Core().GetCable().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -280,7 +280,7 @@ func (s *CableService) Pull(ctx context.Context, in *nodes.PullCableRequest) (*n
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetCable().Pull(ctx, request)
+	reply, err := s.ns.Core().GetCable().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

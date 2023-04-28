@@ -40,7 +40,7 @@ func (s *VarService) Create(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 
 	in.DeviceId = deviceID
 
-	return s.ns.cs.GetVar().Create(ctx, in)
+	return s.ns.Core().GetVar().Create(ctx, in)
 }
 
 func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
@@ -61,7 +61,7 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetVar().View(ctx, request)
+	reply, err := s.ns.Core().GetVar().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -70,7 +70,7 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetVar().Update(ctx, in)
+	return s.ns.Core().GetVar().Update(ctx, in)
 }
 
 func (s *VarService) View(ctx context.Context, in *pb.Id) (*pb.Var, error) {
@@ -89,7 +89,7 @@ func (s *VarService) View(ctx context.Context, in *pb.Id) (*pb.Var, error) {
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetVar().View(ctx, in)
+	reply, err := s.ns.Core().GetVar().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -119,7 +119,7 @@ func (s *VarService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Var, erro
 
 	request := &cores.ViewVarByNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.cs.GetVar().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetVar().ViewByName(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -147,7 +147,7 @@ func (s *VarService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetVar().View(ctx, in)
+	reply, err := s.ns.Core().GetVar().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -156,7 +156,7 @@ func (s *VarService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetVar().Delete(ctx, in)
+	return s.ns.Core().GetVar().Delete(ctx, in)
 }
 
 func (s *VarService) List(ctx context.Context, in *nodes.ListVarRequest) (*nodes.ListVarResponse, error) {
@@ -182,7 +182,7 @@ func (s *VarService) List(ctx context.Context, in *nodes.ListVarRequest) (*nodes
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetVar().List(ctx, request)
+	reply, err := s.ns.Core().GetVar().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -212,7 +212,7 @@ func (s *VarService) GetValue(ctx context.Context, in *pb.Id) (*pb.VarValue, err
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetVar().View(ctx, request)
+	reply, err := s.ns.Core().GetVar().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -221,7 +221,7 @@ func (s *VarService) GetValue(ctx context.Context, in *pb.Id) (*pb.VarValue, err
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetVar().GetValue(ctx, in)
+	return s.ns.Core().GetVar().GetValue(ctx, in)
 }
 
 func (s *VarService) SetValue(ctx context.Context, in *pb.VarValue) (*pb.MyBool, error) {
@@ -242,7 +242,7 @@ func (s *VarService) SetValue(ctx context.Context, in *pb.VarValue) (*pb.MyBool,
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetVar().View(ctx, request)
+	reply, err := s.ns.Core().GetVar().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -251,7 +251,7 @@ func (s *VarService) SetValue(ctx context.Context, in *pb.VarValue) (*pb.MyBool,
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetVar().SetValue(ctx, in)
+	return s.ns.Core().GetVar().SetValue(ctx, in)
 }
 
 func (s *VarService) SetValueUnchecked(ctx context.Context, in *pb.VarValue) (*pb.MyBool, error) {
@@ -272,7 +272,7 @@ func (s *VarService) SetValueUnchecked(ctx context.Context, in *pb.VarValue) (*p
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetVar().View(ctx, request)
+	reply, err := s.ns.Core().GetVar().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -281,7 +281,7 @@ func (s *VarService) SetValueUnchecked(ctx context.Context, in *pb.VarValue) (*p
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetVar().SetValueUnchecked(ctx, in)
+	return s.ns.Core().GetVar().SetValueUnchecked(ctx, in)
 }
 
 func (s *VarService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.VarNameValue, error) {
@@ -300,7 +300,7 @@ func (s *VarService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.VarNa
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetVar().GetValueByName(ctx,
+	reply, err := s.ns.Core().GetVar().GetValueByName(ctx,
 		&cores.GetVarValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
 	if err != nil {
 		return &output, err
@@ -329,7 +329,7 @@ func (s *VarService) SetValueByName(ctx context.Context, in *pb.VarNameValue) (*
 		return &output, err
 	}
 
-	return s.ns.cs.GetVar().SetValueByName(ctx,
+	return s.ns.Core().GetVar().SetValueByName(ctx,
 		&cores.VarNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 
@@ -349,7 +349,7 @@ func (s *VarService) SetValueByNameUnchecked(ctx context.Context, in *pb.VarName
 		return &output, err
 	}
 
-	return s.ns.cs.GetVar().SetValueByNameUnchecked(ctx,
+	return s.ns.Core().GetVar().SetValueByNameUnchecked(ctx,
 		&cores.VarNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 
@@ -369,7 +369,7 @@ func (s *VarService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Var, e
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetVar().ViewWithDeleted(ctx, in)
+	reply, err := s.ns.Core().GetVar().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -407,7 +407,7 @@ func (s *VarService) Pull(ctx context.Context, in *nodes.PullVarRequest) (*nodes
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetVar().Pull(ctx, request)
+	reply, err := s.ns.Core().GetVar().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

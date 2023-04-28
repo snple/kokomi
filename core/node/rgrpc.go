@@ -30,8 +30,8 @@ func (s *RgrpcService) OpenRgrpc(stream rgrpc.RgrpcService_OpenRgrpcServer) erro
 
 	client := edges.NewControlServiceClient(channel)
 
-	s.ns.cs.GetControl().AddClient(deviceID, client)
-	defer s.ns.cs.GetControl().RemoveClient(deviceID, client)
+	s.ns.Core().GetControl().AddClient(deviceID, client)
+	defer s.ns.Core().GetControl().RemoveClient(deviceID, client)
 
 	defer s.ns.Logger().Sugar().Infof("rgrpc break connect, id: %v", deviceID)
 

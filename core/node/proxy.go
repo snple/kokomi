@@ -38,7 +38,7 @@ func (s *ProxyService) View(ctx context.Context, in *pb.Id) (*pb.Proxy, error) {
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetProxy().View(ctx, in)
+	reply, err := s.ns.Core().GetProxy().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -68,7 +68,7 @@ func (s *ProxyService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Proxy, 
 
 	request := &cores.ViewProxyByNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.cs.GetProxy().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetProxy().ViewByName(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -103,7 +103,7 @@ func (s *ProxyService) List(ctx context.Context, in *nodes.ListProxyRequest) (*n
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetProxy().List(ctx, request)
+	reply, err := s.ns.Core().GetProxy().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -133,7 +133,7 @@ func (s *ProxyService) Link(ctx context.Context, in *nodes.LinkProxyRequest) (*p
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetProxy().View(ctx, request)
+	reply, err := s.ns.Core().GetProxy().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -144,7 +144,7 @@ func (s *ProxyService) Link(ctx context.Context, in *nodes.LinkProxyRequest) (*p
 
 	request2 := &cores.LinkProxyRequest{Id: in.GetId(), Status: in.GetStatus()}
 
-	reply2, err := s.ns.cs.GetProxy().Link(ctx, request2)
+	reply2, err := s.ns.Core().GetProxy().Link(ctx, request2)
 	if err != nil {
 		return &output, err
 	}
@@ -168,7 +168,7 @@ func (s *ProxyService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Prox
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetProxy().ViewWithDeleted(ctx, in)
+	reply, err := s.ns.Core().GetProxy().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -206,7 +206,7 @@ func (s *ProxyService) Pull(ctx context.Context, in *nodes.PullProxyRequest) (*n
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetProxy().Pull(ctx, request)
+	reply, err := s.ns.Core().GetProxy().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

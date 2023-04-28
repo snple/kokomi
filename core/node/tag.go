@@ -41,7 +41,7 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 
 		request := &pb.Id{Id: in.GetSourceId()}
 
-		reply, err := s.ns.cs.GetSource().View(ctx, request)
+		reply, err := s.ns.Core().GetSource().View(ctx, request)
 		if err != nil {
 			return &output, err
 		}
@@ -51,7 +51,7 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		}
 	}
 
-	return s.ns.cs.GetTag().Create(ctx, in)
+	return s.ns.Core().GetTag().Create(ctx, in)
 }
 
 func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
@@ -72,7 +72,7 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetTag().View(ctx, request)
+	reply, err := s.ns.Core().GetTag().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -81,7 +81,7 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetTag().Update(ctx, in)
+	return s.ns.Core().GetTag().Update(ctx, in)
 }
 
 func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
@@ -100,7 +100,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetTag().View(ctx, in)
+	reply, err := s.ns.Core().GetTag().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -130,7 +130,7 @@ func (s *TagService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Tag, erro
 
 	request := &cores.ViewTagByNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.cs.GetTag().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetTag().ViewByName(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -158,7 +158,7 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetTag().View(ctx, in)
+	reply, err := s.ns.Core().GetTag().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -167,7 +167,7 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetTag().Delete(ctx, in)
+	return s.ns.Core().GetTag().Delete(ctx, in)
 }
 
 func (s *TagService) List(ctx context.Context, in *nodes.ListTagRequest) (*nodes.ListTagResponse, error) {
@@ -194,7 +194,7 @@ func (s *TagService) List(ctx context.Context, in *nodes.ListTagRequest) (*nodes
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetTag().List(ctx, request)
+	reply, err := s.ns.Core().GetTag().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -222,7 +222,7 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetTag().View(ctx, in)
+	reply, err := s.ns.Core().GetTag().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -231,7 +231,7 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetTag().GetValue(ctx, in)
+	return s.ns.Core().GetTag().GetValue(ctx, in)
 }
 
 func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
@@ -252,7 +252,7 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetTag().View(ctx, request)
+	reply, err := s.ns.Core().GetTag().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -261,7 +261,7 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetTag().SetValue(ctx, in)
+	return s.ns.Core().GetTag().SetValue(ctx, in)
 }
 
 func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
@@ -282,7 +282,7 @@ func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*p
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetTag().View(ctx, request)
+	reply, err := s.ns.Core().GetTag().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -291,7 +291,7 @@ func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*p
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetTag().SetValueUnchecked(ctx, in)
+	return s.ns.Core().GetTag().SetValueUnchecked(ctx, in)
 }
 
 func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
@@ -312,7 +312,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetTag().View(ctx, request)
+	reply, err := s.ns.Core().GetTag().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -321,7 +321,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetTag().SyncValue(ctx, in)
+	return s.ns.Core().GetTag().SyncValue(ctx, in)
 }
 
 func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
@@ -340,7 +340,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetTag().GetValueByName(ctx,
+	reply, err := s.ns.Core().GetTag().GetValueByName(ctx,
 		&cores.GetTagValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
 	if err != nil {
 		return &output, err
@@ -369,7 +369,7 @@ func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*
 		return &output, err
 	}
 
-	return s.ns.cs.GetTag().SetValueByName(ctx,
+	return s.ns.Core().GetTag().SetValueByName(ctx,
 		&cores.TagNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 
@@ -389,7 +389,7 @@ func (s *TagService) SetValueByNameUnchecked(ctx context.Context, in *pb.TagName
 		return &output, err
 	}
 
-	return s.ns.cs.GetTag().SetValueByNameUnchecked(ctx,
+	return s.ns.Core().GetTag().SetValueByNameUnchecked(ctx,
 		&cores.TagNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 
@@ -409,7 +409,7 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetTag().ViewWithDeleted(ctx, in)
+	reply, err := s.ns.Core().GetTag().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -448,7 +448,7 @@ func (s *TagService) Pull(ctx context.Context, in *nodes.PullTagRequest) (*nodes
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetTag().Pull(ctx, request)
+	reply, err := s.ns.Core().GetTag().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -474,7 +474,7 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetTag().ViewValue(ctx, in)
+	reply, err := s.ns.Core().GetTag().ViewValue(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -502,7 +502,7 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetTag().ViewValue(ctx, in)
+	reply, err := s.ns.Core().GetTag().ViewValue(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -511,7 +511,7 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetTag().DeleteValue(ctx, in)
+	return s.ns.Core().GetTag().DeleteValue(ctx, in)
 }
 
 func (s *TagService) PullValue(ctx context.Context, in *nodes.PullTagValueRequest) (*nodes.PullTagValueResponse, error) {
@@ -540,7 +540,7 @@ func (s *TagService) PullValue(ctx context.Context, in *nodes.PullTagValueReques
 		SourceId: in.GetSourceId(),
 	}
 
-	reply, err := s.ns.cs.GetTag().PullValue(ctx, request)
+	reply, err := s.ns.Core().GetTag().PullValue(ctx, request)
 	if err != nil {
 		return &output, err
 	}

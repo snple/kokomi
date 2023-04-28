@@ -40,7 +40,7 @@ func (s *PortService) Create(ctx context.Context, in *pb.Port) (*pb.Port, error)
 
 	in.DeviceId = deviceID
 
-	return s.ns.cs.GetPort().Create(ctx, in)
+	return s.ns.Core().GetPort().Create(ctx, in)
 }
 
 func (s *PortService) Update(ctx context.Context, in *pb.Port) (*pb.Port, error) {
@@ -61,7 +61,7 @@ func (s *PortService) Update(ctx context.Context, in *pb.Port) (*pb.Port, error)
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetPort().View(ctx, request)
+	reply, err := s.ns.Core().GetPort().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -70,7 +70,7 @@ func (s *PortService) Update(ctx context.Context, in *pb.Port) (*pb.Port, error)
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetPort().Update(ctx, in)
+	return s.ns.Core().GetPort().Update(ctx, in)
 }
 
 func (s *PortService) View(ctx context.Context, in *pb.Id) (*pb.Port, error) {
@@ -89,7 +89,7 @@ func (s *PortService) View(ctx context.Context, in *pb.Id) (*pb.Port, error) {
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetPort().View(ctx, in)
+	reply, err := s.ns.Core().GetPort().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -119,7 +119,7 @@ func (s *PortService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Port, er
 
 	request := &cores.ViewPortByNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.cs.GetPort().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetPort().ViewByName(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -147,7 +147,7 @@ func (s *PortService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetPort().View(ctx, in)
+	reply, err := s.ns.Core().GetPort().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -156,7 +156,7 @@ func (s *PortService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetPort().Delete(ctx, in)
+	return s.ns.Core().GetPort().Delete(ctx, in)
 }
 
 func (s *PortService) List(ctx context.Context, in *nodes.ListPortRequest) (*nodes.ListPortResponse, error) {
@@ -182,7 +182,7 @@ func (s *PortService) List(ctx context.Context, in *nodes.ListPortRequest) (*nod
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetPort().List(ctx, request)
+	reply, err := s.ns.Core().GetPort().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -212,7 +212,7 @@ func (s *PortService) Link(ctx context.Context, in *nodes.LinkPortRequest) (*pb.
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetPort().View(ctx, request)
+	reply, err := s.ns.Core().GetPort().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -223,7 +223,7 @@ func (s *PortService) Link(ctx context.Context, in *nodes.LinkPortRequest) (*pb.
 
 	request2 := &cores.LinkPortRequest{Id: in.GetId(), Status: in.GetStatus()}
 
-	reply2, err := s.ns.cs.GetPort().Link(ctx, request2)
+	reply2, err := s.ns.Core().GetPort().Link(ctx, request2)
 	if err != nil {
 		return &output, err
 	}
@@ -247,7 +247,7 @@ func (s *PortService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Port,
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetPort().ViewWithDeleted(ctx, in)
+	reply, err := s.ns.Core().GetPort().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -285,7 +285,7 @@ func (s *PortService) Pull(ctx context.Context, in *nodes.PullPortRequest) (*nod
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetPort().Pull(ctx, request)
+	reply, err := s.ns.Core().GetPort().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

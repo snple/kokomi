@@ -42,7 +42,7 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *nodes.SyncUpdate
 		return &output, err
 	}
 
-	return s.ns.cs.GetSync().SetDeviceUpdated(ctx,
+	return s.ns.Core().GetSync().SetDeviceUpdated(ctx,
 		&cores.SyncUpdated{Id: deviceID, Updated: in.GetUpdated()})
 }
 
@@ -62,7 +62,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*no
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetSync().GetDeviceUpdated(ctx, &pb.Id{Id: deviceID})
+	reply, err := s.ns.Core().GetSync().GetDeviceUpdated(ctx, &pb.Id{Id: deviceID})
 	if err != nil {
 		return &output, err
 	}
@@ -87,7 +87,7 @@ func (s *SyncService) WaitDeviceUpdated(in *pb.MyEmpty, stream nodes.SyncService
 		return err
 	}
 
-	return s.ns.cs.GetSync().WaitDeviceUpdated(&pb.Id{Id: deviceID}, stream)
+	return s.ns.Core().GetSync().WaitDeviceUpdated(&pb.Id{Id: deviceID}, stream)
 }
 
 func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *nodes.SyncUpdated) (*pb.MyBool, error) {
@@ -110,7 +110,7 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *nodes.SyncUpda
 		return &output, err
 	}
 
-	return s.ns.cs.GetSync().SetTagValueUpdated(ctx,
+	return s.ns.Core().GetSync().SetTagValueUpdated(ctx,
 		&cores.SyncUpdated{Id: deviceID, Updated: in.GetUpdated()})
 }
 
@@ -130,7 +130,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetSync().GetTagValueUpdated(ctx, &pb.Id{Id: deviceID})
+	reply, err := s.ns.Core().GetSync().GetTagValueUpdated(ctx, &pb.Id{Id: deviceID})
 	if err != nil {
 		return &output, err
 	}
@@ -155,7 +155,7 @@ func (s *SyncService) WaitTagValueUpdated(in *pb.MyEmpty, stream nodes.SyncServi
 		return err
 	}
 
-	return s.ns.cs.GetSync().WaitTagValueUpdated(&pb.Id{Id: deviceID}, stream)
+	return s.ns.Core().GetSync().WaitTagValueUpdated(&pb.Id{Id: deviceID}, stream)
 }
 
 func (s *SyncService) SetWireValueUpdated(ctx context.Context, in *nodes.SyncUpdated) (*pb.MyBool, error) {
@@ -178,7 +178,7 @@ func (s *SyncService) SetWireValueUpdated(ctx context.Context, in *nodes.SyncUpd
 		return &output, err
 	}
 
-	return s.ns.cs.GetSync().SetWireValueUpdated(ctx,
+	return s.ns.Core().GetSync().SetWireValueUpdated(ctx,
 		&cores.SyncUpdated{Id: deviceID, Updated: in.GetUpdated()})
 }
 
@@ -198,7 +198,7 @@ func (s *SyncService) GetWireValueUpdated(ctx context.Context, in *pb.MyEmpty) (
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetSync().GetWireValueUpdated(ctx, &pb.Id{Id: deviceID})
+	reply, err := s.ns.Core().GetSync().GetWireValueUpdated(ctx, &pb.Id{Id: deviceID})
 	if err != nil {
 		return &output, err
 	}
@@ -223,5 +223,5 @@ func (s *SyncService) WaitWireValueUpdated(in *pb.MyEmpty, stream nodes.SyncServ
 		return err
 	}
 
-	return s.ns.cs.GetSync().WaitWireValueUpdated(&pb.Id{Id: deviceID}, stream)
+	return s.ns.Core().GetSync().WaitWireValueUpdated(&pb.Id{Id: deviceID}, stream)
 }

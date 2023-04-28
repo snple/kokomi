@@ -40,7 +40,7 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 
 	in.DeviceId = deviceID
 
-	return s.ns.cs.GetSource().Create(ctx, in)
+	return s.ns.Core().GetSource().Create(ctx, in)
 }
 
 func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, error) {
@@ -61,7 +61,7 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetSource().View(ctx, request)
+	reply, err := s.ns.Core().GetSource().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -70,7 +70,7 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetSource().Update(ctx, in)
+	return s.ns.Core().GetSource().Update(ctx, in)
 }
 
 func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error) {
@@ -89,7 +89,7 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetSource().View(ctx, in)
+	reply, err := s.ns.Core().GetSource().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -119,7 +119,7 @@ func (s *SourceService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Source
 
 	request := &cores.ViewSourceByNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.cs.GetSource().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetSource().ViewByName(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -147,7 +147,7 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetSource().View(ctx, in)
+	reply, err := s.ns.Core().GetSource().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -156,7 +156,7 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetSource().Delete(ctx, in)
+	return s.ns.Core().GetSource().Delete(ctx, in)
 }
 
 func (s *SourceService) List(ctx context.Context, in *nodes.ListSourceRequest) (*nodes.ListSourceResponse, error) {
@@ -183,7 +183,7 @@ func (s *SourceService) List(ctx context.Context, in *nodes.ListSourceRequest) (
 		Source:   in.GetSource(),
 	}
 
-	reply, err := s.ns.cs.GetSource().List(ctx, request)
+	reply, err := s.ns.Core().GetSource().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -213,7 +213,7 @@ func (s *SourceService) Link(ctx context.Context, in *nodes.LinkSourceRequest) (
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetSource().View(ctx, request)
+	reply, err := s.ns.Core().GetSource().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -224,7 +224,7 @@ func (s *SourceService) Link(ctx context.Context, in *nodes.LinkSourceRequest) (
 
 	request2 := &cores.LinkSourceRequest{Id: in.GetId(), Status: in.GetStatus()}
 
-	return s.ns.cs.GetSource().Link(ctx, request2)
+	return s.ns.Core().GetSource().Link(ctx, request2)
 }
 
 func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Source, error) {
@@ -243,7 +243,7 @@ func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Sou
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetSource().ViewWithDeleted(ctx, in)
+	reply, err := s.ns.Core().GetSource().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -282,7 +282,7 @@ func (s *SourceService) Pull(ctx context.Context, in *nodes.PullSourceRequest) (
 		Source:   in.GetSource(),
 	}
 
-	reply, err := s.ns.cs.GetSource().Pull(ctx, request)
+	reply, err := s.ns.Core().GetSource().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

@@ -40,7 +40,7 @@ func (s *OptionService) Create(ctx context.Context, in *pb.Option) (*pb.Option, 
 
 	in.DeviceId = deviceID
 
-	return s.ns.cs.GetOption().Create(ctx, in)
+	return s.ns.Core().GetOption().Create(ctx, in)
 }
 
 func (s *OptionService) Update(ctx context.Context, in *pb.Option) (*pb.Option, error) {
@@ -61,7 +61,7 @@ func (s *OptionService) Update(ctx context.Context, in *pb.Option) (*pb.Option, 
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.cs.GetOption().View(ctx, request)
+	reply, err := s.ns.Core().GetOption().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -70,7 +70,7 @@ func (s *OptionService) Update(ctx context.Context, in *pb.Option) (*pb.Option, 
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetOption().Update(ctx, in)
+	return s.ns.Core().GetOption().Update(ctx, in)
 }
 
 func (s *OptionService) View(ctx context.Context, in *pb.Id) (*pb.Option, error) {
@@ -89,7 +89,7 @@ func (s *OptionService) View(ctx context.Context, in *pb.Id) (*pb.Option, error)
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetOption().View(ctx, in)
+	reply, err := s.ns.Core().GetOption().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -119,7 +119,7 @@ func (s *OptionService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Option
 
 	request := &cores.ViewOptionByNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.cs.GetOption().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetOption().ViewByName(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -147,7 +147,7 @@ func (s *OptionService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetOption().View(ctx, in)
+	reply, err := s.ns.Core().GetOption().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -156,7 +156,7 @@ func (s *OptionService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.cs.GetOption().Delete(ctx, in)
+	return s.ns.Core().GetOption().Delete(ctx, in)
 }
 
 func (s *OptionService) List(ctx context.Context, in *nodes.ListOptionRequest) (*nodes.ListOptionResponse, error) {
@@ -182,7 +182,7 @@ func (s *OptionService) List(ctx context.Context, in *nodes.ListOptionRequest) (
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.cs.GetOption().List(ctx, request)
+	reply, err := s.ns.Core().GetOption().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -210,7 +210,7 @@ func (s *OptionService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Opt
 		return &output, err
 	}
 
-	reply, err := s.ns.cs.GetOption().ViewWithDeleted(ctx, in)
+	reply, err := s.ns.Core().GetOption().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -247,7 +247,7 @@ func (s *OptionService) Pull(ctx context.Context, in *nodes.PullOptionRequest) (
 		DeviceId: deviceID,
 	}
 
-	reply, err := s.ns.cs.GetOption().Pull(ctx, request)
+	reply, err := s.ns.Core().GetOption().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}

@@ -189,7 +189,7 @@ func (s *QuicService) validate(stream quic.Stream) (string, error) {
 		return "", errors.New("token validation failed")
 	}
 
-	device, err := s.ns.cs.GetDevice().View(context.Background(), &pb.Id{Id: deviceId})
+	device, err := s.ns.Core().GetDevice().View(context.Background(), &pb.Id{Id: deviceId})
 	if err != nil {
 		return "", fmt.Errorf("GetDevice().View() error: %v", err)
 	}
@@ -249,7 +249,7 @@ func (s *QuicService) ping(conn quic.Connection, stream quic.Stream, deviceId st
 		if rtt == 0 {
 			rtt = 1
 		}
-		s.ns.cs.GetStatus().SetLink(deviceId, int32(rtt))
+		s.ns.Core().GetStatus().SetLink(deviceId, int32(rtt))
 
 		s.ns.Logger().Sugar().Debugf("quic deviceId: %v, rtt %v", deviceId, rtt)
 
@@ -340,7 +340,7 @@ func (s *QuicService) openStream(rmessage nson.Message, deviceId string) (quic.S
 		return nil, errors.New(`method != "proxy" || proxyId == ""`)
 	}
 
-	proxy, err := s.ns.cs.GetProxy().View(context.Background(), &pb.Id{Id: proxyId})
+	proxy, err := s.ns.Core().GetProxy().View(context.Background(), &pb.Id{Id: proxyId})
 	if err != nil {
 		return nil, err
 	}
@@ -357,7 +357,7 @@ func (s *QuicService) openStream(rmessage nson.Message, deviceId string) (quic.S
 		return nil, errors.New("proxy.target == ''")
 	}
 
-	port, err := s.ns.cs.GetPort().View(context.Background(), &pb.Id{Id: proxy.Target})
+	port, err := s.ns.Core().GetPort().View(context.Background(), &pb.Id{Id: proxy.Target})
 	if err != nil {
 		return nil, err
 	}
