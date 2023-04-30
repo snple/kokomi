@@ -52,6 +52,7 @@ func main() {
 
 	{
 		opts = append(opts, edge.WithDeviceID(config.Config.DeviceID, config.Config.Secret))
+		opts = append(opts, edge.WithSyncRealtime(true))
 	}
 
 	{

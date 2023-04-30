@@ -50,7 +50,7 @@ func (s *QuicService) start() {
 	defer s.closeWG.Done()
 
 	if option := s.es.GetNode(); option.IsNone() {
-		panic("node not enable")
+		return
 	}
 
 	s.es.Logger().Info("start quic service")
@@ -112,9 +112,11 @@ func (s *QuicService) loop() error {
 
 	go s.accept(conn)
 
-	context := conn.Context()
-	<-context.Done()
-	s.es.Logger().Sugar().Errorf("break conn error: %v", context.Err())
+	ctx := conn.Context()
+	<-ctx.Done()
+	if !errors.Is(ctx.Err(), context.Canceled) {
+		s.es.Logger().Sugar().Errorf("break conn error: %v", ctx.Err())
+	}
 
 	s.lock.Lock()
 	s.conn.Take()

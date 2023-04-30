@@ -69,7 +69,6 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		Status:   in.GetStatus(),
 		Access:   in.GetAccess(),
 		Save:     in.GetSave(),
-		Upload:   in.GetUpload(),
 		Created:  time.Now(),
 		Updated:  time.Now(),
 	}
@@ -194,7 +193,6 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 	item.Status = in.GetStatus()
 	item.Access = in.GetAccess()
 	item.Save = in.GetSave()
-	item.Upload = in.GetUpload()
 	item.Updated = time.Now()
 
 	if isSync {
@@ -590,6 +588,22 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
+	item2, err := s.viewValueUpdated(ctx, in.GetId())
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				goto UPDATED
+			}
+		}
+
+		return &output, err
+	}
+
+	if in.GetUpdated() <= item2.Updated.UnixMilli() {
+		return &output, nil
+	}
+
+UPDATED:
 	if err = s.updateTagValue(ctx, &item, in.GetValue(), time.UnixMilli(in.GetUpdated())); err != nil {
 		return &output, err
 	}
@@ -813,7 +827,6 @@ func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
 	output.Status = item.Status
 	output.Access = item.Access
 	output.Save = item.Save
-	output.Upload = item.Upload
 	output.Created = item.Created.UnixMilli()
 	output.Updated = item.Updated.UnixMilli()
 	output.Deleted = item.Deleted.UnixMilli()

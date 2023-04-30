@@ -39,10 +39,9 @@ message Tag {
     sint32 status = 14;
     sint32 access = 15;
     sint32 save = 16;
-    sint32 upload = 17;
-    int64 created = 18;
-    int64 updated = 19;
-    int64 deleted = 20;
+    int64 created = 17;
+    int64 updated = 18;
+    int64 deleted = 19;
 }
 
 message TagValue {

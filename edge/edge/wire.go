@@ -583,6 +583,22 @@ func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBo
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
+	item2, err := s.viewValueUpdated(ctx, in.GetId())
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				goto UPDATED
+			}
+		}
+
+		return &output, err
+	}
+
+	if in.GetUpdated() <= item2.Updated.UnixMilli() {
+		return &output, nil
+	}
+
+UPDATED:
 	if err = s.updateWireValue(ctx, &item, in.GetValue(), time.UnixMilli(in.GetUpdated())); err != nil {
 		return &output, err
 	}

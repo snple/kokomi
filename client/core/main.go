@@ -99,8 +99,8 @@ func main() {
 	// service.WireDelete(ctx, wire)
 	// service.WireGetValue(ctx, wire)
 	// for {
-	service.WireSetValue(ctx, wire)
-	//	time.Sleep(time.Second * 5)
+	// 	service.WireSetValue(ctx, wire)
+	// 	time.Sleep(time.Second * 5)
 	// }
 	// service.WireGetValueByName(ctx, wire)
 	// service.WireSetValueByName(ctx, wire)

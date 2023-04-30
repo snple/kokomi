@@ -24,6 +24,10 @@ type QuicService struct {
 
 	conns map[string]*quicChannels
 	lock  sync.RWMutex
+
+	ctx     context.Context
+	cancel  func()
+	closeWG sync.WaitGroup
 }
 
 func newQuicService(ns *NodeService) (*QuicService, error) {
@@ -33,16 +37,23 @@ func newQuicService(ns *NodeService) (*QuicService, error) {
 		return nil, err
 	}
 
+	ctx, cancel := context.WithCancel(ns.Context())
+
 	s := &QuicService{
 		ns:       ns,
 		listener: listener,
 		conns:    make(map[string]*quicChannels),
+		ctx:      ctx,
+		cancel:   cancel,
 	}
 
 	return s, nil
 }
 
 func (s *QuicService) Start() {
+	s.closeWG.Add(1)
+	defer s.closeWG.Done()
+
 	s.ns.Logger().Info("start quic server")
 
 	err := s.acceptConn()
@@ -55,6 +66,8 @@ func (s *QuicService) Start() {
 
 func (s *QuicService) Stop() {
 	s.listener.Close()
+	s.cancel()
+	s.closeWG.Wait()
 }
 
 func (s *QuicService) addConn(deviceID string, conn quic.Connection) {
@@ -92,7 +105,7 @@ func (s *QuicService) GetConn(deviceID string) types.Option[quic.Connection] {
 
 func (s *QuicService) acceptConn() error {
 	for {
-		conn, err := s.listener.Accept(s.ns.ctx)
+		conn, err := s.listener.Accept(s.ctx)
 		if err != nil {
 			return err
 		}
@@ -100,7 +113,9 @@ func (s *QuicService) acceptConn() error {
 		go func() {
 			err := s.handleConn(conn)
 			if err != nil {
-				s.ns.Logger().Sugar().Errorf("QuicService.handleConn(conn) error: %v", err)
+				if !errors.Is(err, context.Canceled) {
+					s.ns.Logger().Sugar().Errorf("QuicService.handleConn(conn) error: %v", err)
+				}
 			}
 		}()
 	}
@@ -118,9 +133,9 @@ func (s *QuicService) handleConn(conn quic.Connection) error {
 
 	go s.accept(conn, deviceID)
 
-	context := conn.Context()
-	<-context.Done()
-	err = context.Err()
+	ctx := conn.Context()
+	<-ctx.Done()
+	err = ctx.Err()
 
 	s.removeConn(deviceID, conn)
 
@@ -128,7 +143,7 @@ func (s *QuicService) handleConn(conn quic.Connection) error {
 }
 
 func (s *QuicService) handshake(conn quic.Connection) (string, error) {
-	stream, err := conn.AcceptStream(context.Background())
+	stream, err := conn.AcceptStream(s.ctx)
 	if err != nil {
 		return "", err
 	}
@@ -189,7 +204,7 @@ func (s *QuicService) validate(stream quic.Stream) (string, error) {
 		return "", errors.New("token validation failed")
 	}
 
-	device, err := s.ns.Core().GetDevice().View(context.Background(), &pb.Id{Id: deviceId})
+	device, err := s.ns.Core().GetDevice().View(s.ctx, &pb.Id{Id: deviceId})
 	if err != nil {
 		return "", fmt.Errorf("GetDevice().View() error: %v", err)
 	}
@@ -216,7 +231,7 @@ func (s *QuicService) ping(conn quic.Connection, stream quic.Stream, deviceId st
 			return err
 		}
 
-		err = stream.SetReadDeadline(time.Now().Add(time.Duration(10) * time.Second))
+		err = stream.SetReadDeadline(time.Now().Add(time.Duration(20) * time.Second))
 		if err != nil {
 			return err
 		}
@@ -269,7 +284,7 @@ func (s *QuicService) ping(conn quic.Connection, stream quic.Stream, deviceId st
 
 func (s *QuicService) accept(conn quic.Connection, deviceId string) error {
 	for {
-		stream, err := conn.AcceptStream(context.Background())
+		stream, err := conn.AcceptStream(s.ctx)
 		if err != nil {
 			return err
 		}
@@ -340,7 +355,7 @@ func (s *QuicService) openStream(rmessage nson.Message, deviceId string) (quic.S
 		return nil, errors.New(`method != "proxy" || proxyId == ""`)
 	}
 
-	proxy, err := s.ns.Core().GetProxy().View(context.Background(), &pb.Id{Id: proxyId})
+	proxy, err := s.ns.Core().GetProxy().View(s.ctx, &pb.Id{Id: proxyId})
 	if err != nil {
 		return nil, err
 	}
@@ -357,7 +372,7 @@ func (s *QuicService) openStream(rmessage nson.Message, deviceId string) (quic.S
 		return nil, errors.New("proxy.target == ''")
 	}
 
-	port, err := s.ns.Core().GetPort().View(context.Background(), &pb.Id{Id: proxy.Target})
+	port, err := s.ns.Core().GetPort().View(s.ctx, &pb.Id{Id: proxy.Target})
 	if err != nil {
 		return nil, err
 	}
@@ -371,7 +386,7 @@ func (s *QuicService) openStream(rmessage nson.Message, deviceId string) (quic.S
 	}
 
 	if option := s.GetConn(port.GetDeviceId()); option.IsSome() {
-		stream2, err := option.Unwrap().OpenStreamSync(context.Background())
+		stream2, err := option.Unwrap().OpenStreamSync(s.ctx)
 		if err != nil {
 			return nil, err
 		}

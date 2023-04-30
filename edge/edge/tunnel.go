@@ -45,8 +45,10 @@ func (s *TunnelService) start() {
 	defer s.closeWG.Done()
 
 	if option := s.es.GetQuic(); option.IsNone() {
-		panic("quic not enable")
+		return
 	}
+
+	s.es.Logger().Info("start tunnel service")
 
 	go s.waitDeviceUpdated()
 

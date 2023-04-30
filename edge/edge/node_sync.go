@@ -39,14 +39,15 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.NotFound {
-					_, err = s.es.GetDevice().Create(ctx, remote)
-					if err != nil {
-						return err
-					}
-				} else {
-					return err
+					goto CREATE_DEVICE
 				}
-			} else {
+			}
+
+			return err
+
+		CREATE_DEVICE:
+			_, err = s.es.GetDevice().Create(ctx, remote)
+			if err != nil {
 				return err
 			}
 		} else if remote.GetUpdated() > local.GetUpdated() {
@@ -73,14 +74,15 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.es.GetSlot().Create(ctx, remote)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_SLOT
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_SLOT:
+					_, err = s.es.GetSlot().Create(ctx, remote)
+					if err != nil {
 						return err
 					}
 				} else if remote.GetUpdated() > local.GetUpdated() {
@@ -116,14 +118,15 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 					if err != nil {
 						if code, ok := status.FromError(err); ok {
 							if code.Code() == codes.NotFound {
-								_, err = s.es.GetOption().Create(ctx, remote)
-								if err != nil {
-									return err
-								}
-							} else {
-								return err
+								goto CREATE_OPTION
 							}
-						} else {
+						}
+
+						return err
+
+					CREATE_OPTION:
+						_, err = s.es.GetOption().Create(ctx, remote)
+						if err != nil {
 							return err
 						}
 					} else if remote.GetUpdated() > local.GetUpdated() {
@@ -159,14 +162,15 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.es.GetPort().Create(ctx, remote)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_PORT
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_PORT:
+					_, err = s.es.GetPort().Create(ctx, remote)
+					if err != nil {
 						return err
 					}
 				} else if remote.GetUpdated() > local.GetUpdated() {
@@ -201,14 +205,15 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.es.GetProxy().Create(ctx, remote)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_PROXY
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_PROXY:
+					_, err = s.es.GetProxy().Create(ctx, remote)
+					if err != nil {
 						return err
 					}
 				} else if remote.GetUpdated() > local.GetUpdated() {
@@ -243,14 +248,15 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.es.GetSource().Create(ctx, remote)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_SOURCE
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_SOURCE:
+					_, err = s.es.GetSource().Create(ctx, remote)
+					if err != nil {
 						return err
 					}
 				} else if remote.GetUpdated() > local.GetUpdated() {
@@ -285,14 +291,15 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.es.GetTag().Create(ctx, remote)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_TAG
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_TAG:
+					_, err = s.es.GetTag().Create(ctx, remote)
+					if err != nil {
 						return err
 					}
 				} else if remote.GetUpdated() > local.GetUpdated() {
@@ -327,14 +334,15 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.es.GetVar().Create(ctx, remote)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_VAR
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_VAR:
+					_, err = s.es.GetVar().Create(ctx, remote)
+					if err != nil {
 						return err
 					}
 				} else if remote.GetUpdated() > local.GetUpdated() {
@@ -369,14 +377,15 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.es.GetCable().Create(ctx, remote)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_CABLE
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_CABLE:
+					_, err = s.es.GetCable().Create(ctx, remote)
+					if err != nil {
 						return err
 					}
 				} else if remote.GetUpdated() > local.GetUpdated() {
@@ -411,14 +420,15 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.es.GetWire().Create(ctx, remote)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_WIRE
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_WIRE:
+					_, err = s.es.GetWire().Create(ctx, remote)
+					if err != nil {
 						return err
 					}
 				} else if remote.GetUpdated() > local.GetUpdated() {
@@ -453,14 +463,15 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.es.GetClass().Create(ctx, remote)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_CLASS
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_CLASS:
+					_, err = s.es.GetClass().Create(ctx, remote)
+					if err != nil {
 						return err
 					}
 				} else if remote.GetUpdated() > local.GetUpdated() {
@@ -495,14 +506,15 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.es.GetAttr().Create(ctx, remote)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_ATTR
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_ATTR:
+					_, err = s.es.GetAttr().Create(ctx, remote)
+					if err != nil {
 						return err
 					}
 				} else if remote.GetUpdated() > local.GetUpdated() {
@@ -575,14 +587,15 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.SlotServiceClient().Create(ctx, local)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_SLOT
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_SLOT:
+					_, err = s.SlotServiceClient().Create(ctx, local)
+					if err != nil {
 						return err
 					}
 				} else if local.GetUpdated() > remote.GetUpdated() {
@@ -618,14 +631,15 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 					if err != nil {
 						if code, ok := status.FromError(err); ok {
 							if code.Code() == codes.NotFound {
-								_, err = s.OptionServiceClient().Create(ctx, local)
-								if err != nil {
-									return err
-								}
-							} else {
-								return err
+								goto CREATE_OPTION
 							}
-						} else {
+						}
+
+						return err
+
+					CREATE_OPTION:
+						_, err = s.OptionServiceClient().Create(ctx, local)
+						if err != nil {
 							return err
 						}
 					} else if local.GetUpdated() > remote.GetUpdated() {
@@ -661,14 +675,15 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.PortServiceClient().Create(ctx, local)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_PORT
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_PORT:
+					_, err = s.PortServiceClient().Create(ctx, local)
+					if err != nil {
 						return err
 					}
 				} else if local.GetUpdated() > remote.GetUpdated() {
@@ -703,14 +718,15 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.SourceServiceClient().Create(ctx, local)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_SOURCE
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_SOURCE:
+					_, err = s.SourceServiceClient().Create(ctx, local)
+					if err != nil {
 						return err
 					}
 				} else if local.GetUpdated() > remote.GetUpdated() {
@@ -745,14 +761,15 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.TagServiceClient().Create(ctx, local)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_TAG
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_TAG:
+					_, err = s.TagServiceClient().Create(ctx, local)
+					if err != nil {
 						return err
 					}
 				} else if local.GetUpdated() > remote.GetUpdated() {
@@ -787,14 +804,15 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.VarServiceClient().Create(ctx, local)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_VAR
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_VAR:
+					_, err = s.VarServiceClient().Create(ctx, local)
+					if err != nil {
 						return err
 					}
 				} else if local.GetUpdated() > remote.GetUpdated() {
@@ -829,14 +847,15 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.CableServiceClient().Create(ctx, local)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_CABLE
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_CABLE:
+					_, err = s.CableServiceClient().Create(ctx, local)
+					if err != nil {
 						return err
 					}
 				} else if local.GetUpdated() > remote.GetUpdated() {
@@ -871,14 +890,15 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.WireServiceClient().Create(ctx, local)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_WIRE
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_WIRE:
+					_, err = s.WireServiceClient().Create(ctx, local)
+					if err != nil {
 						return err
 					}
 				} else if local.GetUpdated() > remote.GetUpdated() {
@@ -913,14 +933,15 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.ClassServiceClient().Create(ctx, local)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_CLASS
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_CLASS:
+					_, err = s.ClassServiceClient().Create(ctx, local)
+					if err != nil {
 						return err
 					}
 				} else if local.GetUpdated() > remote.GetUpdated() {
@@ -955,14 +976,15 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 				if err != nil {
 					if code, ok := status.FromError(err); ok {
 						if code.Code() == codes.NotFound {
-							_, err = s.AttrServiceClient().Create(ctx, local)
-							if err != nil {
-								return err
-							}
-						} else {
-							return err
+							goto CREATE_ATTR
 						}
-					} else {
+					}
+
+					return err
+
+				CREATE_ATTR:
+					_, err = s.AttrServiceClient().Create(ctx, local)
+					if err != nil {
 						return err
 					}
 				} else if local.GetUpdated() > remote.GetUpdated() {
@@ -1002,24 +1024,29 @@ func (s *NodeService) syncRemoteToLocalTagValue(ctx context.Context) error {
 	after := remoteTagValueUpdated.UnixMilli()
 	limit := uint32(100)
 
+PULL:
 	for {
-		remoteValues, err := s.TagServiceClient().PullValue(ctx, &nodes.PullTagValueRequest{After: after, Limit: limit})
+		remotes, err := s.TagServiceClient().PullValue(ctx, &nodes.PullTagValueRequest{After: after, Limit: limit})
 		if err != nil {
 			return err
 		}
 
-		for _, value := range remoteValues.GetTag() {
+		for _, remote := range remotes.GetTag() {
+			if remote.GetUpdated() > tagValueUpdated.GetUpdated() {
+				break PULL
+			}
+
 			_, err = s.es.GetTag().SyncValue(ctx,
-				&pb.TagValue{Id: value.GetId(), Value: value.GetValue(), Updated: value.GetUpdated()})
+				&pb.TagValue{Id: remote.GetId(), Value: remote.GetValue(), Updated: remote.GetUpdated()})
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("SyncValue: %v", err)
 				return err
 			}
 
-			after = value.GetUpdated()
+			after = remote.GetUpdated()
 		}
 
-		if len(remoteValues.GetTag()) < int(limit) {
+		if len(remotes.GetTag()) < int(limit) {
 			break
 		}
 	}
@@ -1045,6 +1072,7 @@ func (s *NodeService) syncLocalToRemoteTagValue(ctx context.Context) error {
 	after := localTagValueUpdated.UnixMilli()
 	limit := uint32(100)
 
+PULL:
 	for {
 		locals, err := s.es.GetTag().PullValue(ctx, &edges.PullTagValueRequest{After: after, Limit: limit})
 		if err != nil {
@@ -1052,6 +1080,10 @@ func (s *NodeService) syncLocalToRemoteTagValue(ctx context.Context) error {
 		}
 
 		for _, local := range locals.GetTag() {
+			if local.GetUpdated() > tagValueUpdated.UnixMilli() {
+				break PULL
+			}
+
 			_, err = s.TagServiceClient().SyncValue(ctx,
 				&pb.TagValue{Id: local.GetId(), Value: local.GetValue(), Updated: local.GetUpdated()})
 			if err != nil {
@@ -1088,13 +1120,18 @@ func (s *NodeService) syncRemoteToLocalWireValue(ctx context.Context) error {
 	after := remoteWireValueUpdated.UnixMilli()
 	limit := uint32(100)
 
+PULL:
 	for {
-		remoteValues, err := s.WireServiceClient().PullValue(ctx, &nodes.PullWireValueRequest{After: after, Limit: limit})
+		remotes, err := s.WireServiceClient().PullValue(ctx, &nodes.PullWireValueRequest{After: after, Limit: limit})
 		if err != nil {
 			return err
 		}
 
-		for _, remote := range remoteValues.GetWire() {
+		for _, remote := range remotes.GetWire() {
+			if remote.GetUpdated() > wireValueUpdated.GetUpdated() {
+				break PULL
+			}
+
 			_, err = s.es.GetWire().SyncValue(ctx,
 				&pb.WireValue{Id: remote.GetId(), Value: remote.GetValue(), Updated: remote.GetUpdated()})
 			if err != nil {
@@ -1105,7 +1142,7 @@ func (s *NodeService) syncRemoteToLocalWireValue(ctx context.Context) error {
 			after = remote.GetUpdated()
 		}
 
-		if len(remoteValues.GetWire()) < int(limit) {
+		if len(remotes.GetWire()) < int(limit) {
 			break
 		}
 	}
@@ -1131,6 +1168,7 @@ func (s *NodeService) syncLocalToRemoteWireValue(ctx context.Context) error {
 	after := localWireValueUpdated.UnixMilli()
 	limit := uint32(100)
 
+PULL:
 	for {
 		locals, err := s.es.GetWire().PullValue(ctx, &edges.PullWireValueRequest{After: after, Limit: limit})
 		if err != nil {
@@ -1138,6 +1176,10 @@ func (s *NodeService) syncLocalToRemoteWireValue(ctx context.Context) error {
 		}
 
 		for _, local := range locals.GetWire() {
+			if local.GetUpdated() > wireValueUpdated.UnixMilli() {
+				break PULL
+			}
+
 			_, err = s.WireServiceClient().SyncValue(ctx,
 				&pb.WireValue{Id: local.GetId(), Value: local.GetValue(), Updated: local.GetUpdated()})
 			if err != nil {
