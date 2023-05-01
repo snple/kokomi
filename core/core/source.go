@@ -61,7 +61,6 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 		Config:   in.GetConfig(),
 		Status:   in.GetStatus(),
 		Save:     in.GetSave(),
-		Upload:   in.GetUpload(),
 		Created:  time.Now(),
 		Updated:  time.Now(),
 	}
@@ -178,7 +177,6 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
 	item.Save = in.GetSave()
-	item.Upload = in.GetUpload()
 	item.Updated = time.Now()
 
 	if isSync {
@@ -549,7 +547,6 @@ func (s *SourceService) copyModelToOutput(output *pb.Source, item *model.Source)
 	output.Link = s.cs.GetStatus().GetLink(item.ID)
 	output.Status = item.Status
 	output.Save = item.Save
-	output.Upload = item.Upload
 	output.Created = item.Created.UnixMilli()
 	output.Updated = item.Updated.UnixMilli()
 	output.Deleted = item.Deleted.UnixMilli()

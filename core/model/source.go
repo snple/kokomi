@@ -21,7 +21,6 @@ type Source struct {
 	Config        string    `bun:"config,type:TEXT" json:"config"`
 	Status        int32     `bun:"status" json:"status"`
 	Save          int32     `bun:"save" json:"save"`
-	Upload        int32     `bun:"upload" json:"upload"`
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
 	Created       time.Time `bun:"created" json:"created"`
 	Updated       time.Time `bun:"updated" json:"updated"`
@@ -44,7 +43,6 @@ type Tag struct {
 	Status        int32     `bun:"status" json:"status"`
 	Access        int32     `bun:"access" json:"access"`
 	Save          int32     `bun:"save" json:"save"`
-	Upload        int32     `bun:"upload" json:"upload"`
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
 	Created       time.Time `bun:"created" json:"created"`
 	Updated       time.Time `bun:"updated" json:"updated"`
