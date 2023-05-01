@@ -144,9 +144,9 @@ type nodeOptions struct {
 }
 
 type quicOptions struct {
-	Addr       string
-	TLSConfig  *tls.Config
-	QUICConfig *quic.Config
+	addr       string
+	tlsConfig  *tls.Config
+	quicConfig *quic.Config
 }
 
 func defaultNodeOptions() nodeOptions {

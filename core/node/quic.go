@@ -31,8 +31,8 @@ type QuicService struct {
 }
 
 func newQuicService(ns *NodeService) (*QuicService, error) {
-	listener, err := quic.ListenAddr(ns.dopts.quicOptions.Addr,
-		ns.dopts.quicOptions.TLSConfig, ns.dopts.quicOptions.QUICConfig)
+	listener, err := quic.ListenAddr(ns.dopts.quicOptions.addr,
+		ns.dopts.quicOptions.tlsConfig, ns.dopts.quicOptions.quicConfig)
 	if err != nil {
 		return nil, err
 	}
