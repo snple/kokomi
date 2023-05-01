@@ -23,7 +23,3 @@ type SyncGlobal struct {
 	Key           string    `bun:"type:TEXT,pk" json:"key"`
 	Updated       time.Time `bun:"updated" json:"updated"`
 }
-
-const (
-	SYNC_USER = "user"
-)

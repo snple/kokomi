@@ -18,7 +18,6 @@ type SyncGlobalService struct {
 	cs *CoreService
 
 	lock sync.RWMutex
-	// waitsUser map[chan struct{}]struct{}
 
 	cores.UnimplementedSyncGlobalServiceServer
 }
@@ -28,77 +27,6 @@ func newSyncGlobalService(cs *CoreService) *SyncGlobalService {
 		cs: cs,
 	}
 }
-
-// func (s *SyncGlobalService) SetUserUpdated(ctx context.Context, in *cores.SyncUpdated) (*pb.MyBool, error) {
-// 	var output pb.MyBool
-// 	var err error
-
-// 	// basic validation
-// 	{
-// 		if in == nil {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-// 		}
-
-// 		if in.GetUpdated() == 0 {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid user updated")
-// 		}
-// 	}
-
-// 	err = s.setUserUpdated(ctx, time.UnixMilli(in.GetUpdated()))
-// 	if err != nil {
-// 		return &output, err
-// 	}
-
-// 	output.Bool = true
-
-// 	return &output, nil
-// }
-
-// func (s *SyncGlobalService) GetUserUpdated(ctx context.Context, in *pb.MyEmpty) (*cores.SyncUpdated, error) {
-// 	var output cores.SyncUpdated
-// 	var err error
-
-// 	// basic validation
-// 	{
-// 		if in == nil {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-// 		}
-// 	}
-
-// 	t, err := s.getUserUpdated(ctx)
-// 	if err != nil {
-// 		return &output, err
-// 	}
-
-// 	output.Updated = t.UnixMilli()
-
-// 	return &output, nil
-// }
-
-// func (s *SyncGlobalService) WaitUserUpdated(in *pb.MyEmpty,
-// 	stream cores.SyncGlobalService_WaitUserUpdatedServer) error {
-
-// 	return s.waitUpdated(in, stream, s.waitsUser)
-// }
-
-// func (s *SyncGlobalService) WaitUserUpdated2(ctx context.Context) chan bool {
-// 	return s.waitUpdated2(ctx, s.waitsUser)
-// }
-
-// func (s *SyncGlobalService) getUserUpdated(ctx context.Context) (time.Time, error) {
-// 	return s.getUpdated(ctx, model.SYNC_USER)
-// }
-
-// func (s *SyncGlobalService) setUserUpdated(ctx context.Context, updated time.Time) error {
-// 	err := s.setUpdated(ctx, model.SYNC_USER, updated)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	s.notifyUpdated(s.waitsUser)
-
-// 	return nil
-// }
 
 func (s *SyncGlobalService) getUpdated(ctx context.Context, key string) (time.Time, error) {
 	item := model.SyncGlobal{

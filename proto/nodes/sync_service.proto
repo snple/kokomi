@@ -23,7 +23,5 @@ service SyncService {
 }
 
 service SyncGlobalService {
-    // rpc SetUserUpdated(SyncUpdated) returns (pb.MyBool) {}
-    // rpc GetUserUpdated(pb.MyEmpty) returns (SyncUpdated) {}
-    // rpc WaitUserUpdated(pb.MyEmpty) returns (stream pb.MyBool) {}
+
 }
