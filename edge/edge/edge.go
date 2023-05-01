@@ -157,8 +157,6 @@ func (es *EdgeService) Start() {
 }
 
 func (es *EdgeService) Stop() {
-	es.cancel()
-
 	if es.tunnel.IsSome() {
 		es.tunnel.Unwrap().stop()
 	}
@@ -171,6 +169,7 @@ func (es *EdgeService) Stop() {
 		es.node.Unwrap().stop()
 	}
 
+	es.cancel()
 	es.closeWG.Wait()
 	es.dopts.logger.Sync()
 }
