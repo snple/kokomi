@@ -171,8 +171,8 @@ func (es *EdgeService) Stop() {
 		es.node.Unwrap().stop()
 	}
 
-	es.dopts.logger.Sync()
 	es.closeWG.Wait()
+	es.dopts.logger.Sync()
 }
 
 func (es *EdgeService) GetDB() *bun.DB {
@@ -306,12 +306,12 @@ func CreateSchema(db bun.IDB) error {
 }
 
 type edgeOptions struct {
+	logger   *zap.Logger
 	deviceID string
 	secret   string
 
 	nodeOptions *nodeOptions
 	quicOptions *quicOptions
-	logger      *zap.Logger
 
 	linkStatusTTL  time.Duration
 	tokenRefresh   time.Duration
@@ -380,6 +380,12 @@ func newFuncEdgeOption(f func(*edgeOptions)) *funcEdgeOption {
 	}
 }
 
+func WithLogger(logger *zap.Logger) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.logger = logger
+	})
+}
+
 func WithDeviceID(id, secret string) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		o.deviceID = id
@@ -404,12 +410,6 @@ func WithQuic(addr string, tlsConfig *tls.Config, quicConfig *quic.Config) EdgeO
 		quicConfig2.EnableDatagrams = true
 
 		o.quicOptions = &quicOptions{addr, tlsConfig2, quicConfig2}
-	})
-}
-
-func WithLogger(logger *zap.Logger) EdgeOption {
-	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.logger = logger
 	})
 }
 
