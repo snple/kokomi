@@ -29,33 +29,32 @@ func seed(db bun.Tx) error {
 	var err error
 	ctx := context.Background()
 
-	hasDevice := false
 	{
-		device := model.Device{}
+		seedDevice := func() error {
+			device := model.Device{
+				ID:      util.RandomID(),
+				Name:    consts.DEFAULT_DEVICE,
+				Status:  consts.ON,
+				Created: time.Now(),
+				Updated: time.Now(),
+			}
 
-		err = db.NewSelect().Model(&device).Scan(ctx)
-		if err != nil {
-			if err != sql.ErrNoRows {
+			_, err = db.NewInsert().Model(&device).Exec(ctx)
+			if err != nil {
 				return err
 			}
-		} else {
-			hasDevice = true
-		}
-	}
 
-	if !hasDevice {
-		deviceID := util.RandomID()
-
-		device := model.Device{
-			ID:      deviceID,
-			Name:    consts.DEFAULT_DEVICE,
-			Status:  consts.ON,
-			Created: time.Now(),
-			Updated: time.Now(),
+			return nil
 		}
 
-		_, err = db.NewInsert().Model(&device).Exec(ctx)
+		err = db.NewSelect().Model(&model.Device{}).Scan(ctx)
 		if err != nil {
+			if err == sql.ErrNoRows {
+				if err = seedDevice(); err != nil {
+					return err
+				}
+			}
+
 			return err
 		}
 	}
