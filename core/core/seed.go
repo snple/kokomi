@@ -53,9 +53,9 @@ func seed(db bun.Tx) error {
 				if err = seedDevice(); err != nil {
 					return err
 				}
+			} else {
+				return err
 			}
-
-			return err
 		}
 	}
 
