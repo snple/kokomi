@@ -12,7 +12,6 @@ import (
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/cores"
 	"github.com/snple/kokomi/util"
-	"github.com/snple/kokomi/util/metadata"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -149,15 +148,8 @@ func (s *RouteService) Create(ctx context.Context, in *cores.Route) (*cores.Rout
 		Updated: time.Now(),
 	}
 
-	isSync := metadata.IsSync(ctx)
-
 	if len(item.ID) == 0 {
 		item.ID = util.RandomID()
-	}
-
-	if isSync {
-		item.Created = time.UnixMilli(in.GetCreated())
-		item.Updated = time.UnixMilli(in.GetUpdated())
 	}
 
 	_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
