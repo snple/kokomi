@@ -605,23 +605,23 @@ func (s *NodeService) sync2(ctx context.Context) error {
 func (s *NodeService) syncTagValue1(ctx context.Context) error {
 	ctx = metadata.SetToken(ctx, s.GetToken())
 
-	return s.syncRemoteToLocalTagValue(ctx)
+	return s.syncTagValueRemoteToLocal(ctx)
 }
 
 func (s *NodeService) syncTagValue2(ctx context.Context) error {
 	ctx = metadata.SetToken(ctx, s.GetToken())
 
-	return s.syncLocalToRemoteTagValue(ctx)
+	return s.syncTagValueLocalToRemote(ctx)
 }
 
 func (s *NodeService) syncWireValue1(ctx context.Context) error {
 	ctx = metadata.SetToken(ctx, s.GetToken())
 
-	return s.syncRemoteToLocalWireValue(ctx)
+	return s.syncWireValueRemoteToLocal(ctx)
 }
 
 func (s *NodeService) syncWireValue2(ctx context.Context) error {
 	ctx = metadata.SetToken(ctx, s.GetToken())
 
-	return s.syncLocalToRemoteWireValue(ctx)
+	return s.syncWireValueLocalToRemote(ctx)
 }

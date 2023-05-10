@@ -26,10 +26,10 @@ const (
 	SYNC_TAG_VALUE  = "sync_tag_value"
 	SYNC_WIRE_VALUE = "sync_wire_value"
 
-	SYNC_LOCAL_DEVICE      = "sync_l_device"
-	SYNC_REMOTE_DEVICE     = "sync_r_device"
-	SYNC_LOCAL_TAG_VALUE   = "sync_l_tag_value"
-	SYNC_REMOTE_TAG_VALUE  = "sync_r_tag_value"
-	SYNC_LOCAL_WIRE_VALUE  = "sync_l_wire_value"
-	SYNC_REMOTE_WIRE_VALUE = "sync_r_wire_value"
+	SYNC_DEVICE_REMOTE_TO_LOCAL     = "sync_device_rtl"
+	SYNC_DEVICE_LOCAL_TO_REMOTE     = "sync_device_ltr"
+	SYNC_TAG_VALUE_REMOTE_TO_LOCAL  = "sync_tgv_rtl"
+	SYNC_TAG_VALUE_LOCAL_TO_REMOTE  = "sync_tgv_ltr"
+	SYNC_WIRE_VALUE_REMOTE_TO_LOCAL = "sync_wev_rtl"
+	SYNC_WIRE_VALUE_LOCAL_TO_REMOTE = "sync_wev_ltr"
 )

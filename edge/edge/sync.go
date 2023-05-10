@@ -842,52 +842,52 @@ func (s *SyncService) setWireValueUpdated(ctx context.Context, updated time.Time
 	return nil
 }
 
-func (s *SyncService) getLocalDeviceUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_LOCAL_DEVICE)
+func (s *SyncService) getDeviceUpdatedRemoteToLocal(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_DEVICE_REMOTE_TO_LOCAL)
 }
 
-func (s *SyncService) setLocalDeviceUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_LOCAL_DEVICE, updated)
+func (s *SyncService) setDeviceUpdatedRemoteToLocal(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_DEVICE_REMOTE_TO_LOCAL, updated)
 }
 
-func (s *SyncService) getRemoteDeviceUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_REMOTE_DEVICE)
+func (s *SyncService) getDeviceUpdatedLocalToRemote(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_DEVICE_LOCAL_TO_REMOTE)
 }
 
-func (s *SyncService) setRemoteDeviceUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_REMOTE_DEVICE, updated)
+func (s *SyncService) setDeviceUpdatedLocalToRemote(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_DEVICE_LOCAL_TO_REMOTE, updated)
 }
 
-func (s *SyncService) getLocalTagValueUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_LOCAL_TAG_VALUE)
+func (s *SyncService) getTagValueUpdatedRemoteToLocal(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_TAG_VALUE_REMOTE_TO_LOCAL)
 }
 
-func (s *SyncService) setLocalTagValueUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_LOCAL_TAG_VALUE, updated)
+func (s *SyncService) setTagValueUpdatedRemoteToLocal(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_TAG_VALUE_REMOTE_TO_LOCAL, updated)
 }
 
-func (s *SyncService) getRemoteTagValueUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_REMOTE_TAG_VALUE)
+func (s *SyncService) getTagValueUpdatedLocalToRemote(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_TAG_VALUE_LOCAL_TO_REMOTE)
 }
 
-func (s *SyncService) setRemoteTagValueUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_REMOTE_TAG_VALUE, updated)
+func (s *SyncService) setTagValueUpdatedLocalToRemote(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_TAG_VALUE_LOCAL_TO_REMOTE, updated)
 }
 
-func (s *SyncService) getLocalWireValueUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_LOCAL_WIRE_VALUE)
+func (s *SyncService) getWireValueUpdatedRemoteToLocal(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_WIRE_VALUE_REMOTE_TO_LOCAL)
 }
 
-func (s *SyncService) setLocalWireValueUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_LOCAL_WIRE_VALUE, updated)
+func (s *SyncService) setWireValueUpdatedRemoteToLocal(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_WIRE_VALUE_REMOTE_TO_LOCAL, updated)
 }
 
-func (s *SyncService) getRemoteWireValueUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_REMOTE_WIRE_VALUE)
+func (s *SyncService) getWireValueUpdatedLocalToRemote(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_WIRE_VALUE_LOCAL_TO_REMOTE)
 }
 
-func (s *SyncService) setRemoteWireValueUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_REMOTE_WIRE_VALUE, updated)
+func (s *SyncService) setWireValueUpdatedLocalToRemote(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_WIRE_VALUE_LOCAL_TO_REMOTE, updated)
 }
 
 func (s *SyncService) getUpdated(ctx context.Context, key string) (time.Time, error) {
