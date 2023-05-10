@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"math/rand"
 	"net"
 	"os"
@@ -16,6 +17,7 @@ import (
 	"github.com/snple/kokomi/edge/edge"
 	"github.com/snple/kokomi/util"
 	"github.com/snple/kokomi/util/compress/zstd"
+	"github.com/uptrace/bun"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
@@ -28,17 +30,17 @@ func main() {
 
 	log.Init(config.Config.Debug)
 
-	log.Logger.Info("main : Started")
-	defer log.Logger.Info("main : Completed")
+	log.Logger.Info("main: Started")
+	defer log.Logger.Info("main: Completed")
 
-	sqlitedb, err := db.ConnectSqlite(config.Config.DB.File, config.Config.DB.Debug)
+	bundb, err := db.ConnectSqlite(config.Config.DB.File, config.Config.DB.Debug)
 	if err != nil {
 		log.Logger.Sugar().Fatalf("connecting to db: %v", err)
 	}
 
-	defer sqlitedb.Close()
+	defer bundb.Close()
 
-	if err = edge.CreateSchema(sqlitedb); err != nil {
+	if err = edge.CreateSchema(bundb); err != nil {
 		log.Logger.Sugar().Fatalf("create schema: %v", err)
 	}
 
@@ -47,6 +49,19 @@ func main() {
 		log.Logger.Sugar().Fatalf("badger open db: %v", err)
 	}
 	defer badgerdb.Close()
+
+	command := flag.Arg(0)
+	switch command {
+	case "seed":
+		log.Logger.Sugar().Infof("seed: Completed")
+		return
+	case "pull", "push":
+		if err := cli(command, bundb, badgerdb); err != nil {
+			log.Logger.Sugar().Errorf("error: shutting down: %s", err)
+		}
+
+		return
+	}
 
 	opts := make([]edge.EdgeOption, 0)
 
@@ -109,7 +124,7 @@ func main() {
 		opts = append(opts, edge.WithQuic(config.Config.QuicClient.Addr, tlsConfig, quicConfig))
 	}
 
-	es, err := edge.Edge(sqlitedb, badgerdb, opts...)
+	es, err := edge.Edge(bundb, badgerdb, opts...)
 	if err != nil {
 		log.Logger.Sugar().Fatalf("NewEdgeService: %v", err)
 	}
@@ -151,4 +166,60 @@ func main() {
 	signalCh := make(chan os.Signal, 1)
 	signal.Notify(signalCh, os.Interrupt, syscall.SIGTERM)
 	<-signalCh
+}
+
+func cli(command string, bundb *bun.DB, badgerdb *badger.DB) error {
+	log.Logger.Sugar().Infof("cli %v: Started", command)
+	defer log.Logger.Sugar().Infof("cli %v : Completed", command)
+
+	opts := make([]edge.EdgeOption, 0)
+	opts = append(opts, edge.WithDeviceID(config.Config.DeviceID, config.Config.Secret))
+
+	{
+		kacp := keepalive.ClientParameters{
+			Time:                120 * time.Second, // send pings every 120 seconds if there is no activity
+			Timeout:             10 * time.Second,  // wait 10 second for ping ack before considering the connection dead
+			PermitWithoutStream: true,              // send pings even without active streams
+		}
+
+		grpcOpts := []grpc.DialOption{
+			grpc.WithKeepaliveParams(kacp),
+			grpc.WithDefaultCallOptions(grpc.UseCompressor(zstd.Name)),
+		}
+
+		zstd.Register()
+
+		if config.Config.NodeClient.TLS {
+			tlsConfig, err := util.LoadClientCert(
+				config.Config.NodeClient.CA,
+				config.Config.NodeClient.Cert,
+				config.Config.NodeClient.Key,
+				config.Config.NodeClient.ServerName,
+				config.Config.NodeClient.InsecureSkipVerify,
+			)
+			if err != nil {
+				log.Logger.Sugar().Fatalf("LoadClientCert: %v", err)
+			}
+
+			grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+		} else {
+			grpcOpts = append(grpcOpts, grpc.WithInsecure())
+		}
+
+		opts = append(opts, edge.WithNode(config.Config.NodeClient.Addr, grpcOpts))
+	}
+
+	es, err := edge.Edge(bundb, badgerdb, opts...)
+	if err != nil {
+		log.Logger.Sugar().Fatalf("NewEdgeService: %v", err)
+	}
+
+	switch command {
+	case "push":
+		return es.Push()
+	case "pull":
+		return es.Pull()
+	}
+
+	return nil
 }

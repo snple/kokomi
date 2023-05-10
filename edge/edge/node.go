@@ -83,6 +83,82 @@ func (s *NodeService) stop() {
 	s.closeWG.Wait()
 }
 
+func (s *NodeService) push() error {
+	// login
+	operation := func() error {
+		err := s.login(s.ctx)
+		if err != nil {
+			s.es.Logger().Sugar().Errorf("device login: %v", err)
+		}
+
+		return err
+	}
+
+	err := backoff.Retry(operation, backoff.WithContext(backoff.NewExponentialBackOff(), s.ctx))
+	if err != nil {
+		s.es.Logger().Sugar().Errorf("backoff.Retry: %v", err)
+		return err
+	}
+
+	s.es.Logger().Sugar().Info("device login success")
+
+	s.es.GetSync().setDeviceUpdatedLocalToRemote(s.ctx, time.Time{})
+
+	if err := s.sync2(s.ctx); err != nil {
+		return err
+	}
+
+	if err := s.syncTagValue2(s.ctx); err != nil {
+		return err
+	}
+
+	if err := s.syncWireValue2(s.ctx); err != nil {
+		return err
+	}
+
+	s.es.Logger().Sugar().Info("push success")
+
+	return nil
+}
+
+func (s *NodeService) pull() error {
+	// login
+	operation := func() error {
+		err := s.login(s.ctx)
+		if err != nil {
+			s.es.Logger().Sugar().Errorf("device login: %v", err)
+		}
+
+		return err
+	}
+
+	err := backoff.Retry(operation, backoff.WithContext(backoff.NewExponentialBackOff(), s.ctx))
+	if err != nil {
+		s.es.Logger().Sugar().Errorf("backoff.Retry: %v", err)
+		return err
+	}
+
+	s.es.Logger().Sugar().Info("device login success")
+
+	s.es.GetSync().setDeviceUpdatedRemoteToLocal(s.ctx, time.Time{})
+
+	if err := s.sync1(s.ctx); err != nil {
+		return err
+	}
+
+	if err := s.syncTagValue1(s.ctx); err != nil {
+		return err
+	}
+
+	if err := s.syncWireValue1(s.ctx); err != nil {
+		return err
+	}
+
+	s.es.Logger().Sugar().Info("pull success")
+
+	return nil
+}
+
 func (s *NodeService) loop() {
 	// login
 	operation := func() error {

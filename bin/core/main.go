@@ -30,37 +30,34 @@ func main() {
 
 	log.Init(config.Config.Debug)
 
-	log.Logger.Info("main : Started")
-	defer log.Logger.Info("main : Completed")
+	log.Logger.Info("main: Started")
+	defer log.Logger.Info("main: Completed")
 
-	command := flag.Arg(0)
-	switch command {
-	case "seed":
-		if err := cli(command); err != nil {
-			log.Logger.Sugar().Errorf("error: shutting down: %s", err)
-		}
-
-		return
-	}
-
-	sqlitedb, err := db.ConnectSqlite(config.Config.DB.File, config.Config.DB.Debug)
+	bundb, err := db.ConnectSqlite(config.Config.DB.File, config.Config.DB.Debug)
 	if err != nil {
 		log.Logger.Sugar().Fatalf("connecting to db: %v", err)
 	}
 
-	defer sqlitedb.Close()
+	defer bundb.Close()
 
-	if err = core.CreateSchema(sqlitedb); err != nil {
+	if err = core.CreateSchema(bundb); err != nil {
 		log.Logger.Sugar().Fatalf("create schema: %v", err)
 	}
 
-	if err = core.Seed(sqlitedb); err != nil {
+	if err = core.Seed(bundb); err != nil {
 		log.Logger.Sugar().Fatalf("seed: %v", err)
+	}
+
+	command := flag.Arg(0)
+	switch command {
+	case "seed":
+		log.Logger.Sugar().Infof("seed: Completed")
+		return
 	}
 
 	opts := make([]core.CoreOption, 0)
 
-	cs, err := core.Core(sqlitedb, opts...)
+	cs, err := core.Core(bundb, opts...)
 	if err != nil {
 		log.Logger.Sugar().Fatalf("NewCoreService: %v", err)
 	}
@@ -148,29 +145,4 @@ func main() {
 	signalCh := make(chan os.Signal, 1)
 	signal.Notify(signalCh, os.Interrupt, syscall.SIGTERM)
 	<-signalCh
-}
-
-func cli(command string) error {
-	log.Logger.Sugar().Infof("cli %v: Started", command)
-	defer log.Logger.Sugar().Infof("cli %v : Completed", command)
-
-	db, err := db.ConnectSqlite(config.Config.DB.File, config.Config.DB.Debug)
-	if err != nil {
-		log.Logger.Sugar().Fatalf("connecting to db: %v", err)
-	}
-
-	defer db.Close()
-
-	switch command {
-	case "seed":
-		if err = core.CreateSchema(db); err != nil {
-			return err
-		}
-
-		if err = core.Seed(db); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

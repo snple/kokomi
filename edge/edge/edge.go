@@ -174,6 +174,22 @@ func (es *EdgeService) Stop() {
 	es.dopts.logger.Sync()
 }
 
+func (es *EdgeService) Push() error {
+	if es.node.IsSome() {
+		return es.node.Unwrap().push()
+	}
+
+	return errors.New("node not enable")
+}
+
+func (es *EdgeService) Pull() error {
+	if es.node.IsSome() {
+		return es.node.Unwrap().pull()
+	}
+
+	return errors.New("node not enable")
+}
+
 func (es *EdgeService) GetDB() *bun.DB {
 	return es.db
 }
