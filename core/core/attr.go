@@ -120,8 +120,8 @@ func (s *AttrService) Create(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 	}
 
 	if isSync {
-		item.Created = time.UnixMilli(in.GetCreated())
-		item.Updated = time.UnixMilli(in.GetUpdated())
+		item.Created = time.UnixMicro(in.GetCreated())
+		item.Updated = time.UnixMicro(in.GetUpdated())
 	}
 
 	_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -224,8 +224,8 @@ func (s *AttrService) Update(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 	item.Updated = time.Now()
 
 	if isSync {
-		item.Updated = time.UnixMilli(in.GetUpdated())
-		item.Deleted = time.UnixMilli(in.GetDeleted())
+		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
 
 		_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
 		if err != nil {
@@ -577,7 +577,7 @@ func (s *AttrService) GetValue(ctx context.Context, in *pb.Id) (*pb.AttrValue, e
 		if v := s.getAttrValueValue(in.GetId()); v.IsSome() {
 			cv := v.Unwrap()
 			value = cv.Data
-			output.Updated = cv.Updated.UnixMilli()
+			output.Updated = cv.Updated.UnixMicro()
 		}
 
 		output.Value, err = datatype.EncodeNsonValue(value)
@@ -719,7 +719,7 @@ func (s *AttrService) GetValueByName(ctx context.Context, in *cores.GetAttrValue
 		if v := s.getAttrValueValue(item.ID); v.IsSome() {
 			cv := v.Unwrap()
 			value = cv.Data
-			output.Updated = cv.Updated.UnixMilli()
+			output.Updated = cv.Updated.UnixMicro()
 		}
 
 		output.Value, err = datatype.EncodeNsonValue(value)
@@ -904,9 +904,9 @@ func (s *AttrService) copyModelToOutput(output *pb.Attr, item *model.Attr) {
 	output.Status = item.Status
 	output.Access = item.Access
 	output.Save = item.Save
-	output.Created = item.Created.UnixMilli()
-	output.Updated = item.Updated.UnixMilli()
-	output.Deleted = item.Deleted.UnixMilli()
+	output.Created = item.Created.UnixMicro()
+	output.Updated = item.Updated.UnixMicro()
+	output.Deleted = item.Deleted.UnixMicro()
 }
 
 func (s *AttrService) getAttrValue(ctx context.Context, item *model.Attr) (string, error) {
@@ -1024,7 +1024,7 @@ func (s *AttrService) Pull(ctx context.Context, in *cores.PullAttrRequest) (*cor
 		query.Where(`type = ?`, in.GetType())
 	}
 
-	err = query.Where("updated > ?", time.UnixMilli(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
+	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
 	}

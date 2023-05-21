@@ -104,8 +104,8 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 	}
 
 	if isSync {
-		item.Created = time.UnixMilli(in.GetCreated())
-		item.Updated = time.UnixMilli(in.GetUpdated())
+		item.Created = time.UnixMicro(in.GetCreated())
+		item.Updated = time.UnixMicro(in.GetUpdated())
 	}
 
 	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -195,8 +195,8 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 	item.Updated = time.Now()
 
 	if isSync {
-		item.Updated = time.UnixMilli(in.GetUpdated())
-		item.Deleted = time.UnixMilli(in.GetDeleted())
+		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
 
 		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
 		if err != nil {
@@ -471,7 +471,7 @@ func (s *WireService) GetValue(ctx context.Context, in *pb.Id) (*pb.WireValue, e
 	}
 
 	output.Value = item2.Value
-	output.Updated = item2.Updated.UnixMilli()
+	output.Updated = item2.Updated.UnixMicro()
 
 	return &output, nil
 }
@@ -594,12 +594,12 @@ func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBo
 		return &output, err
 	}
 
-	if in.GetUpdated() <= item2.Updated.UnixMilli() {
+	if in.GetUpdated() <= item2.Updated.UnixMicro() {
 		return &output, nil
 	}
 
 UPDATED:
-	if err = s.updateWireValue(ctx, &item, in.GetValue(), time.UnixMilli(in.GetUpdated())); err != nil {
+	if err = s.updateWireValue(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
 		return &output, err
 	}
 
@@ -646,7 +646,7 @@ func (s *WireService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Wire
 	}
 
 	output.Value = item2.Value
-	output.Updated = item2.Updated.UnixMilli()
+	output.Updated = item2.Updated.UnixMicro()
 
 	return &output, nil
 }
@@ -807,9 +807,9 @@ func (s *WireService) copyModelToOutput(output *pb.Wire, item *model.Wire) {
 	output.Status = item.Status
 	output.Access = item.Access
 	output.Save = item.Save
-	output.Created = item.Created.UnixMilli()
-	output.Updated = item.Updated.UnixMilli()
-	output.Deleted = item.Deleted.UnixMilli()
+	output.Created = item.Created.UnixMicro()
+	output.Updated = item.Updated.UnixMicro()
+	output.Deleted = item.Deleted.UnixMicro()
 }
 
 func (s *WireService) afterUpdate(ctx context.Context, item *model.Wire) error {
@@ -912,7 +912,7 @@ func (s *WireService) Pull(ctx context.Context, in *edges.PullWireRequest) (*edg
 		query.Where(`type = ?`, in.GetType())
 	}
 
-	err = query.Where("updated > ?", time.UnixMilli(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
+	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
 	}
@@ -1061,7 +1061,7 @@ func (s *WireService) PullValue(ctx context.Context, in *edges.PullWireValueRequ
 	items := make([]model.WireValue, 0, 10)
 
 	{
-		after := time.UnixMilli(in.GetAfter())
+		after := time.UnixMicro(in.GetAfter())
 
 		txn := s.es.GetBadgerDB().NewTransaction(false)
 		defer txn.Discard()
@@ -1154,5 +1154,5 @@ func (s *WireService) copyModelToOutputWireValue(output *pb.WireValueUpdated, it
 	output.Id = item.ID
 	output.CableId = item.CableID
 	output.Value = item.Value
-	output.Updated = item.Updated.UnixMilli()
+	output.Updated = item.Updated.UnixMicro()
 }

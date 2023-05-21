@@ -104,8 +104,8 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 	}
 
 	if isSync {
-		item.Created = time.UnixMilli(in.GetCreated())
-		item.Updated = time.UnixMilli(in.GetUpdated())
+		item.Created = time.UnixMicro(in.GetCreated())
+		item.Updated = time.UnixMicro(in.GetUpdated())
 	}
 
 	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -196,8 +196,8 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 	item.Updated = time.Now()
 
 	if isSync {
-		item.Updated = time.UnixMilli(in.GetUpdated())
-		item.Deleted = time.UnixMilli(in.GetDeleted())
+		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
 
 		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
 		if err != nil {
@@ -473,7 +473,7 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 	}
 
 	output.Value = item2.Value
-	output.Updated = item2.Updated.UnixMilli()
+	output.Updated = item2.Updated.UnixMicro()
 
 	return &output, nil
 }
@@ -599,12 +599,12 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, err
 	}
 
-	if in.GetUpdated() <= item2.Updated.UnixMilli() {
+	if in.GetUpdated() <= item2.Updated.UnixMicro() {
 		return &output, nil
 	}
 
 UPDATED:
-	if err = s.updateTagValue(ctx, &item, in.GetValue(), time.UnixMilli(in.GetUpdated())); err != nil {
+	if err = s.updateTagValue(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
 		return &output, err
 	}
 
@@ -651,7 +651,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 	}
 
 	output.Value = item2.Value
-	output.Updated = item2.Updated.UnixMilli()
+	output.Updated = item2.Updated.UnixMicro()
 
 	return &output, nil
 }
@@ -827,9 +827,9 @@ func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
 	output.Status = item.Status
 	output.Access = item.Access
 	output.Save = item.Save
-	output.Created = item.Created.UnixMilli()
-	output.Updated = item.Updated.UnixMilli()
-	output.Deleted = item.Deleted.UnixMilli()
+	output.Created = item.Created.UnixMicro()
+	output.Updated = item.Updated.UnixMicro()
+	output.Deleted = item.Deleted.UnixMicro()
 }
 
 func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
@@ -932,7 +932,7 @@ func (s *TagService) Pull(ctx context.Context, in *edges.PullTagRequest) (*edges
 		query.Where(`type = ?`, in.GetType())
 	}
 
-	err = query.Where("updated > ?", time.UnixMilli(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
+	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
 	}
@@ -1081,7 +1081,7 @@ func (s *TagService) PullValue(ctx context.Context, in *edges.PullTagValueReques
 	items := make([]model.TagValue, 0, 10)
 
 	{
-		after := time.UnixMilli(in.GetAfter())
+		after := time.UnixMicro(in.GetAfter())
 
 		txn := s.es.GetBadgerDB().NewTransaction(false)
 		defer txn.Discard()
@@ -1174,5 +1174,5 @@ func (s *TagService) copyModelToOutputTagValue(output *pb.TagValueUpdated, item 
 	output.Id = item.ID
 	output.SourceId = item.SourceID
 	output.Value = item.Value
-	output.Updated = item.Updated.UnixMilli()
+	output.Updated = item.Updated.UnixMicro()
 }

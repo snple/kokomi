@@ -95,8 +95,8 @@ func (s *DeviceService) Create(ctx context.Context, in *pb.Device) (*pb.Device, 
 	}
 
 	if isSync {
-		item.Created = time.UnixMilli(in.GetCreated())
-		item.Updated = time.UnixMilli(in.GetUpdated())
+		item.Created = time.UnixMicro(in.GetCreated())
+		item.Updated = time.UnixMicro(in.GetUpdated())
 	}
 
 	_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -169,7 +169,7 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 	item.Updated = time.Now()
 
 	if isSync {
-		item.Updated = time.UnixMilli(in.GetUpdated())
+		item.Updated = time.UnixMicro(in.GetUpdated())
 	}
 
 	_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
@@ -540,8 +540,8 @@ func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device)
 	output.Config = item.Config
 	output.Link = s.cs.GetStatus().GetLink(item.ID)
 	output.Status = item.Status
-	output.Created = item.Created.UnixMilli()
-	output.Updated = item.Updated.UnixMilli()
+	output.Created = item.Created.UnixMicro()
+	output.Updated = item.Updated.UnixMicro()
 }
 
 func (s *DeviceService) afterUpdate(ctx context.Context, item *model.Device) error {

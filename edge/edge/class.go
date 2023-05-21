@@ -80,8 +80,8 @@ func (s *ClassService) Create(ctx context.Context, in *pb.Class) (*pb.Class, err
 	}
 
 	if isSync {
-		item.Created = time.UnixMilli(in.GetCreated())
-		item.Updated = time.UnixMilli(in.GetUpdated())
+		item.Created = time.UnixMicro(in.GetCreated())
+		item.Updated = time.UnixMicro(in.GetUpdated())
 	}
 
 	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -162,8 +162,8 @@ func (s *ClassService) Update(ctx context.Context, in *pb.Class) (*pb.Class, err
 	item.Updated = time.Now()
 
 	if isSync {
-		item.Updated = time.UnixMilli(in.GetUpdated())
-		item.Deleted = time.UnixMilli(in.GetDeleted())
+		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
 
 		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
 		if err != nil {
@@ -443,9 +443,9 @@ func (s *ClassService) copyModelToOutput(output *pb.Class, item *model.Class) {
 	output.Config = item.Config
 	output.Status = item.Status
 	output.Save = item.Save
-	output.Created = item.Created.UnixMilli()
-	output.Updated = item.Updated.UnixMilli()
-	output.Deleted = item.Deleted.UnixMilli()
+	output.Created = item.Created.UnixMicro()
+	output.Updated = item.Updated.UnixMicro()
+	output.Deleted = item.Deleted.UnixMicro()
 }
 
 func (s *ClassService) afterUpdate(ctx context.Context, item *model.Class) error {
@@ -544,7 +544,7 @@ func (s *ClassService) Pull(ctx context.Context, in *edges.PullClassRequest) (*e
 		query.Where(`type = ?`, in.GetType())
 	}
 
-	err = query.Where("updated > ?", time.UnixMilli(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
+	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
 	}

@@ -444,8 +444,8 @@ func (s *RouteService) copyModelToOutput(output *cores.Route, item *model.Route)
 	output.Dst = item.DST
 	output.Config = item.Config
 	output.Status = item.Status
-	output.Created = item.Created.UnixMilli()
-	output.Updated = item.Updated.UnixMilli()
+	output.Created = item.Created.UnixMicro()
+	output.Updated = item.Updated.UnixMicro()
 }
 
 func (s *RouteService) listBySrcAndStatusON(ctx context.Context, src string) ([]model.Route, error) {

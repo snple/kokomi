@@ -50,7 +50,7 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *edges.SyncUpdate
 		}
 	}
 
-	err = s.setDeviceUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setDeviceUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -76,7 +76,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*ed
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -102,7 +102,7 @@ func (s *SyncService) SetSlotUpdated(ctx context.Context, in *edges.SyncUpdated)
 		}
 	}
 
-	err = s.setSlotUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setSlotUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -128,7 +128,7 @@ func (s *SyncService) GetSlotUpdated(ctx context.Context, in *pb.MyEmpty) (*edge
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -148,7 +148,7 @@ func (s *SyncService) SetOptionUpdated(ctx context.Context, in *edges.SyncUpdate
 		}
 	}
 
-	err = s.setOptionUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setOptionUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -174,7 +174,7 @@ func (s *SyncService) GetOptionUpdated(ctx context.Context, in *pb.MyEmpty) (*ed
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -194,7 +194,7 @@ func (s *SyncService) SetPortUpdated(ctx context.Context, in *edges.SyncUpdated)
 		}
 	}
 
-	err = s.setPortUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setPortUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -220,7 +220,7 @@ func (s *SyncService) GetPortUpdated(ctx context.Context, in *pb.MyEmpty) (*edge
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -240,7 +240,7 @@ func (s *SyncService) SetProxyUpdated(ctx context.Context, in *edges.SyncUpdated
 		}
 	}
 
-	err = s.setProxyUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setProxyUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -266,7 +266,7 @@ func (s *SyncService) GetProxyUpdated(ctx context.Context, in *pb.MyEmpty) (*edg
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -286,7 +286,7 @@ func (s *SyncService) SetSourceUpdated(ctx context.Context, in *edges.SyncUpdate
 		}
 	}
 
-	err = s.setSourceUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setSourceUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -312,7 +312,7 @@ func (s *SyncService) GetSourceUpdated(ctx context.Context, in *pb.MyEmpty) (*ed
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -332,7 +332,7 @@ func (s *SyncService) SetTagUpdated(ctx context.Context, in *edges.SyncUpdated) 
 		}
 	}
 
-	err = s.setTagUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setTagUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -358,7 +358,7 @@ func (s *SyncService) GetTagUpdated(ctx context.Context, in *pb.MyEmpty) (*edges
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -378,7 +378,7 @@ func (s *SyncService) SetVarUpdated(ctx context.Context, in *edges.SyncUpdated) 
 		}
 	}
 
-	err = s.setVarUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setVarUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -404,7 +404,7 @@ func (s *SyncService) GetVarUpdated(ctx context.Context, in *pb.MyEmpty) (*edges
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -424,7 +424,7 @@ func (s *SyncService) SetCableUpdated(ctx context.Context, in *edges.SyncUpdated
 		}
 	}
 
-	err = s.setCableUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setCableUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -450,7 +450,7 @@ func (s *SyncService) GetCableUpdated(ctx context.Context, in *pb.MyEmpty) (*edg
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -470,7 +470,7 @@ func (s *SyncService) SetWireUpdated(ctx context.Context, in *edges.SyncUpdated)
 		}
 	}
 
-	err = s.setWireUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setWireUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -496,7 +496,7 @@ func (s *SyncService) GetWireUpdated(ctx context.Context, in *pb.MyEmpty) (*edge
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -516,7 +516,7 @@ func (s *SyncService) SetClassUpdated(ctx context.Context, in *edges.SyncUpdated
 		}
 	}
 
-	err = s.setClassUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setClassUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -542,7 +542,7 @@ func (s *SyncService) GetClassUpdated(ctx context.Context, in *pb.MyEmpty) (*edg
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -562,7 +562,7 @@ func (s *SyncService) SetAttrUpdated(ctx context.Context, in *edges.SyncUpdated)
 		}
 	}
 
-	err = s.setAttrUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setAttrUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -588,7 +588,7 @@ func (s *SyncService) GetAttrUpdated(ctx context.Context, in *pb.MyEmpty) (*edge
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -608,7 +608,7 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *edges.SyncUpda
 		}
 	}
 
-	err = s.setTagValueUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setTagValueUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -634,7 +634,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -660,7 +660,7 @@ func (s *SyncService) SetWireValueUpdated(ctx context.Context, in *edges.SyncUpd
 		}
 	}
 
-	err = s.setWireValueUpdated(ctx, time.UnixMilli(in.GetUpdated()))
+	err = s.setWireValueUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -686,7 +686,7 @@ func (s *SyncService) GetWireValueUpdated(ctx context.Context, in *pb.MyEmpty) (
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }

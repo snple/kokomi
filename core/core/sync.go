@@ -53,7 +53,7 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *cores.SyncUpdate
 		}
 	}
 
-	err = s.setDeviceUpdated(ctx, in.GetId(), time.UnixMilli(in.GetUpdated()))
+	err = s.setDeviceUpdated(ctx, in.GetId(), time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -85,7 +85,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.Id) (*cores.S
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -115,7 +115,7 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *cores.SyncUpda
 		}
 	}
 
-	err = s.setTagValueUpdated(ctx, in.GetId(), time.UnixMilli(in.GetUpdated()))
+	err = s.setTagValueUpdated(ctx, in.GetId(), time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -147,7 +147,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.Id) (*cores
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }
@@ -177,7 +177,7 @@ func (s *SyncService) SetWireValueUpdated(ctx context.Context, in *cores.SyncUpd
 		}
 	}
 
-	err = s.setWireValueUpdated(ctx, in.GetId(), time.UnixMilli(in.GetUpdated()))
+	err = s.setWireValueUpdated(ctx, in.GetId(), time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -209,7 +209,7 @@ func (s *SyncService) GetWireValueUpdated(ctx context.Context, in *pb.Id) (*core
 		return &output, err
 	}
 
-	output.Updated = t.UnixMilli()
+	output.Updated = t.UnixMicro()
 
 	return &output, nil
 }

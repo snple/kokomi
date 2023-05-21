@@ -24,7 +24,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		return err
 	}
 
-	if deviceUpdated.GetUpdated() <= deviceUpdated2.UnixMilli() {
+	if deviceUpdated.GetUpdated() <= deviceUpdated2.UnixMicro() {
 		return nil
 	}
 
@@ -60,7 +60,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 
 	// slot
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -103,7 +103,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 
 	// option
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -148,7 +148,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 
 	// port
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -191,7 +191,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 
 	// proxy
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -234,7 +234,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 
 	// source
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -277,7 +277,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 
 	// tag
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -320,7 +320,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 
 	// var
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -363,7 +363,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 
 	// cable
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -406,7 +406,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 
 	// wire
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -449,7 +449,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 
 	// class
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -492,7 +492,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 
 	// attr
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -533,7 +533,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		}
 	}
 
-	return s.es.GetSync().setDeviceUpdatedRemoteToLocal(ctx, time.UnixMilli(deviceUpdated.GetUpdated()))
+	return s.es.GetSync().setDeviceUpdatedRemoteToLocal(ctx, time.UnixMicro(deviceUpdated.GetUpdated()))
 }
 
 func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
@@ -547,7 +547,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 		return err
 	}
 
-	if deviceUpdated.UnixMilli() <= deviceUpdated2.UnixMilli() {
+	if deviceUpdated.UnixMicro() <= deviceUpdated2.UnixMicro() {
 		return nil
 	}
 
@@ -573,7 +573,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 
 	// slot
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -616,7 +616,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 
 	// option
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -661,7 +661,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 
 	// port
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -704,7 +704,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 
 	// source
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -747,7 +747,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 
 	// tag
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -790,7 +790,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 
 	// var
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -833,7 +833,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 
 	// cable
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -876,7 +876,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 
 	// wire
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -919,7 +919,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 
 	// class
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -962,7 +962,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 
 	// attr
 	{
-		after := deviceUpdated2.UnixMilli()
+		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
@@ -1017,11 +1017,11 @@ func (s *NodeService) syncTagValueRemoteToLocal(ctx context.Context) error {
 		return err
 	}
 
-	if tagValueUpdated.GetUpdated() <= tagValueUpdated2.UnixMilli() {
+	if tagValueUpdated.GetUpdated() <= tagValueUpdated2.UnixMicro() {
 		return nil
 	}
 
-	after := tagValueUpdated2.UnixMilli()
+	after := tagValueUpdated2.UnixMicro()
 	limit := uint32(100)
 
 PULL:
@@ -1051,7 +1051,7 @@ PULL:
 		}
 	}
 
-	return s.es.GetSync().setTagValueUpdatedRemoteToLocal(ctx, time.UnixMilli(tagValueUpdated.GetUpdated()))
+	return s.es.GetSync().setTagValueUpdatedRemoteToLocal(ctx, time.UnixMicro(tagValueUpdated.GetUpdated()))
 }
 
 func (s *NodeService) syncTagValueLocalToRemote(ctx context.Context) error {
@@ -1065,11 +1065,11 @@ func (s *NodeService) syncTagValueLocalToRemote(ctx context.Context) error {
 		return err
 	}
 
-	if tagValueUpdated.UnixMilli() <= tagValueUpdated2.UnixMilli() {
+	if tagValueUpdated.UnixMicro() <= tagValueUpdated2.UnixMicro() {
 		return nil
 	}
 
-	after := tagValueUpdated2.UnixMilli()
+	after := tagValueUpdated2.UnixMicro()
 	limit := uint32(100)
 
 PULL:
@@ -1080,7 +1080,7 @@ PULL:
 		}
 
 		for _, local := range locals.GetTag() {
-			if local.GetUpdated() > tagValueUpdated.UnixMilli() {
+			if local.GetUpdated() > tagValueUpdated.UnixMicro() {
 				break PULL
 			}
 
@@ -1113,11 +1113,11 @@ func (s *NodeService) syncWireValueRemoteToLocal(ctx context.Context) error {
 		return err
 	}
 
-	if wireValueUpdated.GetUpdated() <= wireValueUpdated2.UnixMilli() {
+	if wireValueUpdated.GetUpdated() <= wireValueUpdated2.UnixMicro() {
 		return nil
 	}
 
-	after := wireValueUpdated2.UnixMilli()
+	after := wireValueUpdated2.UnixMicro()
 	limit := uint32(100)
 
 PULL:
@@ -1147,7 +1147,7 @@ PULL:
 		}
 	}
 
-	return s.es.GetSync().setWireValueUpdatedRemoteToLocal(ctx, time.UnixMilli(wireValueUpdated.GetUpdated()))
+	return s.es.GetSync().setWireValueUpdatedRemoteToLocal(ctx, time.UnixMicro(wireValueUpdated.GetUpdated()))
 }
 
 func (s *NodeService) syncWireValueLocalToRemote(ctx context.Context) error {
@@ -1161,11 +1161,11 @@ func (s *NodeService) syncWireValueLocalToRemote(ctx context.Context) error {
 		return err
 	}
 
-	if wireValueUpdated.UnixMilli() <= wireValueUpdated2.UnixMilli() {
+	if wireValueUpdated.UnixMicro() <= wireValueUpdated2.UnixMicro() {
 		return nil
 	}
 
-	after := wireValueUpdated2.UnixMilli()
+	after := wireValueUpdated2.UnixMicro()
 	limit := uint32(100)
 
 PULL:
@@ -1176,7 +1176,7 @@ PULL:
 		}
 
 		for _, local := range locals.GetWire() {
-			if local.GetUpdated() > wireValueUpdated.UnixMilli() {
+			if local.GetUpdated() > wireValueUpdated.UnixMicro() {
 				break PULL
 			}
 

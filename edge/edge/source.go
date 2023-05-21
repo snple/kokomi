@@ -83,8 +83,8 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 	}
 
 	if isSync {
-		item.Created = time.UnixMilli(in.GetCreated())
-		item.Updated = time.UnixMilli(in.GetUpdated())
+		item.Created = time.UnixMicro(in.GetCreated())
+		item.Updated = time.UnixMicro(in.GetUpdated())
 	}
 
 	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -167,8 +167,8 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 	item.Updated = time.Now()
 
 	if isSync {
-		item.Updated = time.UnixMilli(in.GetUpdated())
-		item.Deleted = time.UnixMilli(in.GetDeleted())
+		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
 
 		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
 		if err != nil {
@@ -491,9 +491,9 @@ func (s *SourceService) copyModelToOutput(output *pb.Source, item *model.Source)
 	output.Link = s.es.GetStatus().GetLink(item.ID)
 	output.Status = item.Status
 	output.Save = item.Save
-	output.Created = item.Created.UnixMilli()
-	output.Updated = item.Updated.UnixMilli()
-	output.Deleted = item.Deleted.UnixMilli()
+	output.Created = item.Created.UnixMicro()
+	output.Updated = item.Updated.UnixMicro()
+	output.Deleted = item.Deleted.UnixMicro()
 }
 
 func (s *SourceService) afterUpdate(ctx context.Context, item *model.Source) error {
@@ -596,7 +596,7 @@ func (s *SourceService) Pull(ctx context.Context, in *edges.PullSourceRequest) (
 		query = query.Where(`source = ?`, in.GetSource())
 	}
 
-	err = query.Where("updated > ?", time.UnixMilli(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
+	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
 	}
