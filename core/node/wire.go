@@ -294,36 +294,6 @@ func (s *WireService) SetValueUnchecked(ctx context.Context, in *pb.WireValue) (
 	return s.ns.Core().GetWire().SetValueUnchecked(ctx, in)
 }
 
-func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	deviceID, err := validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	request := &pb.Id{Id: in.GetId()}
-
-	reply, err := s.ns.Core().GetWire().View(ctx, request)
-	if err != nil {
-		return &output, err
-	}
-
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
-	}
-
-	return s.ns.Core().GetWire().SyncValue(ctx, in)
-}
-
 func (s *WireService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.WireNameValue, error) {
 	var err error
 	var output pb.WireNameValue
@@ -458,6 +428,27 @@ func (s *WireService) Pull(ctx context.Context, in *nodes.PullWireRequest) (*nod
 	return &output, nil
 }
 
+func (s *WireService) Sync(ctx context.Context, in *pb.Wire) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	in.DeviceId = deviceID
+
+	return s.ns.Core().GetWire().Sync(ctx, in)
+}
+
 func (s *WireService) ViewValue(ctx context.Context, in *pb.Id) (*pb.WireValueUpdated, error) {
 	var output pb.WireValueUpdated
 	var err error
@@ -548,4 +539,34 @@ func (s *WireService) PullValue(ctx context.Context, in *nodes.PullWireValueRequ
 	output.Wire = reply.GetWire()
 
 	return &output, nil
+}
+
+func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	request := &pb.Id{Id: in.GetId()}
+
+	reply, err := s.ns.Core().GetWire().View(ctx, request)
+	if err != nil {
+		return &output, err
+	}
+
+	if reply.GetDeviceId() != deviceID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	}
+
+	return s.ns.Core().GetWire().SyncValue(ctx, in)
 }

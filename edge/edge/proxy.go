@@ -11,8 +11,6 @@ import (
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/kokomi/pb/nodes"
-	"github.com/snple/kokomi/util"
-	"github.com/snple/kokomi/util/metadata"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -30,165 +28,137 @@ func newProxyService(es *EdgeService) *ProxyService {
 	}
 }
 
-func (s *ProxyService) Create(ctx context.Context, in *pb.Proxy) (*pb.Proxy, error) {
-	var output pb.Proxy
-	var err error
+// func (s *ProxyService) Create(ctx context.Context, in *pb.Proxy) (*pb.Proxy, error) {
+// 	var output pb.Proxy
+// 	var err error
 
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
+// 	// basic validation
+// 	{
+// 		if in == nil {
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+// 		}
 
-		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
-		}
-	}
+// 		if len(in.GetName()) == 0 {
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
+// 		}
+// 	}
 
-	item := model.Proxy{
-		ID:      in.GetId(),
-		Name:    in.GetName(),
-		Desc:    in.GetDesc(),
-		Tags:    in.GetTags(),
-		Type:    in.GetType(),
-		Network: in.GetNetwork(),
-		Address: in.GetAddress(),
-		Target:  in.GetTarget(),
-		Config:  in.GetConfig(),
-		Status:  in.GetStatus(),
-		Created: time.Now(),
-		Updated: time.Now(),
-	}
+// 	// name validation
+// 	{
+// 		if len(in.GetName()) < 2 {
+// 			return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
+// 		}
 
-	// name validation
-	{
-		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
-		}
+// 		err = s.es.GetDB().NewSelect().Model(&model.Proxy{}).Where("name = ?", in.GetName()).Scan(ctx)
+// 		if err != nil {
+// 			if err != sql.ErrNoRows {
+// 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
+// 			}
+// 		} else {
+// 			return &output, status.Error(codes.AlreadyExists, "port name must be unique")
+// 		}
+// 	}
 
-		err = s.es.GetDB().NewSelect().Model(&model.Proxy{}).Where("name = ?", in.GetName()).Scan(ctx)
-		if err != nil {
-			if err != sql.ErrNoRows {
-				return &output, status.Errorf(codes.Internal, "Query: %v", err)
-			}
-		} else {
-			return &output, status.Error(codes.AlreadyExists, "port name must be unique")
-		}
-	}
+// 	item := model.Proxy{
+// 		ID:      in.GetId(),
+// 		Name:    in.GetName(),
+// 		Desc:    in.GetDesc(),
+// 		Tags:    in.GetTags(),
+// 		Type:    in.GetType(),
+// 		Network: in.GetNetwork(),
+// 		Address: in.GetAddress(),
+// 		Target:  in.GetTarget(),
+// 		Config:  in.GetConfig(),
+// 		Status:  in.GetStatus(),
+// 		Created: time.Now(),
+// 		Updated: time.Now(),
+// 	}
 
-	isSync := metadata.IsSync(ctx)
+// 	if len(item.ID) == 0 {
+// 		item.ID = util.RandomID()
+// 	}
 
-	if len(item.ID) == 0 {
-		item.ID = util.RandomID()
-	}
+// 	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
+// 	if err != nil {
+// 		return &output, status.Errorf(codes.Internal, "Insert: %v", err)
+// 	}
 
-	if isSync {
-		item.Created = time.UnixMicro(in.GetCreated())
-		item.Updated = time.UnixMicro(in.GetUpdated())
-	}
+// 	if err = s.afterUpdate(ctx, &item); err != nil {
+// 		return &output, err
+// 	}
 
-	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
-	if err != nil {
-		return &output, status.Errorf(codes.Internal, "Insert: %v", err)
-	}
+// 	s.copyModelToOutput(&output, &item)
 
-	if err = s.afterUpdate(ctx, &item); err != nil {
-		return &output, err
-	}
+// 	return &output, nil
+// }
 
-	s.copyModelToOutput(&output, &item)
+// func (s *ProxyService) Update(ctx context.Context, in *pb.Proxy) (*pb.Proxy, error) {
+// 	var output pb.Proxy
+// 	var err error
 
-	return &output, nil
-}
+// 	// basic validation
+// 	{
+// 		if in == nil {
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+// 		}
 
-func (s *ProxyService) Update(ctx context.Context, in *pb.Proxy) (*pb.Proxy, error) {
-	var output pb.Proxy
-	var err error
+// 		if len(in.GetId()) == 0 {
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+// 		}
 
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
+// 		if len(in.GetName()) == 0 {
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
+// 		}
+// 	}
 
-		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
-		}
+// 	item, err := s.view(ctx, in.GetId())
+// 	if err != nil {
+// 		return &output, err
+// 	}
 
-		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
-		}
-	}
+// 	// name validation
+// 	{
+// 		if len(in.GetName()) < 2 {
+// 			return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
+// 		}
 
-	isSync := metadata.IsSync(ctx)
+// 		modelItem := model.Proxy{}
+// 		err = s.es.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
+// 		if err != nil {
+// 			if err != sql.ErrNoRows {
+// 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
+// 			}
+// 		} else {
+// 			if modelItem.ID != item.ID {
+// 				return &output, status.Error(codes.AlreadyExists, "port name must be unique")
+// 			}
+// 		}
+// 	}
 
-	var item model.Proxy
+// 	item.Name = in.GetName()
+// 	item.Desc = in.GetDesc()
+// 	item.Tags = in.GetTags()
+// 	item.Type = in.GetType()
+// 	item.Network = in.GetNetwork()
+// 	item.Address = in.GetAddress()
+// 	item.Target = in.GetTarget()
+// 	item.Config = in.GetConfig()
+// 	item.Status = in.GetStatus()
+// 	item.Updated = time.Now()
 
-	if isSync {
-		item, err = s.viewWithDeleted(ctx, in.GetId())
-		if err != nil {
-			return &output, err
-		}
-	} else {
-		item, err = s.view(ctx, in.GetId())
-		if err != nil {
-			return &output, err
-		}
-	}
+// 	_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+// 	if err != nil {
+// 		return &output, status.Errorf(codes.Internal, "Update: %v", err)
+// 	}
 
-	// name validation
-	{
-		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
-		}
+// 	if err = s.afterUpdate(ctx, &item); err != nil {
+// 		return &output, err
+// 	}
 
-		modelItem := model.Proxy{}
-		err = s.es.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
-		if err != nil {
-			if err != sql.ErrNoRows {
-				return &output, status.Errorf(codes.Internal, "Query: %v", err)
-			}
-		} else {
-			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "port name must be unique")
-			}
-		}
-	}
+// 	s.copyModelToOutput(&output, &item)
 
-	item.Name = in.GetName()
-	item.Desc = in.GetDesc()
-	item.Tags = in.GetTags()
-	item.Type = in.GetType()
-	item.Network = in.GetNetwork()
-	item.Address = in.GetAddress()
-	item.Target = in.GetTarget()
-	item.Config = in.GetConfig()
-	item.Status = in.GetStatus()
-	item.Updated = time.Now()
-
-	if isSync {
-		item.Updated = time.UnixMicro(in.GetUpdated())
-		item.Deleted = time.UnixMicro(in.GetDeleted())
-
-		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
-		if err != nil {
-			return &output, status.Errorf(codes.Internal, "Update: %v", err)
-		}
-	} else {
-		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
-		if err != nil {
-			return &output, status.Errorf(codes.Internal, "Update: %v", err)
-		}
-	}
-
-	if err = s.afterUpdate(ctx, &item); err != nil {
-		return &output, err
-	}
-
-	s.copyModelToOutput(&output, &item)
-
-	return &output, nil
-}
+// 	return &output, nil
+// }
 
 func (s *ProxyService) View(ctx context.Context, in *pb.Id) (*pb.Proxy, error) {
 	var output pb.Proxy
@@ -240,42 +210,42 @@ func (s *ProxyService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Proxy, 
 	return &output, nil
 }
 
-func (s *ProxyService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
+// func (s *ProxyService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+// 	var err error
+// 	var output pb.MyBool
 
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
+// 	// basic validation
+// 	{
+// 		if in == nil {
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+// 		}
 
-		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
-		}
-	}
+// 		if len(in.GetId()) == 0 {
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+// 		}
+// 	}
 
-	item, err := s.view(ctx, in.GetId())
-	if err != nil {
-		return &output, err
-	}
+// 	item, err := s.view(ctx, in.GetId())
+// 	if err != nil {
+// 		return &output, err
+// 	}
 
-	item.Updated = time.Now()
-	item.Deleted = time.Now()
+// 	item.Updated = time.Now()
+// 	item.Deleted = time.Now()
 
-	_, err = s.es.GetDB().NewUpdate().Model(&item).Column("updated", "deleted").WherePK().Exec(ctx)
-	if err != nil {
-		return &output, status.Errorf(codes.Internal, "Delete: %v", err)
-	}
+// 	_, err = s.es.GetDB().NewUpdate().Model(&item).Column("updated", "deleted").WherePK().Exec(ctx)
+// 	if err != nil {
+// 		return &output, status.Errorf(codes.Internal, "Delete: %v", err)
+// 	}
 
-	if err = s.afterDelete(ctx, &item); err != nil {
-		return &output, err
-	}
+// 	if err = s.afterDelete(ctx, &item); err != nil {
+// 		return &output, err
+// 	}
 
-	output.Bool = true
+// 	output.Bool = true
 
-	return &output, nil
-}
+// 	return &output, nil
+// }
 
 func (s *ProxyService) List(ctx context.Context, in *edges.ListProxyRequest) (*edges.ListProxyResponse, error) {
 	var err error
@@ -449,7 +419,7 @@ func (s *ProxyService) view(ctx context.Context, id string) (model.Proxy, error)
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, PortID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -557,7 +527,7 @@ func (s *ProxyService) viewWithDeleted(ctx context.Context, id string) (model.Pr
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, PortID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -600,6 +570,139 @@ func (s *ProxyService) Pull(ctx context.Context, in *edges.PullProxyRequest) (*e
 
 		output.Proxy = append(output.Proxy, &item)
 	}
+
+	return &output, nil
+}
+
+func (s *ProxyService) Sync(ctx context.Context, in *pb.Proxy) (*pb.MyBool, error) {
+	var output pb.MyBool
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy_id")
+		}
+
+		if len(in.GetName()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy name")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy updated")
+		}
+	}
+
+	insert := false
+	update := false
+
+	item, err := s.viewWithDeleted(ctx, in.GetId())
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				insert = true
+				goto SKIP
+			}
+		}
+
+		return &output, err
+	}
+
+	update = true
+
+SKIP:
+
+	// insert
+	if insert {
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
+			}
+
+			err = s.es.GetDB().NewSelect().Model(&model.Proxy{}).Where("name = ?", in.GetName()).Scan(ctx)
+			if err != nil {
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				return &output, status.Error(codes.AlreadyExists, "port name must be unique")
+			}
+		}
+
+		item := model.Proxy{
+			ID:      in.GetId(),
+			Name:    in.GetName(),
+			Desc:    in.GetDesc(),
+			Tags:    in.GetTags(),
+			Type:    in.GetType(),
+			Network: in.GetNetwork(),
+			Address: in.GetAddress(),
+			Target:  in.GetTarget(),
+			Config:  in.GetConfig(),
+			Status:  in.GetStatus(),
+			Created: time.UnixMicro(in.GetCreated()),
+			Updated: time.UnixMicro(in.GetUpdated()),
+		}
+
+		_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
+		if err != nil {
+			return &output, status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+	}
+
+	// update
+	if update {
+		if in.GetUpdated() <= item.Updated.UnixMicro() {
+			return &output, nil
+		}
+
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
+			}
+
+			modelItem := model.Proxy{}
+			err = s.es.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
+			if err != nil {
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				if modelItem.ID != item.ID {
+					return &output, status.Error(codes.AlreadyExists, "port name must be unique")
+				}
+			}
+		}
+
+		item.Name = in.GetName()
+		item.Desc = in.GetDesc()
+		item.Tags = in.GetTags()
+		item.Type = in.GetType()
+		item.Network = in.GetNetwork()
+		item.Address = in.GetAddress()
+		item.Target = in.GetTarget()
+		item.Config = in.GetConfig()
+		item.Status = in.GetStatus()
+		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
+
+		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
+		if err != nil {
+			return &output, status.Errorf(codes.Internal, "Update: %v", err)
+		}
+	}
+
+	if err = s.afterUpdate(ctx, &item); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
 
 	return &output, nil
 }

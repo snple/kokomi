@@ -53,4 +53,5 @@ service SlotService {
     rpc Clone(CloneSlotRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Slot) {}
     rpc Pull(PullSlotRequest) returns (PullSlotResponse) {}
+    rpc Sync(pb.Slot) returns (pb.MyBool) {}
 }

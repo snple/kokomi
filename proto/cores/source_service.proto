@@ -62,6 +62,7 @@ service SourceService {
     rpc Clone(CloneSourceRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Source) {}
     rpc Pull(PullSourceRequest) returns (PullSourceResponse) {}
+    rpc Sync(pb.Source) returns (pb.MyBool) {}
 }
 
 // tag
@@ -139,14 +140,15 @@ service TagService {
     rpc Clone(CloneTagRequest) returns (pb.MyBool) {}
     rpc GetValue(pb.Id) returns (pb.TagValue) {}
     rpc SetValue(pb.TagValue) returns (pb.MyBool) {}
-    rpc SyncValue(pb.TagValue) returns (pb.MyBool) {}
     rpc SetValueUnchecked(pb.TagValue) returns (pb.MyBool) {}
     rpc GetValueByName(GetTagValueByNameRequest) returns (TagNameValue) {}
     rpc SetValueByName(TagNameValue) returns (pb.MyBool) {}
     rpc SetValueByNameUnchecked(TagNameValue) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Tag) {}
     rpc Pull(PullTagRequest) returns (PullTagResponse) {}
+    rpc Sync(pb.Tag) returns (pb.MyBool) {}
     rpc ViewValue(pb.Id) returns (pb.TagValueUpdated) {}
     rpc DeleteValue(pb.Id) returns (pb.MyBool) {}
     rpc PullValue(PullTagValueRequest) returns (PullTagValueResponse) {}
+    rpc SyncValue(pb.TagValue) returns (pb.MyBool) {}
 }

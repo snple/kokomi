@@ -36,6 +36,7 @@ const (
 	VarService_SetValueByNameUnchecked_FullMethodName = "/cores.VarService/SetValueByNameUnchecked"
 	VarService_ViewWithDeleted_FullMethodName         = "/cores.VarService/ViewWithDeleted"
 	VarService_Pull_FullMethodName                    = "/cores.VarService/Pull"
+	VarService_Sync_FullMethodName                    = "/cores.VarService/Sync"
 )
 
 // VarServiceClient is the client API for VarService service.
@@ -58,6 +59,7 @@ type VarServiceClient interface {
 	SetValueByNameUnchecked(ctx context.Context, in *VarNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Var, error)
 	Pull(ctx context.Context, in *PullVarRequest, opts ...grpc.CallOption) (*PullVarResponse, error)
+	Sync(ctx context.Context, in *pb.Var, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type varServiceClient struct {
@@ -212,6 +214,15 @@ func (c *varServiceClient) Pull(ctx context.Context, in *PullVarRequest, opts ..
 	return out, nil
 }
 
+func (c *varServiceClient) Sync(ctx context.Context, in *pb.Var, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, VarService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VarServiceServer is the server API for VarService service.
 // All implementations must embed UnimplementedVarServiceServer
 // for forward compatibility
@@ -232,6 +243,7 @@ type VarServiceServer interface {
 	SetValueByNameUnchecked(context.Context, *VarNameValue) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Var, error)
 	Pull(context.Context, *PullVarRequest) (*PullVarResponse, error)
+	Sync(context.Context, *pb.Var) (*pb.MyBool, error)
 	mustEmbedUnimplementedVarServiceServer()
 }
 
@@ -286,6 +298,9 @@ func (UnimplementedVarServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*
 }
 func (UnimplementedVarServiceServer) Pull(context.Context, *PullVarRequest) (*PullVarResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
+}
+func (UnimplementedVarServiceServer) Sync(context.Context, *pb.Var) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedVarServiceServer) mustEmbedUnimplementedVarServiceServer() {}
 
@@ -588,6 +603,24 @@ func _VarService_Pull_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VarService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Var)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VarServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VarService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VarServiceServer).Sync(ctx, req.(*pb.Var))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // VarService_ServiceDesc is the grpc.ServiceDesc for VarService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -658,6 +691,10 @@ var VarService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Pull",
 			Handler:    _VarService_Pull_Handler,
+		},
+		{
+			MethodName: "Sync",
+			Handler:    _VarService_Sync_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -23,6 +23,7 @@ const (
 	DeviceService_Update_FullMethodName  = "/edges.DeviceService/Update"
 	DeviceService_View_FullMethodName    = "/edges.DeviceService/View"
 	DeviceService_Destory_FullMethodName = "/edges.DeviceService/Destory"
+	DeviceService_Sync_FullMethodName    = "/edges.DeviceService/Sync"
 )
 
 // DeviceServiceClient is the client API for DeviceService service.
@@ -32,6 +33,7 @@ type DeviceServiceClient interface {
 	Update(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.Device, error)
 	View(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*pb.Device, error)
 	Destory(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*pb.MyBool, error)
+	Sync(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type deviceServiceClient struct {
@@ -69,6 +71,15 @@ func (c *deviceServiceClient) Destory(ctx context.Context, in *pb.MyEmpty, opts 
 	return out, nil
 }
 
+func (c *deviceServiceClient) Sync(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, DeviceService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DeviceServiceServer is the server API for DeviceService service.
 // All implementations must embed UnimplementedDeviceServiceServer
 // for forward compatibility
@@ -76,6 +87,7 @@ type DeviceServiceServer interface {
 	Update(context.Context, *pb.Device) (*pb.Device, error)
 	View(context.Context, *pb.MyEmpty) (*pb.Device, error)
 	Destory(context.Context, *pb.MyEmpty) (*pb.MyBool, error)
+	Sync(context.Context, *pb.Device) (*pb.MyBool, error)
 	mustEmbedUnimplementedDeviceServiceServer()
 }
 
@@ -91,6 +103,9 @@ func (UnimplementedDeviceServiceServer) View(context.Context, *pb.MyEmpty) (*pb.
 }
 func (UnimplementedDeviceServiceServer) Destory(context.Context, *pb.MyEmpty) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Destory not implemented")
+}
+func (UnimplementedDeviceServiceServer) Sync(context.Context, *pb.Device) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedDeviceServiceServer) mustEmbedUnimplementedDeviceServiceServer() {}
 
@@ -159,6 +174,24 @@ func _DeviceService_Destory_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DeviceService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Device)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeviceServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DeviceService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeviceServiceServer).Sync(ctx, req.(*pb.Device))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DeviceService_ServiceDesc is the grpc.ServiceDesc for DeviceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -177,6 +210,10 @@ var DeviceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Destory",
 			Handler:    _DeviceService_Destory_Handler,
+		},
+		{
+			MethodName: "Sync",
+			Handler:    _DeviceService_Sync_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

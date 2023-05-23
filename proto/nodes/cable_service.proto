@@ -48,6 +48,7 @@ service CableService {
     rpc Link(LinkCableRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Cable) {}
     rpc Pull(PullCableRequest) returns (PullCableResponse) {}
+    rpc Sync(pb.Cable) returns (pb.MyBool) {}
 }
 
 // wire
@@ -102,14 +103,15 @@ service WireService {
     rpc GetValue(pb.Id) returns (pb.WireValue) {}
     rpc SetValue(pb.WireValue) returns (pb.MyBool) {}
     rpc SetValueUnchecked(pb.WireValue) returns (pb.MyBool) {}
-    rpc SyncValue(pb.WireValue) returns (pb.MyBool) {}
     rpc GetValueByName(pb.Name) returns (pb.WireNameValue) {}
     rpc SetValueByName(pb.WireNameValue) returns (pb.MyBool) {}
     rpc SetValueByNameUnchecked(pb.WireNameValue) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Wire) {}
     rpc Pull(PullWireRequest) returns (PullWireResponse) {}
+    rpc Sync(pb.Wire) returns (pb.MyBool) {}
     rpc ViewValue(pb.Id) returns (pb.WireValueUpdated) {}
     rpc DeleteValue(pb.Id) returns (pb.MyBool) {}
     rpc PullValue(PullWireValueRequest) returns (PullWireValueResponse) {}
+    rpc SyncValue(pb.WireValue) returns (pb.MyBool) {}
 }
 

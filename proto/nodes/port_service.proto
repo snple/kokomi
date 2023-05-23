@@ -47,4 +47,5 @@ service PortService {
     rpc Link(LinkPortRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Port) {}
     rpc Pull(PullPortRequest) returns (PullPortResponse) {}
+    rpc Sync(pb.Port) returns (pb.MyBool) {}
 }

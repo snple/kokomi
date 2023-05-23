@@ -416,3 +416,24 @@ func (s *VarService) Pull(ctx context.Context, in *nodes.PullVarRequest) (*nodes
 
 	return &output, nil
 }
+
+func (s *VarService) Sync(ctx context.Context, in *pb.Var) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	in.DeviceId = deviceID
+
+	return s.ns.Core().GetVar().Sync(ctx, in)
+}

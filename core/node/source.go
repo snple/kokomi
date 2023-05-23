@@ -291,3 +291,24 @@ func (s *SourceService) Pull(ctx context.Context, in *nodes.PullSourceRequest) (
 
 	return &output, nil
 }
+
+func (s *SourceService) Sync(ctx context.Context, in *pb.Source) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	in.DeviceId = deviceID
+
+	return s.ns.Core().GetSource().Sync(ctx, in)
+}

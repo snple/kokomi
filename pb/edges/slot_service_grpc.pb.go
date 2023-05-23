@@ -30,6 +30,7 @@ const (
 	SlotService_Clone_FullMethodName           = "/edges.SlotService/Clone"
 	SlotService_ViewWithDeleted_FullMethodName = "/edges.SlotService/ViewWithDeleted"
 	SlotService_Pull_FullMethodName            = "/edges.SlotService/Pull"
+	SlotService_Sync_FullMethodName            = "/edges.SlotService/Sync"
 )
 
 // SlotServiceClient is the client API for SlotService service.
@@ -46,6 +47,7 @@ type SlotServiceClient interface {
 	Clone(ctx context.Context, in *CloneSlotRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Slot, error)
 	Pull(ctx context.Context, in *PullSlotRequest, opts ...grpc.CallOption) (*PullSlotResponse, error)
+	Sync(ctx context.Context, in *pb.Slot, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type slotServiceClient struct {
@@ -146,6 +148,15 @@ func (c *slotServiceClient) Pull(ctx context.Context, in *PullSlotRequest, opts 
 	return out, nil
 }
 
+func (c *slotServiceClient) Sync(ctx context.Context, in *pb.Slot, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, SlotService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SlotServiceServer is the server API for SlotService service.
 // All implementations must embed UnimplementedSlotServiceServer
 // for forward compatibility
@@ -160,6 +171,7 @@ type SlotServiceServer interface {
 	Clone(context.Context, *CloneSlotRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Slot, error)
 	Pull(context.Context, *PullSlotRequest) (*PullSlotResponse, error)
+	Sync(context.Context, *pb.Slot) (*pb.MyBool, error)
 	mustEmbedUnimplementedSlotServiceServer()
 }
 
@@ -196,6 +208,9 @@ func (UnimplementedSlotServiceServer) ViewWithDeleted(context.Context, *pb.Id) (
 }
 func (UnimplementedSlotServiceServer) Pull(context.Context, *PullSlotRequest) (*PullSlotResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
+}
+func (UnimplementedSlotServiceServer) Sync(context.Context, *pb.Slot) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedSlotServiceServer) mustEmbedUnimplementedSlotServiceServer() {}
 
@@ -390,6 +405,24 @@ func _SlotService_Pull_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SlotService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Slot)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SlotServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SlotService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SlotServiceServer).Sync(ctx, req.(*pb.Slot))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SlotService_ServiceDesc is the grpc.ServiceDesc for SlotService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -436,6 +469,10 @@ var SlotService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Pull",
 			Handler:    _SlotService_Pull_Handler,
+		},
+		{
+			MethodName: "Sync",
+			Handler:    _SlotService_Sync_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

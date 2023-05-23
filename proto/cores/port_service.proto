@@ -59,4 +59,5 @@ service PortService {
     rpc Clone(ClonePortRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Port) {}
     rpc Pull(PullPortRequest) returns (PullPortResponse) {}
+    rpc Sync(pb.Port) returns (pb.MyBool) {}
 }

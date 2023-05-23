@@ -257,3 +257,24 @@ func (s *ClassService) Pull(ctx context.Context, in *nodes.PullClassRequest) (*n
 
 	return &output, nil
 }
+
+func (s *ClassService) Sync(ctx context.Context, in *pb.Class) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	in.DeviceId = deviceID
+
+	return s.ns.Core().GetClass().Sync(ctx, in)
+}

@@ -322,3 +322,22 @@ func (s *VarService) Pull(ctx context.Context, in *slots.PullVarRequest) (*slots
 
 	return &output, nil
 }
+
+func (s *VarService) Sync(ctx context.Context, in *pb.Var) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.Edge().GetVar().Sync(ctx, in)
+}

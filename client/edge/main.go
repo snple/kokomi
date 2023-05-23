@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"time"
@@ -85,13 +84,13 @@ func main() {
 	// service.TagCreate(ctx, tag)
 	// service.TagUpdate(ctx, tag)
 	// service.TagDelete(ctx, tag)
-	t1 := time.Now()
-	for i := 0; i < 10000; i++ {
-		service.TagSetValue(ctx, tag)
-		service.TagGetValue(ctx, tag)
-	}
-	t2 := time.Now()
-	fmt.Println("t2-t1", t2.Sub(t1))
+	// t1 := time.Now()
+	// for i := 0; i < 10000; i++ {
+	// 	service.TagSetValue(ctx, tag)
+	// 	service.TagGetValue(ctx, tag)
+	// }
+	// t2 := time.Now()
+	// fmt.Println("t2-t1", t2.Sub(t1))
 
 	// wire := edges.NewWireServiceClient(conn)
 	// t1 := time.Now()

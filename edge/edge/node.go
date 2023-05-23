@@ -409,20 +409,26 @@ func (s *NodeService) login(ctx context.Context) error {
 		return err
 	}
 
+	insert := false
+
 	// query local database and insert
 	_, err = s.es.GetDevice().View(ctx, &pb.MyEmpty{})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
-				ctx = metadata.SetSync(ctx)
-				_, err = s.es.GetDevice().Create(ctx, remoteDevice)
-				if err != nil {
-					return err
-				}
-			} else {
-				return err
+				insert = true
+				goto SKIP
 			}
-		} else {
+		}
+
+		return err
+	}
+
+SKIP:
+
+	if insert {
+		_, err = s.es.GetDevice().Create(ctx, remoteDevice)
+		if err != nil {
 			return err
 		}
 	}
@@ -666,14 +672,12 @@ func (s *NodeService) sync(ctx context.Context) error {
 
 func (s *NodeService) sync1(ctx context.Context) error {
 	ctx = metadata.SetToken(ctx, s.GetToken())
-	ctx = metadata.SetSync(ctx)
 
 	return s.syncRemoteToLocal(ctx)
 }
 
 func (s *NodeService) sync2(ctx context.Context) error {
 	ctx = metadata.SetToken(ctx, s.GetToken())
-	ctx = metadata.SetSync(ctx)
 
 	return s.syncLocalToRemote(ctx)
 }

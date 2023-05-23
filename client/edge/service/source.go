@@ -71,7 +71,7 @@ func SourceCreate(ctx context.Context, client edges.SourceServiceClient) {
 }
 
 func SourceUpdate(ctx context.Context, client edges.SourceServiceClient) {
-	request := &pb.Id{Id: "017bed7b5b0083edf0c5341e"}
+	request := &pb.Id{Id: "018849d40fdd9a6bfb3e5d54"}
 
 	reply, err := client.View(ctx, request)
 

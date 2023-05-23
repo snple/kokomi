@@ -14,7 +14,6 @@ import (
 	"github.com/snple/kokomi/pb/cores"
 	"github.com/snple/kokomi/util"
 	"github.com/snple/kokomi/util/datatype"
-	"github.com/snple/kokomi/util/metadata"
 	"github.com/snple/types"
 	"github.com/snple/types/cache"
 	"github.com/uptrace/bun"
@@ -53,6 +52,22 @@ func (s *AttrService) Create(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 
 		if len(in.GetName()) == 0 {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr name")
+		}
+	}
+
+	// name validation
+	{
+		if len(in.GetName()) < 2 {
+			return &output, status.Error(codes.InvalidArgument, "attr name min 2 character")
+		}
+
+		err = s.cs.GetDB().NewSelect().Model(&model.Attr{}).Where("name = ?", in.GetName()).Where("class_id = ?", in.GetClassId()).Scan(ctx)
+		if err != nil {
+			if err != sql.ErrNoRows {
+				return &output, status.Errorf(codes.Internal, "Query: %v", err)
+			}
+		} else {
+			return &output, status.Error(codes.AlreadyExists, "attr name must be unique")
 		}
 	}
 
@@ -97,31 +112,8 @@ func (s *AttrService) Create(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 		}
 	}
 
-	// name validation
-	{
-		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "attr name min 2 character")
-		}
-
-		err = s.cs.GetDB().NewSelect().Model(&model.Attr{}).Where("name = ?", in.GetName()).Where("class_id = ?", in.GetClassId()).Scan(ctx)
-		if err != nil {
-			if err != sql.ErrNoRows {
-				return &output, status.Errorf(codes.Internal, "Query: %v", err)
-			}
-		} else {
-			return &output, status.Error(codes.AlreadyExists, "attr name must be unique")
-		}
-	}
-
-	isSync := metadata.IsSync(ctx)
-
 	if len(item.ID) == 0 {
 		item.ID = util.RandomID()
-	}
-
-	if isSync {
-		item.Created = time.UnixMicro(in.GetCreated())
-		item.Updated = time.UnixMicro(in.GetUpdated())
 	}
 
 	_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -162,20 +154,9 @@ func (s *AttrService) Update(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 		}
 	}
 
-	isSync := metadata.IsSync(ctx)
-
-	var item model.Attr
-
-	if isSync {
-		item, err = s.viewWithDeleted(ctx, in.GetId())
-		if err != nil {
-			return &output, err
-		}
-	} else {
-		item, err = s.view(ctx, in.GetId())
-		if err != nil {
-			return &output, err
-		}
+	item, err := s.view(ctx, in.GetId())
+	if err != nil {
+		return &output, err
 	}
 
 	// name validation
@@ -223,19 +204,9 @@ func (s *AttrService) Update(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 	item.Save = in.GetSave()
 	item.Updated = time.Now()
 
-	if isSync {
-		item.Updated = time.UnixMicro(in.GetUpdated())
-		item.Deleted = time.UnixMicro(in.GetDeleted())
-
-		_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
-		if err != nil {
-			return &output, status.Errorf(codes.Internal, "Update: %v", err)
-		}
-	} else {
-		_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
-		if err != nil {
-			return &output, status.Errorf(codes.Internal, "Update: %v", err)
-		}
+	_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "Update: %v", err)
 	}
 
 	if err = s.afterUpdate(ctx, &item); err != nil {
@@ -1036,6 +1007,195 @@ func (s *AttrService) Pull(ctx context.Context, in *cores.PullAttrRequest) (*cor
 
 		output.Attr = append(output.Attr, &item)
 	}
+
+	return &output, nil
+}
+
+func (s *AttrService) Sync(ctx context.Context, in *pb.Attr) (*pb.MyBool, error) {
+	var output pb.MyBool
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr_id")
+		}
+
+		if len(in.GetName()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr name")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr updated")
+		}
+	}
+
+	insert := false
+	update := false
+
+	item, err := s.viewWithDeleted(ctx, in.GetId())
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				insert = true
+				goto SKIP
+			}
+		}
+
+		return &output, err
+	}
+
+	update = true
+
+SKIP:
+
+	// insert
+	if insert {
+		// device validation
+		{
+			_, err = s.cs.GetDevice().viewWithDeleted(ctx, in.GetDeviceId())
+			if err != nil {
+				return &output, err
+			}
+		}
+
+		// class validation
+		{
+			class, err := s.cs.GetClass().viewWithDeleted(ctx, in.GetClassId())
+			if err != nil {
+				return &output, err
+			}
+
+			if class.DeviceID != in.GetDeviceId() {
+				return &output, status.Error(codes.NotFound, "Query: class.DeviceID != in.GetDeviceId()")
+			}
+		}
+
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "attr name min 2 character")
+			}
+
+			err = s.cs.GetDB().NewSelect().Model(&model.Attr{}).Where("name = ?", in.GetName()).Where("class_id = ?", in.GetClassId()).Scan(ctx)
+			if err != nil {
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				return &output, status.Error(codes.AlreadyExists, "attr name must be unique")
+			}
+		}
+
+		// tag validation
+		if in.GetTagId() != "" {
+			tag, err := s.cs.GetTag().viewWithDeleted(ctx, in.GetTagId())
+			if err != nil {
+				return &output, err
+			}
+
+			if tag.DeviceID != in.GetDeviceId() {
+				return &output, status.Error(codes.NotFound, "Query: tag.DeviceID != in.GetDeviceId()")
+			}
+		}
+
+		item := model.Attr{
+			ID:       in.GetId(),
+			DeviceID: in.GetDeviceId(),
+			ClassID:  in.GetClassId(),
+			Name:     in.GetName(),
+			Desc:     in.GetDesc(),
+			Type:     in.GetType(),
+			Tags:     in.GetTags(),
+			DataType: in.GetDataType(),
+			HValue:   in.GetHValue(),
+			LValue:   in.GetLValue(),
+			TagID:    in.GetTagId(),
+			Config:   in.GetConfig(),
+			Status:   in.GetStatus(),
+			Access:   in.GetAccess(),
+			Save:     in.GetSave(),
+			Created:  time.UnixMicro(in.GetCreated()),
+			Updated:  time.UnixMicro(in.GetUpdated()),
+		}
+
+		_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
+		if err != nil {
+			return &output, status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+	}
+
+	// update
+	if update {
+		if in.GetDeviceId() != item.DeviceID {
+			return &output, status.Error(codes.NotFound, "Query: in.GetDeviceId() != item.DeviceID")
+		}
+
+		if in.GetUpdated() <= item.Updated.UnixMicro() {
+			return &output, nil
+		}
+
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "attr name min 2 character")
+			}
+
+			modelItem := model.Attr{}
+			err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("class_id = ?", item.ClassID).Where("name = ?", in.GetName()).Scan(ctx)
+			if err != nil {
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				if modelItem.ID != item.ID {
+					return &output, status.Error(codes.AlreadyExists, "attr name must be unique")
+				}
+			}
+		}
+
+		// tag validation
+		if in.GetTagId() != "" {
+			tag, err := s.cs.GetTag().viewWithDeleted(ctx, in.GetTagId())
+			if err != nil {
+				return &output, err
+			}
+
+			if tag.DeviceID != item.DeviceID {
+				return &output, status.Error(codes.NotFound, "Query: tag.DeviceID != item.deviceID")
+			}
+		}
+
+		item.Name = in.GetName()
+		item.Desc = in.GetDesc()
+		item.Tags = in.GetTags()
+		item.Type = in.GetType()
+		item.DataType = in.GetDataType()
+		item.HValue = in.GetHValue()
+		item.LValue = in.GetLValue()
+		item.TagID = in.GetTagId()
+		item.Config = in.GetConfig()
+		item.Status = in.GetStatus()
+		item.Access = in.GetAccess()
+		item.Save = in.GetSave()
+		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
+
+		_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
+		if err != nil {
+			return &output, status.Errorf(codes.Internal, "Update: %v", err)
+		}
+	}
+
+	if err = s.afterUpdate(ctx, &item); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
 
 	return &output, nil
 }

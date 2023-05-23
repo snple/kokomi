@@ -46,4 +46,5 @@ service OptionService {
     rpc List(ListOptionRequest) returns (ListOptionResponse) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Option) {}
     rpc Pull(PullOptionRequest) returns (PullOptionResponse) {}
+    rpc Sync(pb.Option) returns (pb.MyBool) {}
 }

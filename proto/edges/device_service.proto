@@ -10,4 +10,5 @@ service DeviceService {
     rpc Update(pb.Device) returns (pb.Device) {}
     rpc View(pb.MyEmpty) returns (pb.Device) {}
     rpc Destory(pb.MyEmpty) returns (pb.MyBool) {}
+    rpc Sync(pb.Device) returns (pb.MyBool) {}
 }

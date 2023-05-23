@@ -29,6 +29,7 @@ const (
 	DeviceService_Link_FullMethodName       = "/cores.DeviceService/Link"
 	DeviceService_Destory_FullMethodName    = "/cores.DeviceService/Destory"
 	DeviceService_Clone_FullMethodName      = "/cores.DeviceService/Clone"
+	DeviceService_Sync_FullMethodName       = "/cores.DeviceService/Sync"
 )
 
 // DeviceServiceClient is the client API for DeviceService service.
@@ -44,6 +45,7 @@ type DeviceServiceClient interface {
 	Link(ctx context.Context, in *LinkDeviceRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	Destory(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
 	Clone(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
+	Sync(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type deviceServiceClient struct {
@@ -135,6 +137,15 @@ func (c *deviceServiceClient) Clone(ctx context.Context, in *pb.Id, opts ...grpc
 	return out, nil
 }
 
+func (c *deviceServiceClient) Sync(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, DeviceService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DeviceServiceServer is the server API for DeviceService service.
 // All implementations must embed UnimplementedDeviceServiceServer
 // for forward compatibility
@@ -148,6 +159,7 @@ type DeviceServiceServer interface {
 	Link(context.Context, *LinkDeviceRequest) (*pb.MyBool, error)
 	Destory(context.Context, *pb.Id) (*pb.MyBool, error)
 	Clone(context.Context, *pb.Id) (*pb.MyBool, error)
+	Sync(context.Context, *pb.Device) (*pb.MyBool, error)
 	mustEmbedUnimplementedDeviceServiceServer()
 }
 
@@ -181,6 +193,9 @@ func (UnimplementedDeviceServiceServer) Destory(context.Context, *pb.Id) (*pb.My
 }
 func (UnimplementedDeviceServiceServer) Clone(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Clone not implemented")
+}
+func (UnimplementedDeviceServiceServer) Sync(context.Context, *pb.Device) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedDeviceServiceServer) mustEmbedUnimplementedDeviceServiceServer() {}
 
@@ -357,6 +372,24 @@ func _DeviceService_Clone_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DeviceService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Device)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeviceServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DeviceService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeviceServiceServer).Sync(ctx, req.(*pb.Device))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DeviceService_ServiceDesc is the grpc.ServiceDesc for DeviceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -399,6 +432,10 @@ var DeviceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Clone",
 			Handler:    _DeviceService_Clone_Handler,
+		},
+		{
+			MethodName: "Sync",
+			Handler:    _DeviceService_Sync_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

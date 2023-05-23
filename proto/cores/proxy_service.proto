@@ -59,4 +59,5 @@ service ProxyService {
     rpc Clone(CloneProxyRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Proxy) {}
     rpc Pull(PullProxyRequest) returns (PullProxyResponse) {}
+    rpc Sync(pb.Proxy) returns (pb.MyBool) {}
 }

@@ -325,3 +325,22 @@ func (s *AttrService) Pull(ctx context.Context, in *slots.PullAttrRequest) (*slo
 
 	return &output, nil
 }
+
+func (s *AttrService) Sync(ctx context.Context, in *pb.Attr) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.Edge().GetAttr().Sync(ctx, in)
+}

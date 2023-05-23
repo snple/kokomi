@@ -12,7 +12,6 @@ import (
 	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/kokomi/pb/nodes"
 	"github.com/snple/kokomi/util"
-	"github.com/snple/kokomi/util/metadata"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -45,20 +44,6 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 		}
 	}
 
-	item := model.Slot{
-		ID:       in.GetId(),
-		Name:     in.GetName(),
-		Desc:     in.GetDesc(),
-		Tags:     in.GetTags(),
-		Type:     in.GetType(),
-		Secret:   in.GetSecret(),
-		Location: in.GetLocation(),
-		Config:   in.GetConfig(),
-		Status:   in.GetStatus(),
-		Created:  time.Now(),
-		Updated:  time.Now(),
-	}
-
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
@@ -75,15 +60,22 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 		}
 	}
 
-	isSync := metadata.IsSync(ctx)
+	item := model.Slot{
+		ID:       in.GetId(),
+		Name:     in.GetName(),
+		Desc:     in.GetDesc(),
+		Tags:     in.GetTags(),
+		Type:     in.GetType(),
+		Secret:   in.GetSecret(),
+		Location: in.GetLocation(),
+		Config:   in.GetConfig(),
+		Status:   in.GetStatus(),
+		Created:  time.Now(),
+		Updated:  time.Now(),
+	}
 
 	if len(item.ID) == 0 {
 		item.ID = util.RandomID()
-	}
-
-	if isSync {
-		item.Created = time.UnixMicro(in.GetCreated())
-		item.Updated = time.UnixMicro(in.GetUpdated())
 	}
 
 	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -119,20 +111,9 @@ func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 		}
 	}
 
-	isSync := metadata.IsSync(ctx)
-
-	var item model.Slot
-
-	if isSync {
-		item, err = s.viewWithDeleted(ctx, in.GetId())
-		if err != nil {
-			return &output, err
-		}
-	} else {
-		item, err = s.view(ctx, in.GetId())
-		if err != nil {
-			return &output, err
-		}
+	item, err := s.view(ctx, in.GetId())
+	if err != nil {
+		return &output, err
 	}
 
 	// name validation
@@ -164,19 +145,9 @@ func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 	item.Status = in.GetStatus()
 	item.Updated = time.Now()
 
-	if isSync {
-		item.Updated = time.UnixMicro(in.GetUpdated())
-		item.Deleted = time.UnixMicro(in.GetDeleted())
-
-		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
-		if err != nil {
-			return &output, status.Errorf(codes.Internal, "Update: %v", err)
-		}
-	} else {
-		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
-		if err != nil {
-			return &output, status.Errorf(codes.Internal, "Update: %v", err)
-		}
+	_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "Update: %v", err)
 	}
 
 	if err = s.afterUpdate(ctx, &item); err != nil {
@@ -582,6 +553,137 @@ func (s *SlotService) Pull(ctx context.Context, in *edges.PullSlotRequest) (*edg
 
 		output.Slot = append(output.Slot, &item)
 	}
+
+	return &output, nil
+}
+
+func (s *SlotService) Sync(ctx context.Context, in *pb.Slot) (*pb.MyBool, error) {
+	var output pb.MyBool
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot_id")
+		}
+
+		if len(in.GetName()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot name")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot updated")
+		}
+	}
+
+	insert := false
+	update := false
+
+	item, err := s.viewWithDeleted(ctx, in.GetId())
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				insert = true
+				goto SKIP
+			}
+		}
+
+		return &output, err
+	}
+
+	update = true
+
+SKIP:
+
+	// insert
+	if insert {
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "slot name min 2 character")
+			}
+
+			err = s.es.GetDB().NewSelect().Model(&model.Slot{}).Where("name = ?", in.GetName()).Scan(ctx)
+			if err != nil {
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				return &output, status.Error(codes.AlreadyExists, "slot name must be unique")
+			}
+		}
+
+		item := model.Slot{
+			ID:       in.GetId(),
+			Name:     in.GetName(),
+			Desc:     in.GetDesc(),
+			Tags:     in.GetTags(),
+			Type:     in.GetType(),
+			Secret:   in.GetSecret(),
+			Location: in.GetLocation(),
+			Config:   in.GetConfig(),
+			Status:   in.GetStatus(),
+			Created:  time.UnixMicro(in.GetCreated()),
+			Updated:  time.UnixMicro(in.GetUpdated()),
+		}
+
+		_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
+		if err != nil {
+			return &output, status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+	}
+
+	// update
+	if update {
+		if in.GetUpdated() <= item.Updated.UnixMicro() {
+			return &output, nil
+		}
+
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "slot name min 2 character")
+			}
+
+			modelItem := model.Slot{}
+			err = s.es.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
+			if err != nil {
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				if modelItem.ID != item.ID {
+					return &output, status.Error(codes.AlreadyExists, "slot name must be unique")
+				}
+			}
+		}
+
+		item.Name = in.GetName()
+		item.Desc = in.GetDesc()
+		item.Tags = in.GetTags()
+		item.Type = in.GetType()
+		item.Secret = in.GetSecret()
+		item.Location = in.GetLocation()
+		item.Config = in.GetConfig()
+		item.Status = in.GetStatus()
+		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
+
+		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
+		if err != nil {
+			return &output, status.Errorf(codes.Internal, "Update: %v", err)
+		}
+	}
+
+	if err = s.afterUpdate(ctx, &item); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
 
 	return &output, nil
 }

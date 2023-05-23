@@ -11,7 +11,6 @@ import (
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/kokomi/util"
-	"github.com/snple/kokomi/util/metadata"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -44,19 +43,6 @@ func (s *ClassService) Create(ctx context.Context, in *pb.Class) (*pb.Class, err
 		}
 	}
 
-	item := model.Class{
-		ID:      in.GetId(),
-		Name:    in.GetName(),
-		Desc:    in.GetDesc(),
-		Tags:    in.GetTags(),
-		Type:    in.GetType(),
-		Config:  in.GetConfig(),
-		Status:  in.GetStatus(),
-		Save:    in.GetSave(),
-		Created: time.Now(),
-		Updated: time.Now(),
-	}
-
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
@@ -73,15 +59,21 @@ func (s *ClassService) Create(ctx context.Context, in *pb.Class) (*pb.Class, err
 		}
 	}
 
-	isSync := metadata.IsSync(ctx)
+	item := model.Class{
+		ID:      in.GetId(),
+		Name:    in.GetName(),
+		Desc:    in.GetDesc(),
+		Tags:    in.GetTags(),
+		Type:    in.GetType(),
+		Config:  in.GetConfig(),
+		Status:  in.GetStatus(),
+		Save:    in.GetSave(),
+		Created: time.Now(),
+		Updated: time.Now(),
+	}
 
 	if len(item.ID) == 0 {
 		item.ID = util.RandomID()
-	}
-
-	if isSync {
-		item.Created = time.UnixMicro(in.GetCreated())
-		item.Updated = time.UnixMicro(in.GetUpdated())
 	}
 
 	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -117,20 +109,9 @@ func (s *ClassService) Update(ctx context.Context, in *pb.Class) (*pb.Class, err
 		}
 	}
 
-	isSync := metadata.IsSync(ctx)
-
-	var item model.Class
-
-	if isSync {
-		item, err = s.viewWithDeleted(ctx, in.GetId())
-		if err != nil {
-			return &output, err
-		}
-	} else {
-		item, err = s.view(ctx, in.GetId())
-		if err != nil {
-			return &output, err
-		}
+	item, err := s.view(ctx, in.GetId())
+	if err != nil {
+		return &output, err
 	}
 
 	// name validation
@@ -161,19 +142,9 @@ func (s *ClassService) Update(ctx context.Context, in *pb.Class) (*pb.Class, err
 	item.Save = in.GetSave()
 	item.Updated = time.Now()
 
-	if isSync {
-		item.Updated = time.UnixMicro(in.GetUpdated())
-		item.Deleted = time.UnixMicro(in.GetDeleted())
-
-		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
-		if err != nil {
-			return &output, status.Errorf(codes.Internal, "Update: %v", err)
-		}
-	} else {
-		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
-		if err != nil {
-			return &output, status.Errorf(codes.Internal, "Update: %v", err)
-		}
+	_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "Update: %v", err)
 	}
 
 	if err = s.afterUpdate(ctx, &item); err != nil {
@@ -556,6 +527,135 @@ func (s *ClassService) Pull(ctx context.Context, in *edges.PullClassRequest) (*e
 
 		output.Class = append(output.Class, &item)
 	}
+
+	return &output, nil
+}
+
+func (s *ClassService) Sync(ctx context.Context, in *pb.Class) (*pb.MyBool, error) {
+	var output pb.MyBool
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid class_id")
+		}
+
+		if len(in.GetName()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid class name")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid class updated")
+		}
+	}
+
+	insert := false
+	update := false
+
+	item, err := s.viewWithDeleted(ctx, in.GetId())
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				insert = true
+				goto SKIP
+			}
+		}
+
+		return &output, err
+	}
+
+	update = true
+
+SKIP:
+
+	// insert
+	if insert {
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "class name min 2 character")
+			}
+
+			err = s.es.GetDB().NewSelect().Model(&model.Class{}).Where("name = ?", in.GetName()).Scan(ctx)
+			if err != nil {
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				return &output, status.Error(codes.AlreadyExists, "class name must be unique")
+			}
+		}
+
+		item := model.Class{
+			ID:      in.GetId(),
+			Name:    in.GetName(),
+			Desc:    in.GetDesc(),
+			Tags:    in.GetTags(),
+			Type:    in.GetType(),
+			Config:  in.GetConfig(),
+			Status:  in.GetStatus(),
+			Save:    in.GetSave(),
+			Created: time.UnixMicro(in.GetCreated()),
+			Updated: time.UnixMicro(in.GetUpdated()),
+		}
+
+		_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
+		if err != nil {
+			return &output, status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+	}
+
+	// update
+	if update {
+		if in.GetUpdated() <= item.Updated.UnixMicro() {
+			return &output, nil
+		}
+
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "class name min 2 character")
+			}
+
+			modelItem := model.Class{}
+			err = s.es.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
+			if err != nil {
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				if modelItem.ID != item.ID {
+					return &output, status.Error(codes.AlreadyExists, "class name must be unique")
+				}
+			}
+		}
+
+		item.Name = in.GetName()
+		item.Desc = in.GetDesc()
+		item.Tags = in.GetTags()
+		item.Type = in.GetType()
+		item.Config = in.GetConfig()
+		item.Status = in.GetStatus()
+		item.Save = in.GetSave()
+		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
+
+		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
+		if err != nil {
+			return &output, status.Errorf(codes.Internal, "Update: %v", err)
+		}
+	}
+
+	if err = s.afterUpdate(ctx, &item); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
 
 	return &output, nil
 }

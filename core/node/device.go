@@ -163,3 +163,36 @@ func (s *DeviceService) Link(ctx context.Context, in *nodes.LinkDeviceRequest) (
 
 	return s.ns.Core().GetDevice().Link(ctx, request)
 }
+
+func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	if in.GetId() != deviceID {
+		return &output, status.Error(codes.NotFound, "Query: in.GetId() != deviceID")
+	}
+
+	request := &pb.Id{Id: deviceID}
+
+	reply, err := s.ns.Core().GetDevice().View(ctx, request)
+	if err != nil {
+		return &output, err
+	}
+
+	in.Secret = reply.GetSecret()
+	in.Status = reply.GetStatus()
+
+	return s.ns.Core().GetDevice().Sync(ctx, in)
+}

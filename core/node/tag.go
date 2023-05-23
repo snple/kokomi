@@ -294,36 +294,6 @@ func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*p
 	return s.ns.Core().GetTag().SetValueUnchecked(ctx, in)
 }
 
-func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	deviceID, err := validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	request := &pb.Id{Id: in.GetId()}
-
-	reply, err := s.ns.Core().GetTag().View(ctx, request)
-	if err != nil {
-		return &output, err
-	}
-
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
-	}
-
-	return s.ns.Core().GetTag().SyncValue(ctx, in)
-}
-
 func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
 	var err error
 	var output pb.TagNameValue
@@ -458,6 +428,27 @@ func (s *TagService) Pull(ctx context.Context, in *nodes.PullTagRequest) (*nodes
 	return &output, nil
 }
 
+func (s *TagService) Sync(ctx context.Context, in *pb.Tag) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	in.DeviceId = deviceID
+
+	return s.ns.Core().GetTag().Sync(ctx, in)
+}
+
 func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
 	var output pb.TagValueUpdated
 	var err error
@@ -548,4 +539,34 @@ func (s *TagService) PullValue(ctx context.Context, in *nodes.PullTagValueReques
 	output.Tag = reply.GetTag()
 
 	return &output, nil
+}
+
+func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	request := &pb.Id{Id: in.GetId()}
+
+	reply, err := s.ns.Core().GetTag().View(ctx, request)
+	if err != nil {
+		return &output, err
+	}
+
+	if reply.GetDeviceId() != deviceID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	}
+
+	return s.ns.Core().GetTag().SyncValue(ctx, in)
 }

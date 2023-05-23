@@ -33,4 +33,5 @@ service DeviceService {
     rpc Link(LinkDeviceRequest) returns (pb.MyBool) {}
     rpc Destory(pb.Id) returns (pb.MyBool) {}
     rpc Clone(pb.Id) returns (pb.MyBool) {}
+    rpc Sync(pb.Device) returns (pb.MyBool) {}
 }

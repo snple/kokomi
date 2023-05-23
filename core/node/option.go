@@ -256,3 +256,24 @@ func (s *OptionService) Pull(ctx context.Context, in *nodes.PullOptionRequest) (
 
 	return &output, nil
 }
+
+func (s *OptionService) Sync(ctx context.Context, in *pb.Option) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	in.DeviceId = deviceID
+
+	return s.ns.Core().GetOption().Sync(ctx, in)
+}

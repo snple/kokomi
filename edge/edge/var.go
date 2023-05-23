@@ -13,7 +13,6 @@ import (
 	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/kokomi/util"
 	"github.com/snple/kokomi/util/datatype"
-	"github.com/snple/kokomi/util/metadata"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -46,6 +45,22 @@ func (s *VarService) Create(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 		}
 	}
 
+	// name validation
+	{
+		if len(in.GetName()) < 2 {
+			return &output, status.Error(codes.InvalidArgument, "var name min 2 character")
+		}
+
+		err = s.es.GetDB().NewSelect().Model(&model.Var{}).Where("name = ?", in.GetName()).Scan(ctx)
+		if err != nil {
+			if err != sql.ErrNoRows {
+				return &output, status.Errorf(codes.Internal, "Query: %v", err)
+			}
+		} else {
+			return &output, status.Error(codes.AlreadyExists, "var name must be unique")
+		}
+	}
+
 	item := model.Var{
 		ID:       in.GetId(),
 		Name:     in.GetName(),
@@ -64,31 +79,8 @@ func (s *VarService) Create(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 		Updated:  time.Now(),
 	}
 
-	// name validation
-	{
-		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "var name min 2 character")
-		}
-
-		err = s.es.GetDB().NewSelect().Model(&model.Var{}).Where("name = ?", in.GetName()).Scan(ctx)
-		if err != nil {
-			if err != sql.ErrNoRows {
-				return &output, status.Errorf(codes.Internal, "Query: %v", err)
-			}
-		} else {
-			return &output, status.Error(codes.AlreadyExists, "var name must be unique")
-		}
-	}
-
-	isSync := metadata.IsSync(ctx)
-
 	if len(item.ID) == 0 {
 		item.ID = util.RandomID()
-	}
-
-	if isSync {
-		item.Created = time.UnixMicro(in.GetCreated())
-		item.Updated = time.UnixMicro(in.GetUpdated())
 	}
 
 	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -124,20 +116,9 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 		}
 	}
 
-	isSync := metadata.IsSync(ctx)
-
-	var item model.Var
-
-	if isSync {
-		item, err = s.viewWithDeleted(ctx, in.GetId())
-		if err != nil {
-			return &output, err
-		}
-	} else {
-		item, err = s.view(ctx, in.GetId())
-		if err != nil {
-			return &output, err
-		}
+	item, err := s.view(ctx, in.GetId())
+	if err != nil {
+		return &output, err
 	}
 
 	// name validation
@@ -173,19 +154,9 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 	item.Save = in.GetSave()
 	item.Updated = time.Now()
 
-	if isSync {
-		item.Updated = time.UnixMicro(in.GetUpdated())
-		item.Deleted = time.UnixMicro(in.GetDeleted())
-
-		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
-		if err != nil {
-			return &output, status.Errorf(codes.Internal, "Update: %v", err)
-		}
-	} else {
-		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
-		if err != nil {
-			return &output, status.Errorf(codes.Internal, "Update: %v", err)
-		}
+	_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "Update: %v", err)
 	}
 
 	if err = s.afterUpdate(ctx, &item); err != nil {
@@ -731,6 +702,145 @@ func (s *VarService) Pull(ctx context.Context, in *edges.PullVarRequest) (*edges
 
 		output.Var = append(output.Var, &item)
 	}
+
+	return &output, nil
+}
+
+func (s *VarService) Sync(ctx context.Context, in *pb.Var) (*pb.MyBool, error) {
+	var output pb.MyBool
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid var_id")
+		}
+
+		if len(in.GetName()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid var name")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid var updated")
+		}
+	}
+
+	insert := false
+	update := false
+
+	item, err := s.viewWithDeleted(ctx, in.GetId())
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				insert = true
+				goto SKIP
+			}
+		}
+
+		return &output, err
+	}
+
+	update = true
+
+SKIP:
+
+	// insert
+	if insert {
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "var name min 2 character")
+			}
+
+			err = s.es.GetDB().NewSelect().Model(&model.Var{}).Where("name = ?", in.GetName()).Scan(ctx)
+			if err != nil {
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				return &output, status.Error(codes.AlreadyExists, "var name must be unique")
+			}
+		}
+
+		item := model.Var{
+			ID:       in.GetId(),
+			Name:     in.GetName(),
+			Desc:     in.GetDesc(),
+			Tags:     in.GetTags(),
+			Type:     in.GetType(),
+			DataType: in.GetDataType(),
+			Value:    in.GetValue(),
+			HValue:   in.GetHValue(),
+			LValue:   in.GetLValue(),
+			Config:   in.GetConfig(),
+			Status:   in.GetStatus(),
+			Access:   in.GetAccess(),
+			Save:     in.GetSave(),
+			Created:  time.UnixMicro(in.GetCreated()),
+			Updated:  time.UnixMicro(in.GetUpdated()),
+		}
+
+		_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
+		if err != nil {
+			return &output, status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+	}
+
+	// update
+	if update {
+		if in.GetUpdated() <= item.Updated.UnixMicro() {
+			return &output, nil
+		}
+
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "var name min 2 character")
+			}
+
+			modelItem := model.Var{}
+			err = s.es.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
+			if err != nil {
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				if modelItem.ID != item.ID {
+					return &output, status.Error(codes.AlreadyExists, "var name must be unique")
+				}
+			}
+		}
+
+		item.Name = in.GetName()
+		item.Desc = in.GetDesc()
+		item.Tags = in.GetTags()
+		item.Type = in.GetType()
+		item.DataType = in.GetDataType()
+		item.Value = in.GetValue()
+		item.HValue = in.GetHValue()
+		item.LValue = in.GetLValue()
+		item.Config = in.GetConfig()
+		item.Status = in.GetStatus()
+		item.Access = in.GetAccess()
+		item.Save = in.GetSave()
+		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
+
+		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
+		if err != nil {
+			return &output, status.Errorf(codes.Internal, "Update: %v", err)
+		}
+	}
+
+	if err = s.afterUpdate(ctx, &item); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
 
 	return &output, nil
 }

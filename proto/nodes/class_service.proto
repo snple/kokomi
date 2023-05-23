@@ -42,6 +42,7 @@ service ClassService {
     rpc List(ListClassRequest) returns (ListClassResponse) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Class) {}
     rpc Pull(PullClassRequest) returns (PullClassResponse) {}
+    rpc Sync(pb.Class) returns (pb.MyBool) {}
 }
 
 // attr
@@ -88,4 +89,5 @@ service AttrService {
     rpc SetValueByNameUnchecked(pb.AttrNameValue) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Attr) {}
     rpc Pull(PullAttrRequest) returns (PullAttrResponse) {}
+    rpc Sync(pb.Attr) returns (pb.MyBool) {}
 }

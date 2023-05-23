@@ -294,3 +294,24 @@ func (s *PortService) Pull(ctx context.Context, in *nodes.PullPortRequest) (*nod
 
 	return &output, nil
 }
+
+func (s *PortService) Sync(ctx context.Context, in *pb.Port) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	in.DeviceId = deviceID
+
+	return s.ns.Core().GetPort().Sync(ctx, in)
+}

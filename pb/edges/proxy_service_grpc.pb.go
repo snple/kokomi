@@ -20,32 +20,26 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ProxyService_Create_FullMethodName          = "/edges.ProxyService/Create"
-	ProxyService_Update_FullMethodName          = "/edges.ProxyService/Update"
 	ProxyService_View_FullMethodName            = "/edges.ProxyService/View"
 	ProxyService_ViewByName_FullMethodName      = "/edges.ProxyService/ViewByName"
-	ProxyService_Delete_FullMethodName          = "/edges.ProxyService/Delete"
 	ProxyService_List_FullMethodName            = "/edges.ProxyService/List"
 	ProxyService_Link_FullMethodName            = "/edges.ProxyService/Link"
-	ProxyService_Clone_FullMethodName           = "/edges.ProxyService/Clone"
 	ProxyService_ViewWithDeleted_FullMethodName = "/edges.ProxyService/ViewWithDeleted"
 	ProxyService_Pull_FullMethodName            = "/edges.ProxyService/Pull"
+	ProxyService_Sync_FullMethodName            = "/edges.ProxyService/Sync"
 )
 
 // ProxyServiceClient is the client API for ProxyService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProxyServiceClient interface {
-	Create(ctx context.Context, in *pb.Proxy, opts ...grpc.CallOption) (*pb.Proxy, error)
-	Update(ctx context.Context, in *pb.Proxy, opts ...grpc.CallOption) (*pb.Proxy, error)
 	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Proxy, error)
 	ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Proxy, error)
-	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
 	List(ctx context.Context, in *ListProxyRequest, opts ...grpc.CallOption) (*ListProxyResponse, error)
 	Link(ctx context.Context, in *LinkProxyRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
-	Clone(ctx context.Context, in *CloneProxyRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Proxy, error)
 	Pull(ctx context.Context, in *PullProxyRequest, opts ...grpc.CallOption) (*PullProxyResponse, error)
+	Sync(ctx context.Context, in *pb.Proxy, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type proxyServiceClient struct {
@@ -54,24 +48,6 @@ type proxyServiceClient struct {
 
 func NewProxyServiceClient(cc grpc.ClientConnInterface) ProxyServiceClient {
 	return &proxyServiceClient{cc}
-}
-
-func (c *proxyServiceClient) Create(ctx context.Context, in *pb.Proxy, opts ...grpc.CallOption) (*pb.Proxy, error) {
-	out := new(pb.Proxy)
-	err := c.cc.Invoke(ctx, ProxyService_Create_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *proxyServiceClient) Update(ctx context.Context, in *pb.Proxy, opts ...grpc.CallOption) (*pb.Proxy, error) {
-	out := new(pb.Proxy)
-	err := c.cc.Invoke(ctx, ProxyService_Update_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *proxyServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Proxy, error) {
@@ -86,15 +62,6 @@ func (c *proxyServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.C
 func (c *proxyServiceClient) ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Proxy, error) {
 	out := new(pb.Proxy)
 	err := c.cc.Invoke(ctx, ProxyService_ViewByName_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *proxyServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, ProxyService_Delete_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -119,15 +86,6 @@ func (c *proxyServiceClient) Link(ctx context.Context, in *LinkProxyRequest, opt
 	return out, nil
 }
 
-func (c *proxyServiceClient) Clone(ctx context.Context, in *CloneProxyRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, ProxyService_Clone_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *proxyServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Proxy, error) {
 	out := new(pb.Proxy)
 	err := c.cc.Invoke(ctx, ProxyService_ViewWithDeleted_FullMethodName, in, out, opts...)
@@ -146,20 +104,26 @@ func (c *proxyServiceClient) Pull(ctx context.Context, in *PullProxyRequest, opt
 	return out, nil
 }
 
+func (c *proxyServiceClient) Sync(ctx context.Context, in *pb.Proxy, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, ProxyService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProxyServiceServer is the server API for ProxyService service.
 // All implementations must embed UnimplementedProxyServiceServer
 // for forward compatibility
 type ProxyServiceServer interface {
-	Create(context.Context, *pb.Proxy) (*pb.Proxy, error)
-	Update(context.Context, *pb.Proxy) (*pb.Proxy, error)
 	View(context.Context, *pb.Id) (*pb.Proxy, error)
 	ViewByName(context.Context, *pb.Name) (*pb.Proxy, error)
-	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
 	List(context.Context, *ListProxyRequest) (*ListProxyResponse, error)
 	Link(context.Context, *LinkProxyRequest) (*pb.MyBool, error)
-	Clone(context.Context, *CloneProxyRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Proxy, error)
 	Pull(context.Context, *PullProxyRequest) (*PullProxyResponse, error)
+	Sync(context.Context, *pb.Proxy) (*pb.MyBool, error)
 	mustEmbedUnimplementedProxyServiceServer()
 }
 
@@ -167,20 +131,11 @@ type ProxyServiceServer interface {
 type UnimplementedProxyServiceServer struct {
 }
 
-func (UnimplementedProxyServiceServer) Create(context.Context, *pb.Proxy) (*pb.Proxy, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
-}
-func (UnimplementedProxyServiceServer) Update(context.Context, *pb.Proxy) (*pb.Proxy, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
-}
 func (UnimplementedProxyServiceServer) View(context.Context, *pb.Id) (*pb.Proxy, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
 func (UnimplementedProxyServiceServer) ViewByName(context.Context, *pb.Name) (*pb.Proxy, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewByName not implemented")
-}
-func (UnimplementedProxyServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedProxyServiceServer) List(context.Context, *ListProxyRequest) (*ListProxyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
@@ -188,14 +143,14 @@ func (UnimplementedProxyServiceServer) List(context.Context, *ListProxyRequest) 
 func (UnimplementedProxyServiceServer) Link(context.Context, *LinkProxyRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Link not implemented")
 }
-func (UnimplementedProxyServiceServer) Clone(context.Context, *CloneProxyRequest) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Clone not implemented")
-}
 func (UnimplementedProxyServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Proxy, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
 }
 func (UnimplementedProxyServiceServer) Pull(context.Context, *PullProxyRequest) (*PullProxyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
+}
+func (UnimplementedProxyServiceServer) Sync(context.Context, *pb.Proxy) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedProxyServiceServer) mustEmbedUnimplementedProxyServiceServer() {}
 
@@ -208,42 +163,6 @@ type UnsafeProxyServiceServer interface {
 
 func RegisterProxyServiceServer(s grpc.ServiceRegistrar, srv ProxyServiceServer) {
 	s.RegisterService(&ProxyService_ServiceDesc, srv)
-}
-
-func _ProxyService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.Proxy)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProxyServiceServer).Create(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ProxyService_Create_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProxyServiceServer).Create(ctx, req.(*pb.Proxy))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ProxyService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.Proxy)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProxyServiceServer).Update(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ProxyService_Update_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProxyServiceServer).Update(ctx, req.(*pb.Proxy))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _ProxyService_View_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -278,24 +197,6 @@ func _ProxyService_ViewByName_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ProxyServiceServer).ViewByName(ctx, req.(*pb.Name))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ProxyService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.Id)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProxyServiceServer).Delete(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ProxyService_Delete_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProxyServiceServer).Delete(ctx, req.(*pb.Id))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -336,24 +237,6 @@ func _ProxyService_Link_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ProxyService_Clone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CloneProxyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProxyServiceServer).Clone(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ProxyService_Clone_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProxyServiceServer).Clone(ctx, req.(*CloneProxyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _ProxyService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
@@ -390,6 +273,24 @@ func _ProxyService_Pull_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProxyService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Proxy)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProxyServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProxyService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProxyServiceServer).Sync(ctx, req.(*pb.Proxy))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProxyService_ServiceDesc is the grpc.ServiceDesc for ProxyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -398,24 +299,12 @@ var ProxyService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ProxyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Create",
-			Handler:    _ProxyService_Create_Handler,
-		},
-		{
-			MethodName: "Update",
-			Handler:    _ProxyService_Update_Handler,
-		},
-		{
 			MethodName: "View",
 			Handler:    _ProxyService_View_Handler,
 		},
 		{
 			MethodName: "ViewByName",
 			Handler:    _ProxyService_ViewByName_Handler,
-		},
-		{
-			MethodName: "Delete",
-			Handler:    _ProxyService_Delete_Handler,
 		},
 		{
 			MethodName: "List",
@@ -426,16 +315,16 @@ var ProxyService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ProxyService_Link_Handler,
 		},
 		{
-			MethodName: "Clone",
-			Handler:    _ProxyService_Clone_Handler,
-		},
-		{
 			MethodName: "ViewWithDeleted",
 			Handler:    _ProxyService_ViewWithDeleted_Handler,
 		},
 		{
 			MethodName: "Pull",
 			Handler:    _ProxyService_Pull_Handler,
+		},
+		{
+			MethodName: "Sync",
+			Handler:    _ProxyService_Sync_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

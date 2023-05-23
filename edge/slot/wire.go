@@ -209,25 +209,6 @@ func (s *WireService) SetValueUnchecked(ctx context.Context, in *pb.WireValue) (
 	return s.ss.Edge().GetWire().SetValueUnchecked(ctx, in)
 }
 
-func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	_, err = validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	return s.ss.Edge().GetWire().SyncValue(ctx, in)
-}
-
 func (s *WireService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.WireNameValue, error) {
 	var err error
 	var output pb.WireNameValue
@@ -345,6 +326,25 @@ func (s *WireService) Pull(ctx context.Context, in *slots.PullWireRequest) (*slo
 	return &output, nil
 }
 
+func (s *WireService) Sync(ctx context.Context, in *pb.Wire) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.Edge().GetWire().Sync(ctx, in)
+}
+
 func (s *WireService) ViewValue(ctx context.Context, in *pb.Id) (*pb.WireValueUpdated, error) {
 	var output pb.WireValueUpdated
 	var err error
@@ -421,4 +421,23 @@ func (s *WireService) PullValue(ctx context.Context, in *slots.PullWireValueRequ
 	output.Wire = reply.GetWire()
 
 	return &output, nil
+}
+
+func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.Edge().GetWire().SyncValue(ctx, in)
 }

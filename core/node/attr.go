@@ -427,3 +427,24 @@ func (s *AttrService) Pull(ctx context.Context, in *nodes.PullAttrRequest) (*nod
 
 	return &output, nil
 }
+
+func (s *AttrService) Sync(ctx context.Context, in *pb.Attr) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	in.DeviceId = deviceID
+
+	return s.ns.Core().GetAttr().Sync(ctx, in)
+}

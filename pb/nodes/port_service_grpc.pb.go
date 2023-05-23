@@ -29,6 +29,7 @@ const (
 	PortService_Link_FullMethodName            = "/nodes.PortService/Link"
 	PortService_ViewWithDeleted_FullMethodName = "/nodes.PortService/ViewWithDeleted"
 	PortService_Pull_FullMethodName            = "/nodes.PortService/Pull"
+	PortService_Sync_FullMethodName            = "/nodes.PortService/Sync"
 )
 
 // PortServiceClient is the client API for PortService service.
@@ -44,6 +45,7 @@ type PortServiceClient interface {
 	Link(ctx context.Context, in *LinkPortRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Port, error)
 	Pull(ctx context.Context, in *PullPortRequest, opts ...grpc.CallOption) (*PullPortResponse, error)
+	Sync(ctx context.Context, in *pb.Port, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type portServiceClient struct {
@@ -135,6 +137,15 @@ func (c *portServiceClient) Pull(ctx context.Context, in *PullPortRequest, opts 
 	return out, nil
 }
 
+func (c *portServiceClient) Sync(ctx context.Context, in *pb.Port, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, PortService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PortServiceServer is the server API for PortService service.
 // All implementations must embed UnimplementedPortServiceServer
 // for forward compatibility
@@ -148,6 +159,7 @@ type PortServiceServer interface {
 	Link(context.Context, *LinkPortRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Port, error)
 	Pull(context.Context, *PullPortRequest) (*PullPortResponse, error)
+	Sync(context.Context, *pb.Port) (*pb.MyBool, error)
 	mustEmbedUnimplementedPortServiceServer()
 }
 
@@ -181,6 +193,9 @@ func (UnimplementedPortServiceServer) ViewWithDeleted(context.Context, *pb.Id) (
 }
 func (UnimplementedPortServiceServer) Pull(context.Context, *PullPortRequest) (*PullPortResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
+}
+func (UnimplementedPortServiceServer) Sync(context.Context, *pb.Port) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedPortServiceServer) mustEmbedUnimplementedPortServiceServer() {}
 
@@ -357,6 +372,24 @@ func _PortService_Pull_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PortService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Port)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PortServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PortService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PortServiceServer).Sync(ctx, req.(*pb.Port))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PortService_ServiceDesc is the grpc.ServiceDesc for PortService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -399,6 +432,10 @@ var PortService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Pull",
 			Handler:    _PortService_Pull_Handler,
+		},
+		{
+			MethodName: "Sync",
+			Handler:    _PortService_Sync_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

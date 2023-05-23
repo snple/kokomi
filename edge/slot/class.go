@@ -209,3 +209,22 @@ func (s *ClassService) Pull(ctx context.Context, in *slots.PullClassRequest) (*s
 
 	return &output, nil
 }
+
+func (s *ClassService) Sync(ctx context.Context, in *pb.Class) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.Edge().GetClass().Sync(ctx, in)
+}

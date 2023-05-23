@@ -30,6 +30,7 @@ const (
 	SourceService_Clone_FullMethodName           = "/edges.SourceService/Clone"
 	SourceService_ViewWithDeleted_FullMethodName = "/edges.SourceService/ViewWithDeleted"
 	SourceService_Pull_FullMethodName            = "/edges.SourceService/Pull"
+	SourceService_Sync_FullMethodName            = "/edges.SourceService/Sync"
 )
 
 // SourceServiceClient is the client API for SourceService service.
@@ -46,6 +47,7 @@ type SourceServiceClient interface {
 	Clone(ctx context.Context, in *CloneSourceRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Source, error)
 	Pull(ctx context.Context, in *PullSourceRequest, opts ...grpc.CallOption) (*PullSourceResponse, error)
+	Sync(ctx context.Context, in *pb.Source, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type sourceServiceClient struct {
@@ -146,6 +148,15 @@ func (c *sourceServiceClient) Pull(ctx context.Context, in *PullSourceRequest, o
 	return out, nil
 }
 
+func (c *sourceServiceClient) Sync(ctx context.Context, in *pb.Source, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, SourceService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SourceServiceServer is the server API for SourceService service.
 // All implementations must embed UnimplementedSourceServiceServer
 // for forward compatibility
@@ -160,6 +171,7 @@ type SourceServiceServer interface {
 	Clone(context.Context, *CloneSourceRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Source, error)
 	Pull(context.Context, *PullSourceRequest) (*PullSourceResponse, error)
+	Sync(context.Context, *pb.Source) (*pb.MyBool, error)
 	mustEmbedUnimplementedSourceServiceServer()
 }
 
@@ -196,6 +208,9 @@ func (UnimplementedSourceServiceServer) ViewWithDeleted(context.Context, *pb.Id)
 }
 func (UnimplementedSourceServiceServer) Pull(context.Context, *PullSourceRequest) (*PullSourceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
+}
+func (UnimplementedSourceServiceServer) Sync(context.Context, *pb.Source) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedSourceServiceServer) mustEmbedUnimplementedSourceServiceServer() {}
 
@@ -390,6 +405,24 @@ func _SourceService_Pull_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SourceService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Source)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SourceServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SourceService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SourceServiceServer).Sync(ctx, req.(*pb.Source))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SourceService_ServiceDesc is the grpc.ServiceDesc for SourceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -437,6 +470,10 @@ var SourceService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Pull",
 			Handler:    _SourceService_Pull_Handler,
 		},
+		{
+			MethodName: "Sync",
+			Handler:    _SourceService_Sync_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "edges/source_service.proto",
@@ -453,15 +490,16 @@ const (
 	TagService_GetValue_FullMethodName                = "/edges.TagService/GetValue"
 	TagService_SetValue_FullMethodName                = "/edges.TagService/SetValue"
 	TagService_SetValueUnchecked_FullMethodName       = "/edges.TagService/SetValueUnchecked"
-	TagService_SyncValue_FullMethodName               = "/edges.TagService/SyncValue"
 	TagService_GetValueByName_FullMethodName          = "/edges.TagService/GetValueByName"
 	TagService_SetValueByName_FullMethodName          = "/edges.TagService/SetValueByName"
 	TagService_SetValueByNameUnchecked_FullMethodName = "/edges.TagService/SetValueByNameUnchecked"
 	TagService_ViewWithDeleted_FullMethodName         = "/edges.TagService/ViewWithDeleted"
 	TagService_Pull_FullMethodName                    = "/edges.TagService/Pull"
+	TagService_Sync_FullMethodName                    = "/edges.TagService/Sync"
 	TagService_ViewValue_FullMethodName               = "/edges.TagService/ViewValue"
 	TagService_DeleteValue_FullMethodName             = "/edges.TagService/DeleteValue"
 	TagService_PullValue_FullMethodName               = "/edges.TagService/PullValue"
+	TagService_SyncValue_FullMethodName               = "/edges.TagService/SyncValue"
 )
 
 // TagServiceClient is the client API for TagService service.
@@ -478,15 +516,16 @@ type TagServiceClient interface {
 	GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValue, error)
 	SetValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueUnchecked(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
-	SyncValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetValueByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.TagNameValue, error)
 	SetValueByName(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueByNameUnchecked(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Tag, error)
 	Pull(ctx context.Context, in *PullTagRequest, opts ...grpc.CallOption) (*PullTagResponse, error)
+	Sync(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValueUpdated, error)
 	DeleteValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
 	PullValue(ctx context.Context, in *PullTagValueRequest, opts ...grpc.CallOption) (*PullTagValueResponse, error)
+	SyncValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type tagServiceClient struct {
@@ -587,15 +626,6 @@ func (c *tagServiceClient) SetValueUnchecked(ctx context.Context, in *pb.TagValu
 	return out, nil
 }
 
-func (c *tagServiceClient) SyncValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_SyncValue_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *tagServiceClient) GetValueByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.TagNameValue, error) {
 	out := new(pb.TagNameValue)
 	err := c.cc.Invoke(ctx, TagService_GetValueByName_FullMethodName, in, out, opts...)
@@ -641,6 +671,15 @@ func (c *tagServiceClient) Pull(ctx context.Context, in *PullTagRequest, opts ..
 	return out, nil
 }
 
+func (c *tagServiceClient) Sync(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, TagService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *tagServiceClient) ViewValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValueUpdated, error) {
 	out := new(pb.TagValueUpdated)
 	err := c.cc.Invoke(ctx, TagService_ViewValue_FullMethodName, in, out, opts...)
@@ -668,6 +707,15 @@ func (c *tagServiceClient) PullValue(ctx context.Context, in *PullTagValueReques
 	return out, nil
 }
 
+func (c *tagServiceClient) SyncValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, TagService_SyncValue_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TagServiceServer is the server API for TagService service.
 // All implementations must embed UnimplementedTagServiceServer
 // for forward compatibility
@@ -682,15 +730,16 @@ type TagServiceServer interface {
 	GetValue(context.Context, *pb.Id) (*pb.TagValue, error)
 	SetValue(context.Context, *pb.TagValue) (*pb.MyBool, error)
 	SetValueUnchecked(context.Context, *pb.TagValue) (*pb.MyBool, error)
-	SyncValue(context.Context, *pb.TagValue) (*pb.MyBool, error)
 	GetValueByName(context.Context, *pb.Name) (*pb.TagNameValue, error)
 	SetValueByName(context.Context, *pb.TagNameValue) (*pb.MyBool, error)
 	SetValueByNameUnchecked(context.Context, *pb.TagNameValue) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Tag, error)
 	Pull(context.Context, *PullTagRequest) (*PullTagResponse, error)
+	Sync(context.Context, *pb.Tag) (*pb.MyBool, error)
 	ViewValue(context.Context, *pb.Id) (*pb.TagValueUpdated, error)
 	DeleteValue(context.Context, *pb.Id) (*pb.MyBool, error)
 	PullValue(context.Context, *PullTagValueRequest) (*PullTagValueResponse, error)
+	SyncValue(context.Context, *pb.TagValue) (*pb.MyBool, error)
 	mustEmbedUnimplementedTagServiceServer()
 }
 
@@ -728,9 +777,6 @@ func (UnimplementedTagServiceServer) SetValue(context.Context, *pb.TagValue) (*p
 func (UnimplementedTagServiceServer) SetValueUnchecked(context.Context, *pb.TagValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetValueUnchecked not implemented")
 }
-func (UnimplementedTagServiceServer) SyncValue(context.Context, *pb.TagValue) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SyncValue not implemented")
-}
 func (UnimplementedTagServiceServer) GetValueByName(context.Context, *pb.Name) (*pb.TagNameValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValueByName not implemented")
 }
@@ -746,6 +792,9 @@ func (UnimplementedTagServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*
 func (UnimplementedTagServiceServer) Pull(context.Context, *PullTagRequest) (*PullTagResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
 }
+func (UnimplementedTagServiceServer) Sync(context.Context, *pb.Tag) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
+}
 func (UnimplementedTagServiceServer) ViewValue(context.Context, *pb.Id) (*pb.TagValueUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewValue not implemented")
 }
@@ -754,6 +803,9 @@ func (UnimplementedTagServiceServer) DeleteValue(context.Context, *pb.Id) (*pb.M
 }
 func (UnimplementedTagServiceServer) PullValue(context.Context, *PullTagValueRequest) (*PullTagValueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PullValue not implemented")
+}
+func (UnimplementedTagServiceServer) SyncValue(context.Context, *pb.TagValue) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SyncValue not implemented")
 }
 func (UnimplementedTagServiceServer) mustEmbedUnimplementedTagServiceServer() {}
 
@@ -948,24 +1000,6 @@ func _TagService_SetValueUnchecked_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_SyncValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.TagValue)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TagServiceServer).SyncValue(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TagService_SyncValue_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).SyncValue(ctx, req.(*pb.TagValue))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _TagService_GetValueByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
@@ -1056,6 +1090,24 @@ func _TagService_Pull_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TagService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Tag)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).Sync(ctx, req.(*pb.Tag))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TagService_ViewValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
@@ -1110,6 +1162,24 @@ func _TagService_PullValue_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TagService_SyncValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.TagValue)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).SyncValue(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_SyncValue_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).SyncValue(ctx, req.(*pb.TagValue))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TagService_ServiceDesc is the grpc.ServiceDesc for TagService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1158,10 +1228,6 @@ var TagService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TagService_SetValueUnchecked_Handler,
 		},
 		{
-			MethodName: "SyncValue",
-			Handler:    _TagService_SyncValue_Handler,
-		},
-		{
 			MethodName: "GetValueByName",
 			Handler:    _TagService_GetValueByName_Handler,
 		},
@@ -1182,6 +1248,10 @@ var TagService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TagService_Pull_Handler,
 		},
 		{
+			MethodName: "Sync",
+			Handler:    _TagService_Sync_Handler,
+		},
+		{
 			MethodName: "ViewValue",
 			Handler:    _TagService_ViewValue_Handler,
 		},
@@ -1192,6 +1262,10 @@ var TagService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PullValue",
 			Handler:    _TagService_PullValue_Handler,
+		},
+		{
+			MethodName: "SyncValue",
+			Handler:    _TagService_SyncValue_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

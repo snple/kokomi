@@ -235,3 +235,22 @@ func (s *CableService) Pull(ctx context.Context, in *slots.PullCableRequest) (*s
 
 	return &output, nil
 }
+
+func (s *CableService) Sync(ctx context.Context, in *pb.Cable) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.Edge().GetCable().Sync(ctx, in)
+}

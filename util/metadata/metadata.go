@@ -60,28 +60,6 @@ func GetToken(ctx context.Context) (string, error) {
 	return token[0], nil
 }
 
-func SetSync(ctx context.Context) context.Context {
-	return metadata.AppendToOutgoingContext(ctx, "sync", "")
-}
-
-func IsSync(ctx context.Context) bool {
-	if md, ok := metadata.FromIncomingContext(ctx); ok {
-		value := md["sync"]
-		if len(value) > 0 {
-			return true
-		}
-	}
-
-	if md, ok := metadata.FromOutgoingContext(ctx); ok {
-		value := md["sync"]
-		if len(value) > 0 {
-			return true
-		}
-	}
-
-	return false
-}
-
 // GetPeerAddr get peer addr
 func GetPeerAddr(ctx context.Context) string {
 	var addr string

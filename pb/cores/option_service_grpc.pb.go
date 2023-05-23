@@ -30,6 +30,7 @@ const (
 	OptionService_Clone_FullMethodName           = "/cores.OptionService/Clone"
 	OptionService_ViewWithDeleted_FullMethodName = "/cores.OptionService/ViewWithDeleted"
 	OptionService_Pull_FullMethodName            = "/cores.OptionService/Pull"
+	OptionService_Sync_FullMethodName            = "/cores.OptionService/Sync"
 )
 
 // OptionServiceClient is the client API for OptionService service.
@@ -46,6 +47,7 @@ type OptionServiceClient interface {
 	Clone(ctx context.Context, in *CloneOptionRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Option, error)
 	Pull(ctx context.Context, in *PullOptionRequest, opts ...grpc.CallOption) (*PullOptionResponse, error)
+	Sync(ctx context.Context, in *pb.Option, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type optionServiceClient struct {
@@ -146,6 +148,15 @@ func (c *optionServiceClient) Pull(ctx context.Context, in *PullOptionRequest, o
 	return out, nil
 }
 
+func (c *optionServiceClient) Sync(ctx context.Context, in *pb.Option, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, OptionService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OptionServiceServer is the server API for OptionService service.
 // All implementations must embed UnimplementedOptionServiceServer
 // for forward compatibility
@@ -160,6 +171,7 @@ type OptionServiceServer interface {
 	Clone(context.Context, *CloneOptionRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Option, error)
 	Pull(context.Context, *PullOptionRequest) (*PullOptionResponse, error)
+	Sync(context.Context, *pb.Option) (*pb.MyBool, error)
 	mustEmbedUnimplementedOptionServiceServer()
 }
 
@@ -196,6 +208,9 @@ func (UnimplementedOptionServiceServer) ViewWithDeleted(context.Context, *pb.Id)
 }
 func (UnimplementedOptionServiceServer) Pull(context.Context, *PullOptionRequest) (*PullOptionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
+}
+func (UnimplementedOptionServiceServer) Sync(context.Context, *pb.Option) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedOptionServiceServer) mustEmbedUnimplementedOptionServiceServer() {}
 
@@ -390,6 +405,24 @@ func _OptionService_Pull_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OptionService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Option)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OptionServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OptionService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OptionServiceServer).Sync(ctx, req.(*pb.Option))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OptionService_ServiceDesc is the grpc.ServiceDesc for OptionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -436,6 +469,10 @@ var OptionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Pull",
 			Handler:    _OptionService_Pull_Handler,
+		},
+		{
+			MethodName: "Sync",
+			Handler:    _OptionService_Sync_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

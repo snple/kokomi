@@ -59,10 +59,10 @@ func DeviceCreate(ctx context.Context, client cores.DeviceServiceClient) {
 
 func DeviceUpdate(ctx context.Context, client cores.DeviceServiceClient) {
 	request := &pb.Device{
-		Id:     "017b8d58b001f3aad847d47e",
+		Id:     "0187f0bb5e6cfdd553884496",
 		Name:   "device1",
 		Desc:   "hahaha",
-		Secret: "456",
+		Secret: "123456.",
 		Status: consts.ON,
 		Tags:   "tag1,tag2",
 	}

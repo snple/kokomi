@@ -209,25 +209,6 @@ func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*p
 	return s.ss.Edge().GetTag().SetValueUnchecked(ctx, in)
 }
 
-func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	_, err = validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	return s.ss.Edge().GetTag().SyncValue(ctx, in)
-}
-
 func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
 	var err error
 	var output pb.TagNameValue
@@ -345,6 +326,25 @@ func (s *TagService) Pull(ctx context.Context, in *slots.PullTagRequest) (*slots
 	return &output, nil
 }
 
+func (s *TagService) Sync(ctx context.Context, in *pb.Tag) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.Edge().GetTag().Sync(ctx, in)
+}
+
 func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
 	var output pb.TagValueUpdated
 	var err error
@@ -421,4 +421,23 @@ func (s *TagService) PullValue(ctx context.Context, in *slots.PullTagValueReques
 	output.Tag = reply.GetTag()
 
 	return &output, nil
+}
+
+func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.Edge().GetTag().SyncValue(ctx, in)
 }

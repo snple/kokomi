@@ -47,4 +47,5 @@ service SlotService {
     rpc Link(LinkSlotRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Slot) {}
     rpc Pull(PullSlotRequest) returns (PullSlotResponse) {}
+    rpc Sync(pb.Slot) returns (pb.MyBool) {}
 }

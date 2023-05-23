@@ -43,14 +43,11 @@ message PullProxyResponse {
 }
 
 service ProxyService {
-    rpc Create(pb.Proxy) returns (pb.Proxy) {}
-    rpc Update(pb.Proxy) returns (pb.Proxy) {}
     rpc View(pb.Id) returns (pb.Proxy) {}
     rpc ViewByName(pb.Name) returns (pb.Proxy) {}
-    rpc Delete(pb.Id) returns (pb.MyBool) {}
     rpc List(ListProxyRequest) returns (ListProxyResponse) {}
     rpc Link(LinkProxyRequest) returns (pb.MyBool) {}
-    rpc Clone(CloneProxyRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Proxy) {}
     rpc Pull(PullProxyRequest) returns (PullProxyResponse) {}
+    rpc Sync(pb.Proxy) returns (pb.MyBool) {}
 }

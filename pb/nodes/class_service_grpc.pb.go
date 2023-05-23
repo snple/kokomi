@@ -28,6 +28,7 @@ const (
 	ClassService_List_FullMethodName            = "/nodes.ClassService/List"
 	ClassService_ViewWithDeleted_FullMethodName = "/nodes.ClassService/ViewWithDeleted"
 	ClassService_Pull_FullMethodName            = "/nodes.ClassService/Pull"
+	ClassService_Sync_FullMethodName            = "/nodes.ClassService/Sync"
 )
 
 // ClassServiceClient is the client API for ClassService service.
@@ -42,6 +43,7 @@ type ClassServiceClient interface {
 	List(ctx context.Context, in *ListClassRequest, opts ...grpc.CallOption) (*ListClassResponse, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Class, error)
 	Pull(ctx context.Context, in *PullClassRequest, opts ...grpc.CallOption) (*PullClassResponse, error)
+	Sync(ctx context.Context, in *pb.Class, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type classServiceClient struct {
@@ -124,6 +126,15 @@ func (c *classServiceClient) Pull(ctx context.Context, in *PullClassRequest, opt
 	return out, nil
 }
 
+func (c *classServiceClient) Sync(ctx context.Context, in *pb.Class, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, ClassService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClassServiceServer is the server API for ClassService service.
 // All implementations must embed UnimplementedClassServiceServer
 // for forward compatibility
@@ -136,6 +147,7 @@ type ClassServiceServer interface {
 	List(context.Context, *ListClassRequest) (*ListClassResponse, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Class, error)
 	Pull(context.Context, *PullClassRequest) (*PullClassResponse, error)
+	Sync(context.Context, *pb.Class) (*pb.MyBool, error)
 	mustEmbedUnimplementedClassServiceServer()
 }
 
@@ -166,6 +178,9 @@ func (UnimplementedClassServiceServer) ViewWithDeleted(context.Context, *pb.Id) 
 }
 func (UnimplementedClassServiceServer) Pull(context.Context, *PullClassRequest) (*PullClassResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
+}
+func (UnimplementedClassServiceServer) Sync(context.Context, *pb.Class) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedClassServiceServer) mustEmbedUnimplementedClassServiceServer() {}
 
@@ -324,6 +339,24 @@ func _ClassService_Pull_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClassService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Class)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClassServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ClassService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClassServiceServer).Sync(ctx, req.(*pb.Class))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClassService_ServiceDesc is the grpc.ServiceDesc for ClassService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -363,6 +396,10 @@ var ClassService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Pull",
 			Handler:    _ClassService_Pull_Handler,
 		},
+		{
+			MethodName: "Sync",
+			Handler:    _ClassService_Sync_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "nodes/class_service.proto",
@@ -383,6 +420,7 @@ const (
 	AttrService_SetValueByNameUnchecked_FullMethodName = "/nodes.AttrService/SetValueByNameUnchecked"
 	AttrService_ViewWithDeleted_FullMethodName         = "/nodes.AttrService/ViewWithDeleted"
 	AttrService_Pull_FullMethodName                    = "/nodes.AttrService/Pull"
+	AttrService_Sync_FullMethodName                    = "/nodes.AttrService/Sync"
 )
 
 // AttrServiceClient is the client API for AttrService service.
@@ -403,6 +441,7 @@ type AttrServiceClient interface {
 	SetValueByNameUnchecked(ctx context.Context, in *pb.AttrNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Attr, error)
 	Pull(ctx context.Context, in *PullAttrRequest, opts ...grpc.CallOption) (*PullAttrResponse, error)
+	Sync(ctx context.Context, in *pb.Attr, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type attrServiceClient struct {
@@ -539,6 +578,15 @@ func (c *attrServiceClient) Pull(ctx context.Context, in *PullAttrRequest, opts 
 	return out, nil
 }
 
+func (c *attrServiceClient) Sync(ctx context.Context, in *pb.Attr, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, AttrService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AttrServiceServer is the server API for AttrService service.
 // All implementations must embed UnimplementedAttrServiceServer
 // for forward compatibility
@@ -557,6 +605,7 @@ type AttrServiceServer interface {
 	SetValueByNameUnchecked(context.Context, *pb.AttrNameValue) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Attr, error)
 	Pull(context.Context, *PullAttrRequest) (*PullAttrResponse, error)
+	Sync(context.Context, *pb.Attr) (*pb.MyBool, error)
 	mustEmbedUnimplementedAttrServiceServer()
 }
 
@@ -605,6 +654,9 @@ func (UnimplementedAttrServiceServer) ViewWithDeleted(context.Context, *pb.Id) (
 }
 func (UnimplementedAttrServiceServer) Pull(context.Context, *PullAttrRequest) (*PullAttrResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
+}
+func (UnimplementedAttrServiceServer) Sync(context.Context, *pb.Attr) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedAttrServiceServer) mustEmbedUnimplementedAttrServiceServer() {}
 
@@ -871,6 +923,24 @@ func _AttrService_Pull_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AttrService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Attr)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AttrServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AttrService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AttrServiceServer).Sync(ctx, req.(*pb.Attr))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AttrService_ServiceDesc is the grpc.ServiceDesc for AttrService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -933,6 +1003,10 @@ var AttrService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Pull",
 			Handler:    _AttrService_Pull_Handler,
+		},
+		{
+			MethodName: "Sync",
+			Handler:    _AttrService_Sync_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

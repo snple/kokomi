@@ -239,3 +239,22 @@ func (s *SourceService) Pull(ctx context.Context, in *slots.PullSourceRequest) (
 
 	return &output, nil
 }
+
+func (s *SourceService) Sync(ctx context.Context, in *pb.Source) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.Edge().GetSource().Sync(ctx, in)
+}

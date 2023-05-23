@@ -31,6 +31,7 @@ const (
 	ProxyService_Clone_FullMethodName           = "/cores.ProxyService/Clone"
 	ProxyService_ViewWithDeleted_FullMethodName = "/cores.ProxyService/ViewWithDeleted"
 	ProxyService_Pull_FullMethodName            = "/cores.ProxyService/Pull"
+	ProxyService_Sync_FullMethodName            = "/cores.ProxyService/Sync"
 )
 
 // ProxyServiceClient is the client API for ProxyService service.
@@ -48,6 +49,7 @@ type ProxyServiceClient interface {
 	Clone(ctx context.Context, in *CloneProxyRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Proxy, error)
 	Pull(ctx context.Context, in *PullProxyRequest, opts ...grpc.CallOption) (*PullProxyResponse, error)
+	Sync(ctx context.Context, in *pb.Proxy, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type proxyServiceClient struct {
@@ -157,6 +159,15 @@ func (c *proxyServiceClient) Pull(ctx context.Context, in *PullProxyRequest, opt
 	return out, nil
 }
 
+func (c *proxyServiceClient) Sync(ctx context.Context, in *pb.Proxy, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, ProxyService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProxyServiceServer is the server API for ProxyService service.
 // All implementations must embed UnimplementedProxyServiceServer
 // for forward compatibility
@@ -172,6 +183,7 @@ type ProxyServiceServer interface {
 	Clone(context.Context, *CloneProxyRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Proxy, error)
 	Pull(context.Context, *PullProxyRequest) (*PullProxyResponse, error)
+	Sync(context.Context, *pb.Proxy) (*pb.MyBool, error)
 	mustEmbedUnimplementedProxyServiceServer()
 }
 
@@ -211,6 +223,9 @@ func (UnimplementedProxyServiceServer) ViewWithDeleted(context.Context, *pb.Id) 
 }
 func (UnimplementedProxyServiceServer) Pull(context.Context, *PullProxyRequest) (*PullProxyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
+}
+func (UnimplementedProxyServiceServer) Sync(context.Context, *pb.Proxy) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedProxyServiceServer) mustEmbedUnimplementedProxyServiceServer() {}
 
@@ -423,6 +438,24 @@ func _ProxyService_Pull_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProxyService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Proxy)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProxyServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProxyService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProxyServiceServer).Sync(ctx, req.(*pb.Proxy))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProxyService_ServiceDesc is the grpc.ServiceDesc for ProxyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -473,6 +506,10 @@ var ProxyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Pull",
 			Handler:    _ProxyService_Pull_Handler,
+		},
+		{
+			MethodName: "Sync",
+			Handler:    _ProxyService_Sync_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

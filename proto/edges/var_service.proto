@@ -53,4 +53,5 @@ service VarService {
     rpc SetValueByNameUnchecked(pb.VarNameValue) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Var) {}
     rpc Pull(PullVarRequest) returns (PullVarResponse) {}
+    rpc Sync(pb.Var) returns (pb.MyBool) {}
 }
