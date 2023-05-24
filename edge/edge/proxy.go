@@ -103,7 +103,7 @@ func newProxyService(es *EdgeService) *ProxyService {
 // 		}
 
 // 		if len(in.GetId()) == 0 {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy_id")
 // 		}
 
 // 		if len(in.GetName()) == 0 {
@@ -171,7 +171,7 @@ func (s *ProxyService) View(ctx context.Context, in *pb.Id) (*pb.Proxy, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy_id")
 		}
 	}
 
@@ -221,7 +221,7 @@ func (s *ProxyService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Proxy, 
 // 		}
 
 // 		if len(in.GetId()) == 0 {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy_id")
 // 		}
 // 	}
 
@@ -380,7 +380,7 @@ func (s *ProxyService) Clone(ctx context.Context, in *edges.CloneProxyRequest) (
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy_id")
 		}
 	}
 
@@ -505,7 +505,7 @@ func (s *ProxyService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Prox
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy id")
 		}
 	}
 

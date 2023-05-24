@@ -707,10 +707,10 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "source name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "slot name min 2 character")
 			}
 
-			modelItem := model.Source{}
+			modelItem := model.Slot{}
 			err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
 			if err != nil {
 				if err != sql.ErrNoRows {
@@ -718,7 +718,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "source name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "slot name must be unique")
 				}
 			}
 		}

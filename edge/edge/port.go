@@ -103,7 +103,7 @@ func (s *PortService) Update(ctx context.Context, in *pb.Port) (*pb.Port, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid port_id")
 		}
 
 		if len(in.GetName()) == 0 {
@@ -170,7 +170,7 @@ func (s *PortService) View(ctx context.Context, in *pb.Id) (*pb.Port, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid port_id")
 		}
 	}
 
@@ -220,7 +220,7 @@ func (s *PortService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid port_id")
 		}
 	}
 
@@ -379,7 +379,7 @@ func (s *PortService) Clone(ctx context.Context, in *edges.ClonePortRequest) (*p
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid port_id")
 		}
 	}
 
@@ -503,7 +503,7 @@ func (s *PortService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Port,
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid port id")
 		}
 	}
 
