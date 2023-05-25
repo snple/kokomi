@@ -48,7 +48,7 @@ func (s *BadgerService) start() {
 			{
 			again:
 				err := s.badger.RunValueLogGC(s.es.dopts.badgerGCDiscardRatio)
-				if err != nil {
+				if err == nil {
 					goto again
 				}
 			}
