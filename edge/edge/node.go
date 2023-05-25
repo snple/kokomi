@@ -401,38 +401,6 @@ func (s *NodeService) login(ctx context.Context) error {
 		return errors.New("login: reply token is empty")
 	}
 
-	ctx = metadata.SetToken(ctx, reply.GetToken())
-
-	// query remote database
-	remoteDevice, err := s.DeviceServiceClient().View(ctx, &pb.MyEmpty{})
-	if err != nil {
-		return err
-	}
-
-	insert := false
-
-	// query local database and insert
-	_, err = s.es.GetDevice().View(ctx, &pb.MyEmpty{})
-	if err != nil {
-		if code, ok := status.FromError(err); ok {
-			if code.Code() == codes.NotFound {
-				insert = true
-				goto SKIP
-			}
-		}
-
-		return err
-	}
-
-SKIP:
-
-	if insert {
-		_, err = s.es.GetDevice().Create(ctx, remoteDevice)
-		if err != nil {
-			return err
-		}
-	}
-
 	// set token
 	s.lock.Lock()
 	s.token = reply.GetToken()

@@ -164,6 +164,34 @@ func (s *DeviceService) Link(ctx context.Context, in *nodes.LinkDeviceRequest) (
 	return s.ns.Core().GetDevice().Link(ctx, request)
 }
 
+func (s *DeviceService) ViewWithDeleted(ctx context.Context, in *pb.MyEmpty) (*pb.Device, error) {
+	var output pb.Device
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	request := &pb.Id{Id: deviceID}
+
+	reply, err := s.ns.Core().GetDevice().ViewWithDeleted(ctx, request)
+	if err != nil {
+		return &output, err
+	}
+
+	reply.Secret = ""
+
+	return reply, err
+}
+
 func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
@@ -186,13 +214,14 @@ func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, er
 
 	request := &pb.Id{Id: deviceID}
 
-	reply, err := s.ns.Core().GetDevice().View(ctx, request)
+	reply, err := s.ns.Core().GetDevice().ViewWithDeleted(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
 	in.Secret = reply.GetSecret()
 	in.Status = reply.GetStatus()
+	in.Deleted = reply.GetDeleted()
 
 	return s.ns.Core().GetDevice().Sync(ctx, in)
 }

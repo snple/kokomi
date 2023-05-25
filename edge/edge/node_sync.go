@@ -28,7 +28,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 
 	// device
 	{
-		remote, err := s.DeviceServiceClient().View(ctx, &pb.MyEmpty{})
+		remote, err := s.DeviceServiceClient().ViewWithDeleted(ctx, &pb.MyEmpty{})
 		if err != nil {
 			return err
 		}
@@ -347,7 +347,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 
 	// device
 	{
-		local, err := s.es.GetDevice().View(ctx, &pb.MyEmpty{})
+		local, err := s.es.GetDevice().ViewWithDeleted(ctx, &pb.MyEmpty{})
 		if err != nil {
 			return err
 		}

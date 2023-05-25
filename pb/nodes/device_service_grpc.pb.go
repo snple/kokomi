@@ -20,11 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	DeviceService_Login_FullMethodName  = "/nodes.DeviceService/Login"
-	DeviceService_Update_FullMethodName = "/nodes.DeviceService/Update"
-	DeviceService_View_FullMethodName   = "/nodes.DeviceService/View"
-	DeviceService_Link_FullMethodName   = "/nodes.DeviceService/Link"
-	DeviceService_Sync_FullMethodName   = "/nodes.DeviceService/Sync"
+	DeviceService_Login_FullMethodName           = "/nodes.DeviceService/Login"
+	DeviceService_Update_FullMethodName          = "/nodes.DeviceService/Update"
+	DeviceService_View_FullMethodName            = "/nodes.DeviceService/View"
+	DeviceService_Link_FullMethodName            = "/nodes.DeviceService/Link"
+	DeviceService_ViewWithDeleted_FullMethodName = "/nodes.DeviceService/ViewWithDeleted"
+	DeviceService_Sync_FullMethodName            = "/nodes.DeviceService/Sync"
 )
 
 // DeviceServiceClient is the client API for DeviceService service.
@@ -35,6 +36,7 @@ type DeviceServiceClient interface {
 	Update(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.Device, error)
 	View(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*pb.Device, error)
 	Link(ctx context.Context, in *LinkDeviceRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	ViewWithDeleted(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*pb.Device, error)
 	Sync(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
@@ -82,6 +84,15 @@ func (c *deviceServiceClient) Link(ctx context.Context, in *LinkDeviceRequest, o
 	return out, nil
 }
 
+func (c *deviceServiceClient) ViewWithDeleted(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*pb.Device, error) {
+	out := new(pb.Device)
+	err := c.cc.Invoke(ctx, DeviceService_ViewWithDeleted_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *deviceServiceClient) Sync(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, DeviceService_Sync_FullMethodName, in, out, opts...)
@@ -99,6 +110,7 @@ type DeviceServiceServer interface {
 	Update(context.Context, *pb.Device) (*pb.Device, error)
 	View(context.Context, *pb.MyEmpty) (*pb.Device, error)
 	Link(context.Context, *LinkDeviceRequest) (*pb.MyBool, error)
+	ViewWithDeleted(context.Context, *pb.MyEmpty) (*pb.Device, error)
 	Sync(context.Context, *pb.Device) (*pb.MyBool, error)
 	mustEmbedUnimplementedDeviceServiceServer()
 }
@@ -118,6 +130,9 @@ func (UnimplementedDeviceServiceServer) View(context.Context, *pb.MyEmpty) (*pb.
 }
 func (UnimplementedDeviceServiceServer) Link(context.Context, *LinkDeviceRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Link not implemented")
+}
+func (UnimplementedDeviceServiceServer) ViewWithDeleted(context.Context, *pb.MyEmpty) (*pb.Device, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
 }
 func (UnimplementedDeviceServiceServer) Sync(context.Context, *pb.Device) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
@@ -207,6 +222,24 @@ func _DeviceService_Link_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DeviceService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.MyEmpty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeviceServiceServer).ViewWithDeleted(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DeviceService_ViewWithDeleted_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeviceServiceServer).ViewWithDeleted(ctx, req.(*pb.MyEmpty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _DeviceService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Device)
 	if err := dec(in); err != nil {
@@ -247,6 +280,10 @@ var DeviceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Link",
 			Handler:    _DeviceService_Link_Handler,
+		},
+		{
+			MethodName: "ViewWithDeleted",
+			Handler:    _DeviceService_ViewWithDeleted_Handler,
 		},
 		{
 			MethodName: "Sync",

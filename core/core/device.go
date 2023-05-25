@@ -528,6 +528,7 @@ func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device)
 	output.Status = item.Status
 	output.Created = item.Created.UnixMicro()
 	output.Updated = item.Updated.UnixMicro()
+	output.Deleted = item.Deleted.UnixMicro()
 }
 
 func (s *DeviceService) afterUpdate(ctx context.Context, item *model.Device) error {
@@ -552,6 +553,31 @@ func (s *DeviceService) afterDelete(ctx context.Context, item *model.Device) err
 	return nil
 }
 
+func (s *DeviceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Device, error) {
+	var output pb.Device
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+		}
+	}
+
+	item, err := s.viewWithDeleted(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	s.copyModelToOutput(&output, &item)
+
+	return &output, nil
+}
+
 func (s *DeviceService) viewWithDeleted(ctx context.Context, id string) (model.Device, error) {
 	item := model.Device{
 		ID: id,
@@ -567,6 +593,44 @@ func (s *DeviceService) viewWithDeleted(ctx context.Context, id string) (model.D
 	}
 
 	return item, nil
+}
+
+func (s *DeviceService) Pull(ctx context.Context, in *cores.PullDeviceRequest) (*cores.PullDeviceResponse, error) {
+	var err error
+	var output cores.PullDeviceResponse
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	output.After = in.GetAfter()
+	output.Limit = in.GetLimit()
+
+	var items []model.Device
+
+	query := s.cs.GetDB().NewSelect().Model(&items)
+
+	if in.GetType() != "" {
+		query.Where(`type = ?`, in.GetType())
+	}
+
+	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "Query: %v", err)
+	}
+
+	for i := 0; i < len(items); i++ {
+		item := pb.Device{}
+
+		s.copyModelToOutput(&item, &items[i])
+
+		output.Device = append(output.Device, &item)
+	}
+
+	return &output, nil
 }
 
 func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, error) {
@@ -683,8 +747,9 @@ SKIP:
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
 		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
 
-		_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+		_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
 		if err != nil {
 			return &output, status.Errorf(codes.Internal, "Update: %v", err)
 		}

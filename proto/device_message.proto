@@ -16,4 +16,5 @@ message Device {
     sint32 status = 10;
     int64 created = 11;
     int64 updated = 12;
+    int64 deleted = 13;
 }

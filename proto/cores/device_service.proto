@@ -23,6 +23,18 @@ message LinkDeviceRequest {
     sint32 status = 2;
 }
 
+message PullDeviceRequest {
+    int64 after = 1;
+    uint32 limit = 2;
+    string type = 3;
+}
+
+message PullDeviceResponse {
+    int64 after = 1;
+    uint32 limit = 2;
+    repeated pb.Device device = 3;
+}
+
 service DeviceService {
     rpc Create(pb.Device) returns (pb.Device) {}
     rpc Update(pb.Device) returns (pb.Device) {}
@@ -33,5 +45,7 @@ service DeviceService {
     rpc Link(LinkDeviceRequest) returns (pb.MyBool) {}
     rpc Destory(pb.Id) returns (pb.MyBool) {}
     rpc Clone(pb.Id) returns (pb.MyBool) {}
+    rpc ViewWithDeleted(pb.Id) returns (pb.Device) {}
+    rpc Pull(PullDeviceRequest) returns (PullDeviceResponse) {}
     rpc Sync(pb.Device) returns (pb.MyBool) {}
 }

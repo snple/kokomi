@@ -8,7 +8,6 @@ import (
 	"github.com/snple/kokomi/edge/model"
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/edges"
-	"github.com/snple/kokomi/util"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -25,67 +24,67 @@ func newDeviceService(es *EdgeService) *DeviceService {
 	}
 }
 
-func (s *DeviceService) Create(ctx context.Context, in *pb.Device) (*pb.Device, error) {
-	var output pb.Device
-	var err error
+// func (s *DeviceService) Create(ctx context.Context, in *pb.Device) (*pb.Device, error) {
+// 	var output pb.Device
+// 	var err error
 
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
+// 	// basic validation
+// 	{
+// 		if in == nil {
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+// 		}
 
-		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device name")
-		}
-	}
+// 		if len(in.GetName()) == 0 {
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid device name")
+// 		}
+// 	}
 
-	// name validation
-	{
-		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "device name min 2 character")
-		}
+// 	// name validation
+// 	{
+// 		if len(in.GetName()) < 2 {
+// 			return &output, status.Error(codes.InvalidArgument, "device name min 2 character")
+// 		}
 
-		err = s.es.GetDB().NewSelect().Model(&model.Device{}).Where("name = ?", in.GetName()).Scan(ctx)
-		if err != nil {
-			if err != sql.ErrNoRows {
-				return &output, status.Errorf(codes.Internal, "Query: %v", err)
-			}
-		} else {
-			return &output, status.Error(codes.AlreadyExists, "device name must be unique")
-		}
-	}
+// 		err = s.es.GetDB().NewSelect().Model(&model.Device{}).Where("name = ?", in.GetName()).Scan(ctx)
+// 		if err != nil {
+// 			if err != sql.ErrNoRows {
+// 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
+// 			}
+// 		} else {
+// 			return &output, status.Error(codes.AlreadyExists, "device name must be unique")
+// 		}
+// 	}
 
-	item := model.Device{
-		ID:       in.GetId(),
-		Name:     in.GetName(),
-		Desc:     in.GetDesc(),
-		Tags:     in.GetTags(),
-		Type:     in.GetType(),
-		Location: in.GetLocation(),
-		Config:   in.GetConfig(),
-		Status:   in.GetStatus(),
-		Created:  time.Now(),
-		Updated:  time.Now(),
-	}
+// 	item := model.Device{
+// 		ID:       in.GetId(),
+// 		Name:     in.GetName(),
+// 		Desc:     in.GetDesc(),
+// 		Tags:     in.GetTags(),
+// 		Type:     in.GetType(),
+// 		Location: in.GetLocation(),
+// 		Config:   in.GetConfig(),
+// 		Status:   in.GetStatus(),
+// 		Created:  time.Now(),
+// 		Updated:  time.Now(),
+// 	}
 
-	if len(item.ID) == 0 {
-		item.ID = util.RandomID()
-	}
+// 	if len(item.ID) == 0 {
+// 		item.ID = util.RandomID()
+// 	}
 
-	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
-	if err != nil {
-		return &output, status.Errorf(codes.Internal, "Insert: %v", err)
-	}
+// 	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
+// 	if err != nil {
+// 		return &output, status.Errorf(codes.Internal, "Insert: %v", err)
+// 	}
 
-	if err = s.afterUpdate(ctx, &item); err != nil {
-		return &output, err
-	}
+// 	if err = s.afterUpdate(ctx, &item); err != nil {
+// 		return &output, err
+// 	}
 
-	s.copyModelToOutput(&output, &item)
+// 	s.copyModelToOutput(&output, &item)
 
-	return &output, nil
-}
+// 	return &output, nil
+// }
 
 func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, error) {
 	var output pb.Device
@@ -247,6 +246,7 @@ func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device)
 	output.Link = s.es.GetStatus().GetDeviceLink()
 	output.Created = item.Created.UnixMicro()
 	output.Updated = item.Updated.UnixMicro()
+	output.Deleted = item.Updated.UnixMicro()
 }
 
 func (s *DeviceService) afterUpdate(ctx context.Context, item *model.Device) error {
@@ -258,6 +258,27 @@ func (s *DeviceService) afterUpdate(ctx context.Context, item *model.Device) err
 	}
 
 	return nil
+}
+
+func (s *DeviceService) ViewWithDeleted(ctx context.Context, in *pb.MyEmpty) (*pb.Device, error) {
+	var output pb.Device
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	item, err := s.viewWithDeleted(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	s.copyModelToOutput(&output, &item)
+
+	return &output, nil
 }
 
 func (s *DeviceService) viewWithDeleted(ctx context.Context) (model.Device, error) {
@@ -301,7 +322,7 @@ func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, er
 	insert := false
 	update := false
 
-	item, err := s.view(ctx)
+	item, err := s.viewWithDeleted(ctx)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -387,15 +408,16 @@ SKIP:
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
 		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
 
-		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
 		if err != nil {
 			return &output, status.Errorf(codes.Internal, "Update: %v", err)
 		}
 
 		// update device id
 		if len(in.GetId()) > 0 && in.GetId() != item.ID {
-			_, err = s.es.GetDB().NewUpdate().Model(&item).Set("id = ?", in.GetId()).WherePK().Exec(ctx)
+			_, err = s.es.GetDB().NewUpdate().Model(&item).Set("id = ?", in.GetId()).WherePK().WhereAllWithDeleted().Exec(ctx)
 			if err != nil {
 				return &output, status.Errorf(codes.Internal, "Update: %v", err)
 			}
