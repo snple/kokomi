@@ -127,6 +127,13 @@ func EdgeContext(ctx context.Context, db *bun.DB, badger *badger.DB, opts ...Edg
 }
 
 func (es *EdgeService) Start() {
+	go func() {
+		es.closeWG.Add(1)
+		defer es.closeWG.Done()
+
+		es.badger.start()
+	}()
+
 	if es.node.IsSome() {
 		go func() {
 			es.closeWG.Add(1)
@@ -168,6 +175,8 @@ func (es *EdgeService) Stop() {
 	if es.node.IsSome() {
 		es.node.Unwrap().stop()
 	}
+
+	es.badger.stop()
 
 	es.cancel()
 	es.closeWG.Wait()
