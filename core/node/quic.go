@@ -20,7 +20,7 @@ import (
 type QuicService struct {
 	ns *NodeService
 
-	listener quic.Listener
+	listener *quic.Listener
 
 	conns map[string]*quicChannels
 	lock  sync.RWMutex
