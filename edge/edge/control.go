@@ -202,7 +202,7 @@ func (s *ControlService) LinkSource(slotID string, sourceID string, status int32
 	defer s.lock.Unlock()
 
 	if status == consts.ON {
-		s.sourceCache.Set(sourceID, slotID, s.es.dopts.linkStatusTTL)
+		s.sourceCache.Set(sourceID, slotID, s.es.dopts.linkTTL)
 	} else {
 		s.sourceCache.Delete(sourceID)
 	}

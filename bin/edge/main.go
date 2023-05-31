@@ -68,12 +68,14 @@ func main() {
 
 	{
 		edgeOpts = append(edgeOpts, edge.WithDeviceID(config.Config.DeviceID, config.Config.Secret))
+		edgeOpts = append(edgeOpts, edge.WithLinkTTL(time.Second*time.Duration(config.Config.Status.LinkTTL)))
 
-		edgeOpts = append(edgeOpts, edge.WithLinkStatusTTL(time.Second*time.Duration(config.Config.Sync.LinkStatusTTL)))
-		edgeOpts = append(edgeOpts, edge.WithTokenRefresh(time.Second*time.Duration(config.Config.Sync.TokenRefresh)))
-		edgeOpts = append(edgeOpts, edge.WithSyncLinkStatus(time.Second*time.Duration(config.Config.Sync.SyncLinkStatus)))
-		edgeOpts = append(edgeOpts, edge.WithSyncInterval(time.Second*time.Duration(config.Config.Sync.SyncInterval)))
-		edgeOpts = append(edgeOpts, edge.WithSyncRealtime(config.Config.Sync.SyncRealtime))
+		edgeOpts = append(edgeOpts, edge.WithSync(&edge.SyncOptions{
+			TokenRefresh: time.Second * time.Duration(config.Config.Sync.TokenRefresh),
+			Link:         time.Second * time.Duration(config.Config.Sync.Link),
+			Ticker:       time.Second * time.Duration(config.Config.Sync.Ticker),
+			Realtime:     config.Config.Sync.Realtime,
+		}))
 	}
 
 	{
@@ -107,7 +109,11 @@ func main() {
 			grpcOpts = append(grpcOpts, grpc.WithInsecure())
 		}
 
-		edgeOpts = append(edgeOpts, edge.WithNode(config.Config.NodeClient.Addr, grpcOpts))
+		edgeOpts = append(edgeOpts, edge.WithNode(&edge.NodeOptions{
+			Enable:  config.Config.NodeClient.Enable,
+			Addr:    config.Config.NodeClient.Addr,
+			Options: grpcOpts,
+		}))
 	}
 
 	if config.Config.QuicClient.Enable {
@@ -127,7 +133,12 @@ func main() {
 			MaxIdleTimeout:  time.Minute * 3,
 		}
 
-		edgeOpts = append(edgeOpts, edge.WithQuic(config.Config.QuicClient.Addr, tlsConfig, quicConfig))
+		edgeOpts = append(edgeOpts, edge.WithQuic(&edge.QuicOptions{
+			Enable:     config.Config.QuicClient.Enable,
+			Addr:       config.Config.QuicClient.Addr,
+			TLSConfig:  tlsConfig,
+			QUICConfig: quicConfig,
+		}))
 	}
 
 	es, err := edge.Edge(bundb, badgerdb, edgeOpts...)
@@ -219,8 +230,8 @@ func cli(command string, bundb *bun.DB, badgerdb *badger.DB) error {
 	log.Logger.Sugar().Infof("cli %v: Started", command)
 	defer log.Logger.Sugar().Infof("cli %v : Completed", command)
 
-	opts := make([]edge.EdgeOption, 0)
-	opts = append(opts, edge.WithDeviceID(config.Config.DeviceID, config.Config.Secret))
+	edgeOpts := make([]edge.EdgeOption, 0)
+	edgeOpts = append(edgeOpts, edge.WithDeviceID(config.Config.DeviceID, config.Config.Secret))
 
 	{
 		kacp := keepalive.ClientParameters{
@@ -253,10 +264,14 @@ func cli(command string, bundb *bun.DB, badgerdb *badger.DB) error {
 			grpcOpts = append(grpcOpts, grpc.WithInsecure())
 		}
 
-		opts = append(opts, edge.WithNode(config.Config.NodeClient.Addr, grpcOpts))
+		edgeOpts = append(edgeOpts, edge.WithNode(&edge.NodeOptions{
+			Enable:  config.Config.NodeClient.Enable,
+			Addr:    config.Config.NodeClient.Addr,
+			Options: grpcOpts,
+		}))
 	}
 
-	es, err := edge.Edge(bundb, badgerdb, opts...)
+	es, err := edge.Edge(bundb, badgerdb, edgeOpts...)
 	if err != nil {
 		log.Logger.Sugar().Fatalf("NewEdgeService: %v", err)
 	}

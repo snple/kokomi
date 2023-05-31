@@ -14,8 +14,8 @@ type ConfigStruct struct {
 	DB          DB          `toml:"db"`
 	CoreService GRPCService `toml:"core"`
 	NodeService GRPCService `toml:"node"`
-	Status      Status      `toml:"status"`
 	QuicService QuicService `toml:"quic"`
+	Status      Status      `toml:"status"`
 	Gin         Gin         `toml:"gin"`
 	HttpService HttpService `toml:"http"`
 	Statics     []Static    `toml:"static"`
@@ -36,7 +36,6 @@ type GRPCService struct {
 }
 
 type Status struct {
-	TagTTL  int `toml:"tag_ttl"`
 	LinkTTL int `toml:"link_ttl"`
 }
 
@@ -90,16 +89,15 @@ func DefaultConfig() ConfigStruct {
 			Cert:   "certs/server.crt",
 			Key:    "certs/server.key",
 		},
-		Status: Status{
-			TagTTL:  3 * 60,
-			LinkTTL: 3 * 60,
-		},
 		QuicService: QuicService{
 			Enable: true,
 			Addr:   ":6008",
 			CA:     "certs/ca.crt",
 			Cert:   "certs/server.crt",
 			Key:    "certs/server.key",
+		},
+		Status: Status{
+			LinkTTL: 3 * 60,
 		},
 	}
 }

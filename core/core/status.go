@@ -32,5 +32,5 @@ func (s *StatusService) GetLinkValue(key string) types.Option[cache.Value[int32]
 }
 
 func (s *StatusService) SetLink(key string, status int32) {
-	s.link.Set(key, status, s.cs.dopts.linkStatusTTL)
+	s.link.Set(key, status, s.cs.dopts.linkTTL)
 }

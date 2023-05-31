@@ -403,7 +403,7 @@ func (tl *tunnelListener) syncLinkStatus() {
 	tl.closeWG.Add(1)
 	defer tl.closeWG.Done()
 
-	ticker := time.NewTicker(tl.ts.es.dopts.syncLinkStatus)
+	ticker := time.NewTicker(tl.ts.es.dopts.SyncOptions.Link)
 	defer ticker.Stop()
 
 	defer func() {

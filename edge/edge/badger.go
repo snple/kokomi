@@ -37,7 +37,7 @@ func (s *BadgerService) start() {
 
 	s.es.Logger().Sugar().Info("badger service started")
 
-	ticker := time.NewTicker(s.es.dopts.badgerGCInterval)
+	ticker := time.NewTicker(s.es.dopts.BadgerOptions.GC)
 	defer ticker.Stop()
 
 	for {
@@ -47,7 +47,7 @@ func (s *BadgerService) start() {
 		case <-ticker.C:
 			{
 			again:
-				err := s.badger.RunValueLogGC(s.es.dopts.badgerGCDiscardRatio)
+				err := s.badger.RunValueLogGC(s.es.dopts.BadgerOptions.GCDiscardRatio)
 				if err == nil {
 					goto again
 				}

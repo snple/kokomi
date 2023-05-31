@@ -102,14 +102,14 @@ func EdgeContext(ctx context.Context, db *bun.DB, badger *badger.DB, opts ...Edg
 	es.attr = newAttrService(es)
 	es.control = newControlService(es)
 
-	if es.dopts.nodeOptions != nil {
+	if es.dopts.NodeOptions.Enable {
 		node, err := newNodeService(es)
 		if err != nil {
 			return nil, err
 		}
 		es.node = types.Some(node)
 
-		if es.dopts.quicOptions != nil {
+		if es.dopts.QuicOptions.Enable {
 			quic, err := newQuicService(es)
 			if err != nil {
 				return es, err
@@ -334,28 +334,37 @@ type edgeOptions struct {
 	deviceID string
 	secret   string
 
-	nodeOptions *nodeOptions
-	quicOptions *quicOptions
+	NodeOptions   *NodeOptions
+	QuicOptions   *QuicOptions
+	SyncOptions   *SyncOptions
+	BadgerOptions *BadgerOptions
 
-	linkStatusTTL  time.Duration
-	tokenRefresh   time.Duration
-	syncLinkStatus time.Duration
-	syncInterval   time.Duration
-	syncRealtime   bool
-
-	badgerGCInterval     time.Duration
-	badgerGCDiscardRatio float64
+	linkTTL time.Duration
 }
 
-type nodeOptions struct {
+type NodeOptions struct {
+	Enable  bool
 	Addr    string
 	Options []grpc.DialOption
 }
 
-type quicOptions struct {
+type QuicOptions struct {
+	Enable     bool
 	Addr       string
 	TLSConfig  *tls.Config
 	QUICConfig *quic.Config
+}
+
+type SyncOptions struct {
+	TokenRefresh time.Duration
+	Link         time.Duration
+	Ticker       time.Duration
+	Realtime     bool
+}
+
+type BadgerOptions struct {
+	GC             time.Duration
+	GCDiscardRatio float64
 }
 
 func defaultEdgeOptions() edgeOptions {
@@ -365,19 +374,25 @@ func defaultEdgeOptions() edgeOptions {
 	}
 
 	return edgeOptions{
-		logger:               logger,
-		linkStatusTTL:        3 * time.Minute,
-		tokenRefresh:         30 * time.Minute,
-		syncLinkStatus:       time.Minute,
-		syncInterval:         time.Minute,
-		syncRealtime:         false,
-		badgerGCInterval:     time.Hour,
-		badgerGCDiscardRatio: 0.7,
+		logger:      logger,
+		NodeOptions: &NodeOptions{},
+		QuicOptions: &QuicOptions{},
+		SyncOptions: &SyncOptions{
+			TokenRefresh: 3 * time.Minute,
+			Link:         time.Minute,
+			Ticker:       time.Minute,
+			Realtime:     false,
+		},
+		BadgerOptions: &BadgerOptions{
+			GC:             time.Hour,
+			GCDiscardRatio: 0.7,
+		},
+		linkTTL: 3 * time.Minute,
 	}
 }
 
 func (o *edgeOptions) check() error {
-	if o.nodeOptions == nil {
+	if o.NodeOptions == nil {
 		return errors.New("Please supply valid node options")
 	}
 
@@ -417,64 +432,56 @@ func WithDeviceID(id, secret string) EdgeOption {
 	})
 }
 
-func WithNode(addr string, options []grpc.DialOption) EdgeOption {
+func WithNode(options *NodeOptions) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.nodeOptions = &nodeOptions{addr, options}
+		o.NodeOptions = options
 	})
 }
 
-func WithQuic(addr string, tlsConfig *tls.Config, quicConfig *quic.Config) EdgeOption {
+func WithQuic(options *QuicOptions) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
-		tlsConfig2 := tlsConfig.Clone()
-		if len(tlsConfig2.NextProtos) == 0 {
-			tlsConfig2.NextProtos = []string{"kokomi"}
+		if len(options.TLSConfig.NextProtos) == 0 {
+			options.TLSConfig.NextProtos = []string{"kokomi"}
 		}
 
-		quicConfig2 := quicConfig.Clone()
-		quicConfig2.EnableDatagrams = true
+		options.QUICConfig.EnableDatagrams = true
 
-		o.quicOptions = &quicOptions{addr, tlsConfig2, quicConfig2}
+		o.QuicOptions = options
 	})
 }
 
-func WithLinkStatusTTL(d time.Duration) EdgeOption {
+func WithSync(options *SyncOptions) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.linkStatusTTL = d
+		if options.TokenRefresh > 0 {
+			o.SyncOptions.TokenRefresh = options.TokenRefresh
+		}
+
+		if options.Link > 0 {
+			o.SyncOptions.Link = options.Link
+		}
+
+		if options.Ticker > 0 {
+			o.SyncOptions.Ticker = options.Ticker
+		}
+
+		o.SyncOptions.Realtime = options.Realtime
 	})
 }
 
-func WithTokenRefresh(d time.Duration) EdgeOption {
+func WithBadger(options *BadgerOptions) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.tokenRefresh = d
+		if options.GC > 0 {
+			o.BadgerOptions.GC = options.GC
+		}
+
+		if options.GCDiscardRatio > 0 {
+			o.BadgerOptions.GCDiscardRatio = options.GCDiscardRatio
+		}
 	})
 }
 
-func WithSyncLinkStatus(d time.Duration) EdgeOption {
+func WithLinkTTL(d time.Duration) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.syncLinkStatus = d
-	})
-}
-
-func WithSyncInterval(d time.Duration) EdgeOption {
-	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.syncInterval = d
-	})
-}
-
-func WithSyncRealtime(realtime bool) EdgeOption {
-	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.syncRealtime = realtime
-	})
-}
-
-func WithBadgerGCInterval(d time.Duration) EdgeOption {
-	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.badgerGCInterval = d
-	})
-}
-
-func WithBadgerGCDiscardRatio(discardRatio float64) EdgeOption {
-	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.badgerGCDiscardRatio = discardRatio
+		o.linkTTL = d
 	})
 }

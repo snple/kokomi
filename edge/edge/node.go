@@ -38,9 +38,9 @@ type NodeService struct {
 func newNodeService(es *EdgeService) (*NodeService, error) {
 	var err error
 
-	es.Logger().Sugar().Infof("link node service: %v", es.dopts.nodeOptions.Addr)
+	es.Logger().Sugar().Infof("link node service: %v", es.dopts.NodeOptions.Addr)
 
-	nodeConn, err := grpc.Dial(es.dopts.nodeOptions.Addr, es.dopts.nodeOptions.Options...)
+	nodeConn, err := grpc.Dial(es.dopts.NodeOptions.Addr, es.dopts.NodeOptions.Options...)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func (s *NodeService) loop() {
 		return
 	}
 
-	if s.es.dopts.syncRealtime {
+	if s.es.dopts.SyncOptions.Realtime {
 		go s.waitRemoteDeviceUpdated()
 		go s.waitLocalDeviceUpdated()
 		go s.waitRemoteTagValueUpdated()
@@ -213,13 +213,13 @@ func (s *NodeService) ticker() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
-	tokenRefreshTicker := time.NewTicker(s.es.dopts.tokenRefresh)
+	tokenRefreshTicker := time.NewTicker(s.es.dopts.SyncOptions.TokenRefresh)
 	defer tokenRefreshTicker.Stop()
 
-	syncLinkStatusTicker := time.NewTicker(s.es.dopts.syncLinkStatus)
-	defer syncLinkStatusTicker.Stop()
+	linkStatusTicker := time.NewTicker(s.es.dopts.SyncOptions.Link)
+	defer linkStatusTicker.Stop()
 
-	syncTicker := time.NewTicker(s.es.dopts.syncInterval)
+	syncTicker := time.NewTicker(s.es.dopts.SyncOptions.Ticker)
 	defer syncTicker.Stop()
 
 	for {
@@ -233,7 +233,7 @@ func (s *NodeService) ticker() {
 					s.es.Logger().Sugar().Errorf("device login: %v", err)
 				}
 			}
-		case <-syncLinkStatusTicker.C:
+		case <-linkStatusTicker.C:
 			if option := s.es.GetQuic(); option.IsNone() {
 				if s.es.GetStatus().GetDeviceLink() == consts.ON {
 					err := s.linkDevice(s.ctx)

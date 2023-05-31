@@ -31,8 +31,8 @@ type QuicService struct {
 }
 
 func newQuicService(ns *NodeService) (*QuicService, error) {
-	listener, err := quic.ListenAddr(ns.dopts.quicOptions.addr,
-		ns.dopts.quicOptions.tlsConfig, ns.dopts.quicOptions.quicConfig)
+	listener, err := quic.ListenAddr(ns.dopts.QuicOptions.Addr,
+		ns.dopts.QuicOptions.TLSConfig, ns.dopts.QuicOptions.QUICConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -278,7 +278,7 @@ func (s *QuicService) ping(conn quic.Connection, stream quic.Stream, deviceId st
 			return
 		}
 
-		time.Sleep(s.ns.dopts.quicPingInterval)
+		time.Sleep(s.ns.dopts.Ping)
 	}
 }
 

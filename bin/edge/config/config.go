@@ -19,6 +19,7 @@ type ConfigStruct struct {
 	EdgeService GRPCService `toml:"edge"`
 	SlotService GRPCService `toml:"slot"`
 	Sync        Sync        `toml:"sync"`
+	Status      Status      `toml:"status"`
 }
 
 type DB struct {
@@ -27,6 +28,7 @@ type DB struct {
 }
 
 type GRPCClient struct {
+	Enable             bool   `toml:"enable"`
 	Addr               string `toml:"addr"`
 	TLS                bool   `toml:"tls"`
 	CA                 string `toml:"ca"`
@@ -64,11 +66,14 @@ type GRPCService struct {
 }
 
 type Sync struct {
-	LinkStatusTTL  int  `toml:"link_status_ttl"`
-	TokenRefresh   int  `toml:"token_refresh"`
-	SyncLinkStatus int  `toml:"sync_link_status"`
-	SyncInterval   int  `toml:"sync_interval"`
-	SyncRealtime   bool `toml:"sync_realtime"`
+	TokenRefresh int  `toml:"token_refresh"`
+	Link         int  `toml:"link"`
+	Ticker       int  `toml:"ticker"`
+	Realtime     bool `toml:"realtime"`
+}
+
+type Status struct {
+	LinkTTL int `toml:"link_ttl"`
 }
 
 func DefaultConfig() ConfigStruct {
@@ -98,11 +103,13 @@ func DefaultConfig() ConfigStruct {
 			Key:  "certs/server.key",
 		},
 		Sync: Sync{
-			LinkStatusTTL:  60 * 3,
-			TokenRefresh:   60 * 30,
-			SyncLinkStatus: 60,
-			SyncInterval:   60,
-			SyncRealtime:   false,
+			TokenRefresh: 60 * 30,
+			Link:         60,
+			Ticker:       60,
+			Realtime:     false,
+		},
+		Status: Status{
+			LinkTTL: 3 * 60,
 		},
 	}
 }

@@ -126,8 +126,8 @@ func (s *QuicService) loop() error {
 }
 
 func (s *QuicService) connect(ctx context.Context) (quic.Connection, error) {
-	conn, err := quic.DialAddr(ctx, s.es.dopts.quicOptions.Addr,
-		s.es.dopts.quicOptions.TLSConfig, s.es.dopts.quicOptions.QUICConfig)
+	conn, err := quic.DialAddr(ctx, s.es.dopts.QuicOptions.Addr,
+		s.es.dopts.QuicOptions.TLSConfig, s.es.dopts.QuicOptions.QUICConfig)
 	if err != nil {
 		return nil, err
 	}

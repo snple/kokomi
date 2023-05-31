@@ -55,9 +55,9 @@ func main() {
 		return
 	}
 
-	opts := make([]core.CoreOption, 0)
+	coreOpts := make([]core.CoreOption, 0)
 
-	cs, err := core.Core(bundb, opts...)
+	cs, err := core.Core(bundb, coreOpts...)
 	if err != nil {
 		log.Logger.Sugar().Fatalf("NewCoreService: %v", err)
 	}
@@ -94,7 +94,7 @@ func main() {
 	}
 
 	if config.Config.NodeService.Enable {
-		opts := make([]node.NodeOption, 0)
+		nodeOpts := make([]node.NodeOption, 0)
 		{
 			tlsConfig, err := util.LoadServerCert(config.Config.QuicService.CA, config.Config.QuicService.Cert, config.Config.QuicService.Key)
 			if err != nil {
@@ -106,10 +106,15 @@ func main() {
 				MaxIdleTimeout:  time.Minute * 3,
 			}
 
-			opts = append(opts, node.WithQuic(config.Config.QuicService.Addr, tlsConfig, quicConfig))
+			nodeOpts = append(nodeOpts, node.WithQuic(&node.QuicOptions{
+				Enable:     config.Config.QuicService.Enable,
+				Addr:       config.Config.QuicService.Addr,
+				TLSConfig:  tlsConfig,
+				QUICConfig: quicConfig,
+			}))
 		}
 
-		ns, err := node.Node(cs, opts...)
+		ns, err := node.Node(cs, nodeOpts...)
 		if err != nil {
 			log.Logger.Sugar().Fatalf("NewNodeService: %v", err)
 		}

@@ -239,8 +239,8 @@ func CreateSchema(db bun.IDB) error {
 }
 
 type coreOptions struct {
-	logger        *zap.Logger
-	linkStatusTTL time.Duration
+	logger  *zap.Logger
+	linkTTL time.Duration
 }
 
 func defaultCoreOptions() coreOptions {
@@ -250,8 +250,8 @@ func defaultCoreOptions() coreOptions {
 	}
 
 	return coreOptions{
-		logger:        logger,
-		linkStatusTTL: 3 * time.Minute,
+		logger:  logger,
+		linkTTL: 3 * time.Minute,
 	}
 }
 
@@ -281,8 +281,8 @@ func WithLogger(logger *zap.Logger) CoreOption {
 	})
 }
 
-func WithLinkStatusTTL(d time.Duration) CoreOption {
+func WithLinkTTL(d time.Duration) CoreOption {
 	return newFuncCoreOption(func(o *coreOptions) {
-		o.linkStatusTTL = d
+		o.linkTTL = d
 	})
 }
