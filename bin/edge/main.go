@@ -15,6 +15,7 @@ import (
 	"github.com/snple/kokomi/bin/edge/log"
 	"github.com/snple/kokomi/db"
 	"github.com/snple/kokomi/edge/edge"
+	"github.com/snple/kokomi/edge/slot"
 	"github.com/snple/kokomi/util"
 	"github.com/snple/kokomi/util/compress/zstd"
 	"github.com/uptrace/bun"
@@ -63,11 +64,16 @@ func main() {
 		return
 	}
 
-	opts := make([]edge.EdgeOption, 0)
+	edgeOpts := make([]edge.EdgeOption, 0)
 
 	{
-		opts = append(opts, edge.WithDeviceID(config.Config.DeviceID, config.Config.Secret))
-		opts = append(opts, edge.WithSyncRealtime(true))
+		edgeOpts = append(edgeOpts, edge.WithDeviceID(config.Config.DeviceID, config.Config.Secret))
+
+		edgeOpts = append(edgeOpts, edge.WithLinkStatusTTL(time.Second*time.Duration(config.Config.Sync.LinkStatusTTL)))
+		edgeOpts = append(edgeOpts, edge.WithTokenRefresh(time.Second*time.Duration(config.Config.Sync.TokenRefresh)))
+		edgeOpts = append(edgeOpts, edge.WithSyncLinkStatus(time.Second*time.Duration(config.Config.Sync.SyncLinkStatus)))
+		edgeOpts = append(edgeOpts, edge.WithSyncInterval(time.Second*time.Duration(config.Config.Sync.SyncInterval)))
+		edgeOpts = append(edgeOpts, edge.WithSyncRealtime(config.Config.Sync.SyncRealtime))
 	}
 
 	{
@@ -101,10 +107,10 @@ func main() {
 			grpcOpts = append(grpcOpts, grpc.WithInsecure())
 		}
 
-		opts = append(opts, edge.WithNode(config.Config.NodeClient.Addr, grpcOpts))
+		edgeOpts = append(edgeOpts, edge.WithNode(config.Config.NodeClient.Addr, grpcOpts))
 	}
 
-	{
+	if config.Config.QuicClient.Enable {
 		tlsConfig, err := util.LoadClientCert(
 			config.Config.QuicClient.CA,
 			config.Config.QuicClient.Cert,
@@ -121,10 +127,10 @@ func main() {
 			MaxIdleTimeout:  time.Minute * 3,
 		}
 
-		opts = append(opts, edge.WithQuic(config.Config.QuicClient.Addr, tlsConfig, quicConfig))
+		edgeOpts = append(edgeOpts, edge.WithQuic(config.Config.QuicClient.Addr, tlsConfig, quicConfig))
 	}
 
-	es, err := edge.Edge(bundb, badgerdb, opts...)
+	es, err := edge.Edge(bundb, badgerdb, edgeOpts...)
 	if err != nil {
 		log.Logger.Sugar().Fatalf("NewEdgeService: %v", err)
 	}
@@ -133,7 +139,7 @@ func main() {
 	defer es.Stop()
 
 	if config.Config.EdgeService.Enable {
-		opts := []grpc.ServerOption{
+		edgeGrpcOpts := []grpc.ServerOption{
 			grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{PermitWithoutStream: true}),
 		}
 
@@ -143,7 +149,7 @@ func main() {
 				log.Logger.Sugar().Fatal(err)
 			}
 
-			opts = append(opts, grpc.Creds(credentials.NewTLS(tlsConfig)))
+			edgeGrpcOpts = append(edgeGrpcOpts, grpc.Creds(credentials.NewTLS(tlsConfig)))
 		}
 
 		lis, err := net.Listen("tcp", config.Config.EdgeService.Addr)
@@ -151,12 +157,53 @@ func main() {
 			log.Logger.Sugar().Fatalf("failed to listen: %v", err)
 		}
 
-		s := grpc.NewServer(opts...)
+		s := grpc.NewServer(edgeGrpcOpts...)
 
 		es.Register(s)
 
 		go func() {
 			log.Logger.Sugar().Infof("edge grpc start: %v, tls: %v", config.Config.EdgeService.Addr, config.Config.EdgeService.TLS)
+			if err := s.Serve(lis); err != nil {
+				log.Logger.Sugar().Fatalf("failed to serve: %v", err)
+			}
+		}()
+	}
+
+	if config.Config.SlotService.Enable {
+		slotOpts := make([]slot.SlotOption, 0)
+
+		ns, err := slot.Slot(es, slotOpts...)
+		if err != nil {
+			log.Logger.Sugar().Fatalf("NewSlotService: %v", err)
+		}
+
+		ns.Start()
+		defer ns.Stop()
+
+		slotGrpcOpts := []grpc.ServerOption{
+			grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{PermitWithoutStream: true}),
+		}
+
+		if config.Config.SlotService.TLS {
+			tlsConfig, err := util.LoadServerCert(config.Config.SlotService.CA, config.Config.SlotService.Cert, config.Config.SlotService.Key)
+			if err != nil {
+				log.Logger.Sugar().Fatal(err)
+			}
+
+			slotGrpcOpts = append(slotGrpcOpts, grpc.Creds(credentials.NewTLS(tlsConfig)))
+		}
+
+		lis, err := net.Listen("tcp", config.Config.SlotService.Addr)
+		if err != nil {
+			log.Logger.Sugar().Fatalf("failed to listen: %v", err)
+		}
+
+		s := grpc.NewServer(slotGrpcOpts...)
+
+		ns.RegisterGrpc(s)
+
+		go func() {
+			log.Logger.Sugar().Infof("slot grpc start: %v", config.Config.SlotService.Addr)
 			if err := s.Serve(lis); err != nil {
 				log.Logger.Sugar().Fatalf("failed to serve: %v", err)
 			}

@@ -2,11 +2,8 @@ package slot
 
 import (
 	"context"
-	"crypto/tls"
 	"sync"
-	"time"
 
-	"github.com/quic-go/quic-go"
 	"github.com/snple/kokomi/consts"
 	"github.com/snple/kokomi/edge/edge"
 	"github.com/snple/kokomi/pb"
@@ -115,20 +112,10 @@ func (ss *SlotService) RegisterGrpc(server *grpc.Server) {
 }
 
 type slotOptions struct {
-	quicOptions      *quicOptions
-	quicPingInterval time.Duration
-}
-
-type quicOptions struct {
-	Addr       string
-	TLSConfig  *tls.Config
-	QUICConfig *quic.Config
 }
 
 func defaultSlotOptions() slotOptions {
-	return slotOptions{
-		quicPingInterval: 60 * time.Second,
-	}
+	return slotOptions{}
 }
 
 type SlotOption interface {
@@ -149,26 +136,6 @@ func newFuncSlotOption(f func(*slotOptions)) *funcSlotOption {
 	return &funcSlotOption{
 		f: f,
 	}
-}
-
-func WithQuic(addr string, tlsConfig *tls.Config, quicConfig *quic.Config) SlotOption {
-	return newFuncSlotOption(func(o *slotOptions) {
-		tlsConfig2 := tlsConfig.Clone()
-		if len(tlsConfig2.NextProtos) == 0 {
-			tlsConfig2.NextProtos = []string{"kokomi"}
-		}
-
-		quicConfig2 := quicConfig.Clone()
-		quicConfig2.EnableDatagrams = true
-
-		o.quicOptions = &quicOptions{addr, tlsConfig2, quicConfig2}
-	})
-}
-
-func WithQuicPingInterval(d time.Duration) SlotOption {
-	return newFuncSlotOption(func(o *slotOptions) {
-		o.quicPingInterval = d
-	})
 }
 
 func (s *SlotService) Login(ctx context.Context, in *slots.LoginSlotRequest) (*slots.LoginSlotReply, error) {

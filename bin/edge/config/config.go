@@ -17,8 +17,7 @@ type ConfigStruct struct {
 	NodeClient  GRPCClient  `toml:"node"`
 	QuicClient  QuicClient  `toml:"quic"`
 	EdgeService GRPCService `toml:"edge"`
-	Status      Status      `toml:"status"`
-	Upload      Upload      `toml:"upload"`
+	SlotService GRPCService `toml:"slot"`
 	Sync        Sync        `toml:"sync"`
 }
 
@@ -38,6 +37,7 @@ type GRPCClient struct {
 }
 
 type QuicClient struct {
+	Enable             bool   `toml:"enable"`
 	Addr               string `toml:"addr"`
 	CA                 string `toml:"ca"`
 	Cert               string `toml:"cert"`
@@ -63,20 +63,12 @@ type GRPCService struct {
 	Key    string `toml:"key"`
 }
 
-type Status struct {
-	TagTTL  int `toml:"tag_ttl"`
-	LinkTTL int `toml:"link_ttl"`
-}
-
-type Upload struct {
-	Enable   bool `toml:"enable"`
-	Interval int  `toml:"interval"`
-	Batch    int  `toml:"batch"`
-}
-
 type Sync struct {
-	LoginInterval      int `toml:"login_interval"`
-	LinkStatusInterval int `toml:"link_status_interval"`
+	LinkStatusTTL  int  `toml:"link_status_ttl"`
+	TokenRefresh   int  `toml:"token_refresh"`
+	SyncLinkStatus int  `toml:"sync_link_status"`
+	SyncInterval   int  `toml:"sync_interval"`
+	SyncRealtime   bool `toml:"sync_realtime"`
 }
 
 func DefaultConfig() ConfigStruct {
@@ -105,18 +97,12 @@ func DefaultConfig() ConfigStruct {
 			Cert: "certs/server.crt",
 			Key:  "certs/server.key",
 		},
-		Status: Status{
-			TagTTL:  3 * 60,
-			LinkTTL: 3 * 60,
-		},
-		Upload: Upload{
-			Enable:   false,
-			Interval: 60,
-			Batch:    1000,
-		},
 		Sync: Sync{
-			LoginInterval:      10 * 60,
-			LinkStatusInterval: 60,
+			LinkStatusTTL:  60 * 3,
+			TokenRefresh:   60 * 30,
+			SyncLinkStatus: 60,
+			SyncInterval:   60,
+			SyncRealtime:   false,
 		},
 	}
 }

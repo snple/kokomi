@@ -86,7 +86,7 @@ func main() {
 		cs.Register(s)
 
 		go func() {
-			log.Logger.Sugar().Infof("core grpc start port: %v", config.Config.CoreService.Addr)
+			log.Logger.Sugar().Infof("core grpc start: %v", config.Config.CoreService.Addr)
 			if err := s.Serve(lis); err != nil {
 				log.Logger.Sugar().Errorf("failed to serve: %v", err)
 			}
@@ -135,7 +135,7 @@ func main() {
 		ns.RegisterGrpc(s)
 
 		go func() {
-			log.Logger.Sugar().Infof("node grpc start port: %v", config.Config.NodeService.Addr)
+			log.Logger.Sugar().Infof("node grpc start: %v", config.Config.NodeService.Addr)
 			if err := s.Serve(lis); err != nil {
 				log.Logger.Sugar().Fatalf("failed to serve: %v", err)
 			}

@@ -20,5 +20,6 @@
 go.sum
 
 certs
+dist
 core
 *.db
