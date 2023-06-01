@@ -73,7 +73,7 @@ func main() {
 		edgeOpts = append(edgeOpts, edge.WithSync(&edge.SyncOptions{
 			TokenRefresh: time.Second * time.Duration(config.Config.Sync.TokenRefresh),
 			Link:         time.Second * time.Duration(config.Config.Sync.Link),
-			Ticker:       time.Second * time.Duration(config.Config.Sync.Ticker),
+			Interval:     time.Second * time.Duration(config.Config.Sync.Interval),
 			Realtime:     config.Config.Sync.Realtime,
 		}))
 	}

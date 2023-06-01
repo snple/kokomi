@@ -358,7 +358,7 @@ type QuicOptions struct {
 type SyncOptions struct {
 	TokenRefresh time.Duration
 	Link         time.Duration
-	Ticker       time.Duration
+	Interval     time.Duration
 	Realtime     bool
 }
 
@@ -380,7 +380,7 @@ func defaultEdgeOptions() edgeOptions {
 		SyncOptions: &SyncOptions{
 			TokenRefresh: 3 * time.Minute,
 			Link:         time.Minute,
-			Ticker:       time.Minute,
+			Interval:     time.Minute,
 			Realtime:     false,
 		},
 		BadgerOptions: &BadgerOptions{
@@ -460,8 +460,8 @@ func WithSync(options *SyncOptions) EdgeOption {
 			o.SyncOptions.Link = options.Link
 		}
 
-		if options.Ticker > 0 {
-			o.SyncOptions.Ticker = options.Ticker
+		if options.Interval > 0 {
+			o.SyncOptions.Interval = options.Interval
 		}
 
 		o.SyncOptions.Realtime = options.Realtime

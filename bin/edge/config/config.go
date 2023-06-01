@@ -68,7 +68,7 @@ type GRPCService struct {
 type Sync struct {
 	TokenRefresh int  `toml:"token_refresh"`
 	Link         int  `toml:"link"`
-	Ticker       int  `toml:"ticker"`
+	Interval     int  `toml:"interval"`
 	Realtime     bool `toml:"realtime"`
 }
 
@@ -105,7 +105,7 @@ func DefaultConfig() ConfigStruct {
 		Sync: Sync{
 			TokenRefresh: 60 * 30,
 			Link:         60,
-			Ticker:       60,
+			Interval:     60,
 			Realtime:     false,
 		},
 		Status: Status{

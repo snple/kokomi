@@ -219,7 +219,7 @@ func (s *NodeService) ticker() {
 	linkStatusTicker := time.NewTicker(s.es.dopts.SyncOptions.Link)
 	defer linkStatusTicker.Stop()
 
-	syncTicker := time.NewTicker(s.es.dopts.SyncOptions.Ticker)
+	syncTicker := time.NewTicker(s.es.dopts.SyncOptions.Interval)
 	defer syncTicker.Stop()
 
 	for {
