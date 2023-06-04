@@ -54,7 +54,7 @@ func (s *QuicService) Start() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
-	s.ns.Logger().Info("start quic server")
+	s.ns.Logger().Sugar().Infof("node quic start: %v", s.ns.dopts.QuicOptions.Addr)
 
 	err := s.acceptConn()
 	if err != nil {
