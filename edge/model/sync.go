@@ -1,8 +1,6 @@
 package model
 
-import (
-	"time"
-)
+import "time"
 
 type Sync struct {
 	Key     string    `bun:"type:TEXT,pk" json:"key"`

@@ -18,7 +18,12 @@ type BadgerService struct {
 	closeWG sync.WaitGroup
 }
 
-func newBadgerService(es *EdgeService, badger *badger.DB) *BadgerService {
+func newBadgerService(es *EdgeService) (*BadgerService, error) {
+	badger, err := badger.OpenManaged(es.dopts.BadgerOptions)
+	if err != nil {
+		return nil, err
+	}
+
 	ctx, cancel := context.WithCancel(es.Context())
 
 	s := &BadgerService{
@@ -28,7 +33,7 @@ func newBadgerService(es *EdgeService, badger *badger.DB) *BadgerService {
 		cancel: cancel,
 	}
 
-	return s
+	return s, nil
 }
 
 func (s *BadgerService) start() {
@@ -37,7 +42,7 @@ func (s *BadgerService) start() {
 
 	s.es.Logger().Sugar().Info("badger service started")
 
-	ticker := time.NewTicker(s.es.dopts.BadgerOptions.GC)
+	ticker := time.NewTicker(s.es.dopts.BadgerGCOptions.GC)
 	defer ticker.Stop()
 
 	for {
@@ -47,7 +52,7 @@ func (s *BadgerService) start() {
 		case <-ticker.C:
 			{
 			again:
-				err := s.badger.RunValueLogGC(s.es.dopts.BadgerOptions.GCDiscardRatio)
+				err := s.badger.RunValueLogGC(s.es.dopts.BadgerGCOptions.GCDiscardRatio)
 				if err == nil {
 					goto again
 				}
@@ -59,6 +64,8 @@ func (s *BadgerService) start() {
 func (s *BadgerService) stop() {
 	s.cancel()
 	s.closeWG.Wait()
+
+	s.badger.Close()
 }
 
 func (s *BadgerService) GetDB() *badger.DB {

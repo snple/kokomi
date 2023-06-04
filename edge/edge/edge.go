@@ -50,20 +50,16 @@ type EdgeService struct {
 	dopts edgeOptions
 }
 
-func Edge(db *bun.DB, badger *badger.DB, opts ...EdgeOption) (*EdgeService, error) {
+func Edge(db *bun.DB, opts ...EdgeOption) (*EdgeService, error) {
 	ctx := context.Background()
-	return EdgeContext(ctx, db, badger, opts...)
+	return EdgeContext(ctx, db, opts...)
 }
 
-func EdgeContext(ctx context.Context, db *bun.DB, badger *badger.DB, opts ...EdgeOption) (*EdgeService, error) {
+func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeService, error) {
 	ctx, cancel := context.WithCancel(ctx)
 
 	if db == nil {
 		panic("db == nil")
-	}
-
-	if badger == nil {
-		panic("badger == nil")
 	}
 
 	es := &EdgeService{
@@ -85,7 +81,12 @@ func EdgeContext(ctx context.Context, db *bun.DB, badger *badger.DB, opts ...Edg
 		return nil, err
 	}
 
-	es.badger = newBadgerService(es, badger)
+	badger, err := newBadgerService(es)
+	if err != nil {
+		return nil, err
+	}
+	es.badger = badger
+
 	es.status = newStatusService(es)
 	es.sync = newSyncService(es)
 	es.device = newDeviceService(es)
@@ -102,14 +103,14 @@ func EdgeContext(ctx context.Context, db *bun.DB, badger *badger.DB, opts ...Edg
 	es.attr = newAttrService(es)
 	es.control = newControlService(es)
 
-	if es.dopts.NodeOptions.Enable {
+	if es.dopts.NodeOptions.enable {
 		node, err := newNodeService(es)
 		if err != nil {
 			return nil, err
 		}
 		es.node = types.Some(node)
 
-		if es.dopts.QuicOptions.Enable {
+		if es.dopts.QuicOptions.enable {
 			quic, err := newQuicService(es)
 			if err != nil {
 				return es, err
@@ -334,22 +335,23 @@ type edgeOptions struct {
 	deviceID string
 	secret   string
 
-	NodeOptions   *NodeOptions
-	QuicOptions   *QuicOptions
-	SyncOptions   *SyncOptions
-	BadgerOptions *BadgerOptions
+	NodeOptions     NodeOptions
+	QuicOptions     QuicOptions
+	SyncOptions     SyncOptions
+	BadgerOptions   badger.Options
+	BadgerGCOptions BadgerGCOptions
 
 	linkTTL time.Duration
 }
 
 type NodeOptions struct {
-	Enable  bool
-	Addr    string
-	Options []grpc.DialOption
+	enable      bool
+	Addr        string
+	GRPCOptions []grpc.DialOption
 }
 
 type QuicOptions struct {
-	Enable     bool
+	enable     bool
 	Addr       string
 	TLSConfig  *tls.Config
 	QUICConfig *quic.Config
@@ -362,7 +364,7 @@ type SyncOptions struct {
 	Realtime     bool
 }
 
-type BadgerOptions struct {
+type BadgerGCOptions struct {
 	GC             time.Duration
 	GCDiscardRatio float64
 }
@@ -375,15 +377,16 @@ func defaultEdgeOptions() edgeOptions {
 
 	return edgeOptions{
 		logger:      logger,
-		NodeOptions: &NodeOptions{},
-		QuicOptions: &QuicOptions{},
-		SyncOptions: &SyncOptions{
+		NodeOptions: NodeOptions{},
+		QuicOptions: QuicOptions{},
+		SyncOptions: SyncOptions{
 			TokenRefresh: 3 * time.Minute,
 			Link:         time.Minute,
 			Interval:     time.Minute,
 			Realtime:     false,
 		},
-		BadgerOptions: &BadgerOptions{
+		BadgerOptions: badger.DefaultOptions("").WithInMemory(true),
+		BadgerGCOptions: BadgerGCOptions{
 			GC:             time.Hour,
 			GCDiscardRatio: 0.7,
 		},
@@ -392,10 +395,6 @@ func defaultEdgeOptions() edgeOptions {
 }
 
 func (o *edgeOptions) check() error {
-	if o.NodeOptions == nil {
-		return errors.New("Please supply valid node options")
-	}
-
 	return nil
 }
 
@@ -432,13 +431,14 @@ func WithDeviceID(id, secret string) EdgeOption {
 	})
 }
 
-func WithNode(options *NodeOptions) EdgeOption {
+func WithNode(options NodeOptions) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		o.NodeOptions = options
+		o.NodeOptions.enable = true
 	})
 }
 
-func WithQuic(options *QuicOptions) EdgeOption {
+func WithQuic(options QuicOptions) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		if len(options.TLSConfig.NextProtos) == 0 {
 			options.TLSConfig.NextProtos = []string{"kokomi"}
@@ -447,10 +447,11 @@ func WithQuic(options *QuicOptions) EdgeOption {
 		options.QUICConfig.EnableDatagrams = true
 
 		o.QuicOptions = options
+		o.QuicOptions.enable = true
 	})
 }
 
-func WithSync(options *SyncOptions) EdgeOption {
+func WithSync(options SyncOptions) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		if options.TokenRefresh > 0 {
 			o.SyncOptions.TokenRefresh = options.TokenRefresh
@@ -468,14 +469,20 @@ func WithSync(options *SyncOptions) EdgeOption {
 	})
 }
 
-func WithBadger(options *BadgerOptions) EdgeOption {
+func WithBadger(options badger.Options) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.BadgerOptions = options
+	})
+}
+
+func WithBadgerGC(options *BadgerGCOptions) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		if options.GC > 0 {
-			o.BadgerOptions.GC = options.GC
+			o.BadgerGCOptions.GC = options.GC
 		}
 
 		if options.GCDiscardRatio > 0 {
-			o.BadgerOptions.GCDiscardRatio = options.GCDiscardRatio
+			o.BadgerGCOptions.GCDiscardRatio = options.GCDiscardRatio
 		}
 	})
 }

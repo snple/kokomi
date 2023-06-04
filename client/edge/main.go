@@ -86,7 +86,7 @@ func main() {
 	// service.TagDelete(ctx, tag)
 	// t1 := time.Now()
 	// for i := 0; i < 10000; i++ {
-	// 	service.TagSetValue(ctx, tag)
+	service.TagSetValue(ctx, tag)
 	// 	service.TagGetValue(ctx, tag)
 	// }
 	// t2 := time.Now()

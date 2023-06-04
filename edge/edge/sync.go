@@ -2,7 +2,6 @@ package edge
 
 import (
 	"context"
-	"encoding/json"
 	"sync"
 	"time"
 
@@ -891,11 +890,7 @@ func (s *SyncService) setWireValueUpdatedLocalToRemote(ctx context.Context, upda
 }
 
 func (s *SyncService) getUpdated(ctx context.Context, key string) (time.Time, error) {
-	item := model.Sync{
-		Key: key,
-	}
-
-	txn := s.es.GetBadgerDB().NewTransaction(false)
+	txn := s.es.GetBadgerDB().NewTransactionAt(uint64(time.Now().UnixMicro()), false)
 	defer txn.Discard()
 
 	dbitem, err := txn.Get([]byte(key))
@@ -906,32 +901,23 @@ func (s *SyncService) getUpdated(ctx context.Context, key string) (time.Time, er
 		return time.Time{}, status.Errorf(codes.Internal, "BadgerDB Get: %v", err)
 	}
 
-	err = dbitem.Value(func(val []byte) error {
-		return json.Unmarshal(val, &item)
-	})
-	if err != nil {
-		return time.Time{}, status.Errorf(codes.Internal, "BadgerDB Get Value: %v", err)
-	}
-
-	return item.Updated, nil
+	return time.UnixMicro(int64(dbitem.Version())), nil
 }
 
 func (s *SyncService) setUpdated(ctx context.Context, key string, updated time.Time) error {
-	item := model.Sync{
-		Key:     key,
-		Updated: updated,
-	}
+	ts := uint64(updated.UnixMicro())
 
-	data, err := json.Marshal(item)
-	if err != nil {
-		return status.Errorf(codes.Internal, "json.Marshal: %v", err)
-	}
+	txn := s.es.GetBadgerDB().NewTransactionAt(ts, true)
+	defer txn.Discard()
 
-	err = s.es.GetBadgerDB().Update(func(txn *badger.Txn) error {
-		return txn.Set([]byte(key), data)
-	})
+	err := txn.Set([]byte(key), []byte{})
 	if err != nil {
 		return status.Errorf(codes.Internal, "BadgerDB Set: %v", err)
+	}
+
+	err = txn.CommitAt(ts, nil)
+	if err != nil {
+		return status.Errorf(codes.Internal, "BadgerDB CommitAt: %v", err)
 	}
 
 	return nil

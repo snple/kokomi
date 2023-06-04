@@ -76,7 +76,7 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 	ns.attr = newAttrService(ns)
 	ns.rgrpc = newRgrpcService(ns)
 
-	if ns.dopts.QuicOptions.Enable {
+	if ns.dopts.QuicOptions.enable {
 		quic, err := newQuicService(ns)
 		if err != nil {
 			return ns, err
@@ -139,12 +139,12 @@ func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 }
 
 type nodeOptions struct {
-	QuicOptions *QuicOptions
+	QuicOptions QuicOptions
 	Ping        time.Duration
 }
 
 type QuicOptions struct {
-	Enable     bool
+	enable     bool
 	Addr       string
 	TLSConfig  *tls.Config
 	QUICConfig *quic.Config
@@ -152,7 +152,7 @@ type QuicOptions struct {
 
 func defaultNodeOptions() nodeOptions {
 	return nodeOptions{
-		QuicOptions: &QuicOptions{},
+		QuicOptions: QuicOptions{},
 		Ping:        60 * time.Second,
 	}
 }
@@ -177,7 +177,7 @@ func newFuncNodeOption(f func(*nodeOptions)) *funcNodeOption {
 	}
 }
 
-func WithQuic(options *QuicOptions) NodeOption {
+func WithQuic(options QuicOptions) NodeOption {
 	return newFuncNodeOption(func(o *nodeOptions) {
 		if len(options.TLSConfig.NextProtos) == 0 {
 			options.TLSConfig.NextProtos = []string{"kokomi"}
@@ -186,6 +186,7 @@ func WithQuic(options *QuicOptions) NodeOption {
 		options.QUICConfig.EnableDatagrams = true
 
 		o.QuicOptions = options
+		o.QuicOptions.enable = true
 	})
 }
 

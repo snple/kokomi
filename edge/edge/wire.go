@@ -430,7 +430,7 @@ func (s *WireService) GetValue(ctx context.Context, in *pb.Id) (*pb.WireValue, e
 
 	output.Id = in.GetId()
 
-	item2, err := s.viewValueUpdated(ctx, in.GetId())
+	item2, err := s.getWireValueUpdated(ctx, in.GetId())
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -507,7 +507,7 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 		}
 	}
 
-	if err = s.updateWireValue(ctx, &item, in.GetValue(), time.Now()); err != nil {
+	if err = s.setWireValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
 		return &output, err
 	}
 
@@ -554,7 +554,7 @@ func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBo
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	item2, err := s.viewValueUpdated(ctx, in.GetId())
+	item2, err := s.getWireValueUpdated(ctx, in.GetId())
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -570,7 +570,7 @@ func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBo
 	}
 
 UPDATED:
-	if err = s.updateWireValue(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
+	if err = s.setWireValueUpdated(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
 		return &output, err
 	}
 
@@ -605,7 +605,7 @@ func (s *WireService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Wire
 
 	output.Name = in.GetName()
 
-	item2, err := s.viewValueUpdated(ctx, item.ID)
+	item2, err := s.getWireValueUpdated(ctx, item.ID)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -694,7 +694,7 @@ func (s *WireService) setValueByName(ctx context.Context, in *pb.WireNameValue, 
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	if err = s.updateWireValue(ctx, &item, in.GetValue(), time.Now()); err != nil {
+	if err = s.setWireValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
 		return &output, err
 	}
 
@@ -899,235 +899,6 @@ func (s *WireService) Pull(ctx context.Context, in *edges.PullWireRequest) (*edg
 	return &output, nil
 }
 
-func (s *WireService) getWireValue(ctx context.Context, item *model.Wire) (string, error) {
-	item2, err := s.viewValueUpdated(ctx, item.ID)
-	if err != nil {
-		if code, ok := status.FromError(err); ok {
-			if code.Code() == codes.NotFound {
-				return "", nil
-			}
-		}
-
-		return "", err
-	}
-
-	return item2.Value, nil
-}
-
-func (s *WireService) updateWireValue(ctx context.Context, item *model.Wire, value string, updated time.Time) error {
-	item2 := model.WireValue{
-		ID:      item.ID,
-		CableID: item.CableID,
-		Value:   value,
-		Updated: updated,
-	}
-
-	idb, err := nson.MessageIdFromHex(item.ID)
-	if err != nil {
-		return status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
-	}
-
-	data, err := json.Marshal(item2)
-	if err != nil {
-		return status.Errorf(codes.Internal, "json.Marshal: %v", err)
-	}
-
-	err = s.es.GetBadgerDB().Update(func(txn *badger.Txn) error {
-		return txn.Set(append([]byte(model.WIRE_VALUE_PREFIX), idb...), data)
-	})
-	if err != nil {
-		return status.Errorf(codes.Internal, "BadgerDB Set: %v", err)
-	}
-
-	return nil
-}
-
-func (s *WireService) afterUpdateValue(ctx context.Context, item *model.Wire, value string) error {
-	var err error
-
-	err = s.es.GetSync().setWireValueUpdated(ctx, time.Now())
-	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
-	}
-
-	return nil
-}
-
-func (s *WireService) ViewValue(ctx context.Context, in *pb.Id) (*pb.WireValueUpdated, error) {
-	var output pb.WireValueUpdated
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
-		}
-	}
-
-	item, err := s.viewValueUpdated(ctx, in.GetId())
-	if err != nil {
-		return &output, err
-	}
-
-	s.copyModelToOutputWireValue(&output, &item)
-
-	return &output, nil
-}
-
-func (s *WireService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
-		}
-	}
-
-	item, err := s.viewValueUpdated(ctx, in.GetId())
-	if err != nil {
-		return &output, err
-	}
-
-	idb, err := nson.MessageIdFromHex(item.ID)
-	if err != nil {
-		return &output, status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
-	}
-
-	err = s.es.GetBadgerDB().Update(func(txn *badger.Txn) error {
-		return txn.Delete(append([]byte(model.WIRE_VALUE_PREFIX), idb...))
-	})
-	if err != nil {
-		return &output, status.Errorf(codes.Internal, "BadgerDB Update: %v", err)
-	}
-
-	output.Bool = true
-
-	return &output, nil
-}
-
-func (s *WireService) PullValue(ctx context.Context, in *edges.PullWireValueRequest) (*edges.PullWireValueResponse, error) {
-	var err error
-	var output edges.PullWireValueResponse
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	output.After = in.GetAfter()
-	output.Limit = in.GetLimit()
-
-	items := make([]model.WireValue, 0, 10)
-
-	{
-		after := time.UnixMicro(in.GetAfter())
-
-		txn := s.es.GetBadgerDB().NewTransaction(false)
-		defer txn.Discard()
-
-		opts := badger.DefaultIteratorOptions
-		opts.PrefetchSize = 10
-		it := txn.NewIterator(opts)
-		defer it.Close()
-
-		prefix := []byte(model.WIRE_VALUE_PREFIX)
-
-		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
-			dbitem := it.Item()
-
-			item := model.WireValue{}
-			err = dbitem.Value(func(val []byte) error {
-				return json.Unmarshal(val, &item)
-			})
-			if err != nil {
-				return &output, status.Errorf(codes.Internal, "BadgerDB view value: %v", err)
-			}
-
-			if !item.Updated.After(after) {
-				continue
-			}
-
-			if in.GetCableId() != "" && in.GetCableId() != item.CableID {
-				continue
-			}
-
-			items = append(items, item)
-		}
-
-		sort.Sort(sortWireValue(items))
-
-		if len(items) > int(in.GetLimit()) {
-			items = items[0:in.GetLimit()]
-		}
-	}
-
-	for i := 0; i < len(items); i++ {
-		item := pb.WireValueUpdated{}
-
-		s.copyModelToOutputWireValue(&item, &items[i])
-
-		output.Wire = append(output.Wire, &item)
-	}
-
-	return &output, nil
-}
-
-type sortWireValue []model.WireValue
-
-func (a sortWireValue) Len() int           { return len(a) }
-func (a sortWireValue) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a sortWireValue) Less(i, j int) bool { return a[i].Updated.Before(a[j].Updated) }
-
-func (s *WireService) viewValueUpdated(ctx context.Context, id string) (model.WireValue, error) {
-	item := model.WireValue{
-		ID: id,
-	}
-
-	idb, err := nson.MessageIdFromHex(item.ID)
-	if err != nil {
-		return item, status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
-	}
-
-	txn := s.es.GetBadgerDB().NewTransaction(false)
-	defer txn.Discard()
-
-	dbitem, err := txn.Get(append([]byte(model.WIRE_VALUE_PREFIX), idb...))
-	if err != nil {
-		if err == badger.ErrKeyNotFound {
-			return item, status.Errorf(codes.NotFound, "TagID: %v", item.ID)
-		}
-		return item, status.Errorf(codes.Internal, "BadgerDB Get: %v", err)
-	}
-
-	err = dbitem.Value(func(val []byte) error {
-		return json.Unmarshal(val, &item)
-	})
-	if err != nil {
-		return item, status.Errorf(codes.Internal, "BadgerDB Get Value: %v", err)
-	}
-
-	return item, nil
-}
-
-func (s *WireService) copyModelToOutputWireValue(output *pb.WireValueUpdated, item *model.WireValue) {
-	output.Id = item.ID
-	output.CableId = item.CableID
-	output.Value = item.Value
-	output.Updated = item.Updated.UnixMicro()
-}
-
 func (s *WireService) Sync(ctx context.Context, in *pb.Wire) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
@@ -1273,4 +1044,245 @@ SKIP:
 	output.Bool = true
 
 	return &output, nil
+}
+
+func (s *WireService) getWireValue(ctx context.Context, item *model.Wire) (string, error) {
+	item2, err := s.getWireValueUpdated(ctx, item.ID)
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return "", nil
+			}
+		}
+
+		return "", err
+	}
+
+	return item2.Value, nil
+}
+
+func (s *WireService) afterUpdateValue(ctx context.Context, item *model.Wire, value string) error {
+	var err error
+
+	err = s.es.GetSync().setWireValueUpdated(ctx, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "Insert: %v", err)
+	}
+
+	return nil
+}
+
+func (s *WireService) ViewValue(ctx context.Context, in *pb.Id) (*pb.WireValueUpdated, error) {
+	var output pb.WireValueUpdated
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+		}
+	}
+
+	item, err := s.getWireValueUpdated(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	s.copyModelToOutputWireValue(&output, &item)
+
+	return &output, nil
+}
+
+func (s *WireService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
+		}
+	}
+
+	item, err := s.getWireValueUpdated(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	idb, err := nson.MessageIdFromHex(item.ID)
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
+	}
+
+	err = s.es.GetBadgerDB().Update(func(txn *badger.Txn) error {
+		return txn.Delete(append([]byte(model.WIRE_VALUE_PREFIX), idb...))
+	})
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "BadgerDB Update: %v", err)
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *WireService) PullValue(ctx context.Context, in *edges.PullWireValueRequest) (*edges.PullWireValueResponse, error) {
+	var err error
+	var output edges.PullWireValueResponse
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	output.After = in.GetAfter()
+	output.Limit = in.GetLimit()
+
+	items := make([]model.WireValue, 0, 10)
+
+	{
+		after := time.UnixMicro(in.GetAfter())
+
+		txn := s.es.GetBadgerDB().NewTransactionAt(uint64(time.Now().UnixMicro()), false)
+		defer txn.Discard()
+
+		opts := badger.DefaultIteratorOptions
+		opts.PrefetchSize = 10
+		opts.SinceTs = uint64(in.GetAfter())
+
+		it := txn.NewIterator(opts)
+		defer it.Close()
+
+		prefix := []byte(model.WIRE_VALUE_PREFIX)
+
+		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
+			dbitem := it.Item()
+
+			item := model.WireValue{}
+			err = dbitem.Value(func(val []byte) error {
+				return json.Unmarshal(val, &item)
+			})
+			if err != nil {
+				return &output, status.Errorf(codes.Internal, "BadgerDB view value: %v", err)
+			}
+
+			if !item.Updated.After(after) {
+				continue
+			}
+
+			if in.GetCableId() != "" && in.GetCableId() != item.CableID {
+				continue
+			}
+
+			items = append(items, item)
+		}
+
+		sort.Sort(sortWireValue(items))
+
+		if len(items) > int(in.GetLimit()) {
+			items = items[0:in.GetLimit()]
+		}
+	}
+
+	for i := 0; i < len(items); i++ {
+		item := pb.WireValueUpdated{}
+
+		s.copyModelToOutputWireValue(&item, &items[i])
+
+		output.Wire = append(output.Wire, &item)
+	}
+
+	return &output, nil
+}
+
+type sortWireValue []model.WireValue
+
+func (a sortWireValue) Len() int           { return len(a) }
+func (a sortWireValue) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a sortWireValue) Less(i, j int) bool { return a[i].Updated.Before(a[j].Updated) }
+
+func (s *WireService) setWireValueUpdated(ctx context.Context, item *model.Wire, value string, updated time.Time) error {
+	item2 := model.WireValue{
+		ID:      item.ID,
+		CableID: item.CableID,
+		Value:   value,
+		Updated: updated,
+	}
+
+	idb, err := nson.MessageIdFromHex(item.ID)
+	if err != nil {
+		return status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
+	}
+
+	data, err := json.Marshal(item2)
+	if err != nil {
+		return status.Errorf(codes.Internal, "json.Marshal: %v", err)
+	}
+
+	{
+		ts := uint64(updated.UnixMicro())
+
+		txn := s.es.GetBadgerDB().NewTransactionAt(ts, true)
+		defer txn.Discard()
+
+		err = txn.Set(append([]byte(model.WIRE_VALUE_PREFIX), idb...), data)
+		if err != nil {
+			return status.Errorf(codes.Internal, "BadgerDB Set: %v", err)
+		}
+
+		err = txn.CommitAt(ts, nil)
+		if err != nil {
+			return status.Errorf(codes.Internal, "BadgerDB CommitAt: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (s *WireService) getWireValueUpdated(ctx context.Context, id string) (model.WireValue, error) {
+	item := model.WireValue{
+		ID: id,
+	}
+
+	idb, err := nson.MessageIdFromHex(item.ID)
+	if err != nil {
+		return item, status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
+	}
+
+	txn := s.es.GetBadgerDB().NewTransactionAt(uint64(time.Now().UnixMicro()), false)
+	defer txn.Discard()
+
+	dbitem, err := txn.Get(append([]byte(model.WIRE_VALUE_PREFIX), idb...))
+	if err != nil {
+		if err == badger.ErrKeyNotFound {
+			return item, status.Errorf(codes.NotFound, "TagID: %v", item.ID)
+		}
+		return item, status.Errorf(codes.Internal, "BadgerDB Get: %v", err)
+	}
+
+	err = dbitem.Value(func(val []byte) error {
+		return json.Unmarshal(val, &item)
+	})
+	if err != nil {
+		return item, status.Errorf(codes.Internal, "BadgerDB Get Value: %v", err)
+	}
+
+	return item, nil
+}
+
+func (s *WireService) copyModelToOutputWireValue(output *pb.WireValueUpdated, item *model.WireValue) {
+	output.Id = item.ID
+	output.CableId = item.CableID
+	output.Value = item.Value
+	output.Updated = item.Updated.UnixMicro()
 }

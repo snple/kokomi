@@ -115,7 +115,7 @@ func TagGetValue(ctx context.Context, client edges.TagServiceClient) {
 
 func TagSetValue(ctx context.Context, client edges.TagServiceClient) {
 	request := &pb.TagValue{
-		Id:    "0187712fc889445a03177964",
+		Id:    "0187aeaf3d1ae89be122a3cc",
 		Value: fmt.Sprintf("%v", rand.Float64()*100),
 		// Value: "1",
 	}

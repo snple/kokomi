@@ -432,7 +432,7 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 
 	output.Id = in.GetId()
 
-	item2, err := s.viewValueUpdated(ctx, in.GetId())
+	item2, err := s.getTagValueUpdated(ctx, in.GetId())
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -512,7 +512,7 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 		}
 	}
 
-	if err = s.updateTagValue(ctx, &item, in.GetValue(), time.Now()); err != nil {
+	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
 		return &output, err
 	}
 
@@ -547,7 +547,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 
 	output.Name = in.GetName()
 
-	item2, err := s.viewValueUpdated(ctx, item.ID)
+	item2, err := s.getTagValueUpdated(ctx, item.ID)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -636,7 +636,7 @@ func (s *TagService) setValueByName(ctx context.Context, in *pb.TagNameValue, ch
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	if err = s.updateTagValue(ctx, &item, in.GetValue(), time.Now()); err != nil {
+	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
 		return &output, err
 	}
 
@@ -1005,7 +1005,7 @@ SKIP:
 }
 
 func (s *TagService) getTagValue(ctx context.Context, id string) (string, error) {
-	item2, err := s.viewValueUpdated(ctx, id)
+	item2, err := s.getTagValueUpdated(ctx, id)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1017,34 +1017,6 @@ func (s *TagService) getTagValue(ctx context.Context, id string) (string, error)
 	}
 
 	return item2.Value, nil
-}
-
-func (s *TagService) updateTagValue(ctx context.Context, item *model.Tag, value string, updated time.Time) error {
-	item2 := model.TagValue{
-		ID:       item.ID,
-		SourceID: item.SourceID,
-		Value:    value,
-		Updated:  updated,
-	}
-
-	idb, err := nson.MessageIdFromHex(item.ID)
-	if err != nil {
-		return status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
-	}
-
-	data, err := json.Marshal(item2)
-	if err != nil {
-		return status.Errorf(codes.Internal, "json.Marshal: %v", err)
-	}
-
-	err = s.es.GetBadgerDB().Update(func(txn *badger.Txn) error {
-		return txn.Set(append([]byte(model.TAG_VALUE_PREFIX), idb...), data)
-	})
-	if err != nil {
-		return status.Errorf(codes.Internal, "BadgerDB Set: %v", err)
-	}
-
-	return nil
 }
 
 func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, value string) error {
@@ -1073,7 +1045,7 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		}
 	}
 
-	item, err := s.viewValueUpdated(ctx, in.GetId())
+	item, err := s.getTagValueUpdated(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -1098,7 +1070,7 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		}
 	}
 
-	item, err := s.viewValueUpdated(ctx, in.GetId())
+	item, err := s.getTagValueUpdated(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -1139,11 +1111,13 @@ func (s *TagService) PullValue(ctx context.Context, in *edges.PullTagValueReques
 	{
 		after := time.UnixMicro(in.GetAfter())
 
-		txn := s.es.GetBadgerDB().NewTransaction(false)
+		txn := s.es.GetBadgerDB().NewTransactionAt(uint64(time.Now().UnixMicro()), false)
 		defer txn.Discard()
 
 		opts := badger.DefaultIteratorOptions
 		opts.PrefetchSize = 10
+		opts.SinceTs = uint64(in.GetAfter())
+
 		it := txn.NewIterator(opts)
 		defer it.Close()
 
@@ -1223,7 +1197,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	value, err := s.viewValueUpdated(ctx, in.GetId())
+	value, err := s.getTagValueUpdated(ctx, in.GetId())
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1239,7 +1213,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 	}
 
 UPDATED:
-	if err = s.updateTagValue(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
+	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
 		return &output, err
 	}
 
@@ -1258,7 +1232,45 @@ func (a sortTagValue) Len() int           { return len(a) }
 func (a sortTagValue) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a sortTagValue) Less(i, j int) bool { return a[i].Updated.Before(a[j].Updated) }
 
-func (s *TagService) viewValueUpdated(ctx context.Context, id string) (model.TagValue, error) {
+func (s *TagService) setTagValueUpdated(ctx context.Context, item *model.Tag, value string, updated time.Time) error {
+	item2 := model.TagValue{
+		ID:       item.ID,
+		SourceID: item.SourceID,
+		Value:    value,
+		Updated:  updated,
+	}
+
+	idb, err := nson.MessageIdFromHex(item.ID)
+	if err != nil {
+		return status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
+	}
+
+	data, err := json.Marshal(item2)
+	if err != nil {
+		return status.Errorf(codes.Internal, "json.Marshal: %v", err)
+	}
+
+	{
+		ts := uint64(updated.UnixMicro())
+
+		txn := s.es.GetBadgerDB().NewTransactionAt(ts, true)
+		defer txn.Discard()
+
+		err = txn.Set(append([]byte(model.TAG_VALUE_PREFIX), idb...), data)
+		if err != nil {
+			return status.Errorf(codes.Internal, "BadgerDB Set: %v", err)
+		}
+
+		err = txn.CommitAt(ts, nil)
+		if err != nil {
+			return status.Errorf(codes.Internal, "BadgerDB CommitAt: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (s *TagService) getTagValueUpdated(ctx context.Context, id string) (model.TagValue, error) {
 	item := model.TagValue{
 		ID: id,
 	}
@@ -1268,7 +1280,7 @@ func (s *TagService) viewValueUpdated(ctx context.Context, id string) (model.Tag
 		return item, status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
 	}
 
-	txn := s.es.GetBadgerDB().NewTransaction(false)
+	txn := s.es.GetBadgerDB().NewTransactionAt(uint64(time.Now().UnixMicro()), false)
 	defer txn.Discard()
 
 	dbitem, err := txn.Get(append([]byte(model.TAG_VALUE_PREFIX), idb...))
