@@ -40,7 +40,7 @@ func (s *CableService) Create(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.Name")
 		}
 	}
 
@@ -60,7 +60,7 @@ func (s *CableService) Create(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "cable name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Cable.Name min 2 character")
 		}
 
 		err = s.es.GetDB().NewSelect().Model(&model.Cable{}).Where("name = ?", in.GetName()).Scan(ctx)
@@ -69,7 +69,7 @@ func (s *CableService) Create(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "cable name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Cable.Name must be unique")
 		}
 	}
 
@@ -102,11 +102,11 @@ func (s *CableService) Update(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.Name")
 		}
 	}
 
@@ -118,7 +118,7 @@ func (s *CableService) Update(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "cable name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Cable.Name min 2 character")
 		}
 
 		modelItem := model.Cable{}
@@ -129,7 +129,7 @@ func (s *CableService) Update(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "cable name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Cable.Name must be unique")
 			}
 		}
 	}
@@ -168,7 +168,7 @@ func (s *CableService) View(ctx context.Context, in *pb.Id) (*pb.Cable, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.ID")
 		}
 	}
 
@@ -193,7 +193,7 @@ func (s *CableService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Cable, 
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.Name")
 		}
 	}
 
@@ -218,7 +218,7 @@ func (s *CableService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.ID")
 		}
 	}
 
@@ -341,7 +341,7 @@ func (s *CableService) Link(ctx context.Context, in *edges.LinkCableRequest) (*p
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.ID")
 		}
 	}
 
@@ -381,7 +381,7 @@ func (s *CableService) Clone(ctx context.Context, in *edges.CloneCableRequest) (
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.ID")
 		}
 	}
 
@@ -420,7 +420,7 @@ func (s *CableService) view(ctx context.Context, id string) (model.Cable, error)
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, CableID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Cable.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -502,7 +502,7 @@ func (s *CableService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Cabl
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.ID")
 		}
 	}
 
@@ -524,7 +524,7 @@ func (s *CableService) viewWithDeleted(ctx context.Context, id string) (model.Ca
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, CableID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Cable.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -582,15 +582,15 @@ func (s *CableService) Sync(ctx context.Context, in *pb.Cable) (*pb.MyBool, erro
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.Updated")
 		}
 	}
 
@@ -618,7 +618,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "cable name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Cable.Name min 2 character")
 			}
 
 			err = s.es.GetDB().NewSelect().Model(&model.Cable{}).Where("name = ?", in.GetName()).Scan(ctx)
@@ -627,7 +627,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "cable name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Cable.Name must be unique")
 			}
 		}
 
@@ -659,7 +659,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "cable name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Cable.Name min 2 character")
 			}
 
 			modelItem := model.Cable{}
@@ -670,7 +670,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "cable name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Cable.Name must be unique")
 				}
 			}
 		}

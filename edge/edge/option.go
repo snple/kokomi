@@ -40,14 +40,14 @@ func (s *OptionService) Create(ctx context.Context, in *pb.Option) (*pb.Option, 
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid option name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Option.Name")
 		}
 	}
 
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "option name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Option.Name min 2 character")
 		}
 
 		err = s.es.GetDB().NewSelect().Model(&model.Option{}).Where("name = ?", in.GetName()).Scan(ctx)
@@ -56,7 +56,7 @@ func (s *OptionService) Create(ctx context.Context, in *pb.Option) (*pb.Option, 
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "option name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Option.Name must be unique")
 		}
 	}
 
@@ -101,11 +101,11 @@ func (s *OptionService) Update(ctx context.Context, in *pb.Option) (*pb.Option, 
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid option id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Option.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid option name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Option.Name")
 		}
 	}
 
@@ -117,7 +117,7 @@ func (s *OptionService) Update(ctx context.Context, in *pb.Option) (*pb.Option, 
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "option name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Option.Name min 2 character")
 		}
 
 		modelItem := model.Option{}
@@ -128,7 +128,7 @@ func (s *OptionService) Update(ctx context.Context, in *pb.Option) (*pb.Option, 
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "option name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Option.Name must be unique")
 			}
 		}
 	}
@@ -166,7 +166,7 @@ func (s *OptionService) View(ctx context.Context, in *pb.Id) (*pb.Option, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid option id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Option.ID")
 		}
 	}
 
@@ -191,7 +191,7 @@ func (s *OptionService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Option
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid option name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Option.Name")
 		}
 	}
 
@@ -216,7 +216,7 @@ func (s *OptionService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid option id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Option.ID")
 		}
 	}
 
@@ -339,7 +339,7 @@ func (s *OptionService) Clone(ctx context.Context, in *edges.CloneOptionRequest)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid option id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Option.ID")
 		}
 	}
 
@@ -361,7 +361,7 @@ func (s *OptionService) view(ctx context.Context, id string) (model.Option, erro
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, OptionID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Option.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -376,7 +376,7 @@ func (s *OptionService) viewByName(ctx context.Context, name string) (model.Opti
 	err := s.es.GetDB().NewSelect().Model(&item).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, option Name: %v", err, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Option.Name: %v", err, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -441,7 +441,7 @@ func (s *OptionService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Opt
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid option id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Option.ID")
 		}
 	}
 
@@ -463,7 +463,7 @@ func (s *OptionService) viewWithDeleted(ctx context.Context, id string) (model.O
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, OptionID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Option.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -554,7 +554,7 @@ func (s *OptionService) Set(ctx context.Context, name, value string) error {
 
 	if n < 1 {
 		if len(name) < 2 {
-			return status.Error(codes.InvalidArgument, "option name min 2 character")
+			return status.Error(codes.InvalidArgument, "Option.Name min 2 character")
 		}
 
 		item.ID = util.RandomID()
@@ -592,15 +592,15 @@ func (s *OptionService) Sync(ctx context.Context, in *pb.Option) (*pb.MyBool, er
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid option_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Option.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid option name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Option.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid option updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Option.Updated")
 		}
 	}
 
@@ -628,7 +628,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "option name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Option.Name min 2 character")
 			}
 
 			err = s.es.GetDB().NewSelect().Model(&model.Option{}).Where("name = ?", in.GetName()).Scan(ctx)
@@ -637,7 +637,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "option name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Option.Name must be unique")
 			}
 		}
 
@@ -668,7 +668,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "option name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Option.Name min 2 character")
 			}
 
 			modelItem := model.Option{}
@@ -679,7 +679,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "option name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Option.Name must be unique")
 				}
 			}
 		}

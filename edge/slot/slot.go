@@ -158,12 +158,14 @@ func (s *SlotService) Login(ctx context.Context, in *slots.LoginSlotRequest) (*s
 	}
 
 	if reply.GetStatus() != consts.ON {
-		s.es.Logger().Sugar().Errorf("slot connect error: slot is not enable, id: %v, ip: %v", in.GetId(), metadata.GetPeerAddr(ctx))
+		s.es.Logger().Sugar().Errorf("slot connect error: slot is not enable, id: %v, ip: %v",
+			in.GetId(), metadata.GetPeerAddr(ctx))
 		return &output, status.Error(codes.FailedPrecondition, "The slot is not enable")
 	}
 
 	if reply.GetSecret() != string(in.GetSecret()) {
-		s.es.Logger().Sugar().Errorf("slot connect error: secret is not valid, id: %v, ip: %v", in.GetId(), metadata.GetPeerAddr(ctx))
+		s.es.Logger().Sugar().Errorf("slot connect error: slot secret is not valid, id: %v, ip: %v",
+			in.GetId(), metadata.GetPeerAddr(ctx))
 		return &output, status.Error(codes.Unauthenticated, "Please supply valid secret")
 	}
 

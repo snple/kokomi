@@ -360,7 +360,7 @@ func (s *cloneService) cloneSlot(ctx context.Context, db bun.IDB, slotID, device
 		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid device id")
+				return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
@@ -413,7 +413,7 @@ func (s *cloneService) cloneOption(ctx context.Context, db bun.IDB, optionID, de
 		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid device id")
+				return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
@@ -466,7 +466,7 @@ func (s *cloneService) clonePort(ctx context.Context, db bun.IDB, portID, device
 		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid device id")
+				return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
@@ -519,7 +519,7 @@ func (s *cloneService) cloneProxy(ctx context.Context, db bun.IDB, proxyID, devi
 		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid device id")
+				return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
@@ -572,7 +572,7 @@ func (s *cloneService) cloneSource(ctx context.Context, db bun.IDB, sourceID, de
 		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid device id")
+				return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
@@ -649,7 +649,7 @@ func (s *cloneService) cloneTag(ctx context.Context, db bun.IDB, tagID, sourceID
 		err = db.NewSelect().Model(&source).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid source_id")
+				return status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
@@ -703,7 +703,7 @@ func (s *cloneService) cloneVar(ctx context.Context, db bun.IDB, varID, deviceID
 		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid device id")
+				return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
@@ -756,7 +756,7 @@ func (s *cloneService) cloneCable(ctx context.Context, db bun.IDB, cableID, devi
 		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid device id")
+				return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
@@ -833,7 +833,7 @@ func (s *cloneService) cloneWire(ctx context.Context, db bun.IDB, wireID, cableI
 		err = db.NewSelect().Model(&cable).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid cable_id")
+				return status.Error(codes.InvalidArgument, "Please supply valid Cable.ID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
@@ -887,7 +887,7 @@ func (s *cloneService) cloneClass(ctx context.Context, db bun.IDB, classID, devi
 		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid device id")
+				return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
@@ -964,7 +964,7 @@ func (s *cloneService) cloneAttr(ctx context.Context, db bun.IDB, attrID, classI
 		err = db.NewSelect().Model(&class).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid class_id")
+				return status.Error(codes.InvalidArgument, "Please supply valid ClassID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)

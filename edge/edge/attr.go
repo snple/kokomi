@@ -47,18 +47,18 @@ func (s *AttrService) Create(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 		}
 
 		if len(in.GetClassId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.ClassID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.Name")
 		}
 	}
 
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "attr name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Attr.Name min 2 character")
 		}
 
 		err = s.es.GetDB().NewSelect().Model(&model.Attr{}).Where("name = ?", in.GetName()).Where("class_id = ?", in.GetClassId()).Scan(ctx)
@@ -67,7 +67,7 @@ func (s *AttrService) Create(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "attr name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Attr.Name must be unique")
 		}
 	}
 
@@ -140,11 +140,11 @@ func (s *AttrService) Update(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.Name")
 		}
 	}
 
@@ -156,7 +156,7 @@ func (s *AttrService) Update(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "attr name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Attr.Name min 2 character")
 		}
 
 		modelItem := model.Attr{}
@@ -167,7 +167,7 @@ func (s *AttrService) Update(ctx context.Context, in *pb.Attr) (*pb.Attr, error)
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "attr name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Attr.Name must be unique")
 			}
 		}
 	}
@@ -224,7 +224,7 @@ func (s *AttrService) View(ctx context.Context, in *pb.Id) (*pb.Attr, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.ID")
 		}
 	}
 
@@ -254,7 +254,7 @@ func (s *AttrService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Attr, er
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.Name")
 		}
 	}
 
@@ -286,7 +286,7 @@ func (s *AttrService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.ID")
 		}
 	}
 
@@ -419,7 +419,7 @@ func (s *AttrService) Clone(ctx context.Context, in *edges.CloneAttrRequest) (*p
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.ID")
 		}
 	}
 
@@ -444,7 +444,7 @@ func (s *AttrService) GetValue(ctx context.Context, in *pb.Id) (*pb.AttrValue, e
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.ID")
 		}
 	}
 
@@ -499,11 +499,11 @@ func (s *AttrService) setValue(ctx context.Context, in *pb.AttrValue, check bool
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.ID")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.Value")
 		}
 	}
 
@@ -514,12 +514,12 @@ func (s *AttrService) setValue(ctx context.Context, in *pb.AttrValue, check bool
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Attr Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Attr.Status != ON")
 	}
 
 	if check {
 		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Attr Access != ON")
+			return &output, status.Errorf(codes.FailedPrecondition, "Attr.Access != ON")
 		}
 	}
 
@@ -538,7 +538,7 @@ func (s *AttrService) setValue(ctx context.Context, in *pb.AttrValue, check bool
 			}
 
 			if class.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Class Status != ON")
+				return &output, status.Errorf(codes.FailedPrecondition, "Class.Status != ON")
 			}
 		}
 	}
@@ -569,7 +569,7 @@ func (s *AttrService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Attr
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.Name")
 		}
 	}
 
@@ -624,11 +624,11 @@ func (s *AttrService) setValueByName(ctx context.Context, in *pb.AttrNameValue, 
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.Name")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.Value")
 		}
 	}
 
@@ -639,7 +639,7 @@ func (s *AttrService) setValueByName(ctx context.Context, in *pb.AttrNameValue, 
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.Name")
 		}
 
 		className = splits[0]
@@ -653,7 +653,7 @@ func (s *AttrService) setValueByName(ctx context.Context, in *pb.AttrNameValue, 
 	}
 
 	if class.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "class Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Class.Status != ON")
 	}
 
 	// attr
@@ -663,12 +663,12 @@ func (s *AttrService) setValueByName(ctx context.Context, in *pb.AttrNameValue, 
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Attr Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Attr.Status != ON")
 	}
 
 	if check {
 		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Attr Access != ON")
+			return &output, status.Errorf(codes.FailedPrecondition, "Attr.Access != ON")
 		}
 	}
 
@@ -700,7 +700,7 @@ func (s *AttrService) view(ctx context.Context, id string) (model.Attr, error) {
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, AttrID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Attr.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -718,7 +718,7 @@ func (s *AttrService) viewByName(ctx context.Context, name string) (model.Attr, 
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return item, status.Error(codes.InvalidArgument, "Please supply valid attr name")
+			return item, status.Error(codes.InvalidArgument, "Please supply valid Attr.Name")
 		}
 
 		className = splits[0]
@@ -739,7 +739,7 @@ func (s *AttrService) ViewByClassIDAndName(ctx context.Context, classID, name st
 	err := s.es.GetDB().NewSelect().Model(&item).Where("class_id = ?", classID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, ClassID: %v, Name: %v", err, classID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, ClassID: %v, Attr.Name: %v", err, classID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -832,7 +832,7 @@ func (s *AttrService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Attr,
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.ID")
 		}
 	}
 
@@ -854,7 +854,7 @@ func (s *AttrService) viewWithDeleted(ctx context.Context, id string) (model.Att
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, AttrID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Attr.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -916,15 +916,15 @@ func (s *AttrService) Sync(ctx context.Context, in *pb.Attr) (*pb.MyBool, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.Updated")
 		}
 	}
 
@@ -960,7 +960,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "attr name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Attr.Name min 2 character")
 			}
 
 			err = s.es.GetDB().NewSelect().Model(&model.Attr{}).Where("name = ?", in.GetName()).Where("class_id = ?", in.GetClassId()).Scan(ctx)
@@ -969,7 +969,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "attr name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Attr.Name must be unique")
 			}
 		}
 
@@ -1015,7 +1015,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "attr name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Attr.Name min 2 character")
 			}
 
 			modelItem := model.Attr{}
@@ -1026,7 +1026,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "attr name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Attr.Name must be unique")
 				}
 			}
 		}

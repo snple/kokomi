@@ -41,7 +41,7 @@ func (s *ControlService) GetTagValue(ctx context.Context, in *pb.Id) (*pb.TagVal
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
 
@@ -54,7 +54,7 @@ func (s *ControlService) GetTagValue(ctx context.Context, in *pb.Id) (*pb.TagVal
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
 	}
 
 	// validation device and source
@@ -67,7 +67,7 @@ func (s *ControlService) GetTagValue(ctx context.Context, in *pb.Id) (*pb.TagVal
 			}
 
 			if device.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Device Status != ON")
+				return &output, status.Errorf(codes.FailedPrecondition, "Device.Status != ON")
 			}
 		}
 
@@ -79,7 +79,7 @@ func (s *ControlService) GetTagValue(ctx context.Context, in *pb.Id) (*pb.TagVal
 			}
 
 			if source.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Source Status != ON")
+				return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
 			}
 		}
 	}
@@ -104,11 +104,11 @@ func (s *ControlService) SetTagValue(ctx context.Context, in *pb.TagValue) (*pb.
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
 		}
 	}
 
@@ -119,11 +119,11 @@ func (s *ControlService) SetTagValue(ctx context.Context, in *pb.TagValue) (*pb.
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
 	}
 
 	if item.Access != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag Access != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
 	}
 
 	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
@@ -141,7 +141,7 @@ func (s *ControlService) SetTagValue(ctx context.Context, in *pb.TagValue) (*pb.
 			}
 
 			if device.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Device Status != ON")
+				return &output, status.Errorf(codes.FailedPrecondition, "Device.Status != ON")
 			}
 		}
 
@@ -153,7 +153,7 @@ func (s *ControlService) SetTagValue(ctx context.Context, in *pb.TagValue) (*pb.
 			}
 
 			if source.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Source Status != ON")
+				return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
 			}
 		}
 	}

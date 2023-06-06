@@ -40,15 +40,15 @@ func (s *RouteService) Create(ctx context.Context, in *cores.Route) (*cores.Rout
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid route name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Route.Name")
 		}
 
 		if in.GetSrc() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid route src")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Route.Src")
 		}
 
 		if in.GetDst() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid route dst")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Route.Dst")
 		}
 
 	}
@@ -56,7 +56,7 @@ func (s *RouteService) Create(ctx context.Context, in *cores.Route) (*cores.Rout
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "route name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Route.Name min 2 character")
 		}
 
 		err = s.cs.GetDB().NewSelect().Model(&model.Route{}).Where("name = ?", in.GetName()).Scan(ctx)
@@ -65,7 +65,7 @@ func (s *RouteService) Create(ctx context.Context, in *cores.Route) (*cores.Rout
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "route name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Route.Name must be unique")
 		}
 	}
 
@@ -129,7 +129,7 @@ func (s *RouteService) Create(ctx context.Context, in *cores.Route) (*cores.Rout
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "route src-dst must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Route.Rrc->Route.Dst must be unique")
 			}
 		}
 	}
@@ -173,11 +173,11 @@ func (s *RouteService) Update(ctx context.Context, in *cores.Route) (*cores.Rout
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid route id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Route.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid route name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Route.Name")
 		}
 	}
 
@@ -189,7 +189,7 @@ func (s *RouteService) Update(ctx context.Context, in *cores.Route) (*cores.Rout
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "route name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Route.Name min 2 character")
 		}
 
 		modelItem := model.Route{}
@@ -200,7 +200,7 @@ func (s *RouteService) Update(ctx context.Context, in *cores.Route) (*cores.Rout
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "route name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Route.Name must be unique")
 			}
 		}
 	}
@@ -236,7 +236,7 @@ func (s *RouteService) View(ctx context.Context, in *pb.Id) (*cores.Route, error
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid route id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Route.ID")
 		}
 	}
 
@@ -261,7 +261,7 @@ func (s *RouteService) ViewByName(ctx context.Context, in *pb.Name) (*cores.Rout
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid route name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Route.Name")
 		}
 	}
 
@@ -286,7 +286,7 @@ func (s *RouteService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid route id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Route.ID")
 		}
 	}
 
@@ -410,7 +410,7 @@ func (s *RouteService) view(ctx context.Context, id string) (model.Route, error)
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, RouteID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Route.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -425,7 +425,7 @@ func (s *RouteService) viewByName(ctx context.Context, name string) (model.Route
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, route Name: %v", err, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Route.Name: %v", err, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)

@@ -40,11 +40,11 @@ func (s *ClassService) Create(ctx context.Context, in *pb.Class) (*pb.Class, err
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.Name")
 		}
 	}
 
@@ -59,7 +59,7 @@ func (s *ClassService) Create(ctx context.Context, in *pb.Class) (*pb.Class, err
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "class name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Class.Name min 2 character")
 		}
 
 		err = s.cs.GetDB().NewSelect().Model(&model.Class{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
@@ -68,7 +68,7 @@ func (s *ClassService) Create(ctx context.Context, in *pb.Class) (*pb.Class, err
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "class name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Class.Name must be unique")
 		}
 	}
 
@@ -115,11 +115,11 @@ func (s *ClassService) Update(ctx context.Context, in *pb.Class) (*pb.Class, err
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.Name")
 		}
 	}
 
@@ -131,7 +131,7 @@ func (s *ClassService) Update(ctx context.Context, in *pb.Class) (*pb.Class, err
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "class name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Class.Name min 2 character")
 		}
 
 		modelItem := model.Class{}
@@ -142,7 +142,7 @@ func (s *ClassService) Update(ctx context.Context, in *pb.Class) (*pb.Class, err
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "class name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Class.Name must be unique")
 			}
 		}
 	}
@@ -181,7 +181,7 @@ func (s *ClassService) View(ctx context.Context, in *pb.Id) (*pb.Class, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.ID")
 		}
 	}
 
@@ -206,11 +206,11 @@ func (s *ClassService) ViewByName(ctx context.Context, in *cores.ViewClassByName
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.Name")
 		}
 	}
 
@@ -235,7 +235,7 @@ func (s *ClassService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Cla
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.Name")
 		}
 	}
 
@@ -245,7 +245,7 @@ func (s *ClassService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Cla
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.Name")
 		}
 
 		deviceName = splits[0]
@@ -280,7 +280,7 @@ func (s *ClassService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.ID")
 		}
 	}
 
@@ -407,7 +407,7 @@ func (s *ClassService) Clone(ctx context.Context, in *cores.CloneClassRequest) (
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.ID")
 		}
 	}
 
@@ -446,7 +446,7 @@ func (s *ClassService) view(ctx context.Context, id string) (model.Class, error)
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, ClassID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Class.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -461,7 +461,7 @@ func (s *ClassService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, DeviceID: %v, Name: %v", err, deviceID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, DeviceID: %v, Class.Name: %v", err, deviceID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -518,7 +518,7 @@ func (s *ClassService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Clas
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.ID")
 		}
 	}
 
@@ -540,7 +540,7 @@ func (s *ClassService) viewWithDeleted(ctx context.Context, id string) (model.Cl
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, ClassID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Class.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -602,15 +602,15 @@ func (s *ClassService) Sync(ctx context.Context, in *pb.Class) (*pb.MyBool, erro
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.Updated")
 		}
 	}
 
@@ -646,7 +646,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "class name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Class.Name min 2 character")
 			}
 
 			err = s.cs.GetDB().NewSelect().Model(&model.Class{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
@@ -655,7 +655,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "class name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Class.Name must be unique")
 			}
 		}
 
@@ -692,7 +692,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "class name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Class.Name min 2 character")
 			}
 
 			modelItem := model.Class{}
@@ -703,7 +703,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "class name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Class.Name must be unique")
 				}
 			}
 		}

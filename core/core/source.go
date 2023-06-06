@@ -40,11 +40,11 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Name")
 		}
 	}
 
@@ -59,7 +59,7 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "source name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Source.Name min 2 character")
 		}
 
 		err = s.cs.GetDB().NewSelect().Model(&model.Source{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
@@ -68,7 +68,7 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "source name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Source.Name must be unique")
 		}
 	}
 
@@ -117,11 +117,11 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Name")
 		}
 	}
 
@@ -133,7 +133,7 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "source name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Source.Name min 2 character")
 		}
 
 		modelItem := model.Source{}
@@ -144,7 +144,7 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "source name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Source.Name must be unique")
 			}
 		}
 	}
@@ -185,7 +185,7 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 	}
 
@@ -210,11 +210,11 @@ func (s *SourceService) ViewByName(ctx context.Context, in *cores.ViewSourceByNa
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Name")
 		}
 	}
 
@@ -239,7 +239,7 @@ func (s *SourceService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.So
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Name")
 		}
 	}
 
@@ -249,7 +249,7 @@ func (s *SourceService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.So
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Name")
 		}
 
 		deviceName = splits[0]
@@ -284,7 +284,7 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 	}
 
@@ -415,7 +415,7 @@ func (s *SourceService) Link(ctx context.Context, in *cores.LinkSourceRequest) (
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 	}
 
@@ -442,7 +442,7 @@ func (s *SourceService) Clone(ctx context.Context, in *cores.CloneSourceRequest)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 	}
 
@@ -481,7 +481,7 @@ func (s *SourceService) view(ctx context.Context, id string) (model.Source, erro
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Source.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -496,7 +496,7 @@ func (s *SourceService) ViewByDeviceIDAndName(ctx context.Context, deviceID, nam
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, DeviceID: %v, Name: %v", err, deviceID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, DeviceID: %v, Source.Name: %v", err, deviceID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -556,7 +556,7 @@ func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Sou
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 	}
 
@@ -578,7 +578,7 @@ func (s *SourceService) viewWithDeleted(ctx context.Context, id string) (model.S
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Source.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -644,15 +644,15 @@ func (s *SourceService) Sync(ctx context.Context, in *pb.Source) (*pb.MyBool, er
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Updated")
 		}
 	}
 
@@ -688,7 +688,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "source name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Source.Name min 2 character")
 			}
 
 			err = s.cs.GetDB().NewSelect().Model(&model.Source{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
@@ -697,7 +697,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "source name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Source.Name must be unique")
 			}
 		}
 
@@ -736,7 +736,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "source name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Source.Name min 2 character")
 			}
 
 			modelItem := model.Source{}
@@ -747,7 +747,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "source name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Source.Name must be unique")
 				}
 			}
 		}

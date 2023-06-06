@@ -41,18 +41,18 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		}
 
 		if len(in.GetSourceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.SourceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 	}
 
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "tag name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Tag.Name min 2 character")
 		}
 
 		err = s.cs.GetDB().NewSelect().Model(&model.Tag{}).Where("name = ?", in.GetName()).Where("source_id = ?", in.GetSourceId()).Scan(ctx)
@@ -61,7 +61,7 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "tag name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Tag.Name must be unique")
 		}
 	}
 
@@ -128,11 +128,11 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 	}
 
@@ -144,7 +144,7 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "tag name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Tag.Name min 2 character")
 		}
 
 		modelItem := model.Tag{}
@@ -155,7 +155,7 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "tag name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Tag.Name must be unique")
 			}
 		}
 	}
@@ -204,7 +204,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
 
@@ -234,11 +234,11 @@ func (s *TagService) ViewByName(ctx context.Context, in *cores.ViewTagByNameRequ
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 	}
 
@@ -270,7 +270,7 @@ func (s *TagService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Tag, 
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 	}
 
@@ -290,7 +290,7 @@ func (s *TagService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Tag, 
 			sourceName = splits[1]
 			itemName = splits[2]
 		default:
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 	}
 
@@ -332,7 +332,7 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
 
@@ -469,7 +469,7 @@ func (s *TagService) Clone(ctx context.Context, in *cores.CloneTagRequest) (*pb.
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
 
@@ -494,7 +494,7 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
 
@@ -536,11 +536,11 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
 		}
 	}
 
@@ -551,12 +551,12 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
 	}
 
 	if check {
 		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Tag Access != ON")
+			return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
 		}
 	}
 
@@ -575,7 +575,7 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 			}
 
 			if device.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Device Status != ON")
+				return &output, status.Errorf(codes.FailedPrecondition, "Device.Status != ON")
 			}
 		}
 
@@ -587,7 +587,7 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 			}
 
 			if source.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Source Status != ON")
+				return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
 			}
 		}
 	}
@@ -616,11 +616,11 @@ func (s *TagService) GetValueByName(ctx context.Context, in *cores.GetTagValueBy
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 	}
 
@@ -668,15 +668,15 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
 		}
 	}
 
@@ -687,7 +687,7 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 	}
 
 	if device.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Device Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Device.Status != ON")
 	}
 
 	// name
@@ -697,7 +697,7 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 
 		sourceName = splits[0]
@@ -711,7 +711,7 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 	}
 
 	if source.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Source Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
 	}
 
 	// tag
@@ -721,12 +721,12 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
 	}
 
 	if check {
 		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Tag Access != ON")
+			return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
 		}
 	}
 
@@ -756,7 +756,7 @@ func (s *TagService) view(ctx context.Context, id string) (model.Tag, error) {
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, TagID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Tag.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -774,7 +774,7 @@ func (s *TagService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name s
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return item, status.Error(codes.InvalidArgument, "Please supply valid tag name")
+			return item, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 
 		sourceName = splits[0]
@@ -795,7 +795,7 @@ func (s *TagService) ViewBySourceIDAndName(ctx context.Context, sourceID, name s
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("source_id = ?", sourceID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Tag SourceID: %v, Name: %v", err, sourceID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v, Tag.Name: %v", err, sourceID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -810,7 +810,7 @@ func (s *TagService) ViewBySourceIDAndAddress(ctx context.Context, sourceID, add
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("source_id = ?", sourceID).Where("address = ?", address).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Tag SourceID: %v, Address: %v", err, sourceID, address)
+			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v, Tag.Address: %v", err, sourceID, address)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -873,7 +873,7 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
 
@@ -895,7 +895,7 @@ func (s *TagService) viewWithDeleted(ctx context.Context, id string) (model.Tag,
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, TagID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Tag.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -961,15 +961,15 @@ func (s *TagService) Sync(ctx context.Context, in *pb.Tag) (*pb.MyBool, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Updated")
 		}
 	}
 
@@ -1017,7 +1017,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "tag name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Tag.Name min 2 character")
 			}
 
 			err = s.cs.GetDB().NewSelect().Model(&model.Tag{}).Where("name = ?", in.GetName()).Where("source_id = ?", in.GetSourceId()).Scan(ctx)
@@ -1026,7 +1026,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "tag name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Tag.Name must be unique")
 			}
 		}
 
@@ -1069,7 +1069,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "tag name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Tag.Name min 2 character")
 			}
 
 			modelItem := model.Tag{}
@@ -1080,7 +1080,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "tag name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Tag.Name must be unique")
 				}
 			}
 		}
@@ -1183,7 +1183,7 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
 
@@ -1208,7 +1208,7 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
 
@@ -1277,7 +1277,7 @@ func (s *TagService) viewValueUpdated(ctx context.Context, id string) (model.Tag
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, TagID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Tag.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -1305,15 +1305,15 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var value updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
 		}
 	}
 

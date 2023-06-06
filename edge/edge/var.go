@@ -41,14 +41,14 @@ func (s *VarService) Create(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
 		}
 	}
 
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "var name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Var.Name min 2 character")
 		}
 
 		err = s.es.GetDB().NewSelect().Model(&model.Var{}).Where("name = ?", in.GetName()).Scan(ctx)
@@ -57,7 +57,7 @@ func (s *VarService) Create(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "var name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Var.Name must be unique")
 		}
 	}
 
@@ -108,11 +108,11 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
 		}
 	}
 
@@ -124,7 +124,7 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "var name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Var.Name min 2 character")
 		}
 
 		modelItem := model.Var{}
@@ -135,7 +135,7 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "var name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Var.Name must be unique")
 			}
 		}
 	}
@@ -179,7 +179,7 @@ func (s *VarService) View(ctx context.Context, in *pb.Id) (*pb.Var, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
 		}
 	}
 
@@ -204,7 +204,7 @@ func (s *VarService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Var, erro
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
 		}
 	}
 
@@ -229,7 +229,7 @@ func (s *VarService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
 		}
 	}
 
@@ -352,7 +352,7 @@ func (s *VarService) Clone(ctx context.Context, in *edges.CloneVarRequest) (*pb.
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
 		}
 	}
 
@@ -377,7 +377,7 @@ func (s *VarService) GetValue(ctx context.Context, in *pb.Id) (*pb.VarValue, err
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
 		}
 	}
 
@@ -412,7 +412,7 @@ func (s *VarService) setValue(ctx context.Context, in *pb.VarValue, check bool) 
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
 		}
 	}
 
@@ -422,12 +422,12 @@ func (s *VarService) setValue(ctx context.Context, in *pb.VarValue, check bool) 
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Var Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Var.Status != ON")
 	}
 
 	if check {
 		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Var Access != ON")
+			return &output, status.Errorf(codes.FailedPrecondition, "Var.Access != ON")
 		}
 	}
 
@@ -463,7 +463,7 @@ func (s *VarService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.VarNa
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
 		}
 	}
 
@@ -498,11 +498,11 @@ func (s *VarService) setValueByName(ctx context.Context, in *pb.VarNameValue, ch
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Value")
 		}
 	}
 
@@ -512,12 +512,12 @@ func (s *VarService) setValueByName(ctx context.Context, in *pb.VarNameValue, ch
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Var Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Var.Status != ON")
 	}
 
 	if check {
 		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Var Access != ON")
+			return &output, status.Errorf(codes.FailedPrecondition, "Var.Access != ON")
 		}
 	}
 
@@ -551,7 +551,7 @@ func (s *VarService) view(ctx context.Context, id string) (model.Var, error) {
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, VarID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Var.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -566,7 +566,7 @@ func (s *VarService) viewByName(ctx context.Context, name string) (model.Var, er
 	err := s.es.GetDB().NewSelect().Model(&item).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Var Name: %v", err, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Var.Name: %v", err, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -637,7 +637,7 @@ func (s *VarService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Var, e
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
 		}
 	}
 
@@ -659,7 +659,7 @@ func (s *VarService) viewWithDeleted(ctx context.Context, id string) (model.Var,
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, VarID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Var.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -721,11 +721,11 @@ func (s *VarService) Sync(ctx context.Context, in *pb.Var) (*pb.MyBool, error) {
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Updated")
 		}
 	}
 
@@ -753,7 +753,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "var name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Var.Name min 2 character")
 			}
 
 			err = s.es.GetDB().NewSelect().Model(&model.Var{}).Where("name = ?", in.GetName()).Scan(ctx)
@@ -762,7 +762,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "var name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Var.Name must be unique")
 			}
 		}
 
@@ -799,7 +799,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "var name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Var.Name min 2 character")
 			}
 
 			modelItem := model.Var{}
@@ -810,7 +810,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "var name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Var.Name must be unique")
 				}
 			}
 		}

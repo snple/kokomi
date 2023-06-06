@@ -45,7 +45,7 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *cores.SyncUpdate
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 
 		if in.GetUpdated() == 0 {
@@ -74,7 +74,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.Id) (*cores.S
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 	}
 
@@ -107,11 +107,11 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *cores.SyncUpda
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag value updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
 		}
 	}
 
@@ -136,7 +136,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.Id) (*cores
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
 
@@ -169,11 +169,11 @@ func (s *SyncService) SetWireValueUpdated(ctx context.Context, in *cores.SyncUpd
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire value updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Value.Updated")
 		}
 	}
 
@@ -198,7 +198,7 @@ func (s *SyncService) GetWireValueUpdated(ctx context.Context, in *pb.Id) (*core
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 		}
 	}
 
@@ -355,7 +355,7 @@ func (s *SyncService) waitUpdated(in *pb.Id,
 		}
 
 		if len(in.GetId()) == 0 {
-			return status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 	}
 

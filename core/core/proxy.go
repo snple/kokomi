@@ -40,11 +40,11 @@ func (s *ProxyService) Create(ctx context.Context, in *pb.Proxy) (*pb.Proxy, err
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Name")
 		}
 	}
 
@@ -59,7 +59,7 @@ func (s *ProxyService) Create(ctx context.Context, in *pb.Proxy) (*pb.Proxy, err
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "proxy name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Proxy.Name min 2 character")
 		}
 
 		err = s.cs.GetDB().NewSelect().Model(&model.Proxy{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
@@ -68,7 +68,7 @@ func (s *ProxyService) Create(ctx context.Context, in *pb.Proxy) (*pb.Proxy, err
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "proxy name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Proxy.Name must be unique")
 		}
 	}
 
@@ -117,11 +117,11 @@ func (s *ProxyService) Update(ctx context.Context, in *pb.Proxy) (*pb.Proxy, err
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Name")
 		}
 	}
 
@@ -133,7 +133,7 @@ func (s *ProxyService) Update(ctx context.Context, in *pb.Proxy) (*pb.Proxy, err
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "proxy name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Proxy.Name min 2 character")
 		}
 
 		modelItem := model.Proxy{}
@@ -144,7 +144,7 @@ func (s *ProxyService) Update(ctx context.Context, in *pb.Proxy) (*pb.Proxy, err
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "proxy name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Proxy.Name must be unique")
 			}
 		}
 	}
@@ -185,7 +185,7 @@ func (s *ProxyService) View(ctx context.Context, in *pb.Id) (*pb.Proxy, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 		}
 	}
 
@@ -210,11 +210,11 @@ func (s *ProxyService) ViewByName(ctx context.Context, in *cores.ViewProxyByName
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Name")
 		}
 	}
 
@@ -239,7 +239,7 @@ func (s *ProxyService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Pro
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Name")
 		}
 	}
 
@@ -249,7 +249,7 @@ func (s *ProxyService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Pro
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Name")
 		}
 
 		deviceName = splits[0]
@@ -284,7 +284,7 @@ func (s *ProxyService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 		}
 	}
 
@@ -411,7 +411,7 @@ func (s *ProxyService) Link(ctx context.Context, in *cores.LinkProxyRequest) (*p
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 		}
 	}
 
@@ -438,7 +438,7 @@ func (s *ProxyService) Clone(ctx context.Context, in *cores.CloneProxyRequest) (
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 		}
 	}
 
@@ -460,7 +460,7 @@ func (s *ProxyService) view(ctx context.Context, id string) (model.Proxy, error)
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, ProxyID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Proxy.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -475,7 +475,7 @@ func (s *ProxyService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Proxy DeviceID: %v, Name: %v", err, deviceID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, DeviceID: %v, Proxy.Name: %v", err, deviceID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -535,7 +535,7 @@ func (s *ProxyService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Prox
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 		}
 	}
 
@@ -557,7 +557,7 @@ func (s *ProxyService) viewWithDeleted(ctx context.Context, id string) (model.Pr
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, ProxyID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Proxy.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -619,15 +619,15 @@ func (s *ProxyService) Sync(ctx context.Context, in *pb.Proxy) (*pb.MyBool, erro
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Updated")
 		}
 	}
 
@@ -663,7 +663,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "proxy name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Proxy.Name min 2 character")
 			}
 
 			err = s.cs.GetDB().NewSelect().Model(&model.Proxy{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
@@ -672,7 +672,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "proxy name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Proxy.Name must be unique")
 			}
 		}
 
@@ -711,7 +711,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "proxy name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Proxy.Name min 2 character")
 			}
 
 			modelItem := model.Proxy{}
@@ -722,7 +722,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "proxy name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Proxy.Name must be unique")
 				}
 			}
 		}

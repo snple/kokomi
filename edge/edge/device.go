@@ -35,14 +35,14 @@ func newDeviceService(es *EdgeService) *DeviceService {
 // 		}
 
 // 		if len(in.GetName()) == 0 {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid device name")
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
 // 		}
 // 	}
 
 // 	// name validation
 // 	{
 // 		if len(in.GetName()) < 2 {
-// 			return &output, status.Error(codes.InvalidArgument, "device name min 2 character")
+// 			return &output, status.Error(codes.InvalidArgument, "Device.Name min 2 character")
 // 		}
 
 // 		err = s.es.GetDB().NewSelect().Model(&model.Device{}).Where("name = ?", in.GetName()).Scan(ctx)
@@ -51,7 +51,7 @@ func newDeviceService(es *EdgeService) *DeviceService {
 // 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 // 			}
 // 		} else {
-// 			return &output, status.Error(codes.AlreadyExists, "device name must be unique")
+// 			return &output, status.Error(codes.AlreadyExists, "Device.Name must be unique")
 // 		}
 // 	}
 
@@ -97,14 +97,14 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
 		}
 	}
 
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "device name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Device.Name min 2 character")
 		}
 	}
 
@@ -287,7 +287,7 @@ func (s *DeviceService) viewWithDeleted(ctx context.Context) (model.Device, erro
 	err := s.es.GetDB().NewSelect().Model(&item).WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, DeviceID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Device.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -307,11 +307,11 @@ func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, er
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
 		}
 
 		if in.GetUpdated() == 0 {
@@ -343,7 +343,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "device name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Device.Name min 2 character")
 			}
 
 			err = s.es.GetDB().NewSelect().Model(&model.Device{}).Where("name = ?", in.GetName()).Scan(ctx)
@@ -352,7 +352,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "device name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Device.Name must be unique")
 			}
 		}
 
@@ -384,7 +384,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "device name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Device.Name min 2 character")
 			}
 
 			modelItem := model.Device{}
@@ -395,7 +395,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "device name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Device.Name must be unique")
 				}
 			}
 		}

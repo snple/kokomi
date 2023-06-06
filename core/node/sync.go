@@ -101,7 +101,7 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *nodes.SyncUpda
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag value updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
 		}
 	}
 
@@ -169,7 +169,7 @@ func (s *SyncService) SetWireValueUpdated(ctx context.Context, in *nodes.SyncUpd
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire value updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Value.Updated")
 		}
 	}
 

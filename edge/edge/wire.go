@@ -45,11 +45,11 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 		}
 
 		if len(in.GetCableId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.CableID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Name")
 		}
 	}
 
@@ -83,7 +83,7 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "wire name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Wire.Name min 2 character")
 		}
 
 		err = s.es.GetDB().NewSelect().Model(&model.Wire{}).Where("name = ?", in.GetName()).Where("cable_id = ?", in.GetCableId()).Scan(ctx)
@@ -92,7 +92,7 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "wire name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Wire.Name must be unique")
 		}
 	}
 
@@ -130,11 +130,11 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Name")
 		}
 	}
 
@@ -146,7 +146,7 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "wire name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Wire.Name min 2 character")
 		}
 
 		modelItem := model.Wire{}
@@ -157,7 +157,7 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "wire name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Wire.Name must be unique")
 			}
 		}
 	}
@@ -205,7 +205,7 @@ func (s *WireService) View(ctx context.Context, in *pb.Id) (*pb.Wire, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 		}
 	}
 
@@ -235,7 +235,7 @@ func (s *WireService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Wire, er
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Name")
 		}
 	}
 
@@ -267,7 +267,7 @@ func (s *WireService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 		}
 	}
 
@@ -399,7 +399,7 @@ func (s *WireService) Clone(ctx context.Context, in *edges.CloneWireRequest) (*p
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 		}
 	}
 
@@ -424,7 +424,7 @@ func (s *WireService) GetValue(ctx context.Context, in *pb.Id) (*pb.WireValue, e
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 		}
 	}
 
@@ -466,11 +466,11 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Value")
 		}
 	}
 
@@ -481,12 +481,12 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Wire Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Wire.Status != ON")
 	}
 
 	if check {
 		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Wire Access != ON")
+			return &output, status.Errorf(codes.FailedPrecondition, "Wire.Access != ON")
 		}
 	}
 
@@ -503,7 +503,7 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 		}
 
 		if cable.Status != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Cable Status != ON")
+			return &output, status.Errorf(codes.FailedPrecondition, "Cable.Status != ON")
 		}
 	}
 
@@ -531,15 +531,15 @@ func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBo
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Value")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var value updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Value.Updated")
 		}
 	}
 
@@ -594,7 +594,7 @@ func (s *WireService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Wire
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Name")
 		}
 	}
 
@@ -641,11 +641,11 @@ func (s *WireService) setValueByName(ctx context.Context, in *pb.WireNameValue, 
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Name")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Value")
 		}
 	}
 
@@ -656,7 +656,7 @@ func (s *WireService) setValueByName(ctx context.Context, in *pb.WireNameValue, 
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Name")
 		}
 
 		cableName = splits[0]
@@ -670,7 +670,7 @@ func (s *WireService) setValueByName(ctx context.Context, in *pb.WireNameValue, 
 	}
 
 	if cable.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Cable Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Cable.Status != ON")
 	}
 
 	// wire
@@ -680,12 +680,12 @@ func (s *WireService) setValueByName(ctx context.Context, in *pb.WireNameValue, 
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Wire Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Wire.Status != ON")
 	}
 
 	if check {
 		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Wire Access != ON")
+			return &output, status.Errorf(codes.FailedPrecondition, "Wire.Access != ON")
 		}
 	}
 
@@ -715,7 +715,7 @@ func (s *WireService) view(ctx context.Context, id string) (model.Wire, error) {
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, WireID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Wire.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -733,7 +733,7 @@ func (s *WireService) viewByName(ctx context.Context, name string) (model.Wire, 
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return item, status.Error(codes.InvalidArgument, "Please supply valid wire name")
+			return item, status.Error(codes.InvalidArgument, "Please supply valid Wire.Name")
 		}
 
 		cableName = splits[0]
@@ -755,7 +755,7 @@ func (s *WireService) ViewByCableIDAndName(ctx context.Context, cableID, name st
 	err := s.es.GetDB().NewSelect().Model(&item).Where("cable_id = ?", cableID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Wire CableID: %v, Name: %v", err, cableID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, CableID: %v, Wire.Name: %v", err, cableID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -826,7 +826,7 @@ func (s *WireService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Wire,
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 		}
 	}
 
@@ -848,7 +848,7 @@ func (s *WireService) viewWithDeleted(ctx context.Context, id string) (model.Wir
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, WireID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Wire.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -914,11 +914,11 @@ func (s *WireService) Sync(ctx context.Context, in *pb.Wire) (*pb.MyBool, error)
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Updated")
 		}
 	}
 
@@ -955,7 +955,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "wire name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Wire.Name min 2 character")
 			}
 
 			err = s.es.GetDB().NewSelect().Model(&model.Wire{}).Where("name = ?", in.GetName()).Where("cable_id = ?", in.GetCableId()).Scan(ctx)
@@ -964,7 +964,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "wire name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Wire.Name must be unique")
 			}
 		}
 
@@ -1001,7 +1001,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "wire name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Wire.Name min 2 character")
 			}
 
 			modelItem := model.Wire{}
@@ -1012,7 +1012,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "wire name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Wire.Name must be unique")
 				}
 			}
 		}
@@ -1083,7 +1083,7 @@ func (s *WireService) ViewValue(ctx context.Context, in *pb.Id) (*pb.WireValueUp
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 		}
 	}
 
@@ -1108,7 +1108,7 @@ func (s *WireService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, e
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 		}
 	}
 
@@ -1265,7 +1265,7 @@ func (s *WireService) getWireValueUpdated(ctx context.Context, id string) (model
 	dbitem, err := txn.Get(append([]byte(model.WIRE_VALUE_PREFIX), idb...))
 	if err != nil {
 		if err == badger.ErrKeyNotFound {
-			return item, status.Errorf(codes.NotFound, "TagID: %v", item.ID)
+			return item, status.Errorf(codes.NotFound, "Wire.ID: %v", item.ID)
 		}
 		return item, status.Errorf(codes.Internal, "BadgerDB Get: %v", err)
 	}

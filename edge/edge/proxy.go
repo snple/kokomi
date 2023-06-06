@@ -39,14 +39,14 @@ func newProxyService(es *EdgeService) *ProxyService {
 // 		}
 
 // 		if len(in.GetName()) == 0 {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Name")
 // 		}
 // 	}
 
 // 	// name validation
 // 	{
 // 		if len(in.GetName()) < 2 {
-// 			return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
+// 			return &output, status.Error(codes.InvalidArgument, "Proxy.Name min 2 character")
 // 		}
 
 // 		err = s.es.GetDB().NewSelect().Model(&model.Proxy{}).Where("name = ?", in.GetName()).Scan(ctx)
@@ -55,7 +55,7 @@ func newProxyService(es *EdgeService) *ProxyService {
 // 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 // 			}
 // 		} else {
-// 			return &output, status.Error(codes.AlreadyExists, "port name must be unique")
+// 			return &output, status.Error(codes.AlreadyExists, "Proxy.Name must be unique")
 // 		}
 // 	}
 
@@ -103,11 +103,11 @@ func newProxyService(es *EdgeService) *ProxyService {
 // 		}
 
 // 		if len(in.GetId()) == 0 {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy_id")
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 // 		}
 
 // 		if len(in.GetName()) == 0 {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Name")
 // 		}
 // 	}
 
@@ -119,7 +119,7 @@ func newProxyService(es *EdgeService) *ProxyService {
 // 	// name validation
 // 	{
 // 		if len(in.GetName()) < 2 {
-// 			return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
+// 			return &output, status.Error(codes.InvalidArgument, "Proxy.Name min 2 character")
 // 		}
 
 // 		modelItem := model.Proxy{}
@@ -130,7 +130,7 @@ func newProxyService(es *EdgeService) *ProxyService {
 // 			}
 // 		} else {
 // 			if modelItem.ID != item.ID {
-// 				return &output, status.Error(codes.AlreadyExists, "port name must be unique")
+// 				return &output, status.Error(codes.AlreadyExists, "Proxy.Name must be unique")
 // 			}
 // 		}
 // 	}
@@ -171,7 +171,7 @@ func (s *ProxyService) View(ctx context.Context, in *pb.Id) (*pb.Proxy, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 		}
 	}
 
@@ -196,7 +196,7 @@ func (s *ProxyService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Proxy, 
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Name")
 		}
 	}
 
@@ -221,7 +221,7 @@ func (s *ProxyService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Proxy, 
 // 		}
 
 // 		if len(in.GetId()) == 0 {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy_id")
+// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 // 		}
 // 	}
 
@@ -380,7 +380,7 @@ func (s *ProxyService) Clone(ctx context.Context, in *edges.CloneProxyRequest) (
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 		}
 	}
 
@@ -419,7 +419,7 @@ func (s *ProxyService) view(ctx context.Context, id string) (model.Proxy, error)
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, PortID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Proxy.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -436,7 +436,7 @@ func (s *ProxyService) viewByName(ctx context.Context, name string) (model.Proxy
 	err := s.es.GetDB().NewSelect().Model(&item).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, port Name: %v", err, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Proxy.Name: %v", err, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -505,7 +505,7 @@ func (s *ProxyService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Prox
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 		}
 	}
 
@@ -527,7 +527,7 @@ func (s *ProxyService) viewWithDeleted(ctx context.Context, id string) (model.Pr
 	err := s.es.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, PortID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Proxy.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -585,15 +585,15 @@ func (s *ProxyService) Sync(ctx context.Context, in *pb.Proxy) (*pb.MyBool, erro
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Updated")
 		}
 	}
 
@@ -621,7 +621,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Proxy.Name min 2 character")
 			}
 
 			err = s.es.GetDB().NewSelect().Model(&model.Proxy{}).Where("name = ?", in.GetName()).Scan(ctx)
@@ -630,7 +630,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "port name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Proxy.Name must be unique")
 			}
 		}
 
@@ -664,7 +664,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Proxy.Name min 2 character")
 			}
 
 			modelItem := model.Proxy{}
@@ -675,7 +675,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "port name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Proxy.Name must be unique")
 				}
 			}
 		}

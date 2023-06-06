@@ -40,11 +40,11 @@ func (s *PortService) Create(ctx context.Context, in *pb.Port) (*pb.Port, error)
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.Name")
 		}
 	}
 
@@ -59,7 +59,7 @@ func (s *PortService) Create(ctx context.Context, in *pb.Port) (*pb.Port, error)
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Port.Name min 2 character")
 		}
 
 		err = s.cs.GetDB().NewSelect().Model(&model.Port{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
@@ -68,7 +68,7 @@ func (s *PortService) Create(ctx context.Context, in *pb.Port) (*pb.Port, error)
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "port name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Port.Name must be unique")
 		}
 	}
 
@@ -116,11 +116,11 @@ func (s *PortService) Update(ctx context.Context, in *pb.Port) (*pb.Port, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.Name")
 		}
 	}
 
@@ -132,7 +132,7 @@ func (s *PortService) Update(ctx context.Context, in *pb.Port) (*pb.Port, error)
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Port.Name min 2 character")
 		}
 
 		modelItem := model.Port{}
@@ -143,7 +143,7 @@ func (s *PortService) Update(ctx context.Context, in *pb.Port) (*pb.Port, error)
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "port name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Port.Name must be unique")
 			}
 		}
 	}
@@ -183,7 +183,7 @@ func (s *PortService) View(ctx context.Context, in *pb.Id) (*pb.Port, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.ID")
 		}
 	}
 
@@ -208,11 +208,11 @@ func (s *PortService) ViewByName(ctx context.Context, in *cores.ViewPortByNameRe
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.Name")
 		}
 	}
 
@@ -237,7 +237,7 @@ func (s *PortService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Port
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.Name")
 		}
 	}
 
@@ -247,7 +247,7 @@ func (s *PortService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Port
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.Name")
 		}
 
 		deviceName = splits[0]
@@ -282,7 +282,7 @@ func (s *PortService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.ID")
 		}
 	}
 
@@ -409,7 +409,7 @@ func (s *PortService) Link(ctx context.Context, in *cores.LinkPortRequest) (*pb.
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.ID")
 		}
 	}
 
@@ -436,7 +436,7 @@ func (s *PortService) Clone(ctx context.Context, in *cores.ClonePortRequest) (*p
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.ID")
 		}
 	}
 
@@ -458,7 +458,7 @@ func (s *PortService) view(ctx context.Context, id string) (model.Port, error) {
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, PortID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Port.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -473,7 +473,7 @@ func (s *PortService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Port DeviceID: %v, Name: %v", err, deviceID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, DeviceID: %v, Port.Name: %v", err, deviceID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -532,7 +532,7 @@ func (s *PortService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Port,
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.ID")
 		}
 	}
 
@@ -554,7 +554,7 @@ func (s *PortService) viewWithDeleted(ctx context.Context, id string) (model.Por
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, ProxyID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Port.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -616,15 +616,15 @@ func (s *PortService) Sync(ctx context.Context, in *pb.Port) (*pb.MyBool, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.Updated")
 		}
 	}
 
@@ -660,7 +660,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Port.Name min 2 character")
 			}
 
 			err = s.cs.GetDB().NewSelect().Model(&model.Port{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
@@ -669,7 +669,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "port name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Port.Name must be unique")
 			}
 		}
 
@@ -707,7 +707,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "port name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Port.Name min 2 character")
 			}
 
 			modelItem := model.Port{}
@@ -718,7 +718,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "port name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Port.Name must be unique")
 				}
 			}
 		}

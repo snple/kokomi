@@ -97,7 +97,7 @@ func (s *SyncService) SetSlotUpdated(ctx context.Context, in *edges.SyncUpdated)
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Updated")
 		}
 	}
 
@@ -143,7 +143,7 @@ func (s *SyncService) SetOptionUpdated(ctx context.Context, in *edges.SyncUpdate
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid option updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Option.Updated")
 		}
 	}
 
@@ -189,7 +189,7 @@ func (s *SyncService) SetPortUpdated(ctx context.Context, in *edges.SyncUpdated)
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid port updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Port.Updated")
 		}
 	}
 
@@ -235,7 +235,7 @@ func (s *SyncService) SetProxyUpdated(ctx context.Context, in *edges.SyncUpdated
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid proxy updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Updated")
 		}
 	}
 
@@ -281,7 +281,7 @@ func (s *SyncService) SetSourceUpdated(ctx context.Context, in *edges.SyncUpdate
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid source updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Updated")
 		}
 	}
 
@@ -327,7 +327,7 @@ func (s *SyncService) SetTagUpdated(ctx context.Context, in *edges.SyncUpdated) 
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Updated")
 		}
 	}
 
@@ -373,7 +373,7 @@ func (s *SyncService) SetVarUpdated(ctx context.Context, in *edges.SyncUpdated) 
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Updated")
 		}
 	}
 
@@ -419,7 +419,7 @@ func (s *SyncService) SetCableUpdated(ctx context.Context, in *edges.SyncUpdated
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid cable updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.Updated")
 		}
 	}
 
@@ -465,7 +465,7 @@ func (s *SyncService) SetWireUpdated(ctx context.Context, in *edges.SyncUpdated)
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Updated")
 		}
 	}
 
@@ -511,7 +511,7 @@ func (s *SyncService) SetClassUpdated(ctx context.Context, in *edges.SyncUpdated
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid class updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.Updated")
 		}
 	}
 
@@ -557,7 +557,7 @@ func (s *SyncService) SetAttrUpdated(ctx context.Context, in *edges.SyncUpdated)
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid attr updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.Updated")
 		}
 	}
 
@@ -603,7 +603,7 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *edges.SyncUpda
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid tag value updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
 		}
 	}
 
@@ -655,7 +655,7 @@ func (s *SyncService) SetWireValueUpdated(ctx context.Context, in *edges.SyncUpd
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid wire value updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Value.Updated")
 		}
 	}
 

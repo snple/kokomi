@@ -40,11 +40,11 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Name")
 		}
 	}
 
@@ -59,7 +59,7 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "slot name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Slot.Name min 2 character")
 		}
 
 		err = s.cs.GetDB().NewSelect().Model(&model.Slot{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
@@ -68,7 +68,7 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "slot name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Slot.Name must be unique")
 		}
 	}
 
@@ -116,11 +116,11 @@ func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Name")
 		}
 	}
 
@@ -132,7 +132,7 @@ func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "slot name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Slot.Name min 2 character")
 		}
 
 		modelItem := model.Slot{}
@@ -143,7 +143,7 @@ func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "slot name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Slot.Name must be unique")
 			}
 		}
 	}
@@ -183,7 +183,7 @@ func (s *SlotService) View(ctx context.Context, in *pb.Id) (*pb.Slot, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.ID")
 		}
 	}
 
@@ -208,11 +208,11 @@ func (s *SlotService) ViewByName(ctx context.Context, in *cores.ViewSlotByNameRe
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Name")
 		}
 	}
 
@@ -237,7 +237,7 @@ func (s *SlotService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Slot
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Name")
 		}
 	}
 
@@ -247,7 +247,7 @@ func (s *SlotService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Slot
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Name")
 		}
 
 		deviceName = splits[0]
@@ -282,7 +282,7 @@ func (s *SlotService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.ID")
 		}
 	}
 
@@ -409,7 +409,7 @@ func (s *SlotService) Link(ctx context.Context, in *cores.LinkSlotRequest) (*pb.
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.ID")
 		}
 	}
 
@@ -436,7 +436,7 @@ func (s *SlotService) Clone(ctx context.Context, in *cores.CloneSlotRequest) (*p
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.ID")
 		}
 	}
 
@@ -458,7 +458,7 @@ func (s *SlotService) view(ctx context.Context, id string) (model.Slot, error) {
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, SlotID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Slot.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -473,7 +473,7 @@ func (s *SlotService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Slot DeviceID: %v, Name: %v", err, deviceID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, DeviceID: %v, Slot.Name: %v", err, deviceID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -532,7 +532,7 @@ func (s *SlotService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Slot,
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.ID")
 		}
 	}
 
@@ -554,7 +554,7 @@ func (s *SlotService) viewWithDeleted(ctx context.Context, id string) (model.Slo
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, SlotID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Slot.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -620,11 +620,11 @@ func (s *SlotService) Sync(ctx context.Context, in *pb.Slot) (*pb.MyBool, error)
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Updated")
 		}
 	}
 
@@ -660,7 +660,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "slot name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Slot.Name min 2 character")
 			}
 
 			err = s.cs.GetDB().NewSelect().Model(&model.Slot{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
@@ -669,7 +669,7 @@ SKIP:
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "slot name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Slot.Name must be unique")
 			}
 		}
 
@@ -707,7 +707,7 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "slot name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Slot.Name min 2 character")
 			}
 
 			modelItem := model.Slot{}
@@ -718,7 +718,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "slot name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Slot.Name must be unique")
 				}
 			}
 		}

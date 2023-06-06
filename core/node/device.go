@@ -35,11 +35,11 @@ func (s *DeviceService) Login(ctx context.Context, in *nodes.LoginDeviceRequest)
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 
 		if len(in.GetSecret()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid secret")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Secret")
 		}
 	}
 
@@ -51,10 +51,14 @@ func (s *DeviceService) Login(ctx context.Context, in *nodes.LoginDeviceRequest)
 	}
 
 	if reply.GetStatus() != consts.ON {
+		s.ns.Logger().Sugar().Errorf("device connect error: device is not enable, id: %v, ip: %v",
+			in.GetId(), metadata.GetPeerAddr(ctx))
 		return &output, status.Error(codes.FailedPrecondition, "The device is not enable")
 	}
 
 	if reply.GetSecret() != string(in.GetSecret()) {
+		s.ns.Logger().Sugar().Errorf("device connect error: device secret is not valid, id: %v, ip: %v",
+			in.GetId(), metadata.GetPeerAddr(ctx))
 		return &output, status.Error(codes.Unauthenticated, "Please supply valid secret")
 	}
 
@@ -62,6 +66,8 @@ func (s *DeviceService) Login(ctx context.Context, in *nodes.LoginDeviceRequest)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "claim token: %v", err)
 	}
+
+	s.ns.Logger().Sugar().Infof("device connect success, id: %v, ip: %v", in.GetId(), metadata.GetPeerAddr(ctx))
 
 	output.Token = token
 
