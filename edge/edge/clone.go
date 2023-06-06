@@ -101,6 +101,11 @@ func (s *cloneService) cloneOption(ctx context.Context, db bun.IDB, optionID str
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}
+
+		err = s.es.GetSync().setOptionUpdated(ctx, time.Now())
+		if err != nil {
+			return status.Errorf(codes.Internal, "Insert: %v", err)
+		}
 	}
 
 	return nil
@@ -138,6 +143,11 @@ func (s *cloneService) clonePort(ctx context.Context, db bun.IDB, portID string)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}
+
+		err = s.es.GetSync().setPortUpdated(ctx, time.Now())
+		if err != nil {
+			return status.Errorf(codes.Internal, "Insert: %v", err)
+		}
 	}
 
 	return nil
@@ -172,6 +182,11 @@ func (s *cloneService) cloneProxy(ctx context.Context, db bun.IDB, proxyID strin
 
 	{
 		err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+		if err != nil {
+			return status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+
+		err = s.es.GetSync().setProxyUpdated(ctx, time.Now())
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}
