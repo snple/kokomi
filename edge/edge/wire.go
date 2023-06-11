@@ -1122,11 +1122,19 @@ func (s *WireService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, e
 		return &output, status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
 	}
 
-	err = s.es.GetBadgerDB().Update(func(txn *badger.Txn) error {
-		return txn.Delete(append([]byte(model.WIRE_VALUE_PREFIX), idb...))
-	})
+	ts := uint64(time.Now().UnixMicro())
+
+	txn := s.es.GetBadgerDB().NewTransactionAt(ts, true)
+	defer txn.Discard()
+
+	err = txn.Delete(append([]byte(model.WIRE_VALUE_PREFIX), idb...))
 	if err != nil {
-		return &output, status.Errorf(codes.Internal, "BadgerDB Update: %v", err)
+		return &output, status.Errorf(codes.Internal, "BadgerDB Delete: %v", err)
+	}
+
+	err = txn.CommitAt(ts, nil)
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "BadgerDB CommitAt: %v", err)
 	}
 
 	output.Bool = true
