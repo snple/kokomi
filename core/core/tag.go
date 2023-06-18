@@ -630,6 +630,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *cores.GetTagValueBy
 	}
 
 	output.DeviceId = in.GetDeviceId()
+	output.Id = item.ID
 	output.Name = in.GetName()
 
 	item2, err := s.viewValueUpdated(ctx, item.ID)

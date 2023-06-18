@@ -29,7 +29,8 @@ message ConstValue {
 }
 
 message ConstNameValue {
-    string name = 1;
-    string value = 2;
-    int64 updated = 3;
+    string id = 1;
+    string name = 2;
+    string value = 3;
+    int64 updated = 4;
 }

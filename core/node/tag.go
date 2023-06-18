@@ -316,6 +316,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 		return &output, err
 	}
 
+	output.Id = reply.GetId()
 	output.Name = reply.GetName()
 	output.Value = reply.GetValue()
 	output.Updated = reply.GetUpdated()

@@ -703,6 +703,7 @@ func (s *WireService) GetValueByName(ctx context.Context, in *cores.GetWireValue
 	}
 
 	output.DeviceId = in.GetDeviceId()
+	output.Id = item.ID
 	output.Name = in.GetName()
 
 	item2, err := s.viewValueUpdated(ctx, item.ID)

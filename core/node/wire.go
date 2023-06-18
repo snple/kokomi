@@ -316,6 +316,7 @@ func (s *WireService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Wire
 		return &output, err
 	}
 
+	output.Id = reply.GetId()
 	output.Name = reply.GetName()
 	output.Value = reply.GetValue()
 	output.Updated = reply.GetUpdated()

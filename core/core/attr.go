@@ -675,6 +675,7 @@ func (s *AttrService) GetValueByName(ctx context.Context, in *cores.GetAttrValue
 	}
 
 	output.DeviceId = in.GetDeviceId()
+	output.Id = item.ID
 	output.Name = in.GetName()
 
 	if item.TagID == "" {

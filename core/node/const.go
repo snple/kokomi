@@ -306,6 +306,7 @@ func (s *ConstService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Con
 		return &output, err
 	}
 
+	output.Id = reply.GetId()
 	output.Name = reply.GetName()
 	output.Value = reply.GetValue()
 	output.Updated = reply.GetUpdated()

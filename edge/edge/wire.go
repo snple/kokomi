@@ -603,6 +603,7 @@ func (s *WireService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Wire
 		return &output, err
 	}
 
+	output.Id = item.ID
 	output.Name = in.GetName()
 
 	item2, err := s.getWireValueUpdated(ctx, item.ID)

@@ -578,6 +578,7 @@ func (s *AttrService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Attr
 		return &output, err
 	}
 
+	output.Id = item.ID
 	output.Name = in.GetName()
 
 	if item.TagID == "" {

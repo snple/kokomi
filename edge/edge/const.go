@@ -470,6 +470,7 @@ func (s *ConstService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Con
 		return &output, err
 	}
 
+	output.Id = item.ID
 	output.Name = in.GetName()
 	output.Value = item.Value
 	output.Updated = item.Updated.UnixMicro()

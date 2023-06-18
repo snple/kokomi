@@ -95,9 +95,10 @@ message GetWireValueByNameRequest {
 
 message WireNameValue {
     string device_id = 1;
-    string name = 2;
-    string value = 3;
-    int64 updated = 4;
+    string id = 2;
+    string name = 3;
+    string value = 4;
+    int64 updated = 5;
 }
 
 message PullWireRequest {

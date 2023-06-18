@@ -542,6 +542,7 @@ func (s *ConstService) GetValueByName(ctx context.Context, in *cores.GetConstVal
 	}
 
 	output.DeviceId = in.GetDeviceId()
+	output.Id = item.ID
 	output.Name = in.GetName()
 	output.Value = item.Value
 	output.Updated = item.Updated.UnixMicro()

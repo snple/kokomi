@@ -316,6 +316,7 @@ func (s *AttrService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Attr
 		return &output, err
 	}
 
+	output.Id = reply.GetId()
 	output.Name = reply.GetName()
 	output.Value = reply.GetValue()
 	output.Updated = reply.GetUpdated()

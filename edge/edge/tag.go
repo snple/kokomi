@@ -545,6 +545,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 		return &output, err
 	}
 
+	output.Id = item.ID
 	output.Name = in.GetName()
 
 	item2, err := s.getTagValueUpdated(ctx, item.ID)
