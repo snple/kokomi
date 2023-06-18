@@ -26,7 +26,7 @@ type CoreService struct {
 	proxy       *ProxyService
 	source      *SourceService
 	tag         *TagService
-	variable    *VarService
+	constant    *ConstService
 	cable       *CableService
 	wire        *WireService
 	class       *ClassService
@@ -80,7 +80,7 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.proxy = newProxyService(cs)
 	cs.source = newSourceService(cs)
 	cs.tag = newTagService(cs)
-	cs.variable = newVarService(cs)
+	cs.constant = newConstService(cs)
 	cs.cable = newCableService(cs)
 	cs.wire = newWireService(cs)
 	cs.class = newClassService(cs)
@@ -149,8 +149,8 @@ func (cs *CoreService) GetTag() *TagService {
 	return cs.tag
 }
 
-func (cs *CoreService) GetVar() *VarService {
-	return cs.variable
+func (cs *CoreService) GetConst() *ConstService {
+	return cs.constant
 }
 
 func (cs *CoreService) GetCable() *CableService {
@@ -199,7 +199,7 @@ func (cs *CoreService) Register(server *grpc.Server) {
 	cores.RegisterProxyServiceServer(server, cs.proxy)
 	cores.RegisterSourceServiceServer(server, cs.source)
 	cores.RegisterTagServiceServer(server, cs.tag)
-	cores.RegisterVarServiceServer(server, cs.variable)
+	cores.RegisterConstServiceServer(server, cs.constant)
 	cores.RegisterCableServiceServer(server, cs.cable)
 	cores.RegisterWireServiceServer(server, cs.wire)
 	cores.RegisterClassServiceServer(server, cs.class)
@@ -219,7 +219,7 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Proxy)(nil),
 		(*model.Source)(nil),
 		(*model.Tag)(nil),
-		(*model.Var)(nil),
+		(*model.Const)(nil),
 		(*model.Cable)(nil),
 		(*model.Wire)(nil),
 		(*model.Class)(nil),

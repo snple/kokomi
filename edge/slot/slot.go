@@ -26,7 +26,7 @@ type SlotService struct {
 	option   *OptionService
 	source   *SourceService
 	tag      *TagService
-	variable *VarService
+	constant *ConstService
 	cable    *CableService
 	wire     *WireService
 	class    *ClassService
@@ -65,7 +65,7 @@ func Slot(es *edge.EdgeService, opts ...SlotOption) (*SlotService, error) {
 	ss.option = newOptionService(ss)
 	ss.source = newSourceService(ss)
 	ss.tag = newTagService(ss)
-	ss.variable = newVarService(ss)
+	ss.constant = newConstService(ss)
 	ss.cable = newCableService(ss)
 	ss.wire = newWireService(ss)
 	ss.class = newClassService(ss)
@@ -103,7 +103,7 @@ func (ss *SlotService) RegisterGrpc(server *grpc.Server) {
 	slots.RegisterOptionServiceServer(server, ss.option)
 	slots.RegisterSourceServiceServer(server, ss.source)
 	slots.RegisterTagServiceServer(server, ss.tag)
-	slots.RegisterVarServiceServer(server, ss.variable)
+	slots.RegisterConstServiceServer(server, ss.constant)
 	slots.RegisterCableServiceServer(server, ss.cable)
 	slots.RegisterWireServiceServer(server, ss.wire)
 	slots.RegisterClassServiceServer(server, ss.class)

@@ -16,7 +16,7 @@ const (
 	SYNC_PROXY      = "sync_proxy"
 	SYNC_SOURCE     = "sync_source"
 	SYNC_TAG        = "sync_tag"
-	SYNC_VAR        = "sync_var"
+	SYNC_CONST      = "sync_const"
 	SYNC_CABLE      = "sync_cable"
 	SYNC_WIRE       = "sync_wire"
 	SYNC_CLASS      = "sync_class"

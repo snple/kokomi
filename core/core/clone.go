@@ -200,23 +200,23 @@ func (s *cloneService) cloneDevice(ctx context.Context, db bun.IDB, deviceID str
 		}
 	}
 
-	// var
+	// const
 	{
-		var variables []model.Var
+		var constants []model.Const
 
-		err = db.NewSelect().Model(&variables).Where("device_id = ?", deviceID).Order("id ASC").Scan(ctx)
+		err = db.NewSelect().Model(&constants).Where("device_id = ?", deviceID).Order("id ASC").Scan(ctx)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Query: %v", err)
 		}
 
-		for _, variable := range variables {
-			variable.ID = util.RandomID()
-			variable.DeviceID = device.ID
+		for _, constant := range constants {
+			constant.ID = util.RandomID()
+			constant.DeviceID = device.ID
 
-			variable.Created = time.Now()
-			variable.Updated = time.Now()
+			constant.Created = time.Now()
+			constant.Updated = time.Now()
 
-			_, err = db.NewInsert().Model(&variable).Exec(ctx)
+			_, err = db.NewInsert().Model(&constant).Exec(ctx)
 			if err != nil {
 				return status.Errorf(codes.Internal, "Insert: %v", err)
 			}
@@ -678,11 +678,11 @@ func (s *cloneService) cloneTag(ctx context.Context, db bun.IDB, tagID, sourceID
 	return nil
 }
 
-func (s *cloneService) cloneVar(ctx context.Context, db bun.IDB, varID, deviceID string) error {
+func (s *cloneService) cloneConst(ctx context.Context, db bun.IDB, constID, deviceID string) error {
 	var err error
 
-	item := model.Var{
-		ID: varID,
+	item := model.Const{
+		ID: constID,
 	}
 
 	err = db.NewSelect().Model(&item).WherePK().Scan(ctx)

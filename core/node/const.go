@@ -10,20 +10,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type VarService struct {
+type ConstService struct {
 	ns *NodeService
 
-	nodes.UnimplementedVarServiceServer
+	nodes.UnimplementedConstServiceServer
 }
 
-func newVarService(ns *NodeService) *VarService {
-	return &VarService{
+func newConstService(ns *NodeService) *ConstService {
+	return &ConstService{
 		ns: ns,
 	}
 }
 
-func (s *VarService) Create(ctx context.Context, in *pb.Var) (*pb.Var, error) {
-	var output pb.Var
+func (s *ConstService) Create(ctx context.Context, in *pb.Const) (*pb.Const, error) {
+	var output pb.Const
 	var err error
 
 	// basic validation
@@ -40,11 +40,11 @@ func (s *VarService) Create(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 
 	in.DeviceId = deviceID
 
-	return s.ns.Core().GetVar().Create(ctx, in)
+	return s.ns.Core().GetConst().Create(ctx, in)
 }
 
-func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
-	var output pb.Var
+func (s *ConstService) Update(ctx context.Context, in *pb.Const) (*pb.Const, error) {
+	var output pb.Const
 	var err error
 
 	// basic validation
@@ -61,7 +61,7 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.Core().GetVar().View(ctx, request)
+	reply, err := s.ns.Core().GetConst().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -70,11 +70,11 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.Core().GetVar().Update(ctx, in)
+	return s.ns.Core().GetConst().Update(ctx, in)
 }
 
-func (s *VarService) View(ctx context.Context, in *pb.Id) (*pb.Var, error) {
-	var output pb.Var
+func (s *ConstService) View(ctx context.Context, in *pb.Id) (*pb.Const, error) {
+	var output pb.Const
 	var err error
 
 	// basic validation
@@ -89,7 +89,7 @@ func (s *VarService) View(ctx context.Context, in *pb.Id) (*pb.Var, error) {
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetVar().View(ctx, in)
+	reply, err := s.ns.Core().GetConst().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -101,8 +101,8 @@ func (s *VarService) View(ctx context.Context, in *pb.Id) (*pb.Var, error) {
 	return reply, nil
 }
 
-func (s *VarService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Var, error) {
-	var output pb.Var
+func (s *ConstService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Const, error) {
+	var output pb.Const
 	var err error
 
 	// basic validation
@@ -117,9 +117,9 @@ func (s *VarService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Var, erro
 		return &output, err
 	}
 
-	request := &cores.ViewVarByNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.ViewConstByNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.Core().GetVar().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetConst().ViewByName(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -131,7 +131,7 @@ func (s *VarService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Var, erro
 	return reply, nil
 }
 
-func (s *VarService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *ConstService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -147,7 +147,7 @@ func (s *VarService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetVar().View(ctx, in)
+	reply, err := s.ns.Core().GetConst().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -156,12 +156,12 @@ func (s *VarService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.Core().GetVar().Delete(ctx, in)
+	return s.ns.Core().GetConst().Delete(ctx, in)
 }
 
-func (s *VarService) List(ctx context.Context, in *nodes.ListVarRequest) (*nodes.ListVarResponse, error) {
+func (s *ConstService) List(ctx context.Context, in *nodes.ListConstRequest) (*nodes.ListConstResponse, error) {
 	var err error
-	var output nodes.ListVarResponse
+	var output nodes.ListConstResponse
 
 	// basic validation
 	{
@@ -175,28 +175,28 @@ func (s *VarService) List(ctx context.Context, in *nodes.ListVarRequest) (*nodes
 		return &output, err
 	}
 
-	request := &cores.ListVarRequest{
+	request := &cores.ListConstRequest{
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		Tags:     in.GetTags(),
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.Core().GetVar().List(ctx, request)
+	reply, err := s.ns.Core().GetConst().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
 	output.Count = reply.Count
 	output.Page = reply.GetPage()
-	output.Var = reply.GetVar()
+	output.Const = reply.GetConst()
 
 	return &output, nil
 }
 
-func (s *VarService) GetValue(ctx context.Context, in *pb.Id) (*pb.VarValue, error) {
+func (s *ConstService) GetValue(ctx context.Context, in *pb.Id) (*pb.ConstValue, error) {
 	var err error
-	var output pb.VarValue
+	var output pb.ConstValue
 
 	// basic validation
 	{
@@ -212,7 +212,7 @@ func (s *VarService) GetValue(ctx context.Context, in *pb.Id) (*pb.VarValue, err
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.Core().GetVar().View(ctx, request)
+	reply, err := s.ns.Core().GetConst().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -221,10 +221,10 @@ func (s *VarService) GetValue(ctx context.Context, in *pb.Id) (*pb.VarValue, err
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.Core().GetVar().GetValue(ctx, in)
+	return s.ns.Core().GetConst().GetValue(ctx, in)
 }
 
-func (s *VarService) SetValue(ctx context.Context, in *pb.VarValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -242,7 +242,7 @@ func (s *VarService) SetValue(ctx context.Context, in *pb.VarValue) (*pb.MyBool,
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.Core().GetVar().View(ctx, request)
+	reply, err := s.ns.Core().GetConst().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -251,10 +251,10 @@ func (s *VarService) SetValue(ctx context.Context, in *pb.VarValue) (*pb.MyBool,
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.Core().GetVar().SetValue(ctx, in)
+	return s.ns.Core().GetConst().SetValue(ctx, in)
 }
 
-func (s *VarService) SetValueUnchecked(ctx context.Context, in *pb.VarValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValueUnchecked(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -272,7 +272,7 @@ func (s *VarService) SetValueUnchecked(ctx context.Context, in *pb.VarValue) (*p
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.Core().GetVar().View(ctx, request)
+	reply, err := s.ns.Core().GetConst().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -281,12 +281,12 @@ func (s *VarService) SetValueUnchecked(ctx context.Context, in *pb.VarValue) (*p
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.Core().GetVar().SetValueUnchecked(ctx, in)
+	return s.ns.Core().GetConst().SetValueUnchecked(ctx, in)
 }
 
-func (s *VarService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.VarNameValue, error) {
+func (s *ConstService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.ConstNameValue, error) {
 	var err error
-	var output pb.VarNameValue
+	var output pb.ConstNameValue
 
 	// basic validation
 	{
@@ -300,8 +300,8 @@ func (s *VarService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.VarNa
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetVar().GetValueByName(ctx,
-		&cores.GetVarValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
+	reply, err := s.ns.Core().GetConst().GetValueByName(ctx,
+		&cores.GetConstValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
 	if err != nil {
 		return &output, err
 	}
@@ -313,7 +313,7 @@ func (s *VarService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.VarNa
 	return &output, nil
 }
 
-func (s *VarService) SetValueByName(ctx context.Context, in *pb.VarNameValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValueByName(ctx context.Context, in *pb.ConstNameValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -329,11 +329,11 @@ func (s *VarService) SetValueByName(ctx context.Context, in *pb.VarNameValue) (*
 		return &output, err
 	}
 
-	return s.ns.Core().GetVar().SetValueByName(ctx,
-		&cores.VarNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
+	return s.ns.Core().GetConst().SetValueByName(ctx,
+		&cores.ConstNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 
-func (s *VarService) SetValueByNameUnchecked(ctx context.Context, in *pb.VarNameValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValueByNameUnchecked(ctx context.Context, in *pb.ConstNameValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -349,12 +349,12 @@ func (s *VarService) SetValueByNameUnchecked(ctx context.Context, in *pb.VarName
 		return &output, err
 	}
 
-	return s.ns.Core().GetVar().SetValueByNameUnchecked(ctx,
-		&cores.VarNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
+	return s.ns.Core().GetConst().SetValueByNameUnchecked(ctx,
+		&cores.ConstNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 
-func (s *VarService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Var, error) {
-	var output pb.Var
+func (s *ConstService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Const, error) {
+	var output pb.Const
 	var err error
 
 	// basic validation
@@ -369,7 +369,7 @@ func (s *VarService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Var, e
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetVar().ViewWithDeleted(ctx, in)
+	reply, err := s.ns.Core().GetConst().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -381,9 +381,9 @@ func (s *VarService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Var, e
 	return reply, nil
 }
 
-func (s *VarService) Pull(ctx context.Context, in *nodes.PullVarRequest) (*nodes.PullVarResponse, error) {
+func (s *ConstService) Pull(ctx context.Context, in *nodes.PullConstRequest) (*nodes.PullConstResponse, error) {
 	var err error
-	var output nodes.PullVarResponse
+	var output nodes.PullConstResponse
 
 	// basic validation
 	{
@@ -400,24 +400,24 @@ func (s *VarService) Pull(ctx context.Context, in *nodes.PullVarRequest) (*nodes
 		return &output, err
 	}
 
-	request := &cores.PullVarRequest{
+	request := &cores.PullConstRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
 		Type:     in.GetType(),
 	}
 
-	reply, err := s.ns.Core().GetVar().Pull(ctx, request)
+	reply, err := s.ns.Core().GetConst().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
-	output.Var = reply.GetVar()
+	output.Const = reply.GetConst()
 
 	return &output, nil
 }
 
-func (s *VarService) Sync(ctx context.Context, in *pb.Var) (*pb.MyBool, error) {
+func (s *ConstService) Sync(ctx context.Context, in *pb.Const) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -435,5 +435,5 @@ func (s *VarService) Sync(ctx context.Context, in *pb.Var) (*pb.MyBool, error) {
 
 	in.DeviceId = deviceID
 
-	return s.ns.Core().GetVar().Sync(ctx, in)
+	return s.ns.Core().GetConst().Sync(ctx, in)
 }

@@ -197,19 +197,19 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		}
 	}
 
-	// var
+	// const
 	{
 		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.VarServiceClient().Pull(ctx, &nodes.PullVarRequest{After: after, Limit: limit})
+			remotes, err := s.ConstServiceClient().Pull(ctx, &nodes.PullConstRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
 
-			for _, remote := range remotes.GetVar() {
-				_, err := s.es.GetVar().Sync(ctx, remote)
+			for _, remote := range remotes.GetConst() {
+				_, err := s.es.GetConst().Sync(ctx, remote)
 				if err != nil {
 					return err
 				}
@@ -217,7 +217,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 				after = remote.GetUpdated()
 			}
 
-			if len(remotes.GetVar()) < int(limit) {
+			if len(remotes.GetConst()) < int(limit) {
 				break
 			}
 		}
@@ -490,19 +490,19 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 		}
 	}
 
-	// var
+	// const
 	{
 		after := deviceUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
-			locals, err := s.es.GetVar().Pull(ctx, &edges.PullVarRequest{After: after, Limit: limit})
+			locals, err := s.es.GetConst().Pull(ctx, &edges.PullConstRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
 
-			for _, local := range locals.GetVar() {
-				_, err = s.VarServiceClient().Sync(ctx, local)
+			for _, local := range locals.GetConst() {
+				_, err = s.ConstServiceClient().Sync(ctx, local)
 				if err != nil {
 					return err
 				}
@@ -510,7 +510,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 				after = local.GetUpdated()
 			}
 
-			if len(locals.GetVar()) < int(limit) {
+			if len(locals.GetConst()) < int(limit) {
 				break
 			}
 		}

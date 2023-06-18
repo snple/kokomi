@@ -22,8 +22,8 @@ service SyncService {
     rpc GetSourceUpdated(pb.MyEmpty) returns (SyncUpdated) {}
     rpc SetTagUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetTagUpdated(pb.MyEmpty) returns (SyncUpdated) {}
-    rpc SetVarUpdated(SyncUpdated) returns (pb.MyBool) {}
-    rpc GetVarUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc SetConstUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetConstUpdated(pb.MyEmpty) returns (SyncUpdated) {}
     rpc SetCableUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetCableUpdated(pb.MyEmpty) returns (SyncUpdated) {}
     rpc SetWireUpdated(SyncUpdated) returns (pb.MyBool) {}

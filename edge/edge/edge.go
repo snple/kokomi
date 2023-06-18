@@ -30,7 +30,7 @@ type EdgeService struct {
 	proxy    *ProxyService
 	source   *SourceService
 	tag      *TagService
-	variable *VarService
+	constant *ConstService
 	cable    *CableService
 	wire     *WireService
 	class    *ClassService
@@ -96,7 +96,7 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 	es.proxy = newProxyService(es)
 	es.source = newSourceService(es)
 	es.tag = newTagService(es)
-	es.variable = newVarService(es)
+	es.constant = newConstService(es)
 	es.cable = newCableService(es)
 	es.wire = newWireService(es)
 	es.class = newClassService(es)
@@ -244,8 +244,8 @@ func (es *EdgeService) GetTag() *TagService {
 	return es.tag
 }
 
-func (es *EdgeService) GetVar() *VarService {
-	return es.variable
+func (es *EdgeService) GetConst() *ConstService {
+	return es.constant
 }
 
 func (es *EdgeService) GetCable() *CableService {
@@ -297,7 +297,7 @@ func (es *EdgeService) Register(server *grpc.Server) {
 	edges.RegisterProxyServiceServer(server, es.proxy)
 	edges.RegisterSourceServiceServer(server, es.source)
 	edges.RegisterTagServiceServer(server, es.tag)
-	edges.RegisterVarServiceServer(server, es.variable)
+	edges.RegisterConstServiceServer(server, es.constant)
 	edges.RegisterCableServiceServer(server, es.cable)
 	edges.RegisterWireServiceServer(server, es.wire)
 	edges.RegisterClassServiceServer(server, es.class)
@@ -314,7 +314,7 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Proxy)(nil),
 		(*model.Source)(nil),
 		(*model.Tag)(nil),
-		(*model.Var)(nil),
+		(*model.Const)(nil),
 		(*model.Cable)(nil),
 		(*model.Wire)(nil),
 		(*model.Class)(nil),

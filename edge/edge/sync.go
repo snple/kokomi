@@ -362,7 +362,7 @@ func (s *SyncService) GetTagUpdated(ctx context.Context, in *pb.MyEmpty) (*edges
 	return &output, nil
 }
 
-func (s *SyncService) SetVarUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetConstUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -377,7 +377,7 @@ func (s *SyncService) SetVarUpdated(ctx context.Context, in *edges.SyncUpdated) 
 		}
 	}
 
-	err = s.setVarUpdated(ctx, time.UnixMicro(in.GetUpdated()))
+	err = s.setConstUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -387,7 +387,7 @@ func (s *SyncService) SetVarUpdated(ctx context.Context, in *edges.SyncUpdated) 
 	return &output, nil
 }
 
-func (s *SyncService) GetVarUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
+func (s *SyncService) GetConstUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
 	var output edges.SyncUpdated
 	var err error
 
@@ -398,7 +398,7 @@ func (s *SyncService) GetVarUpdated(ctx context.Context, in *pb.MyEmpty) (*edges
 		}
 	}
 
-	t, err := s.getVarUpdated(ctx)
+	t, err := s.getConstUpdated(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -771,12 +771,12 @@ func (s *SyncService) setTagUpdated(ctx context.Context, updated time.Time) erro
 	return s.setUpdated(ctx, model.SYNC_TAG, updated)
 }
 
-func (s *SyncService) getVarUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_VAR)
+func (s *SyncService) getConstUpdated(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_CONST)
 }
 
-func (s *SyncService) setVarUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_VAR, updated)
+func (s *SyncService) setConstUpdated(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_CONST, updated)
 }
 
 func (s *SyncService) getCableUpdated(ctx context.Context) (time.Time, error) {

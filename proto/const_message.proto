@@ -3,7 +3,7 @@ package pb;
 
 option go_package = "github.com/snple/kokomi/pb;pb";
 
-message Var {
+message Const {
     string id = 1;
     string device_id = 2;
     string name = 3;
@@ -17,19 +17,18 @@ message Var {
     string config = 11;
     sint32 status = 12;
     sint32 access = 13;
-    sint32 save = 14;
-    int64 created = 15;
-    int64 updated = 16;
-    int64 deleted = 17;
+    int64 created = 14;
+    int64 updated = 15;
+    int64 deleted = 16;
 }
 
-message VarValue {
+message ConstValue {
     string id = 1;
     string value = 2;
     int64 updated = 3;
 }
 
-message VarNameValue {
+message ConstNameValue {
     string name = 1;
     string value = 2;
     int64 updated = 3;

@@ -286,8 +286,8 @@ func (s *NodeService) TagServiceClient() nodes.TagServiceClient {
 	return nodes.NewTagServiceClient(s.NodeConn)
 }
 
-func (s *NodeService) VarServiceClient() nodes.VarServiceClient {
-	return nodes.NewVarServiceClient(s.NodeConn)
+func (s *NodeService) ConstServiceClient() nodes.ConstServiceClient {
+	return nodes.NewConstServiceClient(s.NodeConn)
 }
 
 func (s *NodeService) CableServiceClient() nodes.CableServiceClient {

@@ -176,7 +176,7 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.MyEmpty) (*pb.MyBool
 			(*model.Proxy)(nil),
 			(*model.Source)(nil),
 			(*model.Tag)(nil),
-			(*model.Var)(nil),
+			(*model.Const)(nil),
 			(*model.Cable)(nil),
 			(*model.Wire)(nil),
 			(*model.Class)(nil),

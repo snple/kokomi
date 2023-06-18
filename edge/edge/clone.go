@@ -320,11 +320,11 @@ func (s *cloneService) cloneTag(ctx context.Context, db bun.IDB, tagID, sourceID
 	return nil
 }
 
-func (s *cloneService) cloneVar(ctx context.Context, db bun.IDB, varID string) error {
+func (s *cloneService) cloneConst(ctx context.Context, db bun.IDB, constID string) error {
 	var err error
 
-	item := model.Var{
-		ID: varID,
+	item := model.Const{
+		ID: constID,
 	}
 
 	err = db.NewSelect().Model(&item).WherePK().Scan(ctx)
@@ -353,7 +353,7 @@ func (s *cloneService) cloneVar(ctx context.Context, db bun.IDB, varID string) e
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}
 
-		err = s.es.GetSync().setVarUpdated(ctx, time.Now())
+		err = s.es.GetSync().setConstUpdated(ctx, time.Now())
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}

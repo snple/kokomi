@@ -290,7 +290,7 @@ func (s *SyncService) GetTagUpdated(ctx context.Context, in *pb.MyEmpty) (*slots
 	return &output, nil
 }
 
-func (s *SyncService) SetVarUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetConstUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -301,7 +301,7 @@ func (s *SyncService) SetVarUpdated(ctx context.Context, in *slots.SyncUpdated) 
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Updated")
 		}
 	}
 
@@ -310,11 +310,11 @@ func (s *SyncService) SetVarUpdated(ctx context.Context, in *slots.SyncUpdated) 
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSync().SetVarUpdated(ctx,
+	return s.ss.Edge().GetSync().SetConstUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
-func (s *SyncService) GetVarUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
+func (s *SyncService) GetConstUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
 	var output slots.SyncUpdated
 	var err error
 
@@ -330,7 +330,7 @@ func (s *SyncService) GetVarUpdated(ctx context.Context, in *pb.MyEmpty) (*slots
 		return &output, err
 	}
 
-	reply, err := s.ss.Edge().GetSync().GetVarUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetConstUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}

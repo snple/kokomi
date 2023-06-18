@@ -18,20 +18,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type VarService struct {
+type ConstService struct {
 	cs *CoreService
 
-	cores.UnimplementedVarServiceServer
+	cores.UnimplementedConstServiceServer
 }
 
-func newVarService(cs *CoreService) *VarService {
-	return &VarService{
+func newConstService(cs *CoreService) *ConstService {
+	return &ConstService{
 		cs: cs,
 	}
 }
 
-func (s *VarService) Create(ctx context.Context, in *pb.Var) (*pb.Var, error) {
-	var output pb.Var
+func (s *ConstService) Create(ctx context.Context, in *pb.Const) (*pb.Const, error) {
+	var output pb.Const
 	var err error
 
 	// basic validation
@@ -41,11 +41,11 @@ func (s *VarService) Create(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 		}
 
 		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.DeviceID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.DeviceID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 	}
 
@@ -60,20 +60,20 @@ func (s *VarService) Create(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "Var.Name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Const.Name min 2 character")
 		}
 
-		err = s.cs.GetDB().NewSelect().Model(&model.Var{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
+		err = s.cs.GetDB().NewSelect().Model(&model.Const{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "Var.Name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Const.Name must be unique")
 		}
 	}
 
-	item := model.Var{
+	item := model.Const{
 		ID:       in.GetId(),
 		DeviceID: in.GetDeviceId(),
 		Name:     in.GetName(),
@@ -87,7 +87,6 @@ func (s *VarService) Create(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 		Config:   in.GetConfig(),
 		Status:   in.GetStatus(),
 		Access:   in.GetAccess(),
-		Save:     in.GetSave(),
 		Created:  time.Now(),
 		Updated:  time.Now(),
 	}
@@ -110,8 +109,8 @@ func (s *VarService) Create(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 	return &output, nil
 }
 
-func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
-	var output pb.Var
+func (s *ConstService) Update(ctx context.Context, in *pb.Const) (*pb.Const, error) {
+	var output pb.Const
 	var err error
 
 	// basic validation
@@ -121,11 +120,11 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 	}
 
@@ -137,10 +136,10 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "Var.Name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Const.Name min 2 character")
 		}
 
-		modelItem := model.Var{}
+		modelItem := model.Const{}
 		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
@@ -148,7 +147,7 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "Var.Name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Const.Name must be unique")
 			}
 		}
 	}
@@ -164,7 +163,6 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
 	item.Access = in.GetAccess()
-	item.Save = in.GetSave()
 	item.Updated = time.Now()
 
 	_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
@@ -181,8 +179,8 @@ func (s *VarService) Update(ctx context.Context, in *pb.Var) (*pb.Var, error) {
 	return &output, nil
 }
 
-func (s *VarService) View(ctx context.Context, in *pb.Id) (*pb.Var, error) {
-	var output pb.Var
+func (s *ConstService) View(ctx context.Context, in *pb.Id) (*pb.Const, error) {
+	var output pb.Const
 	var err error
 
 	// basic validation
@@ -192,7 +190,7 @@ func (s *VarService) View(ctx context.Context, in *pb.Id) (*pb.Var, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
 
@@ -206,8 +204,8 @@ func (s *VarService) View(ctx context.Context, in *pb.Id) (*pb.Var, error) {
 	return &output, nil
 }
 
-func (s *VarService) ViewByName(ctx context.Context, in *cores.ViewVarByNameRequest) (*pb.Var, error) {
-	var output pb.Var
+func (s *ConstService) ViewByName(ctx context.Context, in *cores.ViewConstByNameRequest) (*pb.Const, error) {
+	var output pb.Const
 	var err error
 
 	// basic validation
@@ -221,7 +219,7 @@ func (s *VarService) ViewByName(ctx context.Context, in *cores.ViewVarByNameRequ
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 	}
 
@@ -235,8 +233,8 @@ func (s *VarService) ViewByName(ctx context.Context, in *cores.ViewVarByNameRequ
 	return &output, nil
 }
 
-func (s *VarService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Var, error) {
-	var output pb.Var
+func (s *ConstService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Const, error) {
+	var output pb.Const
 	// var err error
 
 	// basic validation
@@ -246,7 +244,7 @@ func (s *VarService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Var, 
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 	}
 
@@ -256,7 +254,7 @@ func (s *VarService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Var, 
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 
 		deviceName = splits[0]
@@ -280,7 +278,7 @@ func (s *VarService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Var, 
 	return &output, nil
 }
 
-func (s *VarService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *ConstService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -291,7 +289,7 @@ func (s *VarService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
 
@@ -317,9 +315,9 @@ func (s *VarService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 	return &output, nil
 }
 
-func (s *VarService) List(ctx context.Context, in *cores.ListVarRequest) (*cores.ListVarResponse, error) {
+func (s *ConstService) List(ctx context.Context, in *cores.ListConstRequest) (*cores.ListConstResponse, error) {
 	var err error
-	var output cores.ListVarResponse
+	var output cores.ListConstResponse
 
 	// basic validation
 	{
@@ -339,7 +337,7 @@ func (s *VarService) List(ctx context.Context, in *cores.ListVarRequest) (*cores
 
 	output.Page = in.GetPage()
 
-	items := make([]model.Var, 0, 10)
+	items := make([]model.Const, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -397,17 +395,17 @@ func (s *VarService) List(ctx context.Context, in *cores.ListVarRequest) (*cores
 	output.Count = uint32(count)
 
 	for i := 0; i < len(items); i++ {
-		item := pb.Var{}
+		item := pb.Const{}
 
 		s.copyModelToOutput(&item, &items[i])
 
-		output.Var = append(output.Var, &item)
+		output.Const = append(output.Const, &item)
 	}
 
 	return &output, nil
 }
 
-func (s *VarService) Clone(ctx context.Context, in *cores.CloneVarRequest) (*pb.MyBool, error) {
+func (s *ConstService) Clone(ctx context.Context, in *cores.CloneConstRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -418,11 +416,11 @@ func (s *VarService) Clone(ctx context.Context, in *cores.CloneVarRequest) (*pb.
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
 
-	err = s.cs.getClone().cloneVar(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
+	err = s.cs.getClone().cloneConst(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
 	if err != nil {
 		return &output, err
 	}
@@ -432,9 +430,9 @@ func (s *VarService) Clone(ctx context.Context, in *cores.CloneVarRequest) (*pb.
 	return &output, nil
 }
 
-func (s *VarService) GetValue(ctx context.Context, in *pb.Id) (*pb.VarValue, error) {
+func (s *ConstService) GetValue(ctx context.Context, in *pb.Id) (*pb.ConstValue, error) {
 	var err error
-	var output pb.VarValue
+	var output pb.ConstValue
 
 	// basic validation
 	{
@@ -443,7 +441,7 @@ func (s *VarService) GetValue(ctx context.Context, in *pb.Id) (*pb.VarValue, err
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
 
@@ -459,15 +457,15 @@ func (s *VarService) GetValue(ctx context.Context, in *pb.Id) (*pb.VarValue, err
 	return &output, nil
 }
 
-func (s *VarService) SetValue(ctx context.Context, in *pb.VarValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
 	return s.setValue(ctx, in, true)
 }
 
-func (s *VarService) SetValueUnchecked(ctx context.Context, in *pb.VarValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValueUnchecked(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
 	return s.setValue(ctx, in, false)
 }
 
-func (s *VarService) setValue(ctx context.Context, in *pb.VarValue, check bool) (*pb.MyBool, error) {
+func (s *ConstService) setValue(ctx context.Context, in *pb.ConstValue, check bool) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -478,7 +476,7 @@ func (s *VarService) setValue(ctx context.Context, in *pb.VarValue, check bool) 
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
 
@@ -488,12 +486,12 @@ func (s *VarService) setValue(ctx context.Context, in *pb.VarValue, check bool) 
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Var.Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Const.Status != ON")
 	}
 
 	if check {
 		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Var.Access != ON")
+			return &output, status.Errorf(codes.FailedPrecondition, "Const.Access != ON")
 		}
 	}
 
@@ -519,9 +517,9 @@ func (s *VarService) setValue(ctx context.Context, in *pb.VarValue, check bool) 
 	return &output, nil
 }
 
-func (s *VarService) GetValueByName(ctx context.Context, in *cores.GetVarValueByNameRequest) (*cores.VarNameValue, error) {
+func (s *ConstService) GetValueByName(ctx context.Context, in *cores.GetConstValueByNameRequest) (*cores.ConstNameValue, error) {
 	var err error
-	var output cores.VarNameValue
+	var output cores.ConstNameValue
 
 	// basic validation
 	{
@@ -534,7 +532,7 @@ func (s *VarService) GetValueByName(ctx context.Context, in *cores.GetVarValueBy
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
 
@@ -551,15 +549,15 @@ func (s *VarService) GetValueByName(ctx context.Context, in *cores.GetVarValueBy
 	return &output, nil
 }
 
-func (s *VarService) SetValueByName(ctx context.Context, in *cores.VarNameValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValueByName(ctx context.Context, in *cores.ConstNameValue) (*pb.MyBool, error) {
 	return s.setValueByName(ctx, in, true)
 }
 
-func (s *VarService) SetValueByNameUnchecked(ctx context.Context, in *cores.VarNameValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValueByNameUnchecked(ctx context.Context, in *cores.ConstNameValue) (*pb.MyBool, error) {
 	return s.setValueByName(ctx, in, false)
 }
 
-func (s *VarService) setValueByName(ctx context.Context, in *cores.VarNameValue, check bool) (*pb.MyBool, error) {
+func (s *ConstService) setValueByName(ctx context.Context, in *cores.ConstNameValue, check bool) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -574,11 +572,11 @@ func (s *VarService) setValueByName(ctx context.Context, in *cores.VarNameValue,
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Value")
 		}
 	}
 
@@ -588,12 +586,12 @@ func (s *VarService) setValueByName(ctx context.Context, in *cores.VarNameValue,
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Var.Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Const.Status != ON")
 	}
 
 	if check {
 		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Var.Access != ON")
+			return &output, status.Errorf(codes.FailedPrecondition, "Const.Access != ON")
 		}
 	}
 
@@ -619,15 +617,15 @@ func (s *VarService) setValueByName(ctx context.Context, in *cores.VarNameValue,
 	return &output, nil
 }
 
-func (s *VarService) view(ctx context.Context, id string) (model.Var, error) {
-	item := model.Var{
+func (s *ConstService) view(ctx context.Context, id string) (model.Const, error) {
+	item := model.Const{
 		ID: id,
 	}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Var.ID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Const.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -636,13 +634,13 @@ func (s *VarService) view(ctx context.Context, id string) (model.Var, error) {
 	return item, nil
 }
 
-func (s *VarService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Var, error) {
-	item := model.Var{}
+func (s *ConstService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Const, error) {
+	item := model.Const{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, DeviceID: %v, Var.Name: %v", err, deviceID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, DeviceID: %v, Const.Name: %v", err, deviceID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -651,7 +649,7 @@ func (s *VarService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name s
 	return item, nil
 }
 
-func (s *VarService) copyModelToOutput(output *pb.Var, item *model.Var) {
+func (s *ConstService) copyModelToOutput(output *pb.Const, item *model.Const) {
 	output.Id = item.ID
 	output.DeviceId = item.DeviceID
 	output.Name = item.Name
@@ -664,13 +662,12 @@ func (s *VarService) copyModelToOutput(output *pb.Var, item *model.Var) {
 	output.LValue = item.LValue
 	output.Status = item.Status
 	output.Access = item.Access
-	output.Save = item.Save
 	output.Created = item.Created.UnixMicro()
 	output.Updated = item.Updated.UnixMicro()
 	output.Deleted = item.Deleted.UnixMicro()
 }
 
-func (s *VarService) afterUpdate(ctx context.Context, item *model.Var) error {
+func (s *ConstService) afterUpdate(ctx context.Context, item *model.Const) error {
 	var err error
 
 	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
@@ -681,7 +678,7 @@ func (s *VarService) afterUpdate(ctx context.Context, item *model.Var) error {
 	return nil
 }
 
-func (s *VarService) afterDelete(ctx context.Context, item *model.Var) error {
+func (s *ConstService) afterDelete(ctx context.Context, item *model.Const) error {
 	var err error
 
 	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
@@ -692,8 +689,8 @@ func (s *VarService) afterDelete(ctx context.Context, item *model.Var) error {
 	return nil
 }
 
-func (s *VarService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Var, error) {
-	var output pb.Var
+func (s *ConstService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Const, error) {
+	var output pb.Const
 	var err error
 
 	// basic validation
@@ -703,7 +700,7 @@ func (s *VarService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Var, e
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
 
@@ -717,15 +714,15 @@ func (s *VarService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Var, e
 	return &output, nil
 }
 
-func (s *VarService) viewWithDeleted(ctx context.Context, id string) (model.Var, error) {
-	item := model.Var{
+func (s *ConstService) viewWithDeleted(ctx context.Context, id string) (model.Const, error) {
+	item := model.Const{
 		ID: id,
 	}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Var.ID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Const.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -734,9 +731,9 @@ func (s *VarService) viewWithDeleted(ctx context.Context, id string) (model.Var,
 	return item, nil
 }
 
-func (s *VarService) Pull(ctx context.Context, in *cores.PullVarRequest) (*cores.PullVarResponse, error) {
+func (s *ConstService) Pull(ctx context.Context, in *cores.PullConstRequest) (*cores.PullConstResponse, error) {
 	var err error
-	var output cores.PullVarResponse
+	var output cores.PullConstResponse
 
 	// basic validation
 	{
@@ -748,7 +745,7 @@ func (s *VarService) Pull(ctx context.Context, in *cores.PullVarRequest) (*cores
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	items := make([]model.Var, 0, 10)
+	items := make([]model.Const, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -766,17 +763,17 @@ func (s *VarService) Pull(ctx context.Context, in *cores.PullVarRequest) (*cores
 	}
 
 	for i := 0; i < len(items); i++ {
-		item := pb.Var{}
+		item := pb.Const{}
 
 		s.copyModelToOutput(&item, &items[i])
 
-		output.Var = append(output.Var, &item)
+		output.Const = append(output.Const, &item)
 	}
 
 	return &output, nil
 }
 
-func (s *VarService) Sync(ctx context.Context, in *pb.Var) (*pb.MyBool, error) {
+func (s *ConstService) Sync(ctx context.Context, in *pb.Const) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -787,15 +784,15 @@ func (s *VarService) Sync(ctx context.Context, in *pb.Var) (*pb.MyBool, error) {
 		}
 
 		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid var_id")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 
 		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Var.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Updated")
 		}
 	}
 
@@ -831,20 +828,20 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "Var.Name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Const.Name min 2 character")
 			}
 
-			err = s.cs.GetDB().NewSelect().Model(&model.Var{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
+			err = s.cs.GetDB().NewSelect().Model(&model.Const{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
 			if err != nil {
 				if err != sql.ErrNoRows {
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "Var.Name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Const.Name must be unique")
 			}
 		}
 
-		item := model.Var{
+		item := model.Const{
 			ID:       in.GetId(),
 			DeviceID: in.GetDeviceId(),
 			Name:     in.GetName(),
@@ -858,7 +855,6 @@ SKIP:
 			Config:   in.GetConfig(),
 			Status:   in.GetStatus(),
 			Access:   in.GetAccess(),
-			Save:     in.GetSave(),
 			Created:  time.UnixMicro(in.GetCreated()),
 			Updated:  time.UnixMicro(in.GetUpdated()),
 		}
@@ -882,10 +878,10 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "Var.Name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Const.Name min 2 character")
 			}
 
-			modelItem := model.Var{}
+			modelItem := model.Const{}
 			err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
 			if err != nil {
 				if err != sql.ErrNoRows {
@@ -893,7 +889,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "Var.Name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Const.Name must be unique")
 				}
 			}
 		}
@@ -909,7 +905,6 @@ SKIP:
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
 		item.Access = in.GetAccess()
-		item.Save = in.GetSave()
 		item.Updated = time.UnixMicro(in.GetUpdated())
 		item.Deleted = time.UnixMicro(in.GetDeleted())
 
