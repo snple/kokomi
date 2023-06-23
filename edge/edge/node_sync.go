@@ -275,58 +275,6 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		}
 	}
 
-	// class
-	{
-		after := deviceUpdated2.UnixMicro()
-		limit := uint32(10)
-
-		for {
-			remotes, err := s.ClassServiceClient().Pull(ctx, &nodes.PullClassRequest{After: after, Limit: limit})
-			if err != nil {
-				return err
-			}
-
-			for _, remote := range remotes.GetClass() {
-				_, err := s.es.GetClass().Sync(ctx, remote)
-				if err != nil {
-					return err
-				}
-
-				after = remote.GetUpdated()
-			}
-
-			if len(remotes.GetClass()) < int(limit) {
-				break
-			}
-		}
-	}
-
-	// attr
-	{
-		after := deviceUpdated2.UnixMicro()
-		limit := uint32(10)
-
-		for {
-			remotes, err := s.AttrServiceClient().Pull(ctx, &nodes.PullAttrRequest{After: after, Limit: limit})
-			if err != nil {
-				return err
-			}
-
-			for _, remote := range remotes.GetAttr() {
-				_, err := s.es.GetAttr().Sync(ctx, remote)
-				if err != nil {
-					return err
-				}
-
-				after = remote.GetUpdated()
-			}
-
-			if len(remotes.GetAttr()) < int(limit) {
-				break
-			}
-		}
-	}
-
 	return s.es.GetSync().setDeviceUpdatedRemoteToLocal(ctx, time.UnixMicro(deviceUpdated.GetUpdated()))
 }
 
@@ -563,58 +511,6 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 			}
 
 			if len(locals.GetWire()) < int(limit) {
-				break
-			}
-		}
-	}
-
-	// class
-	{
-		after := deviceUpdated2.UnixMicro()
-		limit := uint32(10)
-
-		for {
-			locals, err := s.es.GetClass().Pull(ctx, &edges.PullClassRequest{After: after, Limit: limit})
-			if err != nil {
-				return err
-			}
-
-			for _, local := range locals.GetClass() {
-				_, err = s.ClassServiceClient().Sync(ctx, local)
-				if err != nil {
-					return err
-				}
-
-				after = local.GetUpdated()
-			}
-
-			if len(locals.GetClass()) < int(limit) {
-				break
-			}
-		}
-	}
-
-	// attr
-	{
-		after := deviceUpdated2.UnixMicro()
-		limit := uint32(10)
-
-		for {
-			locals, err := s.es.GetAttr().Pull(ctx, &edges.PullAttrRequest{After: after, Limit: limit})
-			if err != nil {
-				return err
-			}
-
-			for _, local := range locals.GetAttr() {
-				_, err = s.AttrServiceClient().Sync(ctx, local)
-				if err != nil {
-					return err
-				}
-
-				after = local.GetUpdated()
-			}
-
-			if len(locals.GetAttr()) < int(limit) {
 				break
 			}
 		}

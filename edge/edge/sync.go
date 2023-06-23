@@ -500,98 +500,6 @@ func (s *SyncService) GetWireUpdated(ctx context.Context, in *pb.MyEmpty) (*edge
 	return &output, nil
 }
 
-func (s *SyncService) SetClassUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
-	var output pb.MyBool
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Class.Updated")
-		}
-	}
-
-	err = s.setClassUpdated(ctx, time.UnixMicro(in.GetUpdated()))
-	if err != nil {
-		return &output, err
-	}
-
-	output.Bool = true
-
-	return &output, nil
-}
-
-func (s *SyncService) GetClassUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
-	var output edges.SyncUpdated
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	t, err := s.getClassUpdated(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	output.Updated = t.UnixMicro()
-
-	return &output, nil
-}
-
-func (s *SyncService) SetAttrUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
-	var output pb.MyBool
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Attr.Updated")
-		}
-	}
-
-	err = s.setAttrUpdated(ctx, time.UnixMicro(in.GetUpdated()))
-	if err != nil {
-		return &output, err
-	}
-
-	output.Bool = true
-
-	return &output, nil
-}
-
-func (s *SyncService) GetAttrUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
-	var output edges.SyncUpdated
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	t, err := s.getAttrUpdated(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	output.Updated = t.UnixMicro()
-
-	return &output, nil
-}
-
 func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
@@ -793,22 +701,6 @@ func (s *SyncService) getWireUpdated(ctx context.Context) (time.Time, error) {
 
 func (s *SyncService) setWireUpdated(ctx context.Context, updated time.Time) error {
 	return s.setUpdated(ctx, model.SYNC_WIRE, updated)
-}
-
-func (s *SyncService) getClassUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_CLASS)
-}
-
-func (s *SyncService) setClassUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_CLASS, updated)
-}
-
-func (s *SyncService) getAttrUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_ATTR)
-}
-
-func (s *SyncService) setAttrUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_ATTR, updated)
 }
 
 func (s *SyncService) getTagValueUpdated(ctx context.Context) (time.Time, error) {

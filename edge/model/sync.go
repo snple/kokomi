@@ -19,8 +19,6 @@ const (
 	SYNC_CONST      = "sync_const"
 	SYNC_CABLE      = "sync_cable"
 	SYNC_WIRE       = "sync_wire"
-	SYNC_CLASS      = "sync_class"
-	SYNC_ATTR       = "sync_attr"
 	SYNC_TAG_VALUE  = "sync_tag_value"
 	SYNC_WIRE_VALUE = "sync_wire_value"
 

@@ -29,8 +29,6 @@ type SlotService struct {
 	constant *ConstService
 	cable    *CableService
 	wire     *WireService
-	class    *ClassService
-	attr     *AttrService
 	rgrpc    *RgrpcService
 
 	ctx     context.Context
@@ -68,8 +66,6 @@ func Slot(es *edge.EdgeService, opts ...SlotOption) (*SlotService, error) {
 	ss.constant = newConstService(ss)
 	ss.cable = newCableService(ss)
 	ss.wire = newWireService(ss)
-	ss.class = newClassService(ss)
-	ss.attr = newAttrService(ss)
 	ss.rgrpc = newRgrpcService(ss)
 
 	return ss, nil
@@ -106,8 +102,6 @@ func (ss *SlotService) RegisterGrpc(server *grpc.Server) {
 	slots.RegisterConstServiceServer(server, ss.constant)
 	slots.RegisterCableServiceServer(server, ss.cable)
 	slots.RegisterWireServiceServer(server, ss.wire)
-	slots.RegisterClassServiceServer(server, ss.class)
-	slots.RegisterAttrServiceServer(server, ss.attr)
 	rgrpc.RegisterRgrpcServiceServer(server, ss.rgrpc)
 }
 

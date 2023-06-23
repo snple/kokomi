@@ -33,8 +33,6 @@ type EdgeService struct {
 	constant *ConstService
 	cable    *CableService
 	wire     *WireService
-	class    *ClassService
-	attr     *AttrService
 	control  *ControlService
 
 	node   types.Option[*NodeService]
@@ -99,8 +97,6 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 	es.constant = newConstService(es)
 	es.cable = newCableService(es)
 	es.wire = newWireService(es)
-	es.class = newClassService(es)
-	es.attr = newAttrService(es)
 	es.control = newControlService(es)
 
 	if es.dopts.NodeOptions.enable {
@@ -256,14 +252,6 @@ func (es *EdgeService) GetWire() *WireService {
 	return es.wire
 }
 
-func (es *EdgeService) GetClass() *ClassService {
-	return es.class
-}
-
-func (es *EdgeService) GetAttr() *AttrService {
-	return es.attr
-}
-
 func (es *EdgeService) GetControl() *ControlService {
 	return es.control
 }
@@ -300,8 +288,6 @@ func (es *EdgeService) Register(server *grpc.Server) {
 	edges.RegisterConstServiceServer(server, es.constant)
 	edges.RegisterCableServiceServer(server, es.cable)
 	edges.RegisterWireServiceServer(server, es.wire)
-	edges.RegisterClassServiceServer(server, es.class)
-	edges.RegisterAttrServiceServer(server, es.attr)
 	edges.RegisterControlServiceServer(server, es.control)
 }
 
@@ -317,8 +303,6 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Const)(nil),
 		(*model.Cable)(nil),
 		(*model.Wire)(nil),
-		(*model.Class)(nil),
-		(*model.Attr)(nil),
 	}
 
 	for _, model := range models {

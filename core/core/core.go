@@ -29,8 +29,6 @@ type CoreService struct {
 	constant    *ConstService
 	cable       *CableService
 	wire        *WireService
-	class       *ClassService
-	attr        *AttrService
 	control     *ControlService
 
 	clone *cloneService
@@ -83,8 +81,6 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.constant = newConstService(cs)
 	cs.cable = newCableService(cs)
 	cs.wire = newWireService(cs)
-	cs.class = newClassService(cs)
-	cs.attr = newAttrService(cs)
 	cs.control = newControlService(cs)
 
 	cs.clone = newCloneService(cs)
@@ -161,14 +157,6 @@ func (cs *CoreService) GetWire() *WireService {
 	return cs.wire
 }
 
-func (cs *CoreService) GetClass() *ClassService {
-	return cs.class
-}
-
-func (cs *CoreService) GetAttr() *AttrService {
-	return cs.attr
-}
-
 func (cs *CoreService) GetControl() *ControlService {
 	return cs.control
 }
@@ -202,8 +190,6 @@ func (cs *CoreService) Register(server *grpc.Server) {
 	cores.RegisterConstServiceServer(server, cs.constant)
 	cores.RegisterCableServiceServer(server, cs.cable)
 	cores.RegisterWireServiceServer(server, cs.wire)
-	cores.RegisterClassServiceServer(server, cs.class)
-	cores.RegisterAttrServiceServer(server, cs.attr)
 	cores.RegisterControlServiceServer(server, cs.control)
 	cores.RegisterRouteServiceServer(server, cs.route)
 }
@@ -222,8 +208,6 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Const)(nil),
 		(*model.Cable)(nil),
 		(*model.Wire)(nil),
-		(*model.Class)(nil),
-		(*model.Attr)(nil),
 		(*model.TagValue)(nil),
 		(*model.WireValue)(nil),
 		(*model.Route)(nil),
