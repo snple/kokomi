@@ -64,7 +64,7 @@ func main() {
 	// service.DeviceUpdate(ctx, device)
 	// service.DeviceDelete(ctx, device)
 	// service.DeviceDestory(ctx, device)
-	// service.SyncFull(ctx, device)
+	// service.DeviceClone(ctx, device)
 
 	// port := cores.NewPortServiceClient(conn)
 	// service.PortList(ctx, port)

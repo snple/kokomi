@@ -516,7 +516,7 @@ func (s *CableService) copyModelToOutput(output *pb.Cable, item *model.Cable) {
 func (s *CableService) afterUpdate(ctx context.Context, item *model.Cable) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -527,7 +527,7 @@ func (s *CableService) afterUpdate(ctx context.Context, item *model.Cable) error
 func (s *CableService) afterDelete(ctx context.Context, item *model.Cable) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}

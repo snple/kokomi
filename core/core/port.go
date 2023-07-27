@@ -502,7 +502,7 @@ func (s *PortService) copyModelToOutput(output *pb.Port, item *model.Port) {
 func (s *PortService) afterUpdate(ctx context.Context, item *model.Port) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -513,7 +513,7 @@ func (s *PortService) afterUpdate(ctx context.Context, item *model.Port) error {
 func (s *PortService) afterDelete(ctx context.Context, item *model.Port) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}

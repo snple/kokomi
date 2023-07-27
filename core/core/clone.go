@@ -272,7 +272,7 @@ func (s *cloneService) cloneDevice(ctx context.Context, db bun.IDB, deviceID str
 		}
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, device.ID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, db, device.ID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -325,7 +325,7 @@ func (s *cloneService) cloneSlot(ctx context.Context, db bun.IDB, slotID, device
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -378,7 +378,7 @@ func (s *cloneService) cloneOption(ctx context.Context, db bun.IDB, optionID, de
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -431,7 +431,7 @@ func (s *cloneService) clonePort(ctx context.Context, db bun.IDB, portID, device
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -484,7 +484,7 @@ func (s *cloneService) cloneProxy(ctx context.Context, db bun.IDB, proxyID, devi
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -561,7 +561,7 @@ func (s *cloneService) cloneSource(ctx context.Context, db bun.IDB, sourceID, de
 		}
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -615,7 +615,7 @@ func (s *cloneService) cloneTag(ctx context.Context, db bun.IDB, tagID, sourceID
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -668,7 +668,7 @@ func (s *cloneService) cloneConst(ctx context.Context, db bun.IDB, constID, devi
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -745,7 +745,7 @@ func (s *cloneService) cloneCable(ctx context.Context, db bun.IDB, cableID, devi
 		}
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -799,7 +799,7 @@ func (s *cloneService) cloneWire(ctx context.Context, db bun.IDB, wireID, cableI
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}

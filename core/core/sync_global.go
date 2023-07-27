@@ -9,6 +9,7 @@ import (
 	"github.com/snple/kokomi/core/model"
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/cores"
+	"github.com/uptrace/bun"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -28,15 +29,15 @@ func newSyncGlobalService(cs *CoreService) *SyncGlobalService {
 	}
 }
 
-func (s *SyncGlobalService) getUpdated(ctx context.Context, key string) (time.Time, error) {
+func (s *SyncGlobalService) getUpdated(ctx context.Context, db bun.IDB, key string) (time.Time, error) {
 	item := model.SyncGlobal{
 		Key: key,
 	}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
+	err := db.NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
+			_, err = db.NewInsert().Model(&item).Exec(ctx)
 			if err != nil {
 				return time.Time{}, status.Errorf(codes.Internal, "Insert: %v", err)
 			}
@@ -50,13 +51,13 @@ func (s *SyncGlobalService) getUpdated(ctx context.Context, key string) (time.Ti
 	return item.Updated, nil
 }
 
-func (s *SyncGlobalService) setUpdated(ctx context.Context, key string, updated time.Time) error {
+func (s *SyncGlobalService) setUpdated(ctx context.Context, db bun.IDB, key string, updated time.Time) error {
 	item := model.SyncGlobal{
 		Key:     key,
 		Updated: updated,
 	}
 
-	ret, err := s.cs.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+	ret, err := db.NewUpdate().Model(&item).WherePK().Exec(ctx)
 	if err != nil {
 		return status.Errorf(codes.Internal, "Update: %v", err)
 	}
@@ -67,7 +68,7 @@ func (s *SyncGlobalService) setUpdated(ctx context.Context, key string, updated 
 	}
 
 	if n < 1 {
-		_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
+		_, err = db.NewInsert().Model(&item).Exec(ctx)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}

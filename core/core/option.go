@@ -468,7 +468,7 @@ func (s *OptionService) copyModelToOutput(output *pb.Option, item *model.Option)
 func (s *OptionService) afterUpdate(ctx context.Context, item *model.Option) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -479,7 +479,7 @@ func (s *OptionService) afterUpdate(ctx context.Context, item *model.Option) err
 func (s *OptionService) afterDelete(ctx context.Context, item *model.Option) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}

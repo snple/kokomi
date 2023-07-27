@@ -532,7 +532,7 @@ func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device)
 func (s *DeviceService) afterUpdate(ctx context.Context, item *model.Device) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.ID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.ID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -543,7 +543,7 @@ func (s *DeviceService) afterUpdate(ctx context.Context, item *model.Device) err
 func (s *DeviceService) afterDelete(ctx context.Context, item *model.Device) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.ID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.ID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/snple/kokomi/core/model"
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/cores"
+	"github.com/uptrace/bun"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -53,7 +54,7 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *cores.SyncUpdate
 		}
 	}
 
-	err = s.setDeviceUpdated(ctx, in.GetId(), time.UnixMicro(in.GetUpdated()))
+	err = s.setDeviceUpdated(ctx, s.cs.GetDB(), in.GetId(), time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -80,7 +81,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.Id) (*cores.S
 
 	output.Id = in.GetId()
 
-	t, err := s.getDeviceUpdated(ctx, in.GetId())
+	t, err := s.getDeviceUpdated(ctx, s.cs.GetDB(), in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -115,7 +116,7 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *cores.SyncUpda
 		}
 	}
 
-	err = s.setTagValueUpdated(ctx, in.GetId(), time.UnixMicro(in.GetUpdated()))
+	err = s.setTagValueUpdated(ctx, s.cs.GetDB(), in.GetId(), time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -142,7 +143,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.Id) (*cores
 
 	output.Id = in.GetId()
 
-	t, err := s.getTagValueUpdated(ctx, in.GetId())
+	t, err := s.getTagValueUpdated(ctx, s.cs.GetDB(), in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -177,7 +178,7 @@ func (s *SyncService) SetWireValueUpdated(ctx context.Context, in *cores.SyncUpd
 		}
 	}
 
-	err = s.setWireValueUpdated(ctx, in.GetId(), time.UnixMicro(in.GetUpdated()))
+	err = s.setWireValueUpdated(ctx, s.cs.GetDB(), in.GetId(), time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -204,7 +205,7 @@ func (s *SyncService) GetWireValueUpdated(ctx context.Context, in *pb.Id) (*core
 
 	output.Id = in.GetId()
 
-	t, err := s.getWireValueUpdated(ctx, in.GetId())
+	t, err := s.getWireValueUpdated(ctx, s.cs.GetDB(), in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -232,12 +233,12 @@ func (s *SyncService) WaitWireValueUpdated2(ctx context.Context, id string) chan
 	return s.waitUpdated2(ctx, id, s.waitsWVal)
 }
 
-func (s *SyncService) getDeviceUpdated(ctx context.Context, id string) (time.Time, error) {
-	return s.getUpdated(ctx, id+model.SYNC_DEVICE_SUFFIX)
+func (s *SyncService) getDeviceUpdated(ctx context.Context, db bun.IDB, id string) (time.Time, error) {
+	return s.getUpdated(ctx, db, id+model.SYNC_DEVICE_SUFFIX)
 }
 
-func (s *SyncService) setDeviceUpdated(ctx context.Context, id string, updated time.Time) error {
-	err := s.setUpdated(ctx, id+model.SYNC_DEVICE_SUFFIX, updated)
+func (s *SyncService) setDeviceUpdated(ctx context.Context, db bun.IDB, id string, updated time.Time) error {
+	err := s.setUpdated(ctx, db, id+model.SYNC_DEVICE_SUFFIX, updated)
 	if err != nil {
 		return err
 	}
@@ -247,12 +248,12 @@ func (s *SyncService) setDeviceUpdated(ctx context.Context, id string, updated t
 	return nil
 }
 
-func (s *SyncService) getTagValueUpdated(ctx context.Context, id string) (time.Time, error) {
-	return s.getUpdated(ctx, id+model.SYNC_TAG_VALUE_SUFFIX)
+func (s *SyncService) getTagValueUpdated(ctx context.Context, db bun.IDB, id string) (time.Time, error) {
+	return s.getUpdated(ctx, db, id+model.SYNC_TAG_VALUE_SUFFIX)
 }
 
-func (s *SyncService) setTagValueUpdated(ctx context.Context, id string, updated time.Time) error {
-	err := s.setUpdated(ctx, id+model.SYNC_TAG_VALUE_SUFFIX, updated)
+func (s *SyncService) setTagValueUpdated(ctx context.Context, db bun.IDB, id string, updated time.Time) error {
+	err := s.setUpdated(ctx, db, id+model.SYNC_TAG_VALUE_SUFFIX, updated)
 	if err != nil {
 		return err
 	}
@@ -262,12 +263,12 @@ func (s *SyncService) setTagValueUpdated(ctx context.Context, id string, updated
 	return nil
 }
 
-func (s *SyncService) getWireValueUpdated(ctx context.Context, id string) (time.Time, error) {
-	return s.getUpdated(ctx, id+model.SYNC_WIRE_VALUE_SUFFIX)
+func (s *SyncService) getWireValueUpdated(ctx context.Context, db bun.IDB, id string) (time.Time, error) {
+	return s.getUpdated(ctx, db, id+model.SYNC_WIRE_VALUE_SUFFIX)
 }
 
-func (s *SyncService) setWireValueUpdated(ctx context.Context, id string, updated time.Time) error {
-	err := s.setUpdated(ctx, id+model.SYNC_WIRE_VALUE_SUFFIX, updated)
+func (s *SyncService) setWireValueUpdated(ctx context.Context, db bun.IDB, id string, updated time.Time) error {
+	err := s.setUpdated(ctx, db, id+model.SYNC_WIRE_VALUE_SUFFIX, updated)
 	if err != nil {
 		return err
 	}
@@ -277,15 +278,15 @@ func (s *SyncService) setWireValueUpdated(ctx context.Context, id string, update
 	return nil
 }
 
-func (s *SyncService) getUpdated(ctx context.Context, id string) (time.Time, error) {
+func (s *SyncService) getUpdated(ctx context.Context, db bun.IDB, id string) (time.Time, error) {
 	item := model.Sync{
 		ID: id,
 	}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
+	err := db.NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
+			_, err = db.NewInsert().Model(&item).Exec(ctx)
 			if err != nil {
 				return time.Time{}, status.Errorf(codes.Internal, "Insert: %v", err)
 			}
@@ -299,13 +300,13 @@ func (s *SyncService) getUpdated(ctx context.Context, id string) (time.Time, err
 	return item.Updated, nil
 }
 
-func (s *SyncService) setUpdated(ctx context.Context, id string, updated time.Time) error {
+func (s *SyncService) setUpdated(ctx context.Context, db bun.IDB, id string, updated time.Time) error {
 	item := model.Sync{
 		ID:      id,
 		Updated: updated,
 	}
 
-	ret, err := s.cs.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+	ret, err := db.NewUpdate().Model(&item).WherePK().Exec(ctx)
 	if err != nil {
 		return status.Errorf(codes.Internal, "Update: %v", err)
 	}
@@ -316,7 +317,7 @@ func (s *SyncService) setUpdated(ctx context.Context, id string, updated time.Ti
 	}
 
 	if n < 1 {
-		_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
+		_, err = db.NewInsert().Model(&item).Exec(ctx)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}

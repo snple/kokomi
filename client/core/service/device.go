@@ -96,3 +96,14 @@ func DeviceDestory(ctx context.Context, client cores.DeviceServiceClient) {
 	}
 	log.Printf("Resp received: %v", reply)
 }
+
+func DeviceClone(ctx context.Context, client cores.DeviceServiceClient) {
+	request := &pb.Id{Id: "0187f0bb5e6cfdd553884496"}
+
+	reply, err := client.Clone(ctx, request)
+
+	if err != nil {
+		log.Fatalf("Error when calling grpc service: %s", err)
+	}
+	log.Printf("Resp received: %v", reply)
+}

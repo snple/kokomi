@@ -907,7 +907,7 @@ func (s *WireService) copyModelToOutput(output *pb.Wire, item *model.Wire) {
 func (s *WireService) afterUpdate(ctx context.Context, item *model.Wire) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -918,7 +918,7 @@ func (s *WireService) afterUpdate(ctx context.Context, item *model.Wire) error {
 func (s *WireService) afterDelete(ctx context.Context, item *model.Wire) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -1063,7 +1063,7 @@ func (s *WireService) updateWireValue(ctx context.Context, item *model.Wire, val
 func (s *WireService) afterUpdateValue(ctx context.Context, item *model.Wire, value string) error {
 	var err error
 
-	err = s.cs.GetSync().setWireValueUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setWireValueUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}

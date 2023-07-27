@@ -502,7 +502,7 @@ func (s *SlotService) copyModelToOutput(output *pb.Slot, item *model.Slot) {
 func (s *SlotService) afterUpdate(ctx context.Context, item *model.Slot) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -513,7 +513,7 @@ func (s *SlotService) afterUpdate(ctx context.Context, item *model.Slot) error {
 func (s *SlotService) afterDelete(ctx context.Context, item *model.Slot) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}

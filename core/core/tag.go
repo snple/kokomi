@@ -844,7 +844,7 @@ func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
 func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -855,7 +855,7 @@ func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
 func (s *TagService) afterDelete(ctx context.Context, item *model.Tag) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -1165,7 +1165,7 @@ func (s *TagService) updateTagValue(ctx context.Context, item *model.Tag, value 
 func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, value string) error {
 	var err error
 
-	err = s.cs.GetSync().setTagValueUpdated(ctx, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setTagValueUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
