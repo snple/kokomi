@@ -23,8 +23,8 @@ const (
 	ConstService_Create_FullMethodName                  = "/cores.ConstService/Create"
 	ConstService_Update_FullMethodName                  = "/cores.ConstService/Update"
 	ConstService_View_FullMethodName                    = "/cores.ConstService/View"
-	ConstService_ViewByName_FullMethodName              = "/cores.ConstService/ViewByName"
-	ConstService_ViewByNameFull_FullMethodName          = "/cores.ConstService/ViewByNameFull"
+	ConstService_Name_FullMethodName                    = "/cores.ConstService/Name"
+	ConstService_NameFull_FullMethodName                = "/cores.ConstService/NameFull"
 	ConstService_Delete_FullMethodName                  = "/cores.ConstService/Delete"
 	ConstService_List_FullMethodName                    = "/cores.ConstService/List"
 	ConstService_Clone_FullMethodName                   = "/cores.ConstService/Clone"
@@ -46,19 +46,19 @@ type ConstServiceClient interface {
 	Create(ctx context.Context, in *pb.Const, opts ...grpc.CallOption) (*pb.Const, error)
 	Update(ctx context.Context, in *pb.Const, opts ...grpc.CallOption) (*pb.Const, error)
 	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Const, error)
-	ViewByName(ctx context.Context, in *ViewConstByNameRequest, opts ...grpc.CallOption) (*pb.Const, error)
-	ViewByNameFull(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Const, error)
+	Name(ctx context.Context, in *ConstNameRequest, opts ...grpc.CallOption) (*pb.Const, error)
+	NameFull(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Const, error)
 	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	List(ctx context.Context, in *ListConstRequest, opts ...grpc.CallOption) (*ListConstResponse, error)
-	Clone(ctx context.Context, in *CloneConstRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	List(ctx context.Context, in *ConstListRequest, opts ...grpc.CallOption) (*ConstListResponse, error)
+	Clone(ctx context.Context, in *ConstCloneRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.ConstValue, error)
 	SetValue(ctx context.Context, in *pb.ConstValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueUnchecked(ctx context.Context, in *pb.ConstValue, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetValueByName(ctx context.Context, in *GetConstValueByNameRequest, opts ...grpc.CallOption) (*ConstNameValue, error)
+	GetValueByName(ctx context.Context, in *ConstGetValueByNameRequest, opts ...grpc.CallOption) (*ConstNameValue, error)
 	SetValueByName(ctx context.Context, in *ConstNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueByNameUnchecked(ctx context.Context, in *ConstNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Const, error)
-	Pull(ctx context.Context, in *PullConstRequest, opts ...grpc.CallOption) (*PullConstResponse, error)
+	Pull(ctx context.Context, in *ConstPullRequest, opts ...grpc.CallOption) (*ConstPullResponse, error)
 	Sync(ctx context.Context, in *pb.Const, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
@@ -97,18 +97,18 @@ func (c *constServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.C
 	return out, nil
 }
 
-func (c *constServiceClient) ViewByName(ctx context.Context, in *ViewConstByNameRequest, opts ...grpc.CallOption) (*pb.Const, error) {
+func (c *constServiceClient) Name(ctx context.Context, in *ConstNameRequest, opts ...grpc.CallOption) (*pb.Const, error) {
 	out := new(pb.Const)
-	err := c.cc.Invoke(ctx, ConstService_ViewByName_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ConstService_Name_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *constServiceClient) ViewByNameFull(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Const, error) {
+func (c *constServiceClient) NameFull(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Const, error) {
 	out := new(pb.Const)
-	err := c.cc.Invoke(ctx, ConstService_ViewByNameFull_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ConstService_NameFull_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,8 +124,8 @@ func (c *constServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grpc
 	return out, nil
 }
 
-func (c *constServiceClient) List(ctx context.Context, in *ListConstRequest, opts ...grpc.CallOption) (*ListConstResponse, error) {
-	out := new(ListConstResponse)
+func (c *constServiceClient) List(ctx context.Context, in *ConstListRequest, opts ...grpc.CallOption) (*ConstListResponse, error) {
+	out := new(ConstListResponse)
 	err := c.cc.Invoke(ctx, ConstService_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -133,7 +133,7 @@ func (c *constServiceClient) List(ctx context.Context, in *ListConstRequest, opt
 	return out, nil
 }
 
-func (c *constServiceClient) Clone(ctx context.Context, in *CloneConstRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *constServiceClient) Clone(ctx context.Context, in *ConstCloneRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, ConstService_Clone_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -169,7 +169,7 @@ func (c *constServiceClient) SetValueUnchecked(ctx context.Context, in *pb.Const
 	return out, nil
 }
 
-func (c *constServiceClient) GetValueByName(ctx context.Context, in *GetConstValueByNameRequest, opts ...grpc.CallOption) (*ConstNameValue, error) {
+func (c *constServiceClient) GetValueByName(ctx context.Context, in *ConstGetValueByNameRequest, opts ...grpc.CallOption) (*ConstNameValue, error) {
 	out := new(ConstNameValue)
 	err := c.cc.Invoke(ctx, ConstService_GetValueByName_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -205,8 +205,8 @@ func (c *constServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, opt
 	return out, nil
 }
 
-func (c *constServiceClient) Pull(ctx context.Context, in *PullConstRequest, opts ...grpc.CallOption) (*PullConstResponse, error) {
-	out := new(PullConstResponse)
+func (c *constServiceClient) Pull(ctx context.Context, in *ConstPullRequest, opts ...grpc.CallOption) (*ConstPullResponse, error) {
+	out := new(ConstPullResponse)
 	err := c.cc.Invoke(ctx, ConstService_Pull_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -230,19 +230,19 @@ type ConstServiceServer interface {
 	Create(context.Context, *pb.Const) (*pb.Const, error)
 	Update(context.Context, *pb.Const) (*pb.Const, error)
 	View(context.Context, *pb.Id) (*pb.Const, error)
-	ViewByName(context.Context, *ViewConstByNameRequest) (*pb.Const, error)
-	ViewByNameFull(context.Context, *pb.Name) (*pb.Const, error)
+	Name(context.Context, *ConstNameRequest) (*pb.Const, error)
+	NameFull(context.Context, *pb.Name) (*pb.Const, error)
 	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
-	List(context.Context, *ListConstRequest) (*ListConstResponse, error)
-	Clone(context.Context, *CloneConstRequest) (*pb.MyBool, error)
+	List(context.Context, *ConstListRequest) (*ConstListResponse, error)
+	Clone(context.Context, *ConstCloneRequest) (*pb.MyBool, error)
 	GetValue(context.Context, *pb.Id) (*pb.ConstValue, error)
 	SetValue(context.Context, *pb.ConstValue) (*pb.MyBool, error)
 	SetValueUnchecked(context.Context, *pb.ConstValue) (*pb.MyBool, error)
-	GetValueByName(context.Context, *GetConstValueByNameRequest) (*ConstNameValue, error)
+	GetValueByName(context.Context, *ConstGetValueByNameRequest) (*ConstNameValue, error)
 	SetValueByName(context.Context, *ConstNameValue) (*pb.MyBool, error)
 	SetValueByNameUnchecked(context.Context, *ConstNameValue) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Const, error)
-	Pull(context.Context, *PullConstRequest) (*PullConstResponse, error)
+	Pull(context.Context, *ConstPullRequest) (*ConstPullResponse, error)
 	Sync(context.Context, *pb.Const) (*pb.MyBool, error)
 	mustEmbedUnimplementedConstServiceServer()
 }
@@ -260,19 +260,19 @@ func (UnimplementedConstServiceServer) Update(context.Context, *pb.Const) (*pb.C
 func (UnimplementedConstServiceServer) View(context.Context, *pb.Id) (*pb.Const, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedConstServiceServer) ViewByName(context.Context, *ViewConstByNameRequest) (*pb.Const, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewByName not implemented")
+func (UnimplementedConstServiceServer) Name(context.Context, *ConstNameRequest) (*pb.Const, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
-func (UnimplementedConstServiceServer) ViewByNameFull(context.Context, *pb.Name) (*pb.Const, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewByNameFull not implemented")
+func (UnimplementedConstServiceServer) NameFull(context.Context, *pb.Name) (*pb.Const, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NameFull not implemented")
 }
 func (UnimplementedConstServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedConstServiceServer) List(context.Context, *ListConstRequest) (*ListConstResponse, error) {
+func (UnimplementedConstServiceServer) List(context.Context, *ConstListRequest) (*ConstListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedConstServiceServer) Clone(context.Context, *CloneConstRequest) (*pb.MyBool, error) {
+func (UnimplementedConstServiceServer) Clone(context.Context, *ConstCloneRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Clone not implemented")
 }
 func (UnimplementedConstServiceServer) GetValue(context.Context, *pb.Id) (*pb.ConstValue, error) {
@@ -284,7 +284,7 @@ func (UnimplementedConstServiceServer) SetValue(context.Context, *pb.ConstValue)
 func (UnimplementedConstServiceServer) SetValueUnchecked(context.Context, *pb.ConstValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetValueUnchecked not implemented")
 }
-func (UnimplementedConstServiceServer) GetValueByName(context.Context, *GetConstValueByNameRequest) (*ConstNameValue, error) {
+func (UnimplementedConstServiceServer) GetValueByName(context.Context, *ConstGetValueByNameRequest) (*ConstNameValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValueByName not implemented")
 }
 func (UnimplementedConstServiceServer) SetValueByName(context.Context, *ConstNameValue) (*pb.MyBool, error) {
@@ -296,7 +296,7 @@ func (UnimplementedConstServiceServer) SetValueByNameUnchecked(context.Context, 
 func (UnimplementedConstServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Const, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
 }
-func (UnimplementedConstServiceServer) Pull(context.Context, *PullConstRequest) (*PullConstResponse, error) {
+func (UnimplementedConstServiceServer) Pull(context.Context, *ConstPullRequest) (*ConstPullResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
 }
 func (UnimplementedConstServiceServer) Sync(context.Context, *pb.Const) (*pb.MyBool, error) {
@@ -369,38 +369,38 @@ func _ConstService_View_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ConstService_ViewByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ViewConstByNameRequest)
+func _ConstService_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConstNameRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ConstServiceServer).ViewByName(ctx, in)
+		return srv.(ConstServiceServer).Name(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ConstService_ViewByName_FullMethodName,
+		FullMethod: ConstService_Name_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConstServiceServer).ViewByName(ctx, req.(*ViewConstByNameRequest))
+		return srv.(ConstServiceServer).Name(ctx, req.(*ConstNameRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ConstService_ViewByNameFull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ConstService_NameFull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ConstServiceServer).ViewByNameFull(ctx, in)
+		return srv.(ConstServiceServer).NameFull(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ConstService_ViewByNameFull_FullMethodName,
+		FullMethod: ConstService_NameFull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConstServiceServer).ViewByNameFull(ctx, req.(*pb.Name))
+		return srv.(ConstServiceServer).NameFull(ctx, req.(*pb.Name))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -424,7 +424,7 @@ func _ConstService_Delete_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _ConstService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListConstRequest)
+	in := new(ConstListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -436,13 +436,13 @@ func _ConstService_List_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: ConstService_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConstServiceServer).List(ctx, req.(*ListConstRequest))
+		return srv.(ConstServiceServer).List(ctx, req.(*ConstListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _ConstService_Clone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CloneConstRequest)
+	in := new(ConstCloneRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -454,7 +454,7 @@ func _ConstService_Clone_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: ConstService_Clone_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConstServiceServer).Clone(ctx, req.(*CloneConstRequest))
+		return srv.(ConstServiceServer).Clone(ctx, req.(*ConstCloneRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -514,7 +514,7 @@ func _ConstService_SetValueUnchecked_Handler(srv interface{}, ctx context.Contex
 }
 
 func _ConstService_GetValueByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetConstValueByNameRequest)
+	in := new(ConstGetValueByNameRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -526,7 +526,7 @@ func _ConstService_GetValueByName_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: ConstService_GetValueByName_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConstServiceServer).GetValueByName(ctx, req.(*GetConstValueByNameRequest))
+		return srv.(ConstServiceServer).GetValueByName(ctx, req.(*ConstGetValueByNameRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -586,7 +586,7 @@ func _ConstService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context,
 }
 
 func _ConstService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PullConstRequest)
+	in := new(ConstPullRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -598,7 +598,7 @@ func _ConstService_Pull_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: ConstService_Pull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConstServiceServer).Pull(ctx, req.(*PullConstRequest))
+		return srv.(ConstServiceServer).Pull(ctx, req.(*ConstPullRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -641,12 +641,12 @@ var ConstService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ConstService_View_Handler,
 		},
 		{
-			MethodName: "ViewByName",
-			Handler:    _ConstService_ViewByName_Handler,
+			MethodName: "Name",
+			Handler:    _ConstService_Name_Handler,
 		},
 		{
-			MethodName: "ViewByNameFull",
-			Handler:    _ConstService_ViewByNameFull_Handler,
+			MethodName: "NameFull",
+			Handler:    _ConstService_NameFull_Handler,
 		},
 		{
 			MethodName: "Delete",

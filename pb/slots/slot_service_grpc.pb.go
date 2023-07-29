@@ -33,7 +33,7 @@ type SlotServiceClient interface {
 	Login(ctx context.Context, in *LoginSlotRequest, opts ...grpc.CallOption) (*LoginSlotReply, error)
 	Update(ctx context.Context, in *pb.Slot, opts ...grpc.CallOption) (*pb.Slot, error)
 	View(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*pb.Slot, error)
-	Link(ctx context.Context, in *LinkSlotRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	Link(ctx context.Context, in *SlotLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type slotServiceClient struct {
@@ -71,7 +71,7 @@ func (c *slotServiceClient) View(ctx context.Context, in *pb.MyEmpty, opts ...gr
 	return out, nil
 }
 
-func (c *slotServiceClient) Link(ctx context.Context, in *LinkSlotRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *slotServiceClient) Link(ctx context.Context, in *SlotLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, SlotService_Link_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -87,7 +87,7 @@ type SlotServiceServer interface {
 	Login(context.Context, *LoginSlotRequest) (*LoginSlotReply, error)
 	Update(context.Context, *pb.Slot) (*pb.Slot, error)
 	View(context.Context, *pb.MyEmpty) (*pb.Slot, error)
-	Link(context.Context, *LinkSlotRequest) (*pb.MyBool, error)
+	Link(context.Context, *SlotLinkRequest) (*pb.MyBool, error)
 	mustEmbedUnimplementedSlotServiceServer()
 }
 
@@ -104,7 +104,7 @@ func (UnimplementedSlotServiceServer) Update(context.Context, *pb.Slot) (*pb.Slo
 func (UnimplementedSlotServiceServer) View(context.Context, *pb.MyEmpty) (*pb.Slot, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedSlotServiceServer) Link(context.Context, *LinkSlotRequest) (*pb.MyBool, error) {
+func (UnimplementedSlotServiceServer) Link(context.Context, *SlotLinkRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Link not implemented")
 }
 func (UnimplementedSlotServiceServer) mustEmbedUnimplementedSlotServiceServer() {}
@@ -175,7 +175,7 @@ func _SlotService_View_Handler(srv interface{}, ctx context.Context, dec func(in
 }
 
 func _SlotService_Link_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LinkSlotRequest)
+	in := new(SlotLinkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func _SlotService_Link_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: SlotService_Link_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SlotServiceServer).Link(ctx, req.(*LinkSlotRequest))
+		return srv.(SlotServiceServer).Link(ctx, req.(*SlotLinkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

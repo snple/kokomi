@@ -23,7 +23,7 @@ const (
 	SlotService_Create_FullMethodName          = "/edges.SlotService/Create"
 	SlotService_Update_FullMethodName          = "/edges.SlotService/Update"
 	SlotService_View_FullMethodName            = "/edges.SlotService/View"
-	SlotService_ViewByName_FullMethodName      = "/edges.SlotService/ViewByName"
+	SlotService_Name_FullMethodName            = "/edges.SlotService/Name"
 	SlotService_Delete_FullMethodName          = "/edges.SlotService/Delete"
 	SlotService_List_FullMethodName            = "/edges.SlotService/List"
 	SlotService_Link_FullMethodName            = "/edges.SlotService/Link"
@@ -40,13 +40,13 @@ type SlotServiceClient interface {
 	Create(ctx context.Context, in *pb.Slot, opts ...grpc.CallOption) (*pb.Slot, error)
 	Update(ctx context.Context, in *pb.Slot, opts ...grpc.CallOption) (*pb.Slot, error)
 	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Slot, error)
-	ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Slot, error)
+	Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Slot, error)
 	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	List(ctx context.Context, in *ListSlotRequest, opts ...grpc.CallOption) (*ListSlotResponse, error)
-	Link(ctx context.Context, in *LinkSlotRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
-	Clone(ctx context.Context, in *CloneSlotRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	List(ctx context.Context, in *SlotListRequest, opts ...grpc.CallOption) (*SlotListResponse, error)
+	Link(ctx context.Context, in *SlotLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	Clone(ctx context.Context, in *SlotCloneRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Slot, error)
-	Pull(ctx context.Context, in *PullSlotRequest, opts ...grpc.CallOption) (*PullSlotResponse, error)
+	Pull(ctx context.Context, in *SlotPullRequest, opts ...grpc.CallOption) (*SlotPullResponse, error)
 	Sync(ctx context.Context, in *pb.Slot, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
@@ -85,9 +85,9 @@ func (c *slotServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.Ca
 	return out, nil
 }
 
-func (c *slotServiceClient) ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Slot, error) {
+func (c *slotServiceClient) Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Slot, error) {
 	out := new(pb.Slot)
-	err := c.cc.Invoke(ctx, SlotService_ViewByName_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, SlotService_Name_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,8 +103,8 @@ func (c *slotServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grpc.
 	return out, nil
 }
 
-func (c *slotServiceClient) List(ctx context.Context, in *ListSlotRequest, opts ...grpc.CallOption) (*ListSlotResponse, error) {
-	out := new(ListSlotResponse)
+func (c *slotServiceClient) List(ctx context.Context, in *SlotListRequest, opts ...grpc.CallOption) (*SlotListResponse, error) {
+	out := new(SlotListResponse)
 	err := c.cc.Invoke(ctx, SlotService_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (c *slotServiceClient) List(ctx context.Context, in *ListSlotRequest, opts 
 	return out, nil
 }
 
-func (c *slotServiceClient) Link(ctx context.Context, in *LinkSlotRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *slotServiceClient) Link(ctx context.Context, in *SlotLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, SlotService_Link_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -121,7 +121,7 @@ func (c *slotServiceClient) Link(ctx context.Context, in *LinkSlotRequest, opts 
 	return out, nil
 }
 
-func (c *slotServiceClient) Clone(ctx context.Context, in *CloneSlotRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *slotServiceClient) Clone(ctx context.Context, in *SlotCloneRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, SlotService_Clone_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -139,8 +139,8 @@ func (c *slotServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, opts
 	return out, nil
 }
 
-func (c *slotServiceClient) Pull(ctx context.Context, in *PullSlotRequest, opts ...grpc.CallOption) (*PullSlotResponse, error) {
-	out := new(PullSlotResponse)
+func (c *slotServiceClient) Pull(ctx context.Context, in *SlotPullRequest, opts ...grpc.CallOption) (*SlotPullResponse, error) {
+	out := new(SlotPullResponse)
 	err := c.cc.Invoke(ctx, SlotService_Pull_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -164,13 +164,13 @@ type SlotServiceServer interface {
 	Create(context.Context, *pb.Slot) (*pb.Slot, error)
 	Update(context.Context, *pb.Slot) (*pb.Slot, error)
 	View(context.Context, *pb.Id) (*pb.Slot, error)
-	ViewByName(context.Context, *pb.Name) (*pb.Slot, error)
+	Name(context.Context, *pb.Name) (*pb.Slot, error)
 	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
-	List(context.Context, *ListSlotRequest) (*ListSlotResponse, error)
-	Link(context.Context, *LinkSlotRequest) (*pb.MyBool, error)
-	Clone(context.Context, *CloneSlotRequest) (*pb.MyBool, error)
+	List(context.Context, *SlotListRequest) (*SlotListResponse, error)
+	Link(context.Context, *SlotLinkRequest) (*pb.MyBool, error)
+	Clone(context.Context, *SlotCloneRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Slot, error)
-	Pull(context.Context, *PullSlotRequest) (*PullSlotResponse, error)
+	Pull(context.Context, *SlotPullRequest) (*SlotPullResponse, error)
 	Sync(context.Context, *pb.Slot) (*pb.MyBool, error)
 	mustEmbedUnimplementedSlotServiceServer()
 }
@@ -188,25 +188,25 @@ func (UnimplementedSlotServiceServer) Update(context.Context, *pb.Slot) (*pb.Slo
 func (UnimplementedSlotServiceServer) View(context.Context, *pb.Id) (*pb.Slot, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedSlotServiceServer) ViewByName(context.Context, *pb.Name) (*pb.Slot, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewByName not implemented")
+func (UnimplementedSlotServiceServer) Name(context.Context, *pb.Name) (*pb.Slot, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
 func (UnimplementedSlotServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedSlotServiceServer) List(context.Context, *ListSlotRequest) (*ListSlotResponse, error) {
+func (UnimplementedSlotServiceServer) List(context.Context, *SlotListRequest) (*SlotListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedSlotServiceServer) Link(context.Context, *LinkSlotRequest) (*pb.MyBool, error) {
+func (UnimplementedSlotServiceServer) Link(context.Context, *SlotLinkRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Link not implemented")
 }
-func (UnimplementedSlotServiceServer) Clone(context.Context, *CloneSlotRequest) (*pb.MyBool, error) {
+func (UnimplementedSlotServiceServer) Clone(context.Context, *SlotCloneRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Clone not implemented")
 }
 func (UnimplementedSlotServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Slot, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
 }
-func (UnimplementedSlotServiceServer) Pull(context.Context, *PullSlotRequest) (*PullSlotResponse, error) {
+func (UnimplementedSlotServiceServer) Pull(context.Context, *SlotPullRequest) (*SlotPullResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
 }
 func (UnimplementedSlotServiceServer) Sync(context.Context, *pb.Slot) (*pb.MyBool, error) {
@@ -279,20 +279,20 @@ func _SlotService_View_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SlotService_ViewByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SlotService_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SlotServiceServer).ViewByName(ctx, in)
+		return srv.(SlotServiceServer).Name(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SlotService_ViewByName_FullMethodName,
+		FullMethod: SlotService_Name_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SlotServiceServer).ViewByName(ctx, req.(*pb.Name))
+		return srv.(SlotServiceServer).Name(ctx, req.(*pb.Name))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -316,7 +316,7 @@ func _SlotService_Delete_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _SlotService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListSlotRequest)
+	in := new(SlotListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -328,13 +328,13 @@ func _SlotService_List_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: SlotService_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SlotServiceServer).List(ctx, req.(*ListSlotRequest))
+		return srv.(SlotServiceServer).List(ctx, req.(*SlotListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _SlotService_Link_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LinkSlotRequest)
+	in := new(SlotLinkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -346,13 +346,13 @@ func _SlotService_Link_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: SlotService_Link_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SlotServiceServer).Link(ctx, req.(*LinkSlotRequest))
+		return srv.(SlotServiceServer).Link(ctx, req.(*SlotLinkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _SlotService_Clone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CloneSlotRequest)
+	in := new(SlotCloneRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -364,7 +364,7 @@ func _SlotService_Clone_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: SlotService_Clone_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SlotServiceServer).Clone(ctx, req.(*CloneSlotRequest))
+		return srv.(SlotServiceServer).Clone(ctx, req.(*SlotCloneRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -388,7 +388,7 @@ func _SlotService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _SlotService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PullSlotRequest)
+	in := new(SlotPullRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -400,7 +400,7 @@ func _SlotService_Pull_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: SlotService_Pull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SlotServiceServer).Pull(ctx, req.(*PullSlotRequest))
+		return srv.(SlotServiceServer).Pull(ctx, req.(*SlotPullRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -443,8 +443,8 @@ var SlotService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SlotService_View_Handler,
 		},
 		{
-			MethodName: "ViewByName",
-			Handler:    _SlotService_ViewByName_Handler,
+			MethodName: "Name",
+			Handler:    _SlotService_Name_Handler,
 		},
 		{
 			MethodName: "Delete",

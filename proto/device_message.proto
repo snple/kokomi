@@ -9,12 +9,13 @@ message Device {
     string desc = 3;
     string tags = 4;
     string type = 5;
-    string secret = 6;
-    string location = 7;
-    string config = 8;
-    sint32 link = 9;
-    sint32 status = 10;
-    int64 created = 11;
-    int64 updated = 12;
-    int64 deleted = 13;
+    string arch = 6;
+    string secret = 7;
+    string location = 8;
+    string config = 9;
+    sint32 link = 10;
+    sint32 status = 11;
+    int64 created = 12;
+    int64 updated = 13;
+    int64 deleted = 14;
 }

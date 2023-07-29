@@ -185,7 +185,7 @@ func (s *ProxyService) View(ctx context.Context, in *pb.Id) (*pb.Proxy, error) {
 	return &output, nil
 }
 
-func (s *ProxyService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Proxy, error) {
+func (s *ProxyService) Name(ctx context.Context, in *pb.Name) (*pb.Proxy, error) {
 	var output pb.Proxy
 	var err error
 
@@ -247,9 +247,9 @@ func (s *ProxyService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Proxy, 
 // 	return &output, nil
 // }
 
-func (s *ProxyService) List(ctx context.Context, in *edges.ListProxyRequest) (*edges.ListProxyResponse, error) {
+func (s *ProxyService) List(ctx context.Context, in *edges.ProxyListRequest) (*edges.ProxyListResponse, error) {
 	var err error
-	var output edges.ListProxyResponse
+	var output edges.ProxyListResponse
 
 	// basic validation
 	{
@@ -333,7 +333,7 @@ func (s *ProxyService) List(ctx context.Context, in *edges.ListProxyRequest) (*e
 	return &output, nil
 }
 
-func (s *ProxyService) Link(ctx context.Context, in *edges.LinkProxyRequest) (*pb.MyBool, error) {
+func (s *ProxyService) Link(ctx context.Context, in *edges.ProxyLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -356,7 +356,7 @@ func (s *ProxyService) Link(ctx context.Context, in *edges.LinkProxyRequest) (*p
 			node := option.Unwrap()
 
 			ctx := node.SetToken(context.Background())
-			request := &nodes.LinkProxyRequest{Id: in.GetId(), Status: in.GetStatus()}
+			request := &nodes.ProxyLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 			_, err := node.ProxyServiceClient().Link(ctx, request)
 			if err != nil {
 				return &output, err
@@ -369,7 +369,7 @@ func (s *ProxyService) Link(ctx context.Context, in *edges.LinkProxyRequest) (*p
 	return &output, nil
 }
 
-func (s *ProxyService) Clone(ctx context.Context, in *edges.CloneProxyRequest) (*pb.MyBool, error) {
+func (s *ProxyService) Clone(ctx context.Context, in *edges.ProxyCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -395,7 +395,7 @@ func (s *ProxyService) Clone(ctx context.Context, in *edges.CloneProxyRequest) (
 		}
 	}()
 
-	err = s.es.getClone().cloneProxy(ctx, tx, in.GetId())
+	err = s.es.getClone().proxy(ctx, tx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -536,9 +536,9 @@ func (s *ProxyService) viewWithDeleted(ctx context.Context, id string) (model.Pr
 	return item, nil
 }
 
-func (s *ProxyService) Pull(ctx context.Context, in *edges.PullProxyRequest) (*edges.PullProxyResponse, error) {
+func (s *ProxyService) Pull(ctx context.Context, in *edges.ProxyPullRequest) (*edges.ProxyPullResponse, error) {
 	var err error
-	var output edges.PullProxyResponse
+	var output edges.ProxyPullResponse
 
 	// basic validation
 	{

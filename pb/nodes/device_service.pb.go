@@ -21,7 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type LoginDeviceRequest struct {
+type DeviceLoginRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -31,8 +31,8 @@ type LoginDeviceRequest struct {
 	Secret string `protobuf:"bytes,3,opt,name=secret,proto3" json:"secret,omitempty"`
 }
 
-func (x *LoginDeviceRequest) Reset() {
-	*x = LoginDeviceRequest{}
+func (x *DeviceLoginRequest) Reset() {
+	*x = DeviceLoginRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_nodes_device_service_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -40,13 +40,13 @@ func (x *LoginDeviceRequest) Reset() {
 	}
 }
 
-func (x *LoginDeviceRequest) String() string {
+func (x *DeviceLoginRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*LoginDeviceRequest) ProtoMessage() {}
+func (*DeviceLoginRequest) ProtoMessage() {}
 
-func (x *LoginDeviceRequest) ProtoReflect() protoreflect.Message {
+func (x *DeviceLoginRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_nodes_device_service_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -58,33 +58,33 @@ func (x *LoginDeviceRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use LoginDeviceRequest.ProtoReflect.Descriptor instead.
-func (*LoginDeviceRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeviceLoginRequest.ProtoReflect.Descriptor instead.
+func (*DeviceLoginRequest) Descriptor() ([]byte, []int) {
 	return file_nodes_device_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *LoginDeviceRequest) GetId() string {
+func (x *DeviceLoginRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *LoginDeviceRequest) GetAccess() string {
+func (x *DeviceLoginRequest) GetAccess() string {
 	if x != nil {
 		return x.Access
 	}
 	return ""
 }
 
-func (x *LoginDeviceRequest) GetSecret() string {
+func (x *DeviceLoginRequest) GetSecret() string {
 	if x != nil {
 		return x.Secret
 	}
 	return ""
 }
 
-type LoginDeviceReply struct {
+type DeviceLoginReply struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -93,8 +93,8 @@ type LoginDeviceReply struct {
 	Token string `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
 }
 
-func (x *LoginDeviceReply) Reset() {
-	*x = LoginDeviceReply{}
+func (x *DeviceLoginReply) Reset() {
+	*x = DeviceLoginReply{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_nodes_device_service_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -102,13 +102,13 @@ func (x *LoginDeviceReply) Reset() {
 	}
 }
 
-func (x *LoginDeviceReply) String() string {
+func (x *DeviceLoginReply) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*LoginDeviceReply) ProtoMessage() {}
+func (*DeviceLoginReply) ProtoMessage() {}
 
-func (x *LoginDeviceReply) ProtoReflect() protoreflect.Message {
+func (x *DeviceLoginReply) ProtoReflect() protoreflect.Message {
 	mi := &file_nodes_device_service_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -120,26 +120,26 @@ func (x *LoginDeviceReply) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use LoginDeviceReply.ProtoReflect.Descriptor instead.
-func (*LoginDeviceReply) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeviceLoginReply.ProtoReflect.Descriptor instead.
+func (*DeviceLoginReply) Descriptor() ([]byte, []int) {
 	return file_nodes_device_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *LoginDeviceReply) GetId() string {
+func (x *DeviceLoginReply) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *LoginDeviceReply) GetToken() string {
+func (x *DeviceLoginReply) GetToken() string {
 	if x != nil {
 		return x.Token
 	}
 	return ""
 }
 
-type LinkDeviceRequest struct {
+type DeviceLinkRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -148,8 +148,8 @@ type LinkDeviceRequest struct {
 	Status int32 `protobuf:"zigzag32,2,opt,name=status,proto3" json:"status,omitempty"`
 }
 
-func (x *LinkDeviceRequest) Reset() {
-	*x = LinkDeviceRequest{}
+func (x *DeviceLinkRequest) Reset() {
+	*x = DeviceLinkRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_nodes_device_service_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -157,13 +157,13 @@ func (x *LinkDeviceRequest) Reset() {
 	}
 }
 
-func (x *LinkDeviceRequest) String() string {
+func (x *DeviceLinkRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*LinkDeviceRequest) ProtoMessage() {}
+func (*DeviceLinkRequest) ProtoMessage() {}
 
-func (x *LinkDeviceRequest) ProtoReflect() protoreflect.Message {
+func (x *DeviceLinkRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_nodes_device_service_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -175,12 +175,12 @@ func (x *LinkDeviceRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use LinkDeviceRequest.ProtoReflect.Descriptor instead.
-func (*LinkDeviceRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeviceLinkRequest.ProtoReflect.Descriptor instead.
+func (*DeviceLinkRequest) Descriptor() ([]byte, []int) {
 	return file_nodes_device_service_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *LinkDeviceRequest) GetStatus() int32 {
+func (x *DeviceLinkRequest) GetStatus() int32 {
 	if x != nil {
 		return x.Status
 	}
@@ -195,29 +195,29 @@ var file_nodes_device_service_proto_rawDesc = []byte{
 	0x64, 0x65, 0x73, 0x1a, 0x14, 0x64, 0x65, 0x76, 0x69, 0x63, 0x65, 0x5f, 0x6d, 0x65, 0x73, 0x73,
 	0x61, 0x67, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x15, 0x67, 0x65, 0x6e, 0x65, 0x72,
 	0x69, 0x63, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x22, 0x54, 0x0a, 0x12, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65, 0x52,
+	0x22, 0x54, 0x0a, 0x12, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x52,
 	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
 	0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73,
 	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x16,
 	0x0a, 0x06, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06,
-	0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x22, 0x38, 0x0a, 0x10, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x44,
-	0x65, 0x76, 0x69, 0x63, 0x65, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64,
+	0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x22, 0x38, 0x0a, 0x10, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65,
+	0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64,
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x6f,
 	0x6b, 0x65, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x6f, 0x6b, 0x65, 0x6e,
-	0x22, 0x2b, 0x0a, 0x11, 0x4c, 0x69, 0x6e, 0x6b, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65, 0x52, 0x65,
+	0x22, 0x2b, 0x0a, 0x11, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65, 0x4c, 0x69, 0x6e, 0x6b, 0x52, 0x65,
 	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18,
 	0x02, 0x20, 0x01, 0x28, 0x11, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x32, 0x95, 0x02,
 	0x0a, 0x0d, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12,
 	0x3d, 0x0a, 0x05, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x12, 0x19, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x73,
-	0x2e, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x73, 0x2e, 0x4c, 0x6f, 0x67, 0x69,
-	0x6e, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x12, 0x22,
+	0x2e, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x73, 0x2e, 0x44, 0x65, 0x76, 0x69,
+	0x63, 0x65, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x12, 0x22,
 	0x0a, 0x06, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x0a, 0x2e, 0x70, 0x62, 0x2e, 0x44, 0x65,
 	0x76, 0x69, 0x63, 0x65, 0x1a, 0x0a, 0x2e, 0x70, 0x62, 0x2e, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65,
 	0x22, 0x00, 0x12, 0x21, 0x0a, 0x04, 0x56, 0x69, 0x65, 0x77, 0x12, 0x0b, 0x2e, 0x70, 0x62, 0x2e,
 	0x4d, 0x79, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x0a, 0x2e, 0x70, 0x62, 0x2e, 0x44, 0x65, 0x76,
 	0x69, 0x63, 0x65, 0x22, 0x00, 0x12, 0x2e, 0x0a, 0x04, 0x4c, 0x69, 0x6e, 0x6b, 0x12, 0x18, 0x2e,
-	0x6e, 0x6f, 0x64, 0x65, 0x73, 0x2e, 0x4c, 0x69, 0x6e, 0x6b, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65,
+	0x6e, 0x6f, 0x64, 0x65, 0x73, 0x2e, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65, 0x4c, 0x69, 0x6e, 0x6b,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0a, 0x2e, 0x70, 0x62, 0x2e, 0x4d, 0x79, 0x42,
 	0x6f, 0x6f, 0x6c, 0x22, 0x00, 0x12, 0x2c, 0x0a, 0x0f, 0x56, 0x69, 0x65, 0x77, 0x57, 0x69, 0x74,
 	0x68, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x64, 0x12, 0x0b, 0x2e, 0x70, 0x62, 0x2e, 0x4d, 0x79,
@@ -244,21 +244,21 @@ func file_nodes_device_service_proto_rawDescGZIP() []byte {
 
 var file_nodes_device_service_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_nodes_device_service_proto_goTypes = []interface{}{
-	(*LoginDeviceRequest)(nil), // 0: nodes.LoginDeviceRequest
-	(*LoginDeviceReply)(nil),   // 1: nodes.LoginDeviceReply
-	(*LinkDeviceRequest)(nil),  // 2: nodes.LinkDeviceRequest
+	(*DeviceLoginRequest)(nil), // 0: nodes.DeviceLoginRequest
+	(*DeviceLoginReply)(nil),   // 1: nodes.DeviceLoginReply
+	(*DeviceLinkRequest)(nil),  // 2: nodes.DeviceLinkRequest
 	(*pb.Device)(nil),          // 3: pb.Device
 	(*pb.MyEmpty)(nil),         // 4: pb.MyEmpty
 	(*pb.MyBool)(nil),          // 5: pb.MyBool
 }
 var file_nodes_device_service_proto_depIdxs = []int32{
-	0, // 0: nodes.DeviceService.Login:input_type -> nodes.LoginDeviceRequest
+	0, // 0: nodes.DeviceService.Login:input_type -> nodes.DeviceLoginRequest
 	3, // 1: nodes.DeviceService.Update:input_type -> pb.Device
 	4, // 2: nodes.DeviceService.View:input_type -> pb.MyEmpty
-	2, // 3: nodes.DeviceService.Link:input_type -> nodes.LinkDeviceRequest
+	2, // 3: nodes.DeviceService.Link:input_type -> nodes.DeviceLinkRequest
 	4, // 4: nodes.DeviceService.ViewWithDeleted:input_type -> pb.MyEmpty
 	3, // 5: nodes.DeviceService.Sync:input_type -> pb.Device
-	1, // 6: nodes.DeviceService.Login:output_type -> nodes.LoginDeviceReply
+	1, // 6: nodes.DeviceService.Login:output_type -> nodes.DeviceLoginReply
 	3, // 7: nodes.DeviceService.Update:output_type -> pb.Device
 	3, // 8: nodes.DeviceService.View:output_type -> pb.Device
 	5, // 9: nodes.DeviceService.Link:output_type -> pb.MyBool
@@ -278,7 +278,7 @@ func file_nodes_device_service_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_nodes_device_service_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*LoginDeviceRequest); i {
+			switch v := v.(*DeviceLoginRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -290,7 +290,7 @@ func file_nodes_device_service_proto_init() {
 			}
 		}
 		file_nodes_device_service_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*LoginDeviceReply); i {
+			switch v := v.(*DeviceLoginReply); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -302,7 +302,7 @@ func file_nodes_device_service_proto_init() {
 			}
 		}
 		file_nodes_device_service_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*LinkDeviceRequest); i {
+			switch v := v.(*DeviceLinkRequest); i {
 			case 0:
 				return &v.state
 			case 1:

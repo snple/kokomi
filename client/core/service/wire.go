@@ -18,7 +18,7 @@ func WireList(ctx context.Context, client cores.WireServiceClient) {
 		OrderBy: "name",
 	}
 
-	request := &cores.ListWireRequest{
+	request := &cores.WireListRequest{
 		Page: &page,
 		// DeviceId: "018383b2f2782ae48c0dabc0",
 		// CableId: "01876f39d884856f39ecc199",
@@ -45,9 +45,9 @@ func WireView(ctx context.Context, client cores.WireServiceClient) {
 }
 
 func WireViewByName(ctx context.Context, client cores.WireServiceClient) {
-	request := &cores.ViewWireByNameRequest{Name: "Wire"}
+	request := &cores.WireNameRequest{Name: "Wire"}
 
-	reply, err := client.ViewByName(ctx, request)
+	reply, err := client.Name(ctx, request)
 
 	if err != nil {
 		log.Fatalf("Error when calling grpc service: %s", err)
@@ -58,7 +58,7 @@ func WireViewByName(ctx context.Context, client cores.WireServiceClient) {
 func WireViewByNameFull(ctx context.Context, client cores.WireServiceClient) {
 	request := &pb.Name{Name: "device1.source1.TX"}
 
-	reply, err := client.ViewByNameFull(ctx, request)
+	reply, err := client.NameFull(ctx, request)
 
 	if err != nil {
 		log.Fatalf("Error when calling grpc service: %s", err)
@@ -142,7 +142,7 @@ func WireSetValue(ctx context.Context, client cores.WireServiceClient) {
 }
 
 func WireGetValueByName(ctx context.Context, client cores.WireServiceClient) {
-	request := &cores.GetWireValueByNameRequest{
+	request := &cores.WireGetValueByNameRequest{
 		DeviceId: "018383b2f2782ae48c0dabc0",
 		Name:     "source1.P5_ME17_VAL",
 	}

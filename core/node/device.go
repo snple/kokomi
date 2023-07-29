@@ -25,8 +25,8 @@ func newDeviceService(ns *NodeService) *DeviceService {
 	}
 }
 
-func (s *DeviceService) Login(ctx context.Context, in *nodes.LoginDeviceRequest) (*nodes.LoginDeviceReply, error) {
-	var output nodes.LoginDeviceReply
+func (s *DeviceService) Login(ctx context.Context, in *nodes.DeviceLoginRequest) (*nodes.DeviceLoginReply, error) {
+	var output nodes.DeviceLoginReply
 
 	// basic validation
 	{
@@ -149,7 +149,7 @@ func (s *DeviceService) View(ctx context.Context, in *pb.MyEmpty) (*pb.Device, e
 	return reply, err
 }
 
-func (s *DeviceService) Link(ctx context.Context, in *nodes.LinkDeviceRequest) (*pb.MyBool, error) {
+func (s *DeviceService) Link(ctx context.Context, in *nodes.DeviceLinkRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -165,7 +165,7 @@ func (s *DeviceService) Link(ctx context.Context, in *nodes.LinkDeviceRequest) (
 		return &output, err
 	}
 
-	request := &cores.LinkDeviceRequest{Id: deviceID, Status: in.GetStatus()}
+	request := &cores.DeviceLinkRequest{Id: deviceID, Status: in.GetStatus()}
 
 	return s.ns.Core().GetDevice().Link(ctx, request)
 }

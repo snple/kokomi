@@ -23,7 +23,7 @@ const (
 	SourceService_Create_FullMethodName          = "/nodes.SourceService/Create"
 	SourceService_Update_FullMethodName          = "/nodes.SourceService/Update"
 	SourceService_View_FullMethodName            = "/nodes.SourceService/View"
-	SourceService_ViewByName_FullMethodName      = "/nodes.SourceService/ViewByName"
+	SourceService_Name_FullMethodName            = "/nodes.SourceService/Name"
 	SourceService_Delete_FullMethodName          = "/nodes.SourceService/Delete"
 	SourceService_List_FullMethodName            = "/nodes.SourceService/List"
 	SourceService_Link_FullMethodName            = "/nodes.SourceService/Link"
@@ -39,12 +39,12 @@ type SourceServiceClient interface {
 	Create(ctx context.Context, in *pb.Source, opts ...grpc.CallOption) (*pb.Source, error)
 	Update(ctx context.Context, in *pb.Source, opts ...grpc.CallOption) (*pb.Source, error)
 	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Source, error)
-	ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Source, error)
+	Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Source, error)
 	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	List(ctx context.Context, in *ListSourceRequest, opts ...grpc.CallOption) (*ListSourceResponse, error)
-	Link(ctx context.Context, in *LinkSourceRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	List(ctx context.Context, in *SourceListRequest, opts ...grpc.CallOption) (*SourceListResponse, error)
+	Link(ctx context.Context, in *SourceLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Source, error)
-	Pull(ctx context.Context, in *PullSourceRequest, opts ...grpc.CallOption) (*PullSourceResponse, error)
+	Pull(ctx context.Context, in *SourcePullRequest, opts ...grpc.CallOption) (*SourcePullResponse, error)
 	Sync(ctx context.Context, in *pb.Source, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
@@ -83,9 +83,9 @@ func (c *sourceServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.
 	return out, nil
 }
 
-func (c *sourceServiceClient) ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Source, error) {
+func (c *sourceServiceClient) Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Source, error) {
 	out := new(pb.Source)
-	err := c.cc.Invoke(ctx, SourceService_ViewByName_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, SourceService_Name_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +101,8 @@ func (c *sourceServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grp
 	return out, nil
 }
 
-func (c *sourceServiceClient) List(ctx context.Context, in *ListSourceRequest, opts ...grpc.CallOption) (*ListSourceResponse, error) {
-	out := new(ListSourceResponse)
+func (c *sourceServiceClient) List(ctx context.Context, in *SourceListRequest, opts ...grpc.CallOption) (*SourceListResponse, error) {
+	out := new(SourceListResponse)
 	err := c.cc.Invoke(ctx, SourceService_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -110,7 +110,7 @@ func (c *sourceServiceClient) List(ctx context.Context, in *ListSourceRequest, o
 	return out, nil
 }
 
-func (c *sourceServiceClient) Link(ctx context.Context, in *LinkSourceRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *sourceServiceClient) Link(ctx context.Context, in *SourceLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, SourceService_Link_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -128,8 +128,8 @@ func (c *sourceServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, op
 	return out, nil
 }
 
-func (c *sourceServiceClient) Pull(ctx context.Context, in *PullSourceRequest, opts ...grpc.CallOption) (*PullSourceResponse, error) {
-	out := new(PullSourceResponse)
+func (c *sourceServiceClient) Pull(ctx context.Context, in *SourcePullRequest, opts ...grpc.CallOption) (*SourcePullResponse, error) {
+	out := new(SourcePullResponse)
 	err := c.cc.Invoke(ctx, SourceService_Pull_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -153,12 +153,12 @@ type SourceServiceServer interface {
 	Create(context.Context, *pb.Source) (*pb.Source, error)
 	Update(context.Context, *pb.Source) (*pb.Source, error)
 	View(context.Context, *pb.Id) (*pb.Source, error)
-	ViewByName(context.Context, *pb.Name) (*pb.Source, error)
+	Name(context.Context, *pb.Name) (*pb.Source, error)
 	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
-	List(context.Context, *ListSourceRequest) (*ListSourceResponse, error)
-	Link(context.Context, *LinkSourceRequest) (*pb.MyBool, error)
+	List(context.Context, *SourceListRequest) (*SourceListResponse, error)
+	Link(context.Context, *SourceLinkRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Source, error)
-	Pull(context.Context, *PullSourceRequest) (*PullSourceResponse, error)
+	Pull(context.Context, *SourcePullRequest) (*SourcePullResponse, error)
 	Sync(context.Context, *pb.Source) (*pb.MyBool, error)
 	mustEmbedUnimplementedSourceServiceServer()
 }
@@ -176,22 +176,22 @@ func (UnimplementedSourceServiceServer) Update(context.Context, *pb.Source) (*pb
 func (UnimplementedSourceServiceServer) View(context.Context, *pb.Id) (*pb.Source, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedSourceServiceServer) ViewByName(context.Context, *pb.Name) (*pb.Source, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewByName not implemented")
+func (UnimplementedSourceServiceServer) Name(context.Context, *pb.Name) (*pb.Source, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
 func (UnimplementedSourceServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedSourceServiceServer) List(context.Context, *ListSourceRequest) (*ListSourceResponse, error) {
+func (UnimplementedSourceServiceServer) List(context.Context, *SourceListRequest) (*SourceListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedSourceServiceServer) Link(context.Context, *LinkSourceRequest) (*pb.MyBool, error) {
+func (UnimplementedSourceServiceServer) Link(context.Context, *SourceLinkRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Link not implemented")
 }
 func (UnimplementedSourceServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Source, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
 }
-func (UnimplementedSourceServiceServer) Pull(context.Context, *PullSourceRequest) (*PullSourceResponse, error) {
+func (UnimplementedSourceServiceServer) Pull(context.Context, *SourcePullRequest) (*SourcePullResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
 }
 func (UnimplementedSourceServiceServer) Sync(context.Context, *pb.Source) (*pb.MyBool, error) {
@@ -264,20 +264,20 @@ func _SourceService_View_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SourceService_ViewByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SourceService_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SourceServiceServer).ViewByName(ctx, in)
+		return srv.(SourceServiceServer).Name(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SourceService_ViewByName_FullMethodName,
+		FullMethod: SourceService_Name_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SourceServiceServer).ViewByName(ctx, req.(*pb.Name))
+		return srv.(SourceServiceServer).Name(ctx, req.(*pb.Name))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -301,7 +301,7 @@ func _SourceService_Delete_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _SourceService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListSourceRequest)
+	in := new(SourceListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -313,13 +313,13 @@ func _SourceService_List_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: SourceService_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SourceServiceServer).List(ctx, req.(*ListSourceRequest))
+		return srv.(SourceServiceServer).List(ctx, req.(*SourceListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _SourceService_Link_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LinkSourceRequest)
+	in := new(SourceLinkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -331,7 +331,7 @@ func _SourceService_Link_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: SourceService_Link_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SourceServiceServer).Link(ctx, req.(*LinkSourceRequest))
+		return srv.(SourceServiceServer).Link(ctx, req.(*SourceLinkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -355,7 +355,7 @@ func _SourceService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context
 }
 
 func _SourceService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PullSourceRequest)
+	in := new(SourcePullRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -367,7 +367,7 @@ func _SourceService_Pull_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: SourceService_Pull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SourceServiceServer).Pull(ctx, req.(*PullSourceRequest))
+		return srv.(SourceServiceServer).Pull(ctx, req.(*SourcePullRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -410,8 +410,8 @@ var SourceService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SourceService_View_Handler,
 		},
 		{
-			MethodName: "ViewByName",
-			Handler:    _SourceService_ViewByName_Handler,
+			MethodName: "Name",
+			Handler:    _SourceService_Name_Handler,
 		},
 		{
 			MethodName: "Delete",
@@ -446,7 +446,7 @@ const (
 	TagService_Create_FullMethodName                  = "/nodes.TagService/Create"
 	TagService_Update_FullMethodName                  = "/nodes.TagService/Update"
 	TagService_View_FullMethodName                    = "/nodes.TagService/View"
-	TagService_ViewByName_FullMethodName              = "/nodes.TagService/ViewByName"
+	TagService_Name_FullMethodName                    = "/nodes.TagService/Name"
 	TagService_Delete_FullMethodName                  = "/nodes.TagService/Delete"
 	TagService_List_FullMethodName                    = "/nodes.TagService/List"
 	TagService_GetValue_FullMethodName                = "/nodes.TagService/GetValue"
@@ -471,9 +471,9 @@ type TagServiceClient interface {
 	Create(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.Tag, error)
 	Update(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.Tag, error)
 	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Tag, error)
-	ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Tag, error)
+	Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Tag, error)
 	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	List(ctx context.Context, in *ListTagRequest, opts ...grpc.CallOption) (*ListTagResponse, error)
+	List(ctx context.Context, in *TagListRequest, opts ...grpc.CallOption) (*TagListResponse, error)
 	GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValue, error)
 	SetValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueUnchecked(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
@@ -481,11 +481,11 @@ type TagServiceClient interface {
 	SetValueByName(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueByNameUnchecked(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Tag, error)
-	Pull(ctx context.Context, in *PullTagRequest, opts ...grpc.CallOption) (*PullTagResponse, error)
+	Pull(ctx context.Context, in *TagPullRequest, opts ...grpc.CallOption) (*TagPullResponse, error)
 	Sync(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValueUpdated, error)
 	DeleteValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	PullValue(ctx context.Context, in *PullTagValueRequest, opts ...grpc.CallOption) (*PullTagValueResponse, error)
+	PullValue(ctx context.Context, in *TagPullValueRequest, opts ...grpc.CallOption) (*TagPullValueResponse, error)
 	SyncValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
@@ -524,9 +524,9 @@ func (c *tagServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *tagServiceClient) ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Tag, error) {
+func (c *tagServiceClient) Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Tag, error) {
 	out := new(pb.Tag)
-	err := c.cc.Invoke(ctx, TagService_ViewByName_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, TagService_Name_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -542,8 +542,8 @@ func (c *tagServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grpc.C
 	return out, nil
 }
 
-func (c *tagServiceClient) List(ctx context.Context, in *ListTagRequest, opts ...grpc.CallOption) (*ListTagResponse, error) {
-	out := new(ListTagResponse)
+func (c *tagServiceClient) List(ctx context.Context, in *TagListRequest, opts ...grpc.CallOption) (*TagListResponse, error) {
+	out := new(TagListResponse)
 	err := c.cc.Invoke(ctx, TagService_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -614,8 +614,8 @@ func (c *tagServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, opts 
 	return out, nil
 }
 
-func (c *tagServiceClient) Pull(ctx context.Context, in *PullTagRequest, opts ...grpc.CallOption) (*PullTagResponse, error) {
-	out := new(PullTagResponse)
+func (c *tagServiceClient) Pull(ctx context.Context, in *TagPullRequest, opts ...grpc.CallOption) (*TagPullResponse, error) {
+	out := new(TagPullResponse)
 	err := c.cc.Invoke(ctx, TagService_Pull_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -650,8 +650,8 @@ func (c *tagServiceClient) DeleteValue(ctx context.Context, in *pb.Id, opts ...g
 	return out, nil
 }
 
-func (c *tagServiceClient) PullValue(ctx context.Context, in *PullTagValueRequest, opts ...grpc.CallOption) (*PullTagValueResponse, error) {
-	out := new(PullTagValueResponse)
+func (c *tagServiceClient) PullValue(ctx context.Context, in *TagPullValueRequest, opts ...grpc.CallOption) (*TagPullValueResponse, error) {
+	out := new(TagPullValueResponse)
 	err := c.cc.Invoke(ctx, TagService_PullValue_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -675,9 +675,9 @@ type TagServiceServer interface {
 	Create(context.Context, *pb.Tag) (*pb.Tag, error)
 	Update(context.Context, *pb.Tag) (*pb.Tag, error)
 	View(context.Context, *pb.Id) (*pb.Tag, error)
-	ViewByName(context.Context, *pb.Name) (*pb.Tag, error)
+	Name(context.Context, *pb.Name) (*pb.Tag, error)
 	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
-	List(context.Context, *ListTagRequest) (*ListTagResponse, error)
+	List(context.Context, *TagListRequest) (*TagListResponse, error)
 	GetValue(context.Context, *pb.Id) (*pb.TagValue, error)
 	SetValue(context.Context, *pb.TagValue) (*pb.MyBool, error)
 	SetValueUnchecked(context.Context, *pb.TagValue) (*pb.MyBool, error)
@@ -685,11 +685,11 @@ type TagServiceServer interface {
 	SetValueByName(context.Context, *pb.TagNameValue) (*pb.MyBool, error)
 	SetValueByNameUnchecked(context.Context, *pb.TagNameValue) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Tag, error)
-	Pull(context.Context, *PullTagRequest) (*PullTagResponse, error)
+	Pull(context.Context, *TagPullRequest) (*TagPullResponse, error)
 	Sync(context.Context, *pb.Tag) (*pb.MyBool, error)
 	ViewValue(context.Context, *pb.Id) (*pb.TagValueUpdated, error)
 	DeleteValue(context.Context, *pb.Id) (*pb.MyBool, error)
-	PullValue(context.Context, *PullTagValueRequest) (*PullTagValueResponse, error)
+	PullValue(context.Context, *TagPullValueRequest) (*TagPullValueResponse, error)
 	SyncValue(context.Context, *pb.TagValue) (*pb.MyBool, error)
 	mustEmbedUnimplementedTagServiceServer()
 }
@@ -707,13 +707,13 @@ func (UnimplementedTagServiceServer) Update(context.Context, *pb.Tag) (*pb.Tag, 
 func (UnimplementedTagServiceServer) View(context.Context, *pb.Id) (*pb.Tag, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedTagServiceServer) ViewByName(context.Context, *pb.Name) (*pb.Tag, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewByName not implemented")
+func (UnimplementedTagServiceServer) Name(context.Context, *pb.Name) (*pb.Tag, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
 func (UnimplementedTagServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedTagServiceServer) List(context.Context, *ListTagRequest) (*ListTagResponse, error) {
+func (UnimplementedTagServiceServer) List(context.Context, *TagListRequest) (*TagListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedTagServiceServer) GetValue(context.Context, *pb.Id) (*pb.TagValue, error) {
@@ -737,7 +737,7 @@ func (UnimplementedTagServiceServer) SetValueByNameUnchecked(context.Context, *p
 func (UnimplementedTagServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Tag, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
 }
-func (UnimplementedTagServiceServer) Pull(context.Context, *PullTagRequest) (*PullTagResponse, error) {
+func (UnimplementedTagServiceServer) Pull(context.Context, *TagPullRequest) (*TagPullResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
 }
 func (UnimplementedTagServiceServer) Sync(context.Context, *pb.Tag) (*pb.MyBool, error) {
@@ -749,7 +749,7 @@ func (UnimplementedTagServiceServer) ViewValue(context.Context, *pb.Id) (*pb.Tag
 func (UnimplementedTagServiceServer) DeleteValue(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteValue not implemented")
 }
-func (UnimplementedTagServiceServer) PullValue(context.Context, *PullTagValueRequest) (*PullTagValueResponse, error) {
+func (UnimplementedTagServiceServer) PullValue(context.Context, *TagPullValueRequest) (*TagPullValueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PullValue not implemented")
 }
 func (UnimplementedTagServiceServer) SyncValue(context.Context, *pb.TagValue) (*pb.MyBool, error) {
@@ -822,20 +822,20 @@ func _TagService_View_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_ViewByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TagService_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).ViewByName(ctx, in)
+		return srv.(TagServiceServer).Name(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_ViewByName_FullMethodName,
+		FullMethod: TagService_Name_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).ViewByName(ctx, req.(*pb.Name))
+		return srv.(TagServiceServer).Name(ctx, req.(*pb.Name))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -859,7 +859,7 @@ func _TagService_Delete_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _TagService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListTagRequest)
+	in := new(TagListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -871,7 +871,7 @@ func _TagService_List_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: TagService_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).List(ctx, req.(*ListTagRequest))
+		return srv.(TagServiceServer).List(ctx, req.(*TagListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1003,7 +1003,7 @@ func _TagService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _TagService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PullTagRequest)
+	in := new(TagPullRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1015,7 +1015,7 @@ func _TagService_Pull_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: TagService_Pull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).Pull(ctx, req.(*PullTagRequest))
+		return srv.(TagServiceServer).Pull(ctx, req.(*TagPullRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1075,7 +1075,7 @@ func _TagService_DeleteValue_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _TagService_PullValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PullTagValueRequest)
+	in := new(TagPullValueRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1087,7 +1087,7 @@ func _TagService_PullValue_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: TagService_PullValue_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).PullValue(ctx, req.(*PullTagValueRequest))
+		return srv.(TagServiceServer).PullValue(ctx, req.(*TagPullValueRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1130,8 +1130,8 @@ var TagService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TagService_View_Handler,
 		},
 		{
-			MethodName: "ViewByName",
-			Handler:    _TagService_ViewByName_Handler,
+			MethodName: "Name",
+			Handler:    _TagService_Name_Handler,
 		},
 		{
 			MethodName: "Delete",

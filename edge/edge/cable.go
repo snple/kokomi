@@ -182,7 +182,7 @@ func (s *CableService) View(ctx context.Context, in *pb.Id) (*pb.Cable, error) {
 	return &output, nil
 }
 
-func (s *CableService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Cable, error) {
+func (s *CableService) Name(ctx context.Context, in *pb.Name) (*pb.Cable, error) {
 	var output pb.Cable
 	// var err error
 
@@ -244,9 +244,9 @@ func (s *CableService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 	return &output, nil
 }
 
-func (s *CableService) List(ctx context.Context, in *edges.ListCableRequest) (*edges.ListCableResponse, error) {
+func (s *CableService) List(ctx context.Context, in *edges.CableListRequest) (*edges.CableListResponse, error) {
 	var err error
-	var output edges.ListCableResponse
+	var output edges.CableListResponse
 
 	// basic validation
 	{
@@ -330,7 +330,7 @@ func (s *CableService) List(ctx context.Context, in *edges.ListCableRequest) (*e
 	return &output, nil
 }
 
-func (s *CableService) Link(ctx context.Context, in *edges.LinkCableRequest) (*pb.MyBool, error) {
+func (s *CableService) Link(ctx context.Context, in *edges.CableLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -357,7 +357,7 @@ func (s *CableService) Link(ctx context.Context, in *edges.LinkCableRequest) (*p
 			node := option.Unwrap()
 
 			ctx := node.SetToken(context.Background())
-			request := &nodes.LinkCableRequest{Id: in.GetId(), Status: in.GetStatus()}
+			request := &nodes.CableLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 			_, err := node.CableServiceClient().Link(ctx, request)
 			if err != nil {
 				return &output, err
@@ -370,7 +370,7 @@ func (s *CableService) Link(ctx context.Context, in *edges.LinkCableRequest) (*p
 	return &output, nil
 }
 
-func (s *CableService) Clone(ctx context.Context, in *edges.CloneCableRequest) (*pb.MyBool, error) {
+func (s *CableService) Clone(ctx context.Context, in *edges.CableCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -396,7 +396,7 @@ func (s *CableService) Clone(ctx context.Context, in *edges.CloneCableRequest) (
 		}
 	}()
 
-	err = s.es.getClone().cloneCable(ctx, tx, in.GetId())
+	err = s.es.getClone().cable(ctx, tx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -533,9 +533,9 @@ func (s *CableService) viewWithDeleted(ctx context.Context, id string) (model.Ca
 	return item, nil
 }
 
-func (s *CableService) Pull(ctx context.Context, in *edges.PullCableRequest) (*edges.PullCableResponse, error) {
+func (s *CableService) Pull(ctx context.Context, in *edges.CablePullRequest) (*edges.CablePullResponse, error) {
 	var err error
-	var output edges.PullCableResponse
+	var output edges.CablePullResponse
 
 	// basic validation
 	{

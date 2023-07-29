@@ -32,10 +32,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DeviceServiceClient interface {
-	Login(ctx context.Context, in *LoginDeviceRequest, opts ...grpc.CallOption) (*LoginDeviceReply, error)
+	Login(ctx context.Context, in *DeviceLoginRequest, opts ...grpc.CallOption) (*DeviceLoginReply, error)
 	Update(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.Device, error)
 	View(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*pb.Device, error)
-	Link(ctx context.Context, in *LinkDeviceRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	Link(ctx context.Context, in *DeviceLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*pb.Device, error)
 	Sync(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
@@ -48,8 +48,8 @@ func NewDeviceServiceClient(cc grpc.ClientConnInterface) DeviceServiceClient {
 	return &deviceServiceClient{cc}
 }
 
-func (c *deviceServiceClient) Login(ctx context.Context, in *LoginDeviceRequest, opts ...grpc.CallOption) (*LoginDeviceReply, error) {
-	out := new(LoginDeviceReply)
+func (c *deviceServiceClient) Login(ctx context.Context, in *DeviceLoginRequest, opts ...grpc.CallOption) (*DeviceLoginReply, error) {
+	out := new(DeviceLoginReply)
 	err := c.cc.Invoke(ctx, DeviceService_Login_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (c *deviceServiceClient) View(ctx context.Context, in *pb.MyEmpty, opts ...
 	return out, nil
 }
 
-func (c *deviceServiceClient) Link(ctx context.Context, in *LinkDeviceRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *deviceServiceClient) Link(ctx context.Context, in *DeviceLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, DeviceService_Link_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -106,10 +106,10 @@ func (c *deviceServiceClient) Sync(ctx context.Context, in *pb.Device, opts ...g
 // All implementations must embed UnimplementedDeviceServiceServer
 // for forward compatibility
 type DeviceServiceServer interface {
-	Login(context.Context, *LoginDeviceRequest) (*LoginDeviceReply, error)
+	Login(context.Context, *DeviceLoginRequest) (*DeviceLoginReply, error)
 	Update(context.Context, *pb.Device) (*pb.Device, error)
 	View(context.Context, *pb.MyEmpty) (*pb.Device, error)
-	Link(context.Context, *LinkDeviceRequest) (*pb.MyBool, error)
+	Link(context.Context, *DeviceLinkRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.MyEmpty) (*pb.Device, error)
 	Sync(context.Context, *pb.Device) (*pb.MyBool, error)
 	mustEmbedUnimplementedDeviceServiceServer()
@@ -119,7 +119,7 @@ type DeviceServiceServer interface {
 type UnimplementedDeviceServiceServer struct {
 }
 
-func (UnimplementedDeviceServiceServer) Login(context.Context, *LoginDeviceRequest) (*LoginDeviceReply, error) {
+func (UnimplementedDeviceServiceServer) Login(context.Context, *DeviceLoginRequest) (*DeviceLoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedDeviceServiceServer) Update(context.Context, *pb.Device) (*pb.Device, error) {
@@ -128,7 +128,7 @@ func (UnimplementedDeviceServiceServer) Update(context.Context, *pb.Device) (*pb
 func (UnimplementedDeviceServiceServer) View(context.Context, *pb.MyEmpty) (*pb.Device, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedDeviceServiceServer) Link(context.Context, *LinkDeviceRequest) (*pb.MyBool, error) {
+func (UnimplementedDeviceServiceServer) Link(context.Context, *DeviceLinkRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Link not implemented")
 }
 func (UnimplementedDeviceServiceServer) ViewWithDeleted(context.Context, *pb.MyEmpty) (*pb.Device, error) {
@@ -151,7 +151,7 @@ func RegisterDeviceServiceServer(s grpc.ServiceRegistrar, srv DeviceServiceServe
 }
 
 func _DeviceService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LoginDeviceRequest)
+	in := new(DeviceLoginRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func _DeviceService_Login_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: DeviceService_Login_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceServiceServer).Login(ctx, req.(*LoginDeviceRequest))
+		return srv.(DeviceServiceServer).Login(ctx, req.(*DeviceLoginRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -205,7 +205,7 @@ func _DeviceService_View_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _DeviceService_Link_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LinkDeviceRequest)
+	in := new(DeviceLinkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -217,7 +217,7 @@ func _DeviceService_Link_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: DeviceService_Link_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceServiceServer).Link(ctx, req.(*LinkDeviceRequest))
+		return srv.(DeviceServiceServer).Link(ctx, req.(*DeviceLinkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

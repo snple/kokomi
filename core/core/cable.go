@@ -195,7 +195,7 @@ func (s *CableService) View(ctx context.Context, in *pb.Id) (*pb.Cable, error) {
 	return &output, nil
 }
 
-func (s *CableService) ViewByName(ctx context.Context, in *cores.ViewCableByNameRequest) (*pb.Cable, error) {
+func (s *CableService) Name(ctx context.Context, in *cores.CableNameRequest) (*pb.Cable, error) {
 	var output pb.Cable
 	var err error
 
@@ -224,7 +224,7 @@ func (s *CableService) ViewByName(ctx context.Context, in *cores.ViewCableByName
 	return &output, nil
 }
 
-func (s *CableService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Cable, error) {
+func (s *CableService) NameFull(ctx context.Context, in *pb.Name) (*pb.Cable, error) {
 	var output pb.Cable
 	// var err error
 
@@ -306,9 +306,9 @@ func (s *CableService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 	return &output, nil
 }
 
-func (s *CableService) List(ctx context.Context, in *cores.ListCableRequest) (*cores.ListCableResponse, error) {
+func (s *CableService) List(ctx context.Context, in *cores.CableListRequest) (*cores.CableListResponse, error) {
 	var err error
-	var output cores.ListCableResponse
+	var output cores.CableListResponse
 
 	// basic validation
 	{
@@ -396,7 +396,7 @@ func (s *CableService) List(ctx context.Context, in *cores.ListCableRequest) (*c
 	return &output, nil
 }
 
-func (s *CableService) Link(ctx context.Context, in *cores.LinkCableRequest) (*pb.MyBool, error) {
+func (s *CableService) Link(ctx context.Context, in *cores.CableLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -423,7 +423,7 @@ func (s *CableService) Link(ctx context.Context, in *cores.LinkCableRequest) (*p
 	return &output, nil
 }
 
-func (s *CableService) Clone(ctx context.Context, in *cores.CloneCableRequest) (*pb.MyBool, error) {
+func (s *CableService) Clone(ctx context.Context, in *cores.CableCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -449,7 +449,7 @@ func (s *CableService) Clone(ctx context.Context, in *cores.CloneCableRequest) (
 		}
 	}()
 
-	err = s.cs.getClone().cloneCable(ctx, tx, in.GetId(), in.GetDeviceId())
+	err = s.cs.getClone().cable(ctx, tx, in.GetId(), in.GetDeviceId())
 	if err != nil {
 		return &output, err
 	}
@@ -577,9 +577,9 @@ func (s *CableService) viewWithDeleted(ctx context.Context, id string) (model.Ca
 	return item, nil
 }
 
-func (s *CableService) Pull(ctx context.Context, in *cores.PullCableRequest) (*cores.PullCableResponse, error) {
+func (s *CableService) Pull(ctx context.Context, in *cores.CablePullRequest) (*cores.CablePullResponse, error) {
 	var err error
-	var output cores.PullCableResponse
+	var output cores.CablePullResponse
 
 	// basic validation
 	{

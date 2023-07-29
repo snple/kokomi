@@ -191,7 +191,7 @@ func (s *ConstService) View(ctx context.Context, in *pb.Id) (*pb.Const, error) {
 	return &output, nil
 }
 
-func (s *ConstService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Const, error) {
+func (s *ConstService) Name(ctx context.Context, in *pb.Name) (*pb.Const, error) {
 	var output pb.Const
 	var err error
 
@@ -253,9 +253,9 @@ func (s *ConstService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 	return &output, nil
 }
 
-func (s *ConstService) List(ctx context.Context, in *edges.ListConstRequest) (*edges.ListConstResponse, error) {
+func (s *ConstService) List(ctx context.Context, in *edges.ConstListRequest) (*edges.ConstListResponse, error) {
 	var err error
-	var output edges.ListConstResponse
+	var output edges.ConstListResponse
 
 	// basic validation
 	{
@@ -339,7 +339,7 @@ func (s *ConstService) List(ctx context.Context, in *edges.ListConstRequest) (*e
 	return &output, nil
 }
 
-func (s *ConstService) Clone(ctx context.Context, in *edges.CloneConstRequest) (*pb.MyBool, error) {
+func (s *ConstService) Clone(ctx context.Context, in *edges.ConstCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -354,7 +354,7 @@ func (s *ConstService) Clone(ctx context.Context, in *edges.CloneConstRequest) (
 		}
 	}
 
-	err = s.es.getClone().cloneConst(ctx, s.es.GetDB(), in.GetId())
+	err = s.es.getClone().const_(ctx, s.es.GetDB(), in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -666,9 +666,9 @@ func (s *ConstService) viewWithDeleted(ctx context.Context, id string) (model.Co
 	return item, nil
 }
 
-func (s *ConstService) Pull(ctx context.Context, in *edges.PullConstRequest) (*edges.PullConstResponse, error) {
+func (s *ConstService) Pull(ctx context.Context, in *edges.ConstPullRequest) (*edges.ConstPullResponse, error) {
 	var err error
-	var output edges.PullConstResponse
+	var output edges.ConstPullResponse
 
 	// basic validation
 	{

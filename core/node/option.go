@@ -101,7 +101,7 @@ func (s *OptionService) View(ctx context.Context, in *pb.Id) (*pb.Option, error)
 	return reply, nil
 }
 
-func (s *OptionService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Option, error) {
+func (s *OptionService) Name(ctx context.Context, in *pb.Name) (*pb.Option, error) {
 	var output pb.Option
 	var err error
 
@@ -117,9 +117,9 @@ func (s *OptionService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Option
 		return &output, err
 	}
 
-	request := &cores.ViewOptionByNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.OptionNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.Core().GetOption().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetOption().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -159,9 +159,9 @@ func (s *OptionService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 	return s.ns.Core().GetOption().Delete(ctx, in)
 }
 
-func (s *OptionService) List(ctx context.Context, in *nodes.ListOptionRequest) (*nodes.ListOptionResponse, error) {
+func (s *OptionService) List(ctx context.Context, in *nodes.OptionListRequest) (*nodes.OptionListResponse, error) {
 	var err error
-	var output nodes.ListOptionResponse
+	var output nodes.OptionListResponse
 
 	// basic validation
 	{
@@ -175,7 +175,7 @@ func (s *OptionService) List(ctx context.Context, in *nodes.ListOptionRequest) (
 		return &output, err
 	}
 
-	request := &cores.ListOptionRequest{
+	request := &cores.OptionListRequest{
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		Tags:     in.GetTags(),
@@ -222,9 +222,9 @@ func (s *OptionService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Opt
 	return reply, nil
 }
 
-func (s *OptionService) Pull(ctx context.Context, in *nodes.PullOptionRequest) (*nodes.PullOptionResponse, error) {
+func (s *OptionService) Pull(ctx context.Context, in *nodes.OptionPullRequest) (*nodes.OptionPullResponse, error) {
 	var err error
-	var output nodes.PullOptionResponse
+	var output nodes.OptionPullResponse
 
 	// basic validation
 	{
@@ -241,7 +241,7 @@ func (s *OptionService) Pull(ctx context.Context, in *nodes.PullOptionRequest) (
 		return &output, err
 	}
 
-	request := &cores.PullOptionRequest{
+	request := &cores.OptionPullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,

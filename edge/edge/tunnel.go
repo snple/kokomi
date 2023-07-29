@@ -115,7 +115,7 @@ func (s *TunnelService) checkProxyUpdated() error {
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.es.GetProxy().Pull(s.ctx, &edges.PullProxyRequest{After: after, Limit: limit})
+			remotes, err := s.es.GetProxy().Pull(s.ctx, &edges.ProxyPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -160,7 +160,7 @@ func (s *TunnelService) setUpdated(updated int64) {
 }
 
 func (s *TunnelService) ticker() error {
-	request := edges.ListProxyRequest{
+	request := edges.ProxyListRequest{
 		Page: &pb.Page{
 			Limit: 1000,
 		},
@@ -408,7 +408,7 @@ func (tl *tunnelListener) syncLinkStatus() {
 	defer ticker.Stop()
 
 	defer func() {
-		request := edges.LinkProxyRequest{Id: tl.proxy.GetId(), Status: consts.OFF}
+		request := edges.ProxyLinkRequest{Id: tl.proxy.GetId(), Status: consts.OFF}
 
 		ctx := context.Background()
 		tl.ts.es.GetProxy().Link(ctx, &request)
@@ -424,7 +424,7 @@ func (tl *tunnelListener) syncLinkStatus() {
 				n := len(tl.conns)
 				tl.lock.RUnlock()
 
-				request := edges.LinkProxyRequest{Id: tl.proxy.GetId(), Status: int32(n)}
+				request := edges.ProxyLinkRequest{Id: tl.proxy.GetId(), Status: int32(n)}
 
 				_, err := tl.ts.es.GetProxy().Link(tl.ctx, &request)
 				if err != nil {

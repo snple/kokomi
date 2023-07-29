@@ -17,7 +17,7 @@ func PortList(ctx context.Context, client cores.PortServiceClient) {
 		Search:  "",
 	}
 
-	request := &cores.ListPortRequest{
+	request := &cores.PortListRequest{
 		Page: &page,
 		Tags: "",
 	}

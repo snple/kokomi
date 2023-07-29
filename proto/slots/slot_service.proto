@@ -16,7 +16,7 @@ message LoginSlotReply {
     string token = 2;
 }
 
-message LinkSlotRequest {
+message SlotLinkRequest {
     // string id = 1;
     sint32 status = 2;
 }
@@ -25,5 +25,5 @@ service SlotService {
     rpc Login(LoginSlotRequest) returns (LoginSlotReply) {}
     rpc Update(pb.Slot) returns (pb.Slot) {}
     rpc View(pb.MyEmpty) returns (pb.Slot) {}
-    rpc Link(LinkSlotRequest) returns (pb.MyBool) {}
+    rpc Link(SlotLinkRequest) returns (pb.MyBool) {}
 }

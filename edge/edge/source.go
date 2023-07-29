@@ -186,7 +186,7 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 	return &output, nil
 }
 
-func (s *SourceService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Source, error) {
+func (s *SourceService) Name(ctx context.Context, in *pb.Name) (*pb.Source, error) {
 	var output pb.Source
 	var err error
 
@@ -248,9 +248,9 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 	return &output, nil
 }
 
-func (s *SourceService) List(ctx context.Context, in *edges.ListSourceRequest) (*edges.ListSourceResponse, error) {
+func (s *SourceService) List(ctx context.Context, in *edges.SourceListRequest) (*edges.SourceListResponse, error) {
 	var err error
-	var output edges.ListSourceResponse
+	var output edges.SourceListResponse
 
 	// basic validation
 	{
@@ -338,7 +338,7 @@ func (s *SourceService) List(ctx context.Context, in *edges.ListSourceRequest) (
 	return &output, nil
 }
 
-func (s *SourceService) Link(ctx context.Context, in *edges.LinkSourceRequest) (*pb.MyBool, error) {
+func (s *SourceService) Link(ctx context.Context, in *edges.SourceLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -361,7 +361,7 @@ func (s *SourceService) Link(ctx context.Context, in *edges.LinkSourceRequest) (
 			node := option.Unwrap()
 
 			ctx := node.SetToken(context.Background())
-			request := &nodes.LinkSourceRequest{Id: in.GetId(), Status: in.GetStatus()}
+			request := &nodes.SourceLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 			_, err := node.SourceServiceClient().Link(ctx, request)
 			if err != nil {
 				return &output, err
@@ -374,7 +374,7 @@ func (s *SourceService) Link(ctx context.Context, in *edges.LinkSourceRequest) (
 	return &output, nil
 }
 
-func (s *SourceService) Clone(ctx context.Context, in *edges.CloneSourceRequest) (*pb.MyBool, error) {
+func (s *SourceService) Clone(ctx context.Context, in *edges.SourceCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -400,7 +400,7 @@ func (s *SourceService) Clone(ctx context.Context, in *edges.CloneSourceRequest)
 		}
 	}()
 
-	err = s.es.getClone().cloneSource(ctx, tx, in.GetId())
+	err = s.es.getClone().source(ctx, tx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -541,9 +541,9 @@ func (s *SourceService) viewWithDeleted(ctx context.Context, id string) (model.S
 	return item, nil
 }
 
-func (s *SourceService) Pull(ctx context.Context, in *edges.PullSourceRequest) (*edges.PullSourceResponse, error) {
+func (s *SourceService) Pull(ctx context.Context, in *edges.SourcePullRequest) (*edges.SourcePullResponse, error) {
 	var err error
-	var output edges.PullSourceResponse
+	var output edges.SourcePullResponse
 
 	// basic validation
 	{

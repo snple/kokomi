@@ -112,7 +112,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 	return reply, nil
 }
 
-func (s *TagService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
+func (s *TagService) Name(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
 	var output pb.Tag
 	var err error
 
@@ -128,9 +128,9 @@ func (s *TagService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Tag, erro
 		return &output, err
 	}
 
-	request := &cores.ViewTagByNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.TagNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.Core().GetTag().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetTag().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -170,9 +170,9 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 	return s.ns.Core().GetTag().Delete(ctx, in)
 }
 
-func (s *TagService) List(ctx context.Context, in *nodes.ListTagRequest) (*nodes.ListTagResponse, error) {
+func (s *TagService) List(ctx context.Context, in *nodes.TagListRequest) (*nodes.TagListResponse, error) {
 	var err error
-	var output nodes.ListTagResponse
+	var output nodes.TagListResponse
 
 	// basic validation
 	{
@@ -186,7 +186,7 @@ func (s *TagService) List(ctx context.Context, in *nodes.ListTagRequest) (*nodes
 		return &output, err
 	}
 
-	request := &cores.ListTagRequest{
+	request := &cores.TagListRequest{
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		SourceId: in.GetSourceId(),
@@ -311,7 +311,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 	}
 
 	reply, err := s.ns.Core().GetTag().GetValueByName(ctx,
-		&cores.GetTagValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
+		&cores.TagGetValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
 	if err != nil {
 		return &output, err
 	}
@@ -392,9 +392,9 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 	return reply, nil
 }
 
-func (s *TagService) Pull(ctx context.Context, in *nodes.PullTagRequest) (*nodes.PullTagResponse, error) {
+func (s *TagService) Pull(ctx context.Context, in *nodes.TagPullRequest) (*nodes.TagPullResponse, error) {
 	var err error
-	var output nodes.PullTagResponse
+	var output nodes.TagPullResponse
 
 	// basic validation
 	{
@@ -411,7 +411,7 @@ func (s *TagService) Pull(ctx context.Context, in *nodes.PullTagRequest) (*nodes
 		return &output, err
 	}
 
-	request := &cores.PullTagRequest{
+	request := &cores.TagPullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
@@ -506,9 +506,9 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 	return s.ns.Core().GetTag().DeleteValue(ctx, in)
 }
 
-func (s *TagService) PullValue(ctx context.Context, in *nodes.PullTagValueRequest) (*nodes.PullTagValueResponse, error) {
+func (s *TagService) PullValue(ctx context.Context, in *nodes.TagPullValueRequest) (*nodes.TagPullValueResponse, error) {
 	var err error
-	var output nodes.PullTagValueResponse
+	var output nodes.TagPullValueResponse
 
 	// basic validation
 	{
@@ -525,7 +525,7 @@ func (s *TagService) PullValue(ctx context.Context, in *nodes.PullTagValueReques
 		return &output, err
 	}
 
-	request := &cores.PullTagValueRequest{
+	request := &cores.TagPullValueRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,

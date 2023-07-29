@@ -245,7 +245,7 @@ func (s *SlotService) View(ctx context.Context, in *pb.MyEmpty) (*pb.Slot, error
 	return s.es.GetSlot().View(ctx, request)
 }
 
-func (s *SlotService) Link(ctx context.Context, in *slots.LinkSlotRequest) (*pb.MyBool, error) {
+func (s *SlotService) Link(ctx context.Context, in *slots.SlotLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -261,7 +261,7 @@ func (s *SlotService) Link(ctx context.Context, in *slots.LinkSlotRequest) (*pb.
 		return &output, err
 	}
 
-	request2 := &edges.LinkSlotRequest{Id: slotID, Status: in.GetStatus()}
+	request2 := &edges.SlotLinkRequest{Id: slotID, Status: in.GetStatus()}
 
 	return s.es.GetSlot().Link(ctx, request2)
 }

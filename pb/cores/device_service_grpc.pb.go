@@ -23,7 +23,7 @@ const (
 	DeviceService_Create_FullMethodName          = "/cores.DeviceService/Create"
 	DeviceService_Update_FullMethodName          = "/cores.DeviceService/Update"
 	DeviceService_View_FullMethodName            = "/cores.DeviceService/View"
-	DeviceService_ViewByName_FullMethodName      = "/cores.DeviceService/ViewByName"
+	DeviceService_Name_FullMethodName            = "/cores.DeviceService/Name"
 	DeviceService_Delete_FullMethodName          = "/cores.DeviceService/Delete"
 	DeviceService_List_FullMethodName            = "/cores.DeviceService/List"
 	DeviceService_Link_FullMethodName            = "/cores.DeviceService/Link"
@@ -41,14 +41,14 @@ type DeviceServiceClient interface {
 	Create(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.Device, error)
 	Update(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.Device, error)
 	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Device, error)
-	ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Device, error)
+	Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Device, error)
 	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	List(ctx context.Context, in *ListDeviceRequest, opts ...grpc.CallOption) (*ListDeviceResponse, error)
-	Link(ctx context.Context, in *LinkDeviceRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	List(ctx context.Context, in *DeviceListRequest, opts ...grpc.CallOption) (*DeviceListResponse, error)
+	Link(ctx context.Context, in *DeviceLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	Destory(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
 	Clone(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Device, error)
-	Pull(ctx context.Context, in *PullDeviceRequest, opts ...grpc.CallOption) (*PullDeviceResponse, error)
+	Pull(ctx context.Context, in *DevicePullRequest, opts ...grpc.CallOption) (*DevicePullResponse, error)
 	Sync(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
@@ -87,9 +87,9 @@ func (c *deviceServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.
 	return out, nil
 }
 
-func (c *deviceServiceClient) ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Device, error) {
+func (c *deviceServiceClient) Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Device, error) {
 	out := new(pb.Device)
-	err := c.cc.Invoke(ctx, DeviceService_ViewByName_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, DeviceService_Name_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -105,8 +105,8 @@ func (c *deviceServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grp
 	return out, nil
 }
 
-func (c *deviceServiceClient) List(ctx context.Context, in *ListDeviceRequest, opts ...grpc.CallOption) (*ListDeviceResponse, error) {
-	out := new(ListDeviceResponse)
+func (c *deviceServiceClient) List(ctx context.Context, in *DeviceListRequest, opts ...grpc.CallOption) (*DeviceListResponse, error) {
+	out := new(DeviceListResponse)
 	err := c.cc.Invoke(ctx, DeviceService_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -114,7 +114,7 @@ func (c *deviceServiceClient) List(ctx context.Context, in *ListDeviceRequest, o
 	return out, nil
 }
 
-func (c *deviceServiceClient) Link(ctx context.Context, in *LinkDeviceRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *deviceServiceClient) Link(ctx context.Context, in *DeviceLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, DeviceService_Link_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -150,8 +150,8 @@ func (c *deviceServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, op
 	return out, nil
 }
 
-func (c *deviceServiceClient) Pull(ctx context.Context, in *PullDeviceRequest, opts ...grpc.CallOption) (*PullDeviceResponse, error) {
-	out := new(PullDeviceResponse)
+func (c *deviceServiceClient) Pull(ctx context.Context, in *DevicePullRequest, opts ...grpc.CallOption) (*DevicePullResponse, error) {
+	out := new(DevicePullResponse)
 	err := c.cc.Invoke(ctx, DeviceService_Pull_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -175,14 +175,14 @@ type DeviceServiceServer interface {
 	Create(context.Context, *pb.Device) (*pb.Device, error)
 	Update(context.Context, *pb.Device) (*pb.Device, error)
 	View(context.Context, *pb.Id) (*pb.Device, error)
-	ViewByName(context.Context, *pb.Name) (*pb.Device, error)
+	Name(context.Context, *pb.Name) (*pb.Device, error)
 	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
-	List(context.Context, *ListDeviceRequest) (*ListDeviceResponse, error)
-	Link(context.Context, *LinkDeviceRequest) (*pb.MyBool, error)
+	List(context.Context, *DeviceListRequest) (*DeviceListResponse, error)
+	Link(context.Context, *DeviceLinkRequest) (*pb.MyBool, error)
 	Destory(context.Context, *pb.Id) (*pb.MyBool, error)
 	Clone(context.Context, *pb.Id) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Device, error)
-	Pull(context.Context, *PullDeviceRequest) (*PullDeviceResponse, error)
+	Pull(context.Context, *DevicePullRequest) (*DevicePullResponse, error)
 	Sync(context.Context, *pb.Device) (*pb.MyBool, error)
 	mustEmbedUnimplementedDeviceServiceServer()
 }
@@ -200,16 +200,16 @@ func (UnimplementedDeviceServiceServer) Update(context.Context, *pb.Device) (*pb
 func (UnimplementedDeviceServiceServer) View(context.Context, *pb.Id) (*pb.Device, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedDeviceServiceServer) ViewByName(context.Context, *pb.Name) (*pb.Device, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewByName not implemented")
+func (UnimplementedDeviceServiceServer) Name(context.Context, *pb.Name) (*pb.Device, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
 func (UnimplementedDeviceServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedDeviceServiceServer) List(context.Context, *ListDeviceRequest) (*ListDeviceResponse, error) {
+func (UnimplementedDeviceServiceServer) List(context.Context, *DeviceListRequest) (*DeviceListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedDeviceServiceServer) Link(context.Context, *LinkDeviceRequest) (*pb.MyBool, error) {
+func (UnimplementedDeviceServiceServer) Link(context.Context, *DeviceLinkRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Link not implemented")
 }
 func (UnimplementedDeviceServiceServer) Destory(context.Context, *pb.Id) (*pb.MyBool, error) {
@@ -221,7 +221,7 @@ func (UnimplementedDeviceServiceServer) Clone(context.Context, *pb.Id) (*pb.MyBo
 func (UnimplementedDeviceServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Device, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
 }
-func (UnimplementedDeviceServiceServer) Pull(context.Context, *PullDeviceRequest) (*PullDeviceResponse, error) {
+func (UnimplementedDeviceServiceServer) Pull(context.Context, *DevicePullRequest) (*DevicePullResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
 }
 func (UnimplementedDeviceServiceServer) Sync(context.Context, *pb.Device) (*pb.MyBool, error) {
@@ -294,20 +294,20 @@ func _DeviceService_View_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DeviceService_ViewByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _DeviceService_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DeviceServiceServer).ViewByName(ctx, in)
+		return srv.(DeviceServiceServer).Name(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DeviceService_ViewByName_FullMethodName,
+		FullMethod: DeviceService_Name_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceServiceServer).ViewByName(ctx, req.(*pb.Name))
+		return srv.(DeviceServiceServer).Name(ctx, req.(*pb.Name))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -331,7 +331,7 @@ func _DeviceService_Delete_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _DeviceService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListDeviceRequest)
+	in := new(DeviceListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -343,13 +343,13 @@ func _DeviceService_List_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: DeviceService_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceServiceServer).List(ctx, req.(*ListDeviceRequest))
+		return srv.(DeviceServiceServer).List(ctx, req.(*DeviceListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _DeviceService_Link_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LinkDeviceRequest)
+	in := new(DeviceLinkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -361,7 +361,7 @@ func _DeviceService_Link_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: DeviceService_Link_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceServiceServer).Link(ctx, req.(*LinkDeviceRequest))
+		return srv.(DeviceServiceServer).Link(ctx, req.(*DeviceLinkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -421,7 +421,7 @@ func _DeviceService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context
 }
 
 func _DeviceService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PullDeviceRequest)
+	in := new(DevicePullRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -433,7 +433,7 @@ func _DeviceService_Pull_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: DeviceService_Pull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceServiceServer).Pull(ctx, req.(*PullDeviceRequest))
+		return srv.(DeviceServiceServer).Pull(ctx, req.(*DevicePullRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -476,8 +476,8 @@ var DeviceService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _DeviceService_View_Handler,
 		},
 		{
-			MethodName: "ViewByName",
-			Handler:    _DeviceService_ViewByName_Handler,
+			MethodName: "Name",
+			Handler:    _DeviceService_Name_Handler,
 		},
 		{
 			MethodName: "Delete",

@@ -20,12 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RouteService_Create_FullMethodName     = "/cores.RouteService/Create"
-	RouteService_Update_FullMethodName     = "/cores.RouteService/Update"
-	RouteService_View_FullMethodName       = "/cores.RouteService/View"
-	RouteService_ViewByName_FullMethodName = "/cores.RouteService/ViewByName"
-	RouteService_Delete_FullMethodName     = "/cores.RouteService/Delete"
-	RouteService_List_FullMethodName       = "/cores.RouteService/List"
+	RouteService_Create_FullMethodName = "/cores.RouteService/Create"
+	RouteService_Update_FullMethodName = "/cores.RouteService/Update"
+	RouteService_View_FullMethodName   = "/cores.RouteService/View"
+	RouteService_Name_FullMethodName   = "/cores.RouteService/Name"
+	RouteService_Delete_FullMethodName = "/cores.RouteService/Delete"
+	RouteService_List_FullMethodName   = "/cores.RouteService/List"
 )
 
 // RouteServiceClient is the client API for RouteService service.
@@ -35,9 +35,9 @@ type RouteServiceClient interface {
 	Create(ctx context.Context, in *Route, opts ...grpc.CallOption) (*Route, error)
 	Update(ctx context.Context, in *Route, opts ...grpc.CallOption) (*Route, error)
 	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*Route, error)
-	ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*Route, error)
+	Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*Route, error)
 	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	List(ctx context.Context, in *ListRouteRequest, opts ...grpc.CallOption) (*ListRouteResponse, error)
+	List(ctx context.Context, in *RouteListRequest, opts ...grpc.CallOption) (*RouteListResponse, error)
 }
 
 type routeServiceClient struct {
@@ -75,9 +75,9 @@ func (c *routeServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.C
 	return out, nil
 }
 
-func (c *routeServiceClient) ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*Route, error) {
+func (c *routeServiceClient) Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*Route, error) {
 	out := new(Route)
-	err := c.cc.Invoke(ctx, RouteService_ViewByName_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, RouteService_Name_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +93,8 @@ func (c *routeServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grpc
 	return out, nil
 }
 
-func (c *routeServiceClient) List(ctx context.Context, in *ListRouteRequest, opts ...grpc.CallOption) (*ListRouteResponse, error) {
-	out := new(ListRouteResponse)
+func (c *routeServiceClient) List(ctx context.Context, in *RouteListRequest, opts ...grpc.CallOption) (*RouteListResponse, error) {
+	out := new(RouteListResponse)
 	err := c.cc.Invoke(ctx, RouteService_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -109,9 +109,9 @@ type RouteServiceServer interface {
 	Create(context.Context, *Route) (*Route, error)
 	Update(context.Context, *Route) (*Route, error)
 	View(context.Context, *pb.Id) (*Route, error)
-	ViewByName(context.Context, *pb.Name) (*Route, error)
+	Name(context.Context, *pb.Name) (*Route, error)
 	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
-	List(context.Context, *ListRouteRequest) (*ListRouteResponse, error)
+	List(context.Context, *RouteListRequest) (*RouteListResponse, error)
 	mustEmbedUnimplementedRouteServiceServer()
 }
 
@@ -128,13 +128,13 @@ func (UnimplementedRouteServiceServer) Update(context.Context, *Route) (*Route, 
 func (UnimplementedRouteServiceServer) View(context.Context, *pb.Id) (*Route, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedRouteServiceServer) ViewByName(context.Context, *pb.Name) (*Route, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewByName not implemented")
+func (UnimplementedRouteServiceServer) Name(context.Context, *pb.Name) (*Route, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
 func (UnimplementedRouteServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedRouteServiceServer) List(context.Context, *ListRouteRequest) (*ListRouteResponse, error) {
+func (UnimplementedRouteServiceServer) List(context.Context, *RouteListRequest) (*RouteListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedRouteServiceServer) mustEmbedUnimplementedRouteServiceServer() {}
@@ -204,20 +204,20 @@ func _RouteService_View_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RouteService_ViewByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RouteService_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RouteServiceServer).ViewByName(ctx, in)
+		return srv.(RouteServiceServer).Name(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RouteService_ViewByName_FullMethodName,
+		FullMethod: RouteService_Name_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RouteServiceServer).ViewByName(ctx, req.(*pb.Name))
+		return srv.(RouteServiceServer).Name(ctx, req.(*pb.Name))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -241,7 +241,7 @@ func _RouteService_Delete_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _RouteService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRouteRequest)
+	in := new(RouteListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -253,7 +253,7 @@ func _RouteService_List_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: RouteService_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RouteServiceServer).List(ctx, req.(*ListRouteRequest))
+		return srv.(RouteServiceServer).List(ctx, req.(*RouteListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -278,8 +278,8 @@ var RouteService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _RouteService_View_Handler,
 		},
 		{
-			MethodName: "ViewByName",
-			Handler:    _RouteService_ViewByName_Handler,
+			MethodName: "Name",
+			Handler:    _RouteService_Name_Handler,
 		},
 		{
 			MethodName: "Delete",

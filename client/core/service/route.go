@@ -16,7 +16,7 @@ func RouteList(ctx context.Context, client cores.RouteServiceClient) {
 		OrderBy: "name",
 	}
 
-	request := &cores.ListRouteRequest{
+	request := &cores.RouteListRequest{
 		Page: &page,
 	}
 
@@ -42,7 +42,7 @@ func RouteView(ctx context.Context, client cores.RouteServiceClient) {
 func RouteViewByName(ctx context.Context, client cores.RouteServiceClient) {
 	request := &pb.Name{Name: "Route"}
 
-	reply, err := client.ViewByName(ctx, request)
+	reply, err := client.Name(ctx, request)
 
 	if err != nil {
 		log.Fatalf("Error when calling grpc service: %s", err)

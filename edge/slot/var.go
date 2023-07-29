@@ -78,7 +78,7 @@ func (s *ConstService) View(ctx context.Context, in *pb.Id) (*pb.Const, error) {
 	return s.ss.Edge().GetConst().View(ctx, in)
 }
 
-func (s *ConstService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Const, error) {
+func (s *ConstService) Name(ctx context.Context, in *pb.Name) (*pb.Const, error) {
 	var output pb.Const
 	var err error
 
@@ -94,7 +94,7 @@ func (s *ConstService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Const, 
 		return &output, err
 	}
 
-	return s.ss.Edge().GetConst().ViewByName(ctx, in)
+	return s.ss.Edge().GetConst().Name(ctx, in)
 }
 
 func (s *ConstService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
@@ -116,9 +116,9 @@ func (s *ConstService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 	return s.ss.Edge().GetConst().Delete(ctx, in)
 }
 
-func (s *ConstService) List(ctx context.Context, in *slots.ListConstRequest) (*slots.ListConstResponse, error) {
+func (s *ConstService) List(ctx context.Context, in *slots.ConstListRequest) (*slots.ConstListResponse, error) {
 	var err error
-	var output slots.ListConstResponse
+	var output slots.ConstListResponse
 
 	// basic validation
 	{
@@ -132,7 +132,7 @@ func (s *ConstService) List(ctx context.Context, in *slots.ListConstRequest) (*s
 		return &output, err
 	}
 
-	request := &edges.ListConstRequest{
+	request := &edges.ConstListRequest{
 		Page: in.GetPage(),
 		Tags: in.GetTags(),
 		Type: in.GetType(),
@@ -288,9 +288,9 @@ func (s *ConstService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Cons
 	return reply, nil
 }
 
-func (s *ConstService) Pull(ctx context.Context, in *slots.PullConstRequest) (*slots.PullConstResponse, error) {
+func (s *ConstService) Pull(ctx context.Context, in *slots.ConstPullRequest) (*slots.ConstPullResponse, error) {
 	var err error
-	var output slots.PullConstResponse
+	var output slots.ConstPullResponse
 
 	// basic validation
 	{
@@ -307,7 +307,7 @@ func (s *ConstService) Pull(ctx context.Context, in *slots.PullConstRequest) (*s
 		return &output, err
 	}
 
-	request := &edges.PullConstRequest{
+	request := &edges.ConstPullRequest{
 		After: in.GetAfter(),
 		Limit: in.GetLimit(),
 		Type:  in.GetType(),

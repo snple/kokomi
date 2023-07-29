@@ -101,7 +101,7 @@ func (s *ConstService) View(ctx context.Context, in *pb.Id) (*pb.Const, error) {
 	return reply, nil
 }
 
-func (s *ConstService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Const, error) {
+func (s *ConstService) Name(ctx context.Context, in *pb.Name) (*pb.Const, error) {
 	var output pb.Const
 	var err error
 
@@ -117,9 +117,9 @@ func (s *ConstService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Const, 
 		return &output, err
 	}
 
-	request := &cores.ViewConstByNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.ConstNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.Core().GetConst().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetConst().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -159,9 +159,9 @@ func (s *ConstService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 	return s.ns.Core().GetConst().Delete(ctx, in)
 }
 
-func (s *ConstService) List(ctx context.Context, in *nodes.ListConstRequest) (*nodes.ListConstResponse, error) {
+func (s *ConstService) List(ctx context.Context, in *nodes.ConstListRequest) (*nodes.ConstListResponse, error) {
 	var err error
-	var output nodes.ListConstResponse
+	var output nodes.ConstListResponse
 
 	// basic validation
 	{
@@ -175,7 +175,7 @@ func (s *ConstService) List(ctx context.Context, in *nodes.ListConstRequest) (*n
 		return &output, err
 	}
 
-	request := &cores.ListConstRequest{
+	request := &cores.ConstListRequest{
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		Tags:     in.GetTags(),
@@ -301,7 +301,7 @@ func (s *ConstService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Con
 	}
 
 	reply, err := s.ns.Core().GetConst().GetValueByName(ctx,
-		&cores.GetConstValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
+		&cores.ConstGetValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
 	if err != nil {
 		return &output, err
 	}
@@ -382,9 +382,9 @@ func (s *ConstService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Cons
 	return reply, nil
 }
 
-func (s *ConstService) Pull(ctx context.Context, in *nodes.PullConstRequest) (*nodes.PullConstResponse, error) {
+func (s *ConstService) Pull(ctx context.Context, in *nodes.ConstPullRequest) (*nodes.ConstPullResponse, error) {
 	var err error
-	var output nodes.PullConstResponse
+	var output nodes.ConstPullResponse
 
 	// basic validation
 	{
@@ -401,7 +401,7 @@ func (s *ConstService) Pull(ctx context.Context, in *nodes.PullConstRequest) (*n
 		return &output, err
 	}
 
-	request := &cores.PullConstRequest{
+	request := &cores.ConstPullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,

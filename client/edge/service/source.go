@@ -16,7 +16,7 @@ func SourceList(ctx context.Context, client edges.SourceServiceClient) {
 		OrderBy: "name",
 	}
 
-	request := &edges.ListSourceRequest{
+	request := &edges.SourceListRequest{
 		Page: &page,
 	}
 
@@ -42,7 +42,7 @@ func SourceView(ctx context.Context, client edges.SourceServiceClient) {
 func SourceViewByName(ctx context.Context, client edges.SourceServiceClient) {
 	request := &pb.Name{Name: "Source"}
 
-	reply, err := client.ViewByName(ctx, request)
+	reply, err := client.Name(ctx, request)
 
 	if err != nil {
 		log.Fatalf("Error when calling grpc service: %s", err)
@@ -102,7 +102,7 @@ func SourceDelete(ctx context.Context, client edges.SourceServiceClient) {
 }
 
 func SourceLink(ctx context.Context, client edges.SourceServiceClient) {
-	request := &edges.LinkSourceRequest{Id: "01800806d7aa2d9ea7486720", Status: consts.ON}
+	request := &edges.SourceLinkRequest{Id: "01800806d7aa2d9ea7486720", Status: consts.ON}
 
 	reply, err := client.Link(ctx, request)
 

@@ -79,7 +79,7 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 	return s.ss.Edge().GetSource().View(ctx, in)
 }
 
-func (s *SourceService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Source, error) {
+func (s *SourceService) Name(ctx context.Context, in *pb.Name) (*pb.Source, error) {
 	var output pb.Source
 	var err error
 
@@ -95,7 +95,7 @@ func (s *SourceService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Source
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSource().ViewByName(ctx, in)
+	return s.ss.Edge().GetSource().Name(ctx, in)
 }
 
 func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
@@ -117,9 +117,9 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 	return s.ss.Edge().GetSource().Delete(ctx, in)
 }
 
-func (s *SourceService) List(ctx context.Context, in *slots.ListSourceRequest) (*slots.ListSourceResponse, error) {
+func (s *SourceService) List(ctx context.Context, in *slots.SourceListRequest) (*slots.SourceListResponse, error) {
 	var err error
-	var output slots.ListSourceResponse
+	var output slots.SourceListResponse
 
 	// basic validation
 	{
@@ -133,7 +133,7 @@ func (s *SourceService) List(ctx context.Context, in *slots.ListSourceRequest) (
 		return &output, err
 	}
 
-	request := &edges.ListSourceRequest{
+	request := &edges.SourceListRequest{
 		Page:   in.GetPage(),
 		Tags:   in.GetTags(),
 		Type:   in.GetType(),
@@ -152,7 +152,7 @@ func (s *SourceService) List(ctx context.Context, in *slots.ListSourceRequest) (
 	return &output, nil
 }
 
-func (s *SourceService) Link(ctx context.Context, in *slots.LinkSourceRequest) (*pb.MyBool, error) {
+func (s *SourceService) Link(ctx context.Context, in *slots.SourceLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -168,14 +168,14 @@ func (s *SourceService) Link(ctx context.Context, in *slots.LinkSourceRequest) (
 		return &output, err
 	}
 
-	request2 := &edges.LinkSourceRequest{Id: in.GetId(), Status: in.GetStatus()}
+	request2 := &edges.SourceLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 
 	reply, err := s.ss.Edge().GetSource().Link(ctx, request2)
 	if err != nil {
 		return &output, err
 	}
 
-	s.ss.Edge().GetControl().LinkSource(slotID, in.GetId(), in.GetStatus())
+	s.ss.Edge().GetControl().SourceLink(slotID, in.GetId(), in.GetStatus())
 
 	return reply, nil
 }
@@ -204,9 +204,9 @@ func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Sou
 	return reply, nil
 }
 
-func (s *SourceService) Pull(ctx context.Context, in *slots.PullSourceRequest) (*slots.PullSourceResponse, error) {
+func (s *SourceService) Pull(ctx context.Context, in *slots.SourcePullRequest) (*slots.SourcePullResponse, error) {
 	var err error
-	var output slots.PullSourceResponse
+	var output slots.SourcePullResponse
 
 	// basic validation
 	{
@@ -223,7 +223,7 @@ func (s *SourceService) Pull(ctx context.Context, in *slots.PullSourceRequest) (
 		return &output, err
 	}
 
-	request := &edges.PullSourceRequest{
+	request := &edges.SourcePullRequest{
 		After:  in.GetAfter(),
 		Limit:  in.GetLimit(),
 		Type:   in.GetType(),

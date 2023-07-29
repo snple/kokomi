@@ -59,7 +59,7 @@ func main() {
 	device := cores.NewDeviceServiceClient(conn)
 	service.DeviceList(ctx, device)
 	// service.DeviceView(ctx, device)
-	// service.DeviceViewByName(ctx, device)
+	// service.DeviceName(ctx, device)
 	// service.DeviceCreate(ctx, device)
 	// service.DeviceUpdate(ctx, device)
 	// service.DeviceDelete(ctx, device)

@@ -197,7 +197,7 @@ func (s *ControlService) GetSlotClient(slotID string) types.Option[slots.Control
 	return types.None[slots.ControlServiceClient]()
 }
 
-func (s *ControlService) LinkSource(slotID string, sourceID string, status int32) {
+func (s *ControlService) SourceLink(slotID string, sourceID string, status int32) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 

@@ -6,37 +6,37 @@ option go_package = "github.com/snple/kokomi/pb/edges;edges";
 import "proxy_message.proto";
 import "generic_message.proto";
 
-message ListProxyRequest {
+message ProxyListRequest {
     pb.Page page = 1;
     // string device_id = 2;
     string tags = 3;
     string type = 4;
 }
 
-message ListProxyResponse {
+message ProxyListResponse {
     pb.Page page = 1;
     uint32 count = 2;
     repeated pb.Proxy proxy = 3;
 }
 
-message LinkProxyRequest {
+message ProxyLinkRequest {
     string id = 1;
     sint32 status = 2;
 }
 
-message CloneProxyRequest {
+message ProxyCloneRequest {
     string id = 1;
     // string device_id = 2;
 }
 
-message PullProxyRequest {
+message ProxyPullRequest {
     int64 after = 1;
     uint32 limit = 2;
     // string device_id = 3;
     string type = 4;
 }
 
-message PullProxyResponse {
+message ProxyPullResponse {
     int64 after = 1;
     uint32 limit = 2;
     repeated pb.Proxy proxy = 3;
@@ -44,10 +44,10 @@ message PullProxyResponse {
 
 service ProxyService {
     rpc View(pb.Id) returns (pb.Proxy) {}
-    rpc ViewByName(pb.Name) returns (pb.Proxy) {}
-    rpc List(ListProxyRequest) returns (ListProxyResponse) {}
-    rpc Link(LinkProxyRequest) returns (pb.MyBool) {}
+    rpc Name(pb.Name) returns (pb.Proxy) {}
+    rpc List(ProxyListRequest) returns (ProxyListResponse) {}
+    rpc Link(ProxyLinkRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Proxy) {}
-    rpc Pull(PullProxyRequest) returns (PullProxyResponse) {}
+    rpc Pull(ProxyPullRequest) returns (ProxyPullResponse) {}
     rpc Sync(pb.Proxy) returns (pb.MyBool) {}
 }

@@ -225,7 +225,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 	return &output, nil
 }
 
-func (s *TagService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
+func (s *TagService) Name(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
 	var output pb.Tag
 	var err error
 
@@ -294,9 +294,9 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 	return &output, nil
 }
 
-func (s *TagService) List(ctx context.Context, in *edges.ListTagRequest) (*edges.ListTagResponse, error) {
+func (s *TagService) List(ctx context.Context, in *edges.TagListRequest) (*edges.TagListResponse, error) {
 	var err error
-	var output edges.ListTagResponse
+	var output edges.TagListResponse
 
 	// basic validation
 	{
@@ -390,7 +390,7 @@ func (s *TagService) List(ctx context.Context, in *edges.ListTagRequest) (*edges
 	return &output, nil
 }
 
-func (s *TagService) Clone(ctx context.Context, in *edges.CloneTagRequest) (*pb.MyBool, error) {
+func (s *TagService) Clone(ctx context.Context, in *edges.TagCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -405,7 +405,7 @@ func (s *TagService) Clone(ctx context.Context, in *edges.CloneTagRequest) (*pb.
 		}
 	}
 
-	err = s.es.getClone().cloneTag(ctx, s.es.GetDB(), in.GetId(), in.GetSourceId())
+	err = s.es.getClone().tag(ctx, s.es.GetDB(), in.GetId(), in.GetSourceId())
 	if err != nil {
 		return &output, err
 	}
@@ -815,9 +815,9 @@ func (s *TagService) viewWithDeleted(ctx context.Context, id string) (model.Tag,
 	return item, nil
 }
 
-func (s *TagService) Pull(ctx context.Context, in *edges.PullTagRequest) (*edges.PullTagResponse, error) {
+func (s *TagService) Pull(ctx context.Context, in *edges.TagPullRequest) (*edges.TagPullResponse, error) {
 	var err error
-	var output edges.PullTagResponse
+	var output edges.TagPullResponse
 
 	// basic validation
 	{
@@ -1101,9 +1101,9 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 	return &output, nil
 }
 
-func (s *TagService) PullValue(ctx context.Context, in *edges.PullTagValueRequest) (*edges.PullTagValueResponse, error) {
+func (s *TagService) PullValue(ctx context.Context, in *edges.TagPullValueRequest) (*edges.TagPullValueResponse, error) {
 	var err error
-	var output edges.PullTagValueResponse
+	var output edges.TagPullValueResponse
 
 	// basic validation
 	{

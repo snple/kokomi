@@ -184,7 +184,7 @@ func (s *SlotService) View(ctx context.Context, in *pb.Id) (*pb.Slot, error) {
 	return &output, nil
 }
 
-func (s *SlotService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Slot, error) {
+func (s *SlotService) Name(ctx context.Context, in *pb.Name) (*pb.Slot, error) {
 	var output pb.Slot
 	var err error
 
@@ -246,9 +246,9 @@ func (s *SlotService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 	return &output, nil
 }
 
-func (s *SlotService) List(ctx context.Context, in *edges.ListSlotRequest) (*edges.ListSlotResponse, error) {
+func (s *SlotService) List(ctx context.Context, in *edges.SlotListRequest) (*edges.SlotListResponse, error) {
 	var err error
-	var output edges.ListSlotResponse
+	var output edges.SlotListResponse
 
 	// basic validation
 	{
@@ -332,7 +332,7 @@ func (s *SlotService) List(ctx context.Context, in *edges.ListSlotRequest) (*edg
 	return &output, nil
 }
 
-func (s *SlotService) Link(ctx context.Context, in *edges.LinkSlotRequest) (*pb.MyBool, error) {
+func (s *SlotService) Link(ctx context.Context, in *edges.SlotLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -359,7 +359,7 @@ func (s *SlotService) Link(ctx context.Context, in *edges.LinkSlotRequest) (*pb.
 			node := option.Unwrap()
 
 			ctx := node.SetToken(context.Background())
-			request := &nodes.LinkSlotRequest{Id: in.GetId(), Status: in.GetStatus()}
+			request := &nodes.SlotLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 			_, err := node.SlotServiceClient().Link(ctx, request)
 			if err != nil {
 				return &output, err
@@ -372,7 +372,7 @@ func (s *SlotService) Link(ctx context.Context, in *edges.LinkSlotRequest) (*pb.
 	return &output, nil
 }
 
-func (s *SlotService) Clone(ctx context.Context, in *edges.CloneSlotRequest) (*pb.MyBool, error) {
+func (s *SlotService) Clone(ctx context.Context, in *edges.SlotCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -387,7 +387,7 @@ func (s *SlotService) Clone(ctx context.Context, in *edges.CloneSlotRequest) (*p
 		}
 	}
 
-	err = s.es.getClone().cloneSlot(ctx, s.es.GetDB(), in.GetId())
+	err = s.es.getClone().slot(ctx, s.es.GetDB(), in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -519,9 +519,9 @@ func (s *SlotService) viewWithDeleted(ctx context.Context, id string) (model.Slo
 	return item, nil
 }
 
-func (s *SlotService) Pull(ctx context.Context, in *edges.PullSlotRequest) (*edges.PullSlotResponse, error) {
+func (s *SlotService) Pull(ctx context.Context, in *edges.SlotPullRequest) (*edges.SlotPullResponse, error) {
 	var err error
-	var output edges.PullSlotResponse
+	var output edges.SlotPullResponse
 
 	// basic validation
 	{

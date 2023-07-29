@@ -45,7 +45,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.SlotServiceClient().Pull(ctx, &nodes.PullSlotRequest{After: after, Limit: limit})
+			remotes, err := s.SlotServiceClient().Pull(ctx, &nodes.SlotPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -71,7 +71,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.OptionServiceClient().Pull(ctx, &nodes.PullOptionRequest{After: after, Limit: limit})
+			remotes, err := s.OptionServiceClient().Pull(ctx, &nodes.OptionPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -99,7 +99,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.PortServiceClient().Pull(ctx, &nodes.PullPortRequest{After: after, Limit: limit})
+			remotes, err := s.PortServiceClient().Pull(ctx, &nodes.PortPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -125,7 +125,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.ProxyServiceClient().Pull(ctx, &nodes.PullProxyRequest{After: after, Limit: limit})
+			remotes, err := s.ProxyServiceClient().Pull(ctx, &nodes.ProxyPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -151,7 +151,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.SourceServiceClient().Pull(ctx, &nodes.PullSourceRequest{After: after, Limit: limit})
+			remotes, err := s.SourceServiceClient().Pull(ctx, &nodes.SourcePullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -177,7 +177,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.TagServiceClient().Pull(ctx, &nodes.PullTagRequest{After: after, Limit: limit})
+			remotes, err := s.TagServiceClient().Pull(ctx, &nodes.TagPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -203,7 +203,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.ConstServiceClient().Pull(ctx, &nodes.PullConstRequest{After: after, Limit: limit})
+			remotes, err := s.ConstServiceClient().Pull(ctx, &nodes.ConstPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -229,7 +229,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.CableServiceClient().Pull(ctx, &nodes.PullCableRequest{After: after, Limit: limit})
+			remotes, err := s.CableServiceClient().Pull(ctx, &nodes.CablePullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -255,7 +255,7 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.WireServiceClient().Pull(ctx, &nodes.PullWireRequest{After: after, Limit: limit})
+			remotes, err := s.WireServiceClient().Pull(ctx, &nodes.WirePullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -312,7 +312,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			locals, err := s.es.GetSlot().Pull(ctx, &edges.PullSlotRequest{After: after, Limit: limit})
+			locals, err := s.es.GetSlot().Pull(ctx, &edges.SlotPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -338,7 +338,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			locals, err := s.es.GetOption().Pull(ctx, &edges.PullOptionRequest{After: after, Limit: limit})
+			locals, err := s.es.GetOption().Pull(ctx, &edges.OptionPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -366,7 +366,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			locals, err := s.es.GetPort().Pull(ctx, &edges.PullPortRequest{After: after, Limit: limit})
+			locals, err := s.es.GetPort().Pull(ctx, &edges.PortPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -392,7 +392,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			locals, err := s.es.GetSource().Pull(ctx, &edges.PullSourceRequest{After: after, Limit: limit})
+			locals, err := s.es.GetSource().Pull(ctx, &edges.SourcePullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -418,7 +418,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			locals, err := s.es.GetTag().Pull(ctx, &edges.PullTagRequest{After: after, Limit: limit})
+			locals, err := s.es.GetTag().Pull(ctx, &edges.TagPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -444,7 +444,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			locals, err := s.es.GetConst().Pull(ctx, &edges.PullConstRequest{After: after, Limit: limit})
+			locals, err := s.es.GetConst().Pull(ctx, &edges.ConstPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -470,7 +470,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			locals, err := s.es.GetCable().Pull(ctx, &edges.PullCableRequest{After: after, Limit: limit})
+			locals, err := s.es.GetCable().Pull(ctx, &edges.CablePullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -496,7 +496,7 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 		limit := uint32(10)
 
 		for {
-			locals, err := s.es.GetWire().Pull(ctx, &edges.PullWireRequest{After: after, Limit: limit})
+			locals, err := s.es.GetWire().Pull(ctx, &edges.WirePullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
@@ -539,7 +539,7 @@ func (s *NodeService) syncTagValueRemoteToLocal(ctx context.Context) error {
 
 PULL:
 	for {
-		remotes, err := s.TagServiceClient().PullValue(ctx, &nodes.PullTagValueRequest{After: after, Limit: limit})
+		remotes, err := s.TagServiceClient().PullValue(ctx, &nodes.TagPullValueRequest{After: after, Limit: limit})
 		if err != nil {
 			return err
 		}
@@ -587,7 +587,7 @@ func (s *NodeService) syncTagValueLocalToRemote(ctx context.Context) error {
 
 PULL:
 	for {
-		locals, err := s.es.GetTag().PullValue(ctx, &edges.PullTagValueRequest{After: after, Limit: limit})
+		locals, err := s.es.GetTag().PullValue(ctx, &edges.TagPullValueRequest{After: after, Limit: limit})
 		if err != nil {
 			return err
 		}
@@ -635,7 +635,7 @@ func (s *NodeService) syncWireValueRemoteToLocal(ctx context.Context) error {
 
 PULL:
 	for {
-		remotes, err := s.WireServiceClient().PullValue(ctx, &nodes.PullWireValueRequest{After: after, Limit: limit})
+		remotes, err := s.WireServiceClient().PullValue(ctx, &nodes.WirePullValueRequest{After: after, Limit: limit})
 		if err != nil {
 			return err
 		}
@@ -683,7 +683,7 @@ func (s *NodeService) syncWireValueLocalToRemote(ctx context.Context) error {
 
 PULL:
 	for {
-		locals, err := s.es.GetWire().PullValue(ctx, &edges.PullWireValueRequest{After: after, Limit: limit})
+		locals, err := s.es.GetWire().PullValue(ctx, &edges.WirePullValueRequest{After: after, Limit: limit})
 		if err != nil {
 			return err
 		}

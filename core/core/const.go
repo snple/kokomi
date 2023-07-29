@@ -204,7 +204,7 @@ func (s *ConstService) View(ctx context.Context, in *pb.Id) (*pb.Const, error) {
 	return &output, nil
 }
 
-func (s *ConstService) ViewByName(ctx context.Context, in *cores.ViewConstByNameRequest) (*pb.Const, error) {
+func (s *ConstService) Name(ctx context.Context, in *cores.ConstNameRequest) (*pb.Const, error) {
 	var output pb.Const
 	var err error
 
@@ -233,7 +233,7 @@ func (s *ConstService) ViewByName(ctx context.Context, in *cores.ViewConstByName
 	return &output, nil
 }
 
-func (s *ConstService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Const, error) {
+func (s *ConstService) NameFull(ctx context.Context, in *pb.Name) (*pb.Const, error) {
 	var output pb.Const
 	// var err error
 
@@ -315,9 +315,9 @@ func (s *ConstService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 	return &output, nil
 }
 
-func (s *ConstService) List(ctx context.Context, in *cores.ListConstRequest) (*cores.ListConstResponse, error) {
+func (s *ConstService) List(ctx context.Context, in *cores.ConstListRequest) (*cores.ConstListResponse, error) {
 	var err error
-	var output cores.ListConstResponse
+	var output cores.ConstListResponse
 
 	// basic validation
 	{
@@ -405,7 +405,7 @@ func (s *ConstService) List(ctx context.Context, in *cores.ListConstRequest) (*c
 	return &output, nil
 }
 
-func (s *ConstService) Clone(ctx context.Context, in *cores.CloneConstRequest) (*pb.MyBool, error) {
+func (s *ConstService) Clone(ctx context.Context, in *cores.ConstCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -420,7 +420,7 @@ func (s *ConstService) Clone(ctx context.Context, in *cores.CloneConstRequest) (
 		}
 	}
 
-	err = s.cs.getClone().cloneConst(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
+	err = s.cs.getClone().const_(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
 	if err != nil {
 		return &output, err
 	}
@@ -517,7 +517,7 @@ func (s *ConstService) setValue(ctx context.Context, in *pb.ConstValue, check bo
 	return &output, nil
 }
 
-func (s *ConstService) GetValueByName(ctx context.Context, in *cores.GetConstValueByNameRequest) (*cores.ConstNameValue, error) {
+func (s *ConstService) GetValueByName(ctx context.Context, in *cores.ConstGetValueByNameRequest) (*cores.ConstNameValue, error) {
 	var err error
 	var output cores.ConstNameValue
 
@@ -732,9 +732,9 @@ func (s *ConstService) viewWithDeleted(ctx context.Context, id string) (model.Co
 	return item, nil
 }
 
-func (s *ConstService) Pull(ctx context.Context, in *cores.PullConstRequest) (*cores.PullConstResponse, error) {
+func (s *ConstService) Pull(ctx context.Context, in *cores.ConstPullRequest) (*cores.ConstPullResponse, error) {
 	var err error
-	var output cores.PullConstResponse
+	var output cores.ConstPullResponse
 
 	// basic validation
 	{

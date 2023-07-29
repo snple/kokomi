@@ -7,42 +7,42 @@ import "cable_message.proto";
 import "generic_message.proto";
 
 // cable
-message ListCableRequest {
+message CableListRequest {
     pb.Page page = 1;
     string device_id = 2;
     string tags = 3;
     string type = 4;
 }
 
-message ListCableResponse {
+message CableListResponse {
     pb.Page page = 1;
     uint32 count = 2;
     repeated pb.Cable cable = 3;
 }
 
-message ViewCableByNameRequest {
+message CableNameRequest {
     string device_id = 1;
     string name = 2;
 }
 
-message LinkCableRequest {
+message CableLinkRequest {
     string id = 1;
     sint32 status = 2;
 }
 
-message CloneCableRequest {
+message CableCloneRequest {
     string id = 1;
     string device_id = 2;
 }
 
-message PullCableRequest {
+message CablePullRequest {
     int64 after = 1;
     uint32 limit = 2;
     string device_id = 3;
     string type = 4;
 }
 
-message PullCableResponse {
+message CablePullResponse {
     int64 after = 1;
     uint32 limit = 2;
     repeated pb.Cable cable = 3;
@@ -52,19 +52,19 @@ service CableService {
     rpc Create(pb.Cable) returns (pb.Cable) {}
     rpc Update(pb.Cable) returns (pb.Cable) {}
     rpc View(pb.Id) returns (pb.Cable) {}
-    rpc ViewByName(ViewCableByNameRequest) returns (pb.Cable) {}
-    rpc ViewByNameFull(pb.Name) returns (pb.Cable) {}
+    rpc Name(CableNameRequest) returns (pb.Cable) {}
+    rpc NameFull(pb.Name) returns (pb.Cable) {}
     rpc Delete(pb.Id) returns (pb.MyBool) {}
-    rpc List(ListCableRequest) returns (ListCableResponse) {}
-    rpc Link(LinkCableRequest) returns (pb.MyBool) {}
-    rpc Clone(CloneCableRequest) returns (pb.MyBool) {}
+    rpc List(CableListRequest) returns (CableListResponse) {}
+    rpc Link(CableLinkRequest) returns (pb.MyBool) {}
+    rpc Clone(CableCloneRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Cable) {}
-    rpc Pull(PullCableRequest) returns (PullCableResponse) {}
+    rpc Pull(CablePullRequest) returns (CablePullResponse) {}
     rpc Sync(pb.Cable) returns (pb.MyBool) {}
 }
 
 // wire
-message ListWireRequest {
+message WireListRequest {
     pb.Page page = 1;
     string device_id = 2;
     string cable_id = 3;
@@ -72,23 +72,23 @@ message ListWireRequest {
     string type = 5;
 }
 
-message ListWireResponse {
+message WireListResponse {
     pb.Page page = 1;
     uint32 count = 2;
     repeated pb.Wire wire = 3;
 }
 
-message ViewWireByNameRequest {
+message WireNameRequest {
     string device_id = 1;
     string name = 2;
 }
 
-message CloneWireRequest {
+message WireCloneRequest {
     string id = 1;
     string cable_id = 2;
 }
 
-message GetWireValueByNameRequest {
+message WireGetValueByNameRequest {
     string device_id = 1;
     string name = 2;
 }
@@ -101,7 +101,7 @@ message WireNameValue {
     int64 updated = 5;
 }
 
-message PullWireRequest {
+message WirePullRequest {
     int64 after = 1;
     uint32 limit = 2;
     string device_id = 3;
@@ -109,20 +109,20 @@ message PullWireRequest {
     string type = 5;
 }
 
-message PullWireResponse {
+message WirePullResponse {
     int64 after = 1;
     uint32 limit = 2;
     repeated pb.Wire wire = 3;
 }
 
-message PullWireValueRequest {
+message WirePullValueRequest {
     int64 after = 1;
     uint32 limit = 2;
     string device_id = 3;
     string cable_id = 4;
 }
 
-message PullWireValueResponse {
+message WirePullValueResponse {
     int64 after = 1;
     uint32 limit = 2;
     repeated pb.WireValueUpdated wire = 3;
@@ -132,22 +132,22 @@ service WireService {
     rpc Create(pb.Wire) returns (pb.Wire) {}
     rpc Update(pb.Wire) returns (pb.Wire) {}
     rpc View(pb.Id) returns (pb.Wire) {}
-    rpc ViewByName(ViewWireByNameRequest) returns (pb.Wire) {}
-    rpc ViewByNameFull(pb.Name) returns (pb.Wire) {}
+    rpc Name(WireNameRequest) returns (pb.Wire) {}
+    rpc NameFull(pb.Name) returns (pb.Wire) {}
     rpc Delete(pb.Id) returns (pb.MyBool) {}
-    rpc List(ListWireRequest) returns (ListWireResponse) {}
-    rpc Clone(CloneWireRequest) returns (pb.MyBool) {}
+    rpc List(WireListRequest) returns (WireListResponse) {}
+    rpc Clone(WireCloneRequest) returns (pb.MyBool) {}
     rpc GetValue(pb.Id) returns (pb.WireValue) {}
     rpc SetValue(pb.WireValue) returns (pb.MyBool) {}
     rpc SetValueUnchecked(pb.WireValue) returns (pb.MyBool) {}
-    rpc GetValueByName(GetWireValueByNameRequest) returns (WireNameValue) {}
+    rpc GetValueByName(WireGetValueByNameRequest) returns (WireNameValue) {}
     rpc SetValueByName(WireNameValue) returns (pb.MyBool) {}
     rpc SetValueByNameUnchecked(WireNameValue) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Wire) {}
-    rpc Pull(PullWireRequest) returns (PullWireResponse) {}
+    rpc Pull(WirePullRequest) returns (WirePullResponse) {}
     rpc Sync(pb.Wire) returns (pb.MyBool) {}
     rpc ViewValue(pb.Id) returns (pb.WireValueUpdated) {}
     rpc DeleteValue(pb.Id) returns (pb.MyBool) {}
-    rpc PullValue(PullWireValueRequest) returns (PullWireValueResponse) {}
+    rpc PullValue(WirePullValueRequest) returns (WirePullValueResponse) {}
     rpc SyncValue(pb.WireValue) returns (pb.MyBool) {}
 }

@@ -197,7 +197,7 @@ func (s *PortService) View(ctx context.Context, in *pb.Id) (*pb.Port, error) {
 	return &output, nil
 }
 
-func (s *PortService) ViewByName(ctx context.Context, in *cores.ViewPortByNameRequest) (*pb.Port, error) {
+func (s *PortService) Name(ctx context.Context, in *cores.PortNameRequest) (*pb.Port, error) {
 	var output pb.Port
 	var err error
 
@@ -226,7 +226,7 @@ func (s *PortService) ViewByName(ctx context.Context, in *cores.ViewPortByNameRe
 	return &output, nil
 }
 
-func (s *PortService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Port, error) {
+func (s *PortService) NameFull(ctx context.Context, in *pb.Name) (*pb.Port, error) {
 	var output pb.Port
 	// var err error
 
@@ -308,9 +308,9 @@ func (s *PortService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 	return &output, nil
 }
 
-func (s *PortService) List(ctx context.Context, in *cores.ListPortRequest) (*cores.ListPortResponse, error) {
+func (s *PortService) List(ctx context.Context, in *cores.PortListRequest) (*cores.PortListResponse, error) {
 	var err error
-	var output cores.ListPortResponse
+	var output cores.PortListResponse
 
 	// basic validation
 	{
@@ -398,7 +398,7 @@ func (s *PortService) List(ctx context.Context, in *cores.ListPortRequest) (*cor
 	return &output, nil
 }
 
-func (s *PortService) Link(ctx context.Context, in *cores.LinkPortRequest) (*pb.MyBool, error) {
+func (s *PortService) Link(ctx context.Context, in *cores.PortLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -425,7 +425,7 @@ func (s *PortService) Link(ctx context.Context, in *cores.LinkPortRequest) (*pb.
 	return &output, nil
 }
 
-func (s *PortService) Clone(ctx context.Context, in *cores.ClonePortRequest) (*pb.MyBool, error) {
+func (s *PortService) Clone(ctx context.Context, in *cores.PortCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -440,7 +440,7 @@ func (s *PortService) Clone(ctx context.Context, in *cores.ClonePortRequest) (*p
 		}
 	}
 
-	err = s.cs.getClone().clonePort(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
+	err = s.cs.getClone().port(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
 	if err != nil {
 		return &output, err
 	}
@@ -563,9 +563,9 @@ func (s *PortService) viewWithDeleted(ctx context.Context, id string) (model.Por
 	return item, nil
 }
 
-func (s *PortService) Pull(ctx context.Context, in *cores.PullPortRequest) (*cores.PullPortResponse, error) {
+func (s *PortService) Pull(ctx context.Context, in *cores.PortPullRequest) (*cores.PortPullResponse, error) {
 	var err error
-	var output cores.PullPortResponse
+	var output cores.PortPullResponse
 
 	// basic validation
 	{

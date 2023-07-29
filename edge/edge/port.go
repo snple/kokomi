@@ -184,7 +184,7 @@ func (s *PortService) View(ctx context.Context, in *pb.Id) (*pb.Port, error) {
 	return &output, nil
 }
 
-func (s *PortService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Port, error) {
+func (s *PortService) Name(ctx context.Context, in *pb.Name) (*pb.Port, error) {
 	var output pb.Port
 	var err error
 
@@ -246,9 +246,9 @@ func (s *PortService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 	return &output, nil
 }
 
-func (s *PortService) List(ctx context.Context, in *edges.ListPortRequest) (*edges.ListPortResponse, error) {
+func (s *PortService) List(ctx context.Context, in *edges.PortListRequest) (*edges.PortListResponse, error) {
 	var err error
-	var output edges.ListPortResponse
+	var output edges.PortListResponse
 
 	// basic validation
 	{
@@ -332,7 +332,7 @@ func (s *PortService) List(ctx context.Context, in *edges.ListPortRequest) (*edg
 	return &output, nil
 }
 
-func (s *PortService) Link(ctx context.Context, in *edges.LinkPortRequest) (*pb.MyBool, error) {
+func (s *PortService) Link(ctx context.Context, in *edges.PortLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -355,7 +355,7 @@ func (s *PortService) Link(ctx context.Context, in *edges.LinkPortRequest) (*pb.
 			node := option.Unwrap()
 
 			ctx := node.SetToken(context.Background())
-			request := &nodes.LinkPortRequest{Id: in.GetId(), Status: in.GetStatus()}
+			request := &nodes.PortLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 			_, err := node.PortServiceClient().Link(ctx, request)
 			if err != nil {
 				return &output, err
@@ -368,7 +368,7 @@ func (s *PortService) Link(ctx context.Context, in *edges.LinkPortRequest) (*pb.
 	return &output, nil
 }
 
-func (s *PortService) Clone(ctx context.Context, in *edges.ClonePortRequest) (*pb.MyBool, error) {
+func (s *PortService) Clone(ctx context.Context, in *edges.PortCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -394,7 +394,7 @@ func (s *PortService) Clone(ctx context.Context, in *edges.ClonePortRequest) (*p
 		}
 	}()
 
-	err = s.es.getClone().clonePort(ctx, tx, in.GetId())
+	err = s.es.getClone().port(ctx, tx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -534,9 +534,9 @@ func (s *PortService) viewWithDeleted(ctx context.Context, id string) (model.Por
 	return item, nil
 }
 
-func (s *PortService) Pull(ctx context.Context, in *edges.PullPortRequest) (*edges.PullPortResponse, error) {
+func (s *PortService) Pull(ctx context.Context, in *edges.PortPullRequest) (*edges.PortPullResponse, error) {
 	var err error
-	var output edges.PullPortResponse
+	var output edges.PortPullResponse
 
 	// basic validation
 	{

@@ -23,7 +23,7 @@ const (
 	PortService_Create_FullMethodName          = "/edges.PortService/Create"
 	PortService_Update_FullMethodName          = "/edges.PortService/Update"
 	PortService_View_FullMethodName            = "/edges.PortService/View"
-	PortService_ViewByName_FullMethodName      = "/edges.PortService/ViewByName"
+	PortService_Name_FullMethodName            = "/edges.PortService/Name"
 	PortService_Delete_FullMethodName          = "/edges.PortService/Delete"
 	PortService_List_FullMethodName            = "/edges.PortService/List"
 	PortService_Link_FullMethodName            = "/edges.PortService/Link"
@@ -40,13 +40,13 @@ type PortServiceClient interface {
 	Create(ctx context.Context, in *pb.Port, opts ...grpc.CallOption) (*pb.Port, error)
 	Update(ctx context.Context, in *pb.Port, opts ...grpc.CallOption) (*pb.Port, error)
 	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Port, error)
-	ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Port, error)
+	Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Port, error)
 	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	List(ctx context.Context, in *ListPortRequest, opts ...grpc.CallOption) (*ListPortResponse, error)
-	Link(ctx context.Context, in *LinkPortRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
-	Clone(ctx context.Context, in *ClonePortRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	List(ctx context.Context, in *PortListRequest, opts ...grpc.CallOption) (*PortListResponse, error)
+	Link(ctx context.Context, in *PortLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	Clone(ctx context.Context, in *PortCloneRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Port, error)
-	Pull(ctx context.Context, in *PullPortRequest, opts ...grpc.CallOption) (*PullPortResponse, error)
+	Pull(ctx context.Context, in *PortPullRequest, opts ...grpc.CallOption) (*PortPullResponse, error)
 	Sync(ctx context.Context, in *pb.Port, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
@@ -85,9 +85,9 @@ func (c *portServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.Ca
 	return out, nil
 }
 
-func (c *portServiceClient) ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Port, error) {
+func (c *portServiceClient) Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Port, error) {
 	out := new(pb.Port)
-	err := c.cc.Invoke(ctx, PortService_ViewByName_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, PortService_Name_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,8 +103,8 @@ func (c *portServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grpc.
 	return out, nil
 }
 
-func (c *portServiceClient) List(ctx context.Context, in *ListPortRequest, opts ...grpc.CallOption) (*ListPortResponse, error) {
-	out := new(ListPortResponse)
+func (c *portServiceClient) List(ctx context.Context, in *PortListRequest, opts ...grpc.CallOption) (*PortListResponse, error) {
+	out := new(PortListResponse)
 	err := c.cc.Invoke(ctx, PortService_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (c *portServiceClient) List(ctx context.Context, in *ListPortRequest, opts 
 	return out, nil
 }
 
-func (c *portServiceClient) Link(ctx context.Context, in *LinkPortRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *portServiceClient) Link(ctx context.Context, in *PortLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, PortService_Link_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -121,7 +121,7 @@ func (c *portServiceClient) Link(ctx context.Context, in *LinkPortRequest, opts 
 	return out, nil
 }
 
-func (c *portServiceClient) Clone(ctx context.Context, in *ClonePortRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *portServiceClient) Clone(ctx context.Context, in *PortCloneRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, PortService_Clone_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -139,8 +139,8 @@ func (c *portServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, opts
 	return out, nil
 }
 
-func (c *portServiceClient) Pull(ctx context.Context, in *PullPortRequest, opts ...grpc.CallOption) (*PullPortResponse, error) {
-	out := new(PullPortResponse)
+func (c *portServiceClient) Pull(ctx context.Context, in *PortPullRequest, opts ...grpc.CallOption) (*PortPullResponse, error) {
+	out := new(PortPullResponse)
 	err := c.cc.Invoke(ctx, PortService_Pull_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -164,13 +164,13 @@ type PortServiceServer interface {
 	Create(context.Context, *pb.Port) (*pb.Port, error)
 	Update(context.Context, *pb.Port) (*pb.Port, error)
 	View(context.Context, *pb.Id) (*pb.Port, error)
-	ViewByName(context.Context, *pb.Name) (*pb.Port, error)
+	Name(context.Context, *pb.Name) (*pb.Port, error)
 	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
-	List(context.Context, *ListPortRequest) (*ListPortResponse, error)
-	Link(context.Context, *LinkPortRequest) (*pb.MyBool, error)
-	Clone(context.Context, *ClonePortRequest) (*pb.MyBool, error)
+	List(context.Context, *PortListRequest) (*PortListResponse, error)
+	Link(context.Context, *PortLinkRequest) (*pb.MyBool, error)
+	Clone(context.Context, *PortCloneRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Port, error)
-	Pull(context.Context, *PullPortRequest) (*PullPortResponse, error)
+	Pull(context.Context, *PortPullRequest) (*PortPullResponse, error)
 	Sync(context.Context, *pb.Port) (*pb.MyBool, error)
 	mustEmbedUnimplementedPortServiceServer()
 }
@@ -188,25 +188,25 @@ func (UnimplementedPortServiceServer) Update(context.Context, *pb.Port) (*pb.Por
 func (UnimplementedPortServiceServer) View(context.Context, *pb.Id) (*pb.Port, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedPortServiceServer) ViewByName(context.Context, *pb.Name) (*pb.Port, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewByName not implemented")
+func (UnimplementedPortServiceServer) Name(context.Context, *pb.Name) (*pb.Port, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
 func (UnimplementedPortServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedPortServiceServer) List(context.Context, *ListPortRequest) (*ListPortResponse, error) {
+func (UnimplementedPortServiceServer) List(context.Context, *PortListRequest) (*PortListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedPortServiceServer) Link(context.Context, *LinkPortRequest) (*pb.MyBool, error) {
+func (UnimplementedPortServiceServer) Link(context.Context, *PortLinkRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Link not implemented")
 }
-func (UnimplementedPortServiceServer) Clone(context.Context, *ClonePortRequest) (*pb.MyBool, error) {
+func (UnimplementedPortServiceServer) Clone(context.Context, *PortCloneRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Clone not implemented")
 }
 func (UnimplementedPortServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Port, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
 }
-func (UnimplementedPortServiceServer) Pull(context.Context, *PullPortRequest) (*PullPortResponse, error) {
+func (UnimplementedPortServiceServer) Pull(context.Context, *PortPullRequest) (*PortPullResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
 }
 func (UnimplementedPortServiceServer) Sync(context.Context, *pb.Port) (*pb.MyBool, error) {
@@ -279,20 +279,20 @@ func _PortService_View_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PortService_ViewByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PortService_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PortServiceServer).ViewByName(ctx, in)
+		return srv.(PortServiceServer).Name(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PortService_ViewByName_FullMethodName,
+		FullMethod: PortService_Name_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PortServiceServer).ViewByName(ctx, req.(*pb.Name))
+		return srv.(PortServiceServer).Name(ctx, req.(*pb.Name))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -316,7 +316,7 @@ func _PortService_Delete_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _PortService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListPortRequest)
+	in := new(PortListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -328,13 +328,13 @@ func _PortService_List_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: PortService_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PortServiceServer).List(ctx, req.(*ListPortRequest))
+		return srv.(PortServiceServer).List(ctx, req.(*PortListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _PortService_Link_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LinkPortRequest)
+	in := new(PortLinkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -346,13 +346,13 @@ func _PortService_Link_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: PortService_Link_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PortServiceServer).Link(ctx, req.(*LinkPortRequest))
+		return srv.(PortServiceServer).Link(ctx, req.(*PortLinkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _PortService_Clone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ClonePortRequest)
+	in := new(PortCloneRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -364,7 +364,7 @@ func _PortService_Clone_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: PortService_Clone_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PortServiceServer).Clone(ctx, req.(*ClonePortRequest))
+		return srv.(PortServiceServer).Clone(ctx, req.(*PortCloneRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -388,7 +388,7 @@ func _PortService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _PortService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PullPortRequest)
+	in := new(PortPullRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -400,7 +400,7 @@ func _PortService_Pull_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: PortService_Pull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PortServiceServer).Pull(ctx, req.(*PullPortRequest))
+		return srv.(PortServiceServer).Pull(ctx, req.(*PortPullRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -443,8 +443,8 @@ var PortService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PortService_View_Handler,
 		},
 		{
-			MethodName: "ViewByName",
-			Handler:    _PortService_ViewByName_Handler,
+			MethodName: "Name",
+			Handler:    _PortService_Name_Handler,
 		},
 		{
 			MethodName: "Delete",

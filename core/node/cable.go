@@ -101,7 +101,7 @@ func (s *CableService) View(ctx context.Context, in *pb.Id) (*pb.Cable, error) {
 	return reply, nil
 }
 
-func (s *CableService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Cable, error) {
+func (s *CableService) Name(ctx context.Context, in *pb.Name) (*pb.Cable, error) {
 	var output pb.Cable
 	var err error
 
@@ -117,9 +117,9 @@ func (s *CableService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Cable, 
 		return &output, err
 	}
 
-	request := &cores.ViewCableByNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.CableNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.Core().GetCable().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetCable().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -159,9 +159,9 @@ func (s *CableService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 	return s.ns.Core().GetCable().Delete(ctx, in)
 }
 
-func (s *CableService) List(ctx context.Context, in *nodes.ListCableRequest) (*nodes.ListCableResponse, error) {
+func (s *CableService) List(ctx context.Context, in *nodes.CableListRequest) (*nodes.CableListResponse, error) {
 	var err error
-	var output nodes.ListCableResponse
+	var output nodes.CableListResponse
 
 	// basic validation
 	{
@@ -175,7 +175,7 @@ func (s *CableService) List(ctx context.Context, in *nodes.ListCableRequest) (*n
 		return &output, err
 	}
 
-	request := &cores.ListCableRequest{
+	request := &cores.CableListRequest{
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		Tags:     in.GetTags(),
@@ -194,7 +194,7 @@ func (s *CableService) List(ctx context.Context, in *nodes.ListCableRequest) (*n
 	return &output, nil
 }
 
-func (s *CableService) Link(ctx context.Context, in *nodes.LinkCableRequest) (*pb.MyBool, error) {
+func (s *CableService) Link(ctx context.Context, in *nodes.CableLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -221,7 +221,7 @@ func (s *CableService) Link(ctx context.Context, in *nodes.LinkCableRequest) (*p
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	request2 := &cores.LinkCableRequest{Id: in.GetId(), Status: in.GetStatus()}
+	request2 := &cores.CableLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 
 	return s.ns.Core().GetCable().Link(ctx, request2)
 }
@@ -254,9 +254,9 @@ func (s *CableService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Cabl
 	return reply, nil
 }
 
-func (s *CableService) Pull(ctx context.Context, in *nodes.PullCableRequest) (*nodes.PullCableResponse, error) {
+func (s *CableService) Pull(ctx context.Context, in *nodes.CablePullRequest) (*nodes.CablePullResponse, error) {
 	var err error
-	var output nodes.PullCableResponse
+	var output nodes.CablePullResponse
 
 	// basic validation
 	{
@@ -273,7 +273,7 @@ func (s *CableService) Pull(ctx context.Context, in *nodes.PullCableRequest) (*n
 		return &output, err
 	}
 
-	request := &cores.PullCableRequest{
+	request := &cores.CablePullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,

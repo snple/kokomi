@@ -180,7 +180,7 @@ func (s *OptionService) View(ctx context.Context, in *pb.Id) (*pb.Option, error)
 	return &output, nil
 }
 
-func (s *OptionService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Option, error) {
+func (s *OptionService) Name(ctx context.Context, in *pb.Name) (*pb.Option, error) {
 	var output pb.Option
 	var err error
 
@@ -242,9 +242,9 @@ func (s *OptionService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 	return &output, nil
 }
 
-func (s *OptionService) List(ctx context.Context, in *edges.ListOptionRequest) (*edges.ListOptionResponse, error) {
+func (s *OptionService) List(ctx context.Context, in *edges.OptionListRequest) (*edges.OptionListResponse, error) {
 	var err error
-	var output edges.ListOptionResponse
+	var output edges.OptionListResponse
 
 	// basic validation
 	{
@@ -328,7 +328,7 @@ func (s *OptionService) List(ctx context.Context, in *edges.ListOptionRequest) (
 	return &output, nil
 }
 
-func (s *OptionService) Clone(ctx context.Context, in *edges.CloneOptionRequest) (*pb.MyBool, error) {
+func (s *OptionService) Clone(ctx context.Context, in *edges.OptionCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -343,7 +343,7 @@ func (s *OptionService) Clone(ctx context.Context, in *edges.CloneOptionRequest)
 		}
 	}
 
-	err = s.es.getClone().cloneOption(ctx, s.es.GetDB(), in.GetId())
+	err = s.es.getClone().option(ctx, s.es.GetDB(), in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -472,9 +472,9 @@ func (s *OptionService) viewWithDeleted(ctx context.Context, id string) (model.O
 	return item, nil
 }
 
-func (s *OptionService) Pull(ctx context.Context, in *edges.PullOptionRequest) (*edges.PullOptionResponse, error) {
+func (s *OptionService) Pull(ctx context.Context, in *edges.OptionPullRequest) (*edges.OptionPullResponse, error) {
 	var err error
-	var output edges.PullOptionResponse
+	var output edges.OptionPullResponse
 
 	// basic validation
 	{

@@ -6,42 +6,42 @@ option go_package = "github.com/snple/kokomi/pb/cores;cores";
 import "slot_message.proto";
 import "generic_message.proto";
 
-message ListSlotRequest {
+message SlotListRequest {
     pb.Page page = 1;
     string device_id = 2;
     string tags = 3;
     string type = 4;
 }
 
-message ListSlotResponse {
+message SlotListResponse {
     pb.Page page = 1;
     uint32 count = 2;
     repeated pb.Slot slot = 3;
 }
 
-message ViewSlotByNameRequest {
+message SlotNameRequest {
     string device_id = 1;
     string name = 2;
 }
 
-message LinkSlotRequest {
+message SlotLinkRequest {
     string id = 1;
     sint32 status = 2;
 }
 
-message CloneSlotRequest {
+message SlotCloneRequest {
     string id = 1;
     string device_id = 2;
 }
 
-message PullSlotRequest {
+message SlotPullRequest {
     int64 after = 1;
     uint32 limit = 2;
     string device_id = 3;
     string type = 4;
 }
 
-message PullSlotResponse {
+message SlotPullResponse {
     int64 after = 1;
     uint32 limit = 2;
     repeated pb.Slot slot = 3;
@@ -51,13 +51,13 @@ service SlotService {
     rpc Create(pb.Slot) returns (pb.Slot) {}
     rpc Update(pb.Slot) returns (pb.Slot) {}
     rpc View(pb.Id) returns (pb.Slot) {}
-    rpc ViewByName(ViewSlotByNameRequest) returns (pb.Slot) {}
-    rpc ViewByNameFull(pb.Name) returns (pb.Slot) {}
+    rpc Name(SlotNameRequest) returns (pb.Slot) {}
+    rpc NameFull(pb.Name) returns (pb.Slot) {}
     rpc Delete(pb.Id) returns (pb.MyBool) {}
-    rpc List(ListSlotRequest) returns (ListSlotResponse) {}
-    rpc Link(LinkSlotRequest) returns (pb.MyBool) {}
-    rpc Clone(CloneSlotRequest) returns (pb.MyBool) {}
+    rpc List(SlotListRequest) returns (SlotListResponse) {}
+    rpc Link(SlotLinkRequest) returns (pb.MyBool) {}
+    rpc Clone(SlotCloneRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Slot) {}
-    rpc Pull(PullSlotRequest) returns (PullSlotResponse) {}
+    rpc Pull(SlotPullRequest) returns (SlotPullResponse) {}
     rpc Sync(pb.Slot) returns (pb.MyBool) {}
 }

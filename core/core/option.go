@@ -193,7 +193,7 @@ func (s *OptionService) View(ctx context.Context, in *pb.Id) (*pb.Option, error)
 	return &output, nil
 }
 
-func (s *OptionService) ViewByName(ctx context.Context, in *cores.ViewOptionByNameRequest) (*pb.Option, error) {
+func (s *OptionService) Name(ctx context.Context, in *cores.OptionNameRequest) (*pb.Option, error) {
 	var output pb.Option
 	var err error
 
@@ -222,7 +222,7 @@ func (s *OptionService) ViewByName(ctx context.Context, in *cores.ViewOptionByNa
 	return &output, nil
 }
 
-func (s *OptionService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Option, error) {
+func (s *OptionService) NameFull(ctx context.Context, in *pb.Name) (*pb.Option, error) {
 	var output pb.Option
 	// var err error
 
@@ -304,9 +304,9 @@ func (s *OptionService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 	return &output, nil
 }
 
-func (s *OptionService) List(ctx context.Context, in *cores.ListOptionRequest) (*cores.ListOptionResponse, error) {
+func (s *OptionService) List(ctx context.Context, in *cores.OptionListRequest) (*cores.OptionListResponse, error) {
 	var err error
-	var output cores.ListOptionResponse
+	var output cores.OptionListResponse
 
 	// basic validation
 	{
@@ -394,7 +394,7 @@ func (s *OptionService) List(ctx context.Context, in *cores.ListOptionRequest) (
 	return &output, nil
 }
 
-func (s *OptionService) Clone(ctx context.Context, in *cores.CloneOptionRequest) (*pb.MyBool, error) {
+func (s *OptionService) Clone(ctx context.Context, in *cores.OptionCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -409,7 +409,7 @@ func (s *OptionService) Clone(ctx context.Context, in *cores.CloneOptionRequest)
 		}
 	}
 
-	err = s.cs.getClone().cloneOption(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
+	err = s.cs.getClone().option(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
 	if err != nil {
 		return &output, err
 	}
@@ -529,9 +529,9 @@ func (s *OptionService) viewWithDeleted(ctx context.Context, id string) (model.O
 	return item, nil
 }
 
-func (s *OptionService) Pull(ctx context.Context, in *cores.PullOptionRequest) (*cores.PullOptionResponse, error) {
+func (s *OptionService) Pull(ctx context.Context, in *cores.OptionPullRequest) (*cores.OptionPullResponse, error) {
 	var err error
-	var output cores.PullOptionResponse
+	var output cores.OptionPullResponse
 
 	// basic validation
 	{

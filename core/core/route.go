@@ -250,7 +250,7 @@ func (s *RouteService) View(ctx context.Context, in *pb.Id) (*cores.Route, error
 	return &output, nil
 }
 
-func (s *RouteService) ViewByName(ctx context.Context, in *pb.Name) (*cores.Route, error) {
+func (s *RouteService) Name(ctx context.Context, in *pb.Name) (*cores.Route, error) {
 	var output cores.Route
 	var err error
 
@@ -308,9 +308,9 @@ func (s *RouteService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 	return &output, nil
 }
 
-func (s *RouteService) List(ctx context.Context, in *cores.ListRouteRequest) (*cores.ListRouteResponse, error) {
+func (s *RouteService) List(ctx context.Context, in *cores.RouteListRequest) (*cores.RouteListResponse, error) {
 	var err error
-	var output cores.ListRouteResponse
+	var output cores.RouteListResponse
 
 	// basic validation
 	{

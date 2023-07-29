@@ -101,7 +101,7 @@ func (s *PortService) View(ctx context.Context, in *pb.Id) (*pb.Port, error) {
 	return reply, nil
 }
 
-func (s *PortService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Port, error) {
+func (s *PortService) Name(ctx context.Context, in *pb.Name) (*pb.Port, error) {
 	var output pb.Port
 	var err error
 
@@ -117,9 +117,9 @@ func (s *PortService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Port, er
 		return &output, err
 	}
 
-	request := &cores.ViewPortByNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.PortNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.Core().GetPort().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetPort().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -159,9 +159,9 @@ func (s *PortService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 	return s.ns.Core().GetPort().Delete(ctx, in)
 }
 
-func (s *PortService) List(ctx context.Context, in *nodes.ListPortRequest) (*nodes.ListPortResponse, error) {
+func (s *PortService) List(ctx context.Context, in *nodes.PortListRequest) (*nodes.PortListResponse, error) {
 	var err error
-	var output nodes.ListPortResponse
+	var output nodes.PortListResponse
 
 	// basic validation
 	{
@@ -175,7 +175,7 @@ func (s *PortService) List(ctx context.Context, in *nodes.ListPortRequest) (*nod
 		return &output, err
 	}
 
-	request := &cores.ListPortRequest{
+	request := &cores.PortListRequest{
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		Tags:     in.GetTags(),
@@ -194,7 +194,7 @@ func (s *PortService) List(ctx context.Context, in *nodes.ListPortRequest) (*nod
 	return &output, nil
 }
 
-func (s *PortService) Link(ctx context.Context, in *nodes.LinkPortRequest) (*pb.MyBool, error) {
+func (s *PortService) Link(ctx context.Context, in *nodes.PortLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -221,7 +221,7 @@ func (s *PortService) Link(ctx context.Context, in *nodes.LinkPortRequest) (*pb.
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	request2 := &cores.LinkPortRequest{Id: in.GetId(), Status: in.GetStatus()}
+	request2 := &cores.PortLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 
 	reply2, err := s.ns.Core().GetPort().Link(ctx, request2)
 	if err != nil {
@@ -259,9 +259,9 @@ func (s *PortService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Port,
 	return reply, nil
 }
 
-func (s *PortService) Pull(ctx context.Context, in *nodes.PullPortRequest) (*nodes.PullPortResponse, error) {
+func (s *PortService) Pull(ctx context.Context, in *nodes.PortPullRequest) (*nodes.PortPullResponse, error) {
 	var err error
-	var output nodes.PullPortResponse
+	var output nodes.PortPullResponse
 
 	// basic validation
 	{
@@ -278,7 +278,7 @@ func (s *PortService) Pull(ctx context.Context, in *nodes.PullPortRequest) (*nod
 		return &output, err
 	}
 
-	request := &cores.PullPortRequest{
+	request := &cores.PortPullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,

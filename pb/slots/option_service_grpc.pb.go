@@ -23,7 +23,7 @@ const (
 	OptionService_Create_FullMethodName          = "/slots.OptionService/Create"
 	OptionService_Update_FullMethodName          = "/slots.OptionService/Update"
 	OptionService_View_FullMethodName            = "/slots.OptionService/View"
-	OptionService_ViewByName_FullMethodName      = "/slots.OptionService/ViewByName"
+	OptionService_Name_FullMethodName            = "/slots.OptionService/Name"
 	OptionService_Delete_FullMethodName          = "/slots.OptionService/Delete"
 	OptionService_List_FullMethodName            = "/slots.OptionService/List"
 	OptionService_ViewWithDeleted_FullMethodName = "/slots.OptionService/ViewWithDeleted"
@@ -38,11 +38,11 @@ type OptionServiceClient interface {
 	Create(ctx context.Context, in *pb.Option, opts ...grpc.CallOption) (*pb.Option, error)
 	Update(ctx context.Context, in *pb.Option, opts ...grpc.CallOption) (*pb.Option, error)
 	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Option, error)
-	ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Option, error)
+	Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Option, error)
 	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	List(ctx context.Context, in *ListOptionRequest, opts ...grpc.CallOption) (*ListOptionResponse, error)
+	List(ctx context.Context, in *OptionListRequest, opts ...grpc.CallOption) (*OptionListResponse, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Option, error)
-	Pull(ctx context.Context, in *PullOptionRequest, opts ...grpc.CallOption) (*PullOptionResponse, error)
+	Pull(ctx context.Context, in *OptionPullRequest, opts ...grpc.CallOption) (*OptionPullResponse, error)
 	Sync(ctx context.Context, in *pb.Option, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
@@ -81,9 +81,9 @@ func (c *optionServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.
 	return out, nil
 }
 
-func (c *optionServiceClient) ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Option, error) {
+func (c *optionServiceClient) Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Option, error) {
 	out := new(pb.Option)
-	err := c.cc.Invoke(ctx, OptionService_ViewByName_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, OptionService_Name_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -99,8 +99,8 @@ func (c *optionServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grp
 	return out, nil
 }
 
-func (c *optionServiceClient) List(ctx context.Context, in *ListOptionRequest, opts ...grpc.CallOption) (*ListOptionResponse, error) {
-	out := new(ListOptionResponse)
+func (c *optionServiceClient) List(ctx context.Context, in *OptionListRequest, opts ...grpc.CallOption) (*OptionListResponse, error) {
+	out := new(OptionListResponse)
 	err := c.cc.Invoke(ctx, OptionService_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -117,8 +117,8 @@ func (c *optionServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, op
 	return out, nil
 }
 
-func (c *optionServiceClient) Pull(ctx context.Context, in *PullOptionRequest, opts ...grpc.CallOption) (*PullOptionResponse, error) {
-	out := new(PullOptionResponse)
+func (c *optionServiceClient) Pull(ctx context.Context, in *OptionPullRequest, opts ...grpc.CallOption) (*OptionPullResponse, error) {
+	out := new(OptionPullResponse)
 	err := c.cc.Invoke(ctx, OptionService_Pull_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -142,11 +142,11 @@ type OptionServiceServer interface {
 	Create(context.Context, *pb.Option) (*pb.Option, error)
 	Update(context.Context, *pb.Option) (*pb.Option, error)
 	View(context.Context, *pb.Id) (*pb.Option, error)
-	ViewByName(context.Context, *pb.Name) (*pb.Option, error)
+	Name(context.Context, *pb.Name) (*pb.Option, error)
 	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
-	List(context.Context, *ListOptionRequest) (*ListOptionResponse, error)
+	List(context.Context, *OptionListRequest) (*OptionListResponse, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Option, error)
-	Pull(context.Context, *PullOptionRequest) (*PullOptionResponse, error)
+	Pull(context.Context, *OptionPullRequest) (*OptionPullResponse, error)
 	Sync(context.Context, *pb.Option) (*pb.MyBool, error)
 	mustEmbedUnimplementedOptionServiceServer()
 }
@@ -164,19 +164,19 @@ func (UnimplementedOptionServiceServer) Update(context.Context, *pb.Option) (*pb
 func (UnimplementedOptionServiceServer) View(context.Context, *pb.Id) (*pb.Option, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedOptionServiceServer) ViewByName(context.Context, *pb.Name) (*pb.Option, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewByName not implemented")
+func (UnimplementedOptionServiceServer) Name(context.Context, *pb.Name) (*pb.Option, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
 func (UnimplementedOptionServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedOptionServiceServer) List(context.Context, *ListOptionRequest) (*ListOptionResponse, error) {
+func (UnimplementedOptionServiceServer) List(context.Context, *OptionListRequest) (*OptionListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedOptionServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Option, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
 }
-func (UnimplementedOptionServiceServer) Pull(context.Context, *PullOptionRequest) (*PullOptionResponse, error) {
+func (UnimplementedOptionServiceServer) Pull(context.Context, *OptionPullRequest) (*OptionPullResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
 }
 func (UnimplementedOptionServiceServer) Sync(context.Context, *pb.Option) (*pb.MyBool, error) {
@@ -249,20 +249,20 @@ func _OptionService_View_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OptionService_ViewByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OptionService_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OptionServiceServer).ViewByName(ctx, in)
+		return srv.(OptionServiceServer).Name(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OptionService_ViewByName_FullMethodName,
+		FullMethod: OptionService_Name_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OptionServiceServer).ViewByName(ctx, req.(*pb.Name))
+		return srv.(OptionServiceServer).Name(ctx, req.(*pb.Name))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -286,7 +286,7 @@ func _OptionService_Delete_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _OptionService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListOptionRequest)
+	in := new(OptionListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -298,7 +298,7 @@ func _OptionService_List_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: OptionService_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OptionServiceServer).List(ctx, req.(*ListOptionRequest))
+		return srv.(OptionServiceServer).List(ctx, req.(*OptionListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -322,7 +322,7 @@ func _OptionService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context
 }
 
 func _OptionService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PullOptionRequest)
+	in := new(OptionPullRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -334,7 +334,7 @@ func _OptionService_Pull_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: OptionService_Pull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OptionServiceServer).Pull(ctx, req.(*PullOptionRequest))
+		return srv.(OptionServiceServer).Pull(ctx, req.(*OptionPullRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -377,8 +377,8 @@ var OptionService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OptionService_View_Handler,
 		},
 		{
-			MethodName: "ViewByName",
-			Handler:    _OptionService_ViewByName_Handler,
+			MethodName: "Name",
+			Handler:    _OptionService_Name_Handler,
 		},
 		{
 			MethodName: "Delete",

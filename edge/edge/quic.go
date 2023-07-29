@@ -360,7 +360,7 @@ func (s *QuicService) syncLinkStatus() {
 				s.lock.RLock()
 				for portId, num := range s.linkNum {
 					go func(portId string, num int) {
-						request := edges.LinkPortRequest{Id: portId, Status: int32(num)}
+						request := edges.PortLinkRequest{Id: portId, Status: int32(num)}
 
 						ctx := context.Background()
 						s.es.GetPort().Link(ctx, &request)

@@ -101,7 +101,7 @@ func (s *SlotService) View(ctx context.Context, in *pb.Id) (*pb.Slot, error) {
 	return reply, nil
 }
 
-func (s *SlotService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Slot, error) {
+func (s *SlotService) Name(ctx context.Context, in *pb.Name) (*pb.Slot, error) {
 	var output pb.Slot
 	var err error
 
@@ -117,9 +117,9 @@ func (s *SlotService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Slot, er
 		return &output, err
 	}
 
-	request := &cores.ViewSlotByNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.SlotNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.Core().GetSlot().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetSlot().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -159,9 +159,9 @@ func (s *SlotService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 	return s.ns.Core().GetSlot().Delete(ctx, in)
 }
 
-func (s *SlotService) List(ctx context.Context, in *nodes.ListSlotRequest) (*nodes.ListSlotResponse, error) {
+func (s *SlotService) List(ctx context.Context, in *nodes.SlotListRequest) (*nodes.SlotListResponse, error) {
 	var err error
-	var output nodes.ListSlotResponse
+	var output nodes.SlotListResponse
 
 	// basic validation
 	{
@@ -175,7 +175,7 @@ func (s *SlotService) List(ctx context.Context, in *nodes.ListSlotRequest) (*nod
 		return &output, err
 	}
 
-	request := &cores.ListSlotRequest{
+	request := &cores.SlotListRequest{
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		Tags:     in.GetTags(),
@@ -194,7 +194,7 @@ func (s *SlotService) List(ctx context.Context, in *nodes.ListSlotRequest) (*nod
 	return &output, nil
 }
 
-func (s *SlotService) Link(ctx context.Context, in *nodes.LinkSlotRequest) (*pb.MyBool, error) {
+func (s *SlotService) Link(ctx context.Context, in *nodes.SlotLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -221,7 +221,7 @@ func (s *SlotService) Link(ctx context.Context, in *nodes.LinkSlotRequest) (*pb.
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	request2 := &cores.LinkSlotRequest{Id: in.GetId(), Status: in.GetStatus()}
+	request2 := &cores.SlotLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 
 	reply2, err := s.ns.Core().GetSlot().Link(ctx, request2)
 	if err != nil {
@@ -259,9 +259,9 @@ func (s *SlotService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Slot,
 	return reply, nil
 }
 
-func (s *SlotService) Pull(ctx context.Context, in *nodes.PullSlotRequest) (*nodes.PullSlotResponse, error) {
+func (s *SlotService) Pull(ctx context.Context, in *nodes.SlotPullRequest) (*nodes.SlotPullResponse, error) {
 	var err error
-	var output nodes.PullSlotResponse
+	var output nodes.SlotPullResponse
 
 	// basic validation
 	{
@@ -278,7 +278,7 @@ func (s *SlotService) Pull(ctx context.Context, in *nodes.PullSlotRequest) (*nod
 		return &output, err
 	}
 
-	request := &cores.PullSlotRequest{
+	request := &cores.SlotPullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,

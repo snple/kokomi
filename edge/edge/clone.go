@@ -27,7 +27,7 @@ func newCloneService(es *EdgeService) *cloneService {
 	}
 }
 
-func (s *cloneService) cloneSlot(ctx context.Context, db bun.IDB, slotID string) error {
+func (s *cloneService) slot(ctx context.Context, db bun.IDB, slotID string) error {
 	var err error
 
 	item := model.Slot{
@@ -69,7 +69,7 @@ func (s *cloneService) cloneSlot(ctx context.Context, db bun.IDB, slotID string)
 	return nil
 }
 
-func (s *cloneService) cloneOption(ctx context.Context, db bun.IDB, optionID string) error {
+func (s *cloneService) option(ctx context.Context, db bun.IDB, optionID string) error {
 	var err error
 
 	item := model.Option{
@@ -111,7 +111,7 @@ func (s *cloneService) cloneOption(ctx context.Context, db bun.IDB, optionID str
 	return nil
 }
 
-func (s *cloneService) clonePort(ctx context.Context, db bun.IDB, portID string) error {
+func (s *cloneService) port(ctx context.Context, db bun.IDB, portID string) error {
 	var err error
 
 	item := model.Port{
@@ -153,7 +153,7 @@ func (s *cloneService) clonePort(ctx context.Context, db bun.IDB, portID string)
 	return nil
 }
 
-func (s *cloneService) cloneProxy(ctx context.Context, db bun.IDB, proxyID string) error {
+func (s *cloneService) proxy(ctx context.Context, db bun.IDB, proxyID string) error {
 	var err error
 
 	item := model.Proxy{
@@ -195,7 +195,7 @@ func (s *cloneService) cloneProxy(ctx context.Context, db bun.IDB, proxyID strin
 	return nil
 }
 
-func (s *cloneService) cloneSource(ctx context.Context, db bun.IDB, sourceID string) error {
+func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID string) error {
 	var err error
 
 	item := model.Source{
@@ -260,7 +260,7 @@ func (s *cloneService) cloneSource(ctx context.Context, db bun.IDB, sourceID str
 	return nil
 }
 
-func (s *cloneService) cloneTag(ctx context.Context, db bun.IDB, tagID, sourceID string) error {
+func (s *cloneService) tag(ctx context.Context, db bun.IDB, tagID, sourceID string) error {
 	var err error
 
 	item := model.Tag{
@@ -320,7 +320,7 @@ func (s *cloneService) cloneTag(ctx context.Context, db bun.IDB, tagID, sourceID
 	return nil
 }
 
-func (s *cloneService) cloneConst(ctx context.Context, db bun.IDB, constID string) error {
+func (s *cloneService) const_(ctx context.Context, db bun.IDB, constID string) error {
 	var err error
 
 	item := model.Const{
@@ -362,7 +362,7 @@ func (s *cloneService) cloneConst(ctx context.Context, db bun.IDB, constID strin
 	return nil
 }
 
-func (s *cloneService) cloneCable(ctx context.Context, db bun.IDB, cableID string) error {
+func (s *cloneService) cable(ctx context.Context, db bun.IDB, cableID string) error {
 	var err error
 
 	item := model.Cable{
@@ -427,7 +427,7 @@ func (s *cloneService) cloneCable(ctx context.Context, db bun.IDB, cableID strin
 	return nil
 }
 
-func (s *cloneService) cloneWire(ctx context.Context, db bun.IDB, wireID, cableID string) error {
+func (s *cloneService) wire(ctx context.Context, db bun.IDB, wireID, cableID string) error {
 	var err error
 
 	item := model.Wire{

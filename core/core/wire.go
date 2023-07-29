@@ -221,7 +221,7 @@ func (s *WireService) View(ctx context.Context, in *pb.Id) (*pb.Wire, error) {
 	return &output, nil
 }
 
-func (s *WireService) ViewByName(ctx context.Context, in *cores.ViewWireByNameRequest) (*pb.Wire, error) {
+func (s *WireService) Name(ctx context.Context, in *cores.WireNameRequest) (*pb.Wire, error) {
 	var output pb.Wire
 	var err error
 
@@ -257,7 +257,7 @@ func (s *WireService) ViewByName(ctx context.Context, in *cores.ViewWireByNameRe
 	return &output, nil
 }
 
-func (s *WireService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
+func (s *WireService) NameFull(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
 	var output pb.Wire
 	var err error
 
@@ -356,9 +356,9 @@ func (s *WireService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 	return &output, nil
 }
 
-func (s *WireService) List(ctx context.Context, in *cores.ListWireRequest) (*cores.ListWireResponse, error) {
+func (s *WireService) List(ctx context.Context, in *cores.WireListRequest) (*cores.WireListResponse, error) {
 	var err error
-	var output cores.ListWireResponse
+	var output cores.WireListResponse
 
 	// basic validation
 	{
@@ -455,7 +455,7 @@ func (s *WireService) List(ctx context.Context, in *cores.ListWireRequest) (*cor
 	return &output, nil
 }
 
-func (s *WireService) Clone(ctx context.Context, in *cores.CloneWireRequest) (*pb.MyBool, error) {
+func (s *WireService) Clone(ctx context.Context, in *cores.WireCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -470,7 +470,7 @@ func (s *WireService) Clone(ctx context.Context, in *cores.CloneWireRequest) (*p
 		}
 	}
 
-	err = s.cs.getClone().cloneWire(ctx, s.cs.GetDB(), in.GetId(), in.GetCableId())
+	err = s.cs.getClone().wire(ctx, s.cs.GetDB(), in.GetId(), in.GetCableId())
 	if err != nil {
 		return &output, err
 	}
@@ -678,7 +678,7 @@ UPDATED:
 	return &output, nil
 }
 
-func (s *WireService) GetValueByName(ctx context.Context, in *cores.GetWireValueByNameRequest) (*cores.WireNameValue, error) {
+func (s *WireService) GetValueByName(ctx context.Context, in *cores.WireGetValueByNameRequest) (*cores.WireNameValue, error) {
 	var err error
 	var output cores.WireNameValue
 
@@ -968,9 +968,9 @@ func (s *WireService) viewWithDeleted(ctx context.Context, id string) (model.Wir
 	return item, nil
 }
 
-func (s *WireService) Pull(ctx context.Context, in *cores.PullWireRequest) (*cores.PullWireResponse, error) {
+func (s *WireService) Pull(ctx context.Context, in *cores.WirePullRequest) (*cores.WirePullResponse, error) {
 	var err error
-	var output cores.PullWireResponse
+	var output cores.WirePullResponse
 
 	// basic validation
 	{
@@ -1126,9 +1126,9 @@ func (s *WireService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, e
 	return &output, nil
 }
 
-func (s *WireService) PullValue(ctx context.Context, in *cores.PullWireValueRequest) (*cores.PullWireValueResponse, error) {
+func (s *WireService) PullValue(ctx context.Context, in *cores.WirePullValueRequest) (*cores.WirePullValueResponse, error) {
 	var err error
-	var output cores.PullWireValueResponse
+	var output cores.WirePullValueResponse
 
 	// basic validation
 	{

@@ -112,7 +112,7 @@ func (s *WireService) View(ctx context.Context, in *pb.Id) (*pb.Wire, error) {
 	return reply, nil
 }
 
-func (s *WireService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
+func (s *WireService) Name(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
 	var output pb.Wire
 	var err error
 
@@ -128,9 +128,9 @@ func (s *WireService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Wire, er
 		return &output, err
 	}
 
-	request := &cores.ViewWireByNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.WireNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.Core().GetWire().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetWire().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -170,9 +170,9 @@ func (s *WireService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 	return s.ns.Core().GetWire().Delete(ctx, in)
 }
 
-func (s *WireService) List(ctx context.Context, in *nodes.ListWireRequest) (*nodes.ListWireResponse, error) {
+func (s *WireService) List(ctx context.Context, in *nodes.WireListRequest) (*nodes.WireListResponse, error) {
 	var err error
-	var output nodes.ListWireResponse
+	var output nodes.WireListResponse
 
 	// basic validation
 	{
@@ -186,7 +186,7 @@ func (s *WireService) List(ctx context.Context, in *nodes.ListWireRequest) (*nod
 		return &output, err
 	}
 
-	request := &cores.ListWireRequest{
+	request := &cores.WireListRequest{
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		CableId:  in.GetCableId(),
@@ -311,7 +311,7 @@ func (s *WireService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Wire
 	}
 
 	reply, err := s.ns.Core().GetWire().GetValueByName(ctx,
-		&cores.GetWireValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
+		&cores.WireGetValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
 	if err != nil {
 		return &output, err
 	}
@@ -392,9 +392,9 @@ func (s *WireService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Wire,
 	return reply, nil
 }
 
-func (s *WireService) Pull(ctx context.Context, in *nodes.PullWireRequest) (*nodes.PullWireResponse, error) {
+func (s *WireService) Pull(ctx context.Context, in *nodes.WirePullRequest) (*nodes.WirePullResponse, error) {
 	var err error
-	var output nodes.PullWireResponse
+	var output nodes.WirePullResponse
 
 	// basic validation
 	{
@@ -411,7 +411,7 @@ func (s *WireService) Pull(ctx context.Context, in *nodes.PullWireRequest) (*nod
 		return &output, err
 	}
 
-	request := &cores.PullWireRequest{
+	request := &cores.WirePullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
@@ -506,9 +506,9 @@ func (s *WireService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, e
 	return s.ns.Core().GetWire().DeleteValue(ctx, in)
 }
 
-func (s *WireService) PullValue(ctx context.Context, in *nodes.PullWireValueRequest) (*nodes.PullWireValueResponse, error) {
+func (s *WireService) PullValue(ctx context.Context, in *nodes.WirePullValueRequest) (*nodes.WirePullValueResponse, error) {
 	var err error
-	var output nodes.PullWireValueResponse
+	var output nodes.WirePullValueResponse
 
 	// basic validation
 	{
@@ -525,7 +525,7 @@ func (s *WireService) PullValue(ctx context.Context, in *nodes.PullWireValueRequ
 		return &output, err
 	}
 
-	request := &cores.PullWireValueRequest{
+	request := &cores.WirePullValueRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,

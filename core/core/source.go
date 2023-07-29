@@ -199,7 +199,7 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 	return &output, nil
 }
 
-func (s *SourceService) ViewByName(ctx context.Context, in *cores.ViewSourceByNameRequest) (*pb.Source, error) {
+func (s *SourceService) Name(ctx context.Context, in *cores.SourceNameRequest) (*pb.Source, error) {
 	var output pb.Source
 	var err error
 
@@ -228,7 +228,7 @@ func (s *SourceService) ViewByName(ctx context.Context, in *cores.ViewSourceByNa
 	return &output, nil
 }
 
-func (s *SourceService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Source, error) {
+func (s *SourceService) NameFull(ctx context.Context, in *pb.Name) (*pb.Source, error) {
 	var output pb.Source
 	// var err error
 
@@ -310,9 +310,9 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 	return &output, nil
 }
 
-func (s *SourceService) List(ctx context.Context, in *cores.ListSourceRequest) (*cores.ListSourceResponse, error) {
+func (s *SourceService) List(ctx context.Context, in *cores.SourceListRequest) (*cores.SourceListResponse, error) {
 	var err error
-	var output cores.ListSourceResponse
+	var output cores.SourceListResponse
 
 	// basic validation
 	{
@@ -404,7 +404,7 @@ func (s *SourceService) List(ctx context.Context, in *cores.ListSourceRequest) (
 	return &output, nil
 }
 
-func (s *SourceService) Link(ctx context.Context, in *cores.LinkSourceRequest) (*pb.MyBool, error) {
+func (s *SourceService) Link(ctx context.Context, in *cores.SourceLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -431,7 +431,7 @@ func (s *SourceService) Link(ctx context.Context, in *cores.LinkSourceRequest) (
 	return &output, nil
 }
 
-func (s *SourceService) Clone(ctx context.Context, in *cores.CloneSourceRequest) (*pb.MyBool, error) {
+func (s *SourceService) Clone(ctx context.Context, in *cores.SourceCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -457,7 +457,7 @@ func (s *SourceService) Clone(ctx context.Context, in *cores.CloneSourceRequest)
 		}
 	}()
 
-	err = s.cs.getClone().cloneSource(ctx, tx, in.GetId(), in.GetDeviceId())
+	err = s.cs.getClone().source(ctx, tx, in.GetId(), in.GetDeviceId())
 	if err != nil {
 		return &output, err
 	}
@@ -587,9 +587,9 @@ func (s *SourceService) viewWithDeleted(ctx context.Context, id string) (model.S
 	return item, nil
 }
 
-func (s *SourceService) Pull(ctx context.Context, in *cores.PullSourceRequest) (*cores.PullSourceResponse, error) {
+func (s *SourceService) Pull(ctx context.Context, in *cores.SourcePullRequest) (*cores.SourcePullResponse, error) {
 	var err error
-	var output cores.PullSourceResponse
+	var output cores.SourcePullResponse
 
 	// basic validation
 	{

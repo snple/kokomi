@@ -20,7 +20,7 @@ message Route {
     int64 deleted = 12;
 }
 
-message ListRouteRequest {
+message RouteListRequest {
     pb.Page page = 1;
     string src = 2;
     string dst = 3;
@@ -28,7 +28,7 @@ message ListRouteRequest {
     string type = 5;
 }
 
-message ListRouteResponse {
+message RouteListResponse {
     pb.Page page = 1;
     uint32 count = 2;
     repeated Route route = 3;
@@ -38,7 +38,7 @@ service RouteService {
     rpc Create(Route) returns (Route) {}
     rpc Update(Route) returns (Route) {}
     rpc View(pb.Id) returns (Route) {}
-    rpc ViewByName(pb.Name) returns (Route) {}
+    rpc Name(pb.Name) returns (Route) {}
     rpc Delete(pb.Id) returns (pb.MyBool) {}
-    rpc List(ListRouteRequest) returns (ListRouteResponse) {}
+    rpc List(RouteListRequest) returns (RouteListResponse) {}
 }

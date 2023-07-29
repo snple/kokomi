@@ -17,7 +17,7 @@ func DeviceList(ctx context.Context, client cores.DeviceServiceClient) {
 		Search:  "",
 	}
 
-	request := &cores.ListDeviceRequest{
+	request := &cores.DeviceListRequest{
 		Page: &page,
 		Tags: "",
 	}
@@ -34,6 +34,17 @@ func DeviceView(ctx context.Context, client cores.DeviceServiceClient) {
 	request := &pb.Id{Id: "017a053b3f7be81caa209b8e"}
 
 	reply, err := client.View(ctx, request)
+
+	if err != nil {
+		log.Fatalf("Error when calling grpc service: %s", err)
+	}
+	log.Printf("Resp received: %v", reply)
+}
+
+func DeviceName(ctx context.Context, client cores.DeviceServiceClient) {
+	request := &pb.Name{Name: "device"}
+
+	reply, err := client.Name(ctx, request)
 
 	if err != nil {
 		log.Fatalf("Error when calling grpc service: %s", err)

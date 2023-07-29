@@ -79,7 +79,7 @@ func (s *OptionService) View(ctx context.Context, in *pb.Id) (*pb.Option, error)
 	return s.ss.Edge().GetOption().View(ctx, in)
 }
 
-func (s *OptionService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Option, error) {
+func (s *OptionService) Name(ctx context.Context, in *pb.Name) (*pb.Option, error) {
 	var output pb.Option
 	var err error
 
@@ -95,7 +95,7 @@ func (s *OptionService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Option
 		return &output, err
 	}
 
-	return s.ss.Edge().GetOption().ViewByName(ctx, in)
+	return s.ss.Edge().GetOption().Name(ctx, in)
 }
 
 func (s *OptionService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
@@ -117,9 +117,9 @@ func (s *OptionService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 	return s.ss.Edge().GetOption().Delete(ctx, in)
 }
 
-func (s *OptionService) List(ctx context.Context, in *slots.ListOptionRequest) (*slots.ListOptionResponse, error) {
+func (s *OptionService) List(ctx context.Context, in *slots.OptionListRequest) (*slots.OptionListResponse, error) {
 	var err error
-	var output slots.ListOptionResponse
+	var output slots.OptionListResponse
 
 	// basic validation
 	{
@@ -133,7 +133,7 @@ func (s *OptionService) List(ctx context.Context, in *slots.ListOptionRequest) (
 		return &output, err
 	}
 
-	request := &edges.ListOptionRequest{
+	request := &edges.OptionListRequest{
 		Page: in.GetPage(),
 		Tags: in.GetTags(),
 		Type: in.GetType(),
@@ -175,9 +175,9 @@ func (s *OptionService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Opt
 	return reply, nil
 }
 
-func (s *OptionService) Pull(ctx context.Context, in *slots.PullOptionRequest) (*slots.PullOptionResponse, error) {
+func (s *OptionService) Pull(ctx context.Context, in *slots.OptionPullRequest) (*slots.OptionPullResponse, error) {
 	var err error
-	var output slots.PullOptionResponse
+	var output slots.OptionPullResponse
 
 	// basic validation
 	{
@@ -194,7 +194,7 @@ func (s *OptionService) Pull(ctx context.Context, in *slots.PullOptionRequest) (
 		return &output, err
 	}
 
-	request := &edges.PullOptionRequest{
+	request := &edges.OptionPullRequest{
 		After: in.GetAfter(),
 		Limit: in.GetLimit(),
 		Type:  in.GetType(),

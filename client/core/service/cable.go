@@ -16,7 +16,7 @@ func CableList(ctx context.Context, client cores.CableServiceClient) {
 		OrderBy: "name",
 	}
 
-	request := &cores.ListCableRequest{
+	request := &cores.CableListRequest{
 		Page:     &page,
 		DeviceId: "01867d48be6b780ed1fb9afe",
 	}
@@ -41,9 +41,9 @@ func CableView(ctx context.Context, client cores.CableServiceClient) {
 }
 
 func CableViewByName(ctx context.Context, client cores.CableServiceClient) {
-	request := &cores.ViewCableByNameRequest{Name: "Cable"}
+	request := &cores.CableNameRequest{Name: "Cable"}
 
-	reply, err := client.ViewByName(ctx, request)
+	reply, err := client.Name(ctx, request)
 
 	if err != nil {
 		log.Fatalf("Error when calling grpc service: %s", err)
@@ -54,7 +54,7 @@ func CableViewByName(ctx context.Context, client cores.CableServiceClient) {
 func CableViewByNameFull(ctx context.Context, client cores.CableServiceClient) {
 	request := &pb.Name{Name: "device1.Cable1"}
 
-	reply, err := client.ViewByNameFull(ctx, request)
+	reply, err := client.NameFull(ctx, request)
 
 	if err != nil {
 		log.Fatalf("Error when calling grpc service: %s", err)

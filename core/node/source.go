@@ -101,7 +101,7 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 	return reply, nil
 }
 
-func (s *SourceService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Source, error) {
+func (s *SourceService) Name(ctx context.Context, in *pb.Name) (*pb.Source, error) {
 	var output pb.Source
 	var err error
 
@@ -117,9 +117,9 @@ func (s *SourceService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Source
 		return &output, err
 	}
 
-	request := &cores.ViewSourceByNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.SourceNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.Core().GetSource().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetSource().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -159,9 +159,9 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 	return s.ns.Core().GetSource().Delete(ctx, in)
 }
 
-func (s *SourceService) List(ctx context.Context, in *nodes.ListSourceRequest) (*nodes.ListSourceResponse, error) {
+func (s *SourceService) List(ctx context.Context, in *nodes.SourceListRequest) (*nodes.SourceListResponse, error) {
 	var err error
-	var output nodes.ListSourceResponse
+	var output nodes.SourceListResponse
 
 	// basic validation
 	{
@@ -175,7 +175,7 @@ func (s *SourceService) List(ctx context.Context, in *nodes.ListSourceRequest) (
 		return &output, err
 	}
 
-	request := &cores.ListSourceRequest{
+	request := &cores.SourceListRequest{
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		Tags:     in.GetTags(),
@@ -195,7 +195,7 @@ func (s *SourceService) List(ctx context.Context, in *nodes.ListSourceRequest) (
 	return &output, nil
 }
 
-func (s *SourceService) Link(ctx context.Context, in *nodes.LinkSourceRequest) (*pb.MyBool, error) {
+func (s *SourceService) Link(ctx context.Context, in *nodes.SourceLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -222,7 +222,7 @@ func (s *SourceService) Link(ctx context.Context, in *nodes.LinkSourceRequest) (
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	request2 := &cores.LinkSourceRequest{Id: in.GetId(), Status: in.GetStatus()}
+	request2 := &cores.SourceLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 
 	return s.ns.Core().GetSource().Link(ctx, request2)
 }
@@ -255,9 +255,9 @@ func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Sou
 	return reply, nil
 }
 
-func (s *SourceService) Pull(ctx context.Context, in *nodes.PullSourceRequest) (*nodes.PullSourceResponse, error) {
+func (s *SourceService) Pull(ctx context.Context, in *nodes.SourcePullRequest) (*nodes.SourcePullResponse, error) {
 	var err error
-	var output nodes.PullSourceResponse
+	var output nodes.SourcePullResponse
 
 	// basic validation
 	{
@@ -274,7 +274,7 @@ func (s *SourceService) Pull(ctx context.Context, in *nodes.PullSourceRequest) (
 		return &output, err
 	}
 
-	request := &cores.PullSourceRequest{
+	request := &cores.SourcePullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,

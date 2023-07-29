@@ -79,7 +79,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 	return s.ss.Edge().GetTag().View(ctx, in)
 }
 
-func (s *TagService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
+func (s *TagService) Name(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
 	var output pb.Tag
 	var err error
 
@@ -95,7 +95,7 @@ func (s *TagService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Tag, erro
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().ViewByName(ctx, in)
+	return s.ss.Edge().GetTag().Name(ctx, in)
 }
 
 func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
@@ -117,9 +117,9 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 	return s.ss.Edge().GetTag().Delete(ctx, in)
 }
 
-func (s *TagService) List(ctx context.Context, in *slots.ListTagRequest) (*slots.ListTagResponse, error) {
+func (s *TagService) List(ctx context.Context, in *slots.TagListRequest) (*slots.TagListResponse, error) {
 	var err error
-	var output slots.ListTagResponse
+	var output slots.TagListResponse
 
 	// basic validation
 	{
@@ -133,7 +133,7 @@ func (s *TagService) List(ctx context.Context, in *slots.ListTagRequest) (*slots
 		return &output, err
 	}
 
-	request := &edges.ListTagRequest{
+	request := &edges.TagListRequest{
 		Page:     in.GetPage(),
 		SourceId: in.GetSourceId(),
 		Tags:     in.GetTags(),
@@ -290,9 +290,9 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 	return reply, nil
 }
 
-func (s *TagService) Pull(ctx context.Context, in *slots.PullTagRequest) (*slots.PullTagResponse, error) {
+func (s *TagService) Pull(ctx context.Context, in *slots.TagPullRequest) (*slots.TagPullResponse, error) {
 	var err error
-	var output slots.PullTagResponse
+	var output slots.TagPullResponse
 
 	// basic validation
 	{
@@ -309,7 +309,7 @@ func (s *TagService) Pull(ctx context.Context, in *slots.PullTagRequest) (*slots
 		return &output, err
 	}
 
-	request := &edges.PullTagRequest{
+	request := &edges.TagPullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		SourceId: in.GetSourceId(),
@@ -388,9 +388,9 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 	return s.ss.Edge().GetTag().DeleteValue(ctx, in)
 }
 
-func (s *TagService) PullValue(ctx context.Context, in *slots.PullTagValueRequest) (*slots.PullTagValueResponse, error) {
+func (s *TagService) PullValue(ctx context.Context, in *slots.TagPullValueRequest) (*slots.TagPullValueResponse, error) {
 	var err error
-	var output slots.PullTagValueResponse
+	var output slots.TagPullValueResponse
 
 	// basic validation
 	{
@@ -407,7 +407,7 @@ func (s *TagService) PullValue(ctx context.Context, in *slots.PullTagValueReques
 		return &output, err
 	}
 
-	request := &edges.PullTagValueRequest{
+	request := &edges.TagPullValueRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		SourceId: in.GetSourceId(),

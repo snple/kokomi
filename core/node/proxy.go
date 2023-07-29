@@ -50,7 +50,7 @@ func (s *ProxyService) View(ctx context.Context, in *pb.Id) (*pb.Proxy, error) {
 	return reply, nil
 }
 
-func (s *ProxyService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Proxy, error) {
+func (s *ProxyService) Name(ctx context.Context, in *pb.Name) (*pb.Proxy, error) {
 	var output pb.Proxy
 	var err error
 
@@ -66,9 +66,9 @@ func (s *ProxyService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Proxy, 
 		return &output, err
 	}
 
-	request := &cores.ViewProxyByNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.ProxyNameRequest{DeviceId: deviceID, Name: in.GetName()}
 
-	reply, err := s.ns.Core().GetProxy().ViewByName(ctx, request)
+	reply, err := s.ns.Core().GetProxy().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -80,9 +80,9 @@ func (s *ProxyService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Proxy, 
 	return reply, nil
 }
 
-func (s *ProxyService) List(ctx context.Context, in *nodes.ListProxyRequest) (*nodes.ListProxyResponse, error) {
+func (s *ProxyService) List(ctx context.Context, in *nodes.ProxyListRequest) (*nodes.ProxyListResponse, error) {
 	var err error
-	var output nodes.ListProxyResponse
+	var output nodes.ProxyListResponse
 
 	// basic validation
 	{
@@ -96,7 +96,7 @@ func (s *ProxyService) List(ctx context.Context, in *nodes.ListProxyRequest) (*n
 		return &output, err
 	}
 
-	request := &cores.ListProxyRequest{
+	request := &cores.ProxyListRequest{
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		Tags:     in.GetTags(),
@@ -115,7 +115,7 @@ func (s *ProxyService) List(ctx context.Context, in *nodes.ListProxyRequest) (*n
 	return &output, nil
 }
 
-func (s *ProxyService) Link(ctx context.Context, in *nodes.LinkProxyRequest) (*pb.MyBool, error) {
+func (s *ProxyService) Link(ctx context.Context, in *nodes.ProxyLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -142,7 +142,7 @@ func (s *ProxyService) Link(ctx context.Context, in *nodes.LinkProxyRequest) (*p
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	request2 := &cores.LinkProxyRequest{Id: in.GetId(), Status: in.GetStatus()}
+	request2 := &cores.ProxyLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 
 	reply2, err := s.ns.Core().GetProxy().Link(ctx, request2)
 	if err != nil {
@@ -180,9 +180,9 @@ func (s *ProxyService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Prox
 	return reply, nil
 }
 
-func (s *ProxyService) Pull(ctx context.Context, in *nodes.PullProxyRequest) (*nodes.PullProxyResponse, error) {
+func (s *ProxyService) Pull(ctx context.Context, in *nodes.ProxyPullRequest) (*nodes.ProxyPullResponse, error) {
 	var err error
-	var output nodes.PullProxyResponse
+	var output nodes.ProxyPullResponse
 
 	// basic validation
 	{
@@ -199,7 +199,7 @@ func (s *ProxyService) Pull(ctx context.Context, in *nodes.PullProxyRequest) (*n
 		return &output, err
 	}
 
-	request := &cores.PullProxyRequest{
+	request := &cores.ProxyPullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,

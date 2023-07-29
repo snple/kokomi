@@ -197,7 +197,7 @@ func (s *DeviceService) View(ctx context.Context, in *pb.Id) (*pb.Device, error)
 	return &output, nil
 }
 
-func (s *DeviceService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Device, error) {
+func (s *DeviceService) Name(ctx context.Context, in *pb.Name) (*pb.Device, error) {
 	var output pb.Device
 	var err error
 
@@ -259,9 +259,9 @@ func (s *DeviceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 	return &output, nil
 }
 
-func (s *DeviceService) List(ctx context.Context, in *cores.ListDeviceRequest) (*cores.ListDeviceResponse, error) {
+func (s *DeviceService) List(ctx context.Context, in *cores.DeviceListRequest) (*cores.DeviceListResponse, error) {
 	var err error
-	var output cores.ListDeviceResponse
+	var output cores.DeviceListResponse
 
 	// basic validation
 	{
@@ -320,6 +320,10 @@ func (s *DeviceService) List(ctx context.Context, in *cores.ListDeviceRequest) (
 		query = query.Where(`type = ?`, in.GetType())
 	}
 
+	if len(in.GetArch()) > 0 {
+		query = query.Where(`arch = ?`, in.GetArch())
+	}
+
 	if len(in.GetPage().GetOrderBy()) > 0 && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
 		in.GetPage().GetOrderBy() == "created" || in.GetPage().GetOrderBy() == "updated") {
 		query.Order(in.GetPage().GetOrderBy() + " " + in.GetPage().GetSort().String())
@@ -345,7 +349,7 @@ func (s *DeviceService) List(ctx context.Context, in *cores.ListDeviceRequest) (
 	return &output, nil
 }
 
-func (s *DeviceService) Link(ctx context.Context, in *cores.LinkDeviceRequest) (*pb.MyBool, error) {
+func (s *DeviceService) Link(ctx context.Context, in *cores.DeviceLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -465,7 +469,7 @@ func (s *DeviceService) Clone(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		}
 	}()
 
-	err = s.cs.getClone().cloneDevice(ctx, tx, in.GetId())
+	err = s.cs.getClone().device(ctx, tx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -593,9 +597,9 @@ func (s *DeviceService) viewWithDeleted(ctx context.Context, id string) (model.D
 	return item, nil
 }
 
-func (s *DeviceService) Pull(ctx context.Context, in *cores.PullDeviceRequest) (*cores.PullDeviceResponse, error) {
+func (s *DeviceService) Pull(ctx context.Context, in *cores.DevicePullRequest) (*cores.DevicePullResponse, error) {
 	var err error
-	var output cores.PullDeviceResponse
+	var output cores.DevicePullResponse
 
 	// basic validation
 	{
@@ -613,6 +617,10 @@ func (s *DeviceService) Pull(ctx context.Context, in *cores.PullDeviceRequest) (
 
 	if in.GetType() != "" {
 		query.Where(`type = ?`, in.GetType())
+	}
+
+	if len(in.GetArch()) > 0 {
+		query = query.Where(`arch = ?`, in.GetArch())
 	}
 
 	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)

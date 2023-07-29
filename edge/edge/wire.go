@@ -224,7 +224,7 @@ func (s *WireService) View(ctx context.Context, in *pb.Id) (*pb.Wire, error) {
 	return &output, nil
 }
 
-func (s *WireService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
+func (s *WireService) Name(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
 	var output pb.Wire
 	var err error
 
@@ -293,9 +293,9 @@ func (s *WireService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 	return &output, nil
 }
 
-func (s *WireService) List(ctx context.Context, in *edges.ListWireRequest) (*edges.ListWireResponse, error) {
+func (s *WireService) List(ctx context.Context, in *edges.WireListRequest) (*edges.WireListResponse, error) {
 	var err error
-	var output edges.ListWireResponse
+	var output edges.WireListResponse
 
 	// basic validation
 	{
@@ -388,7 +388,7 @@ func (s *WireService) List(ctx context.Context, in *edges.ListWireRequest) (*edg
 	return &output, nil
 }
 
-func (s *WireService) Clone(ctx context.Context, in *edges.CloneWireRequest) (*pb.MyBool, error) {
+func (s *WireService) Clone(ctx context.Context, in *edges.WireCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -403,7 +403,7 @@ func (s *WireService) Clone(ctx context.Context, in *edges.CloneWireRequest) (*p
 		}
 	}
 
-	err = s.es.getClone().cloneWire(ctx, s.es.GetDB(), in.GetId(), in.GetCableId())
+	err = s.es.getClone().wire(ctx, s.es.GetDB(), in.GetId(), in.GetCableId())
 	if err != nil {
 		return &output, err
 	}
@@ -858,9 +858,9 @@ func (s *WireService) viewWithDeleted(ctx context.Context, id string) (model.Wir
 	return item, nil
 }
 
-func (s *WireService) Pull(ctx context.Context, in *edges.PullWireRequest) (*edges.PullWireResponse, error) {
+func (s *WireService) Pull(ctx context.Context, in *edges.WirePullRequest) (*edges.WirePullResponse, error) {
 	var err error
-	var output edges.PullWireResponse
+	var output edges.WirePullResponse
 
 	// basic validation
 	{
@@ -1143,9 +1143,9 @@ func (s *WireService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, e
 	return &output, nil
 }
 
-func (s *WireService) PullValue(ctx context.Context, in *edges.PullWireValueRequest) (*edges.PullWireValueResponse, error) {
+func (s *WireService) PullValue(ctx context.Context, in *edges.WirePullValueRequest) (*edges.WirePullValueResponse, error) {
 	var err error
-	var output edges.PullWireValueResponse
+	var output edges.WirePullValueResponse
 
 	// basic validation
 	{

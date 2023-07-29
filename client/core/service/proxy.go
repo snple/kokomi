@@ -17,7 +17,7 @@ func ProxyList(ctx context.Context, client cores.ProxyServiceClient) {
 		Search:  "",
 	}
 
-	request := &cores.ListProxyRequest{
+	request := &cores.ProxyListRequest{
 		Page: &page,
 		Tags: "",
 	}

@@ -13,6 +13,7 @@ type Device struct {
 	Desc          string    `bun:"desc,type:TEXT" json:"desc"`
 	Tags          string    `bun:"tags,type:TEXT" json:"tags"`
 	Type          string    `bun:"type,type:TEXT" json:"type"`
+	Arch          string    `bun:"arch,type:TEXT" json:"arch"`
 	Secret        string    `bun:"secret,type:TEXT" json:"secret"`
 	Location      string    `bun:"location,type:TEXT" json:"location"`
 	Config        string    `bun:"config,type:TEXT" json:"config"`

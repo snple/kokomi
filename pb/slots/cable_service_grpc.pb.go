@@ -23,7 +23,7 @@ const (
 	CableService_Create_FullMethodName          = "/slots.CableService/Create"
 	CableService_Update_FullMethodName          = "/slots.CableService/Update"
 	CableService_View_FullMethodName            = "/slots.CableService/View"
-	CableService_ViewByName_FullMethodName      = "/slots.CableService/ViewByName"
+	CableService_Name_FullMethodName            = "/slots.CableService/Name"
 	CableService_Delete_FullMethodName          = "/slots.CableService/Delete"
 	CableService_List_FullMethodName            = "/slots.CableService/List"
 	CableService_Link_FullMethodName            = "/slots.CableService/Link"
@@ -39,12 +39,12 @@ type CableServiceClient interface {
 	Create(ctx context.Context, in *pb.Cable, opts ...grpc.CallOption) (*pb.Cable, error)
 	Update(ctx context.Context, in *pb.Cable, opts ...grpc.CallOption) (*pb.Cable, error)
 	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Cable, error)
-	ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Cable, error)
+	Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Cable, error)
 	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	List(ctx context.Context, in *ListCableRequest, opts ...grpc.CallOption) (*ListCableResponse, error)
-	Link(ctx context.Context, in *LinkCableRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	List(ctx context.Context, in *CableListRequest, opts ...grpc.CallOption) (*CableListResponse, error)
+	Link(ctx context.Context, in *CableLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Cable, error)
-	Pull(ctx context.Context, in *PullCableRequest, opts ...grpc.CallOption) (*PullCableResponse, error)
+	Pull(ctx context.Context, in *CablePullRequest, opts ...grpc.CallOption) (*CablePullResponse, error)
 	Sync(ctx context.Context, in *pb.Cable, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
@@ -83,9 +83,9 @@ func (c *cableServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.C
 	return out, nil
 }
 
-func (c *cableServiceClient) ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Cable, error) {
+func (c *cableServiceClient) Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Cable, error) {
 	out := new(pb.Cable)
-	err := c.cc.Invoke(ctx, CableService_ViewByName_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, CableService_Name_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +101,8 @@ func (c *cableServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grpc
 	return out, nil
 }
 
-func (c *cableServiceClient) List(ctx context.Context, in *ListCableRequest, opts ...grpc.CallOption) (*ListCableResponse, error) {
-	out := new(ListCableResponse)
+func (c *cableServiceClient) List(ctx context.Context, in *CableListRequest, opts ...grpc.CallOption) (*CableListResponse, error) {
+	out := new(CableListResponse)
 	err := c.cc.Invoke(ctx, CableService_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -110,7 +110,7 @@ func (c *cableServiceClient) List(ctx context.Context, in *ListCableRequest, opt
 	return out, nil
 }
 
-func (c *cableServiceClient) Link(ctx context.Context, in *LinkCableRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *cableServiceClient) Link(ctx context.Context, in *CableLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, CableService_Link_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -128,8 +128,8 @@ func (c *cableServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, opt
 	return out, nil
 }
 
-func (c *cableServiceClient) Pull(ctx context.Context, in *PullCableRequest, opts ...grpc.CallOption) (*PullCableResponse, error) {
-	out := new(PullCableResponse)
+func (c *cableServiceClient) Pull(ctx context.Context, in *CablePullRequest, opts ...grpc.CallOption) (*CablePullResponse, error) {
+	out := new(CablePullResponse)
 	err := c.cc.Invoke(ctx, CableService_Pull_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -153,12 +153,12 @@ type CableServiceServer interface {
 	Create(context.Context, *pb.Cable) (*pb.Cable, error)
 	Update(context.Context, *pb.Cable) (*pb.Cable, error)
 	View(context.Context, *pb.Id) (*pb.Cable, error)
-	ViewByName(context.Context, *pb.Name) (*pb.Cable, error)
+	Name(context.Context, *pb.Name) (*pb.Cable, error)
 	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
-	List(context.Context, *ListCableRequest) (*ListCableResponse, error)
-	Link(context.Context, *LinkCableRequest) (*pb.MyBool, error)
+	List(context.Context, *CableListRequest) (*CableListResponse, error)
+	Link(context.Context, *CableLinkRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Cable, error)
-	Pull(context.Context, *PullCableRequest) (*PullCableResponse, error)
+	Pull(context.Context, *CablePullRequest) (*CablePullResponse, error)
 	Sync(context.Context, *pb.Cable) (*pb.MyBool, error)
 	mustEmbedUnimplementedCableServiceServer()
 }
@@ -176,22 +176,22 @@ func (UnimplementedCableServiceServer) Update(context.Context, *pb.Cable) (*pb.C
 func (UnimplementedCableServiceServer) View(context.Context, *pb.Id) (*pb.Cable, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedCableServiceServer) ViewByName(context.Context, *pb.Name) (*pb.Cable, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewByName not implemented")
+func (UnimplementedCableServiceServer) Name(context.Context, *pb.Name) (*pb.Cable, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
 func (UnimplementedCableServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedCableServiceServer) List(context.Context, *ListCableRequest) (*ListCableResponse, error) {
+func (UnimplementedCableServiceServer) List(context.Context, *CableListRequest) (*CableListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedCableServiceServer) Link(context.Context, *LinkCableRequest) (*pb.MyBool, error) {
+func (UnimplementedCableServiceServer) Link(context.Context, *CableLinkRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Link not implemented")
 }
 func (UnimplementedCableServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Cable, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
 }
-func (UnimplementedCableServiceServer) Pull(context.Context, *PullCableRequest) (*PullCableResponse, error) {
+func (UnimplementedCableServiceServer) Pull(context.Context, *CablePullRequest) (*CablePullResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
 }
 func (UnimplementedCableServiceServer) Sync(context.Context, *pb.Cable) (*pb.MyBool, error) {
@@ -264,20 +264,20 @@ func _CableService_View_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CableService_ViewByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CableService_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CableServiceServer).ViewByName(ctx, in)
+		return srv.(CableServiceServer).Name(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CableService_ViewByName_FullMethodName,
+		FullMethod: CableService_Name_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CableServiceServer).ViewByName(ctx, req.(*pb.Name))
+		return srv.(CableServiceServer).Name(ctx, req.(*pb.Name))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -301,7 +301,7 @@ func _CableService_Delete_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _CableService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListCableRequest)
+	in := new(CableListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -313,13 +313,13 @@ func _CableService_List_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: CableService_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CableServiceServer).List(ctx, req.(*ListCableRequest))
+		return srv.(CableServiceServer).List(ctx, req.(*CableListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _CableService_Link_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LinkCableRequest)
+	in := new(CableLinkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -331,7 +331,7 @@ func _CableService_Link_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: CableService_Link_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CableServiceServer).Link(ctx, req.(*LinkCableRequest))
+		return srv.(CableServiceServer).Link(ctx, req.(*CableLinkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -355,7 +355,7 @@ func _CableService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context,
 }
 
 func _CableService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PullCableRequest)
+	in := new(CablePullRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -367,7 +367,7 @@ func _CableService_Pull_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: CableService_Pull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CableServiceServer).Pull(ctx, req.(*PullCableRequest))
+		return srv.(CableServiceServer).Pull(ctx, req.(*CablePullRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -410,8 +410,8 @@ var CableService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CableService_View_Handler,
 		},
 		{
-			MethodName: "ViewByName",
-			Handler:    _CableService_ViewByName_Handler,
+			MethodName: "Name",
+			Handler:    _CableService_Name_Handler,
 		},
 		{
 			MethodName: "Delete",
@@ -446,7 +446,7 @@ const (
 	WireService_Create_FullMethodName                  = "/slots.WireService/Create"
 	WireService_Update_FullMethodName                  = "/slots.WireService/Update"
 	WireService_View_FullMethodName                    = "/slots.WireService/View"
-	WireService_ViewByName_FullMethodName              = "/slots.WireService/ViewByName"
+	WireService_Name_FullMethodName                    = "/slots.WireService/Name"
 	WireService_Delete_FullMethodName                  = "/slots.WireService/Delete"
 	WireService_List_FullMethodName                    = "/slots.WireService/List"
 	WireService_GetValue_FullMethodName                = "/slots.WireService/GetValue"
@@ -471,9 +471,9 @@ type WireServiceClient interface {
 	Create(ctx context.Context, in *pb.Wire, opts ...grpc.CallOption) (*pb.Wire, error)
 	Update(ctx context.Context, in *pb.Wire, opts ...grpc.CallOption) (*pb.Wire, error)
 	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Wire, error)
-	ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Wire, error)
+	Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Wire, error)
 	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	List(ctx context.Context, in *ListWireRequest, opts ...grpc.CallOption) (*ListWireResponse, error)
+	List(ctx context.Context, in *WireListRequest, opts ...grpc.CallOption) (*WireListResponse, error)
 	GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.WireValue, error)
 	SetValue(ctx context.Context, in *pb.WireValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueUnchecked(ctx context.Context, in *pb.WireValue, opts ...grpc.CallOption) (*pb.MyBool, error)
@@ -481,11 +481,11 @@ type WireServiceClient interface {
 	SetValueByName(ctx context.Context, in *pb.WireNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueByNameUnchecked(ctx context.Context, in *pb.WireNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Wire, error)
-	Pull(ctx context.Context, in *PullWireRequest, opts ...grpc.CallOption) (*PullWireResponse, error)
+	Pull(ctx context.Context, in *WirePullRequest, opts ...grpc.CallOption) (*WirePullResponse, error)
 	Sync(ctx context.Context, in *pb.Wire, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.WireValueUpdated, error)
 	DeleteValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	PullValue(ctx context.Context, in *PullWireValueRequest, opts ...grpc.CallOption) (*PullWireValueResponse, error)
+	PullValue(ctx context.Context, in *WirePullValueRequest, opts ...grpc.CallOption) (*WirePullValueResponse, error)
 	SyncValue(ctx context.Context, in *pb.WireValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
@@ -524,9 +524,9 @@ func (c *wireServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.Ca
 	return out, nil
 }
 
-func (c *wireServiceClient) ViewByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Wire, error) {
+func (c *wireServiceClient) Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Wire, error) {
 	out := new(pb.Wire)
-	err := c.cc.Invoke(ctx, WireService_ViewByName_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, WireService_Name_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -542,8 +542,8 @@ func (c *wireServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grpc.
 	return out, nil
 }
 
-func (c *wireServiceClient) List(ctx context.Context, in *ListWireRequest, opts ...grpc.CallOption) (*ListWireResponse, error) {
-	out := new(ListWireResponse)
+func (c *wireServiceClient) List(ctx context.Context, in *WireListRequest, opts ...grpc.CallOption) (*WireListResponse, error) {
+	out := new(WireListResponse)
 	err := c.cc.Invoke(ctx, WireService_List_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -614,8 +614,8 @@ func (c *wireServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, opts
 	return out, nil
 }
 
-func (c *wireServiceClient) Pull(ctx context.Context, in *PullWireRequest, opts ...grpc.CallOption) (*PullWireResponse, error) {
-	out := new(PullWireResponse)
+func (c *wireServiceClient) Pull(ctx context.Context, in *WirePullRequest, opts ...grpc.CallOption) (*WirePullResponse, error) {
+	out := new(WirePullResponse)
 	err := c.cc.Invoke(ctx, WireService_Pull_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -650,8 +650,8 @@ func (c *wireServiceClient) DeleteValue(ctx context.Context, in *pb.Id, opts ...
 	return out, nil
 }
 
-func (c *wireServiceClient) PullValue(ctx context.Context, in *PullWireValueRequest, opts ...grpc.CallOption) (*PullWireValueResponse, error) {
-	out := new(PullWireValueResponse)
+func (c *wireServiceClient) PullValue(ctx context.Context, in *WirePullValueRequest, opts ...grpc.CallOption) (*WirePullValueResponse, error) {
+	out := new(WirePullValueResponse)
 	err := c.cc.Invoke(ctx, WireService_PullValue_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -675,9 +675,9 @@ type WireServiceServer interface {
 	Create(context.Context, *pb.Wire) (*pb.Wire, error)
 	Update(context.Context, *pb.Wire) (*pb.Wire, error)
 	View(context.Context, *pb.Id) (*pb.Wire, error)
-	ViewByName(context.Context, *pb.Name) (*pb.Wire, error)
+	Name(context.Context, *pb.Name) (*pb.Wire, error)
 	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
-	List(context.Context, *ListWireRequest) (*ListWireResponse, error)
+	List(context.Context, *WireListRequest) (*WireListResponse, error)
 	GetValue(context.Context, *pb.Id) (*pb.WireValue, error)
 	SetValue(context.Context, *pb.WireValue) (*pb.MyBool, error)
 	SetValueUnchecked(context.Context, *pb.WireValue) (*pb.MyBool, error)
@@ -685,11 +685,11 @@ type WireServiceServer interface {
 	SetValueByName(context.Context, *pb.WireNameValue) (*pb.MyBool, error)
 	SetValueByNameUnchecked(context.Context, *pb.WireNameValue) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.Id) (*pb.Wire, error)
-	Pull(context.Context, *PullWireRequest) (*PullWireResponse, error)
+	Pull(context.Context, *WirePullRequest) (*WirePullResponse, error)
 	Sync(context.Context, *pb.Wire) (*pb.MyBool, error)
 	ViewValue(context.Context, *pb.Id) (*pb.WireValueUpdated, error)
 	DeleteValue(context.Context, *pb.Id) (*pb.MyBool, error)
-	PullValue(context.Context, *PullWireValueRequest) (*PullWireValueResponse, error)
+	PullValue(context.Context, *WirePullValueRequest) (*WirePullValueResponse, error)
 	SyncValue(context.Context, *pb.WireValue) (*pb.MyBool, error)
 	mustEmbedUnimplementedWireServiceServer()
 }
@@ -707,13 +707,13 @@ func (UnimplementedWireServiceServer) Update(context.Context, *pb.Wire) (*pb.Wir
 func (UnimplementedWireServiceServer) View(context.Context, *pb.Id) (*pb.Wire, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedWireServiceServer) ViewByName(context.Context, *pb.Name) (*pb.Wire, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewByName not implemented")
+func (UnimplementedWireServiceServer) Name(context.Context, *pb.Name) (*pb.Wire, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
 func (UnimplementedWireServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedWireServiceServer) List(context.Context, *ListWireRequest) (*ListWireResponse, error) {
+func (UnimplementedWireServiceServer) List(context.Context, *WireListRequest) (*WireListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedWireServiceServer) GetValue(context.Context, *pb.Id) (*pb.WireValue, error) {
@@ -737,7 +737,7 @@ func (UnimplementedWireServiceServer) SetValueByNameUnchecked(context.Context, *
 func (UnimplementedWireServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Wire, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
 }
-func (UnimplementedWireServiceServer) Pull(context.Context, *PullWireRequest) (*PullWireResponse, error) {
+func (UnimplementedWireServiceServer) Pull(context.Context, *WirePullRequest) (*WirePullResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
 }
 func (UnimplementedWireServiceServer) Sync(context.Context, *pb.Wire) (*pb.MyBool, error) {
@@ -749,7 +749,7 @@ func (UnimplementedWireServiceServer) ViewValue(context.Context, *pb.Id) (*pb.Wi
 func (UnimplementedWireServiceServer) DeleteValue(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteValue not implemented")
 }
-func (UnimplementedWireServiceServer) PullValue(context.Context, *PullWireValueRequest) (*PullWireValueResponse, error) {
+func (UnimplementedWireServiceServer) PullValue(context.Context, *WirePullValueRequest) (*WirePullValueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PullValue not implemented")
 }
 func (UnimplementedWireServiceServer) SyncValue(context.Context, *pb.WireValue) (*pb.MyBool, error) {
@@ -822,20 +822,20 @@ func _WireService_View_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _WireService_ViewByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _WireService_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WireServiceServer).ViewByName(ctx, in)
+		return srv.(WireServiceServer).Name(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: WireService_ViewByName_FullMethodName,
+		FullMethod: WireService_Name_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WireServiceServer).ViewByName(ctx, req.(*pb.Name))
+		return srv.(WireServiceServer).Name(ctx, req.(*pb.Name))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -859,7 +859,7 @@ func _WireService_Delete_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 func _WireService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListWireRequest)
+	in := new(WireListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -871,7 +871,7 @@ func _WireService_List_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: WireService_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WireServiceServer).List(ctx, req.(*ListWireRequest))
+		return srv.(WireServiceServer).List(ctx, req.(*WireListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1003,7 +1003,7 @@ func _WireService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _WireService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PullWireRequest)
+	in := new(WirePullRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1015,7 +1015,7 @@ func _WireService_Pull_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: WireService_Pull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WireServiceServer).Pull(ctx, req.(*PullWireRequest))
+		return srv.(WireServiceServer).Pull(ctx, req.(*WirePullRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1075,7 +1075,7 @@ func _WireService_DeleteValue_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _WireService_PullValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PullWireValueRequest)
+	in := new(WirePullValueRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1087,7 +1087,7 @@ func _WireService_PullValue_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: WireService_PullValue_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WireServiceServer).PullValue(ctx, req.(*PullWireValueRequest))
+		return srv.(WireServiceServer).PullValue(ctx, req.(*WirePullValueRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1130,8 +1130,8 @@ var WireService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _WireService_View_Handler,
 		},
 		{
-			MethodName: "ViewByName",
-			Handler:    _WireService_ViewByName_Handler,
+			MethodName: "Name",
+			Handler:    _WireService_Name_Handler,
 		},
 		{
 			MethodName: "Delete",

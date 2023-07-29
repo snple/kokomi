@@ -6,27 +6,27 @@ option go_package = "github.com/snple/kokomi/pb/nodes;nodes";
 import "device_message.proto";
 import "generic_message.proto";
 
-message LoginDeviceRequest {
+message DeviceLoginRequest {
     string id = 1;
     string access = 2;
     string secret = 3;
 }
 
-message LoginDeviceReply {
+message DeviceLoginReply {
     string id = 1;
     string token = 2;
 }
 
-message LinkDeviceRequest {
+message DeviceLinkRequest {
     // string id = 1;
     sint32 status = 2;
 }
 
 service DeviceService {
-    rpc Login(LoginDeviceRequest) returns (LoginDeviceReply) {}
+    rpc Login(DeviceLoginRequest) returns (DeviceLoginReply) {}
     rpc Update(pb.Device) returns (pb.Device) {}
     rpc View(pb.MyEmpty) returns (pb.Device) {}
-    rpc Link(LinkDeviceRequest) returns (pb.MyBool) {}
+    rpc Link(DeviceLinkRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.MyEmpty) returns (pb.Device) {}
     rpc Sync(pb.Device) returns (pb.MyBool) {}
 }

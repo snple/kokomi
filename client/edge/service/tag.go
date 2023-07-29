@@ -19,7 +19,7 @@ func TagList(ctx context.Context, client edges.TagServiceClient) {
 		// Search:  "t",
 	}
 
-	request := &edges.ListTagRequest{
+	request := &edges.TagListRequest{
 		Page: &page,
 		// DeviceId: "017a053b3f7be81caa209b8e",
 		// SourceId: "017a9b416ef270dbd799c1f5",
@@ -48,7 +48,7 @@ func TagView(ctx context.Context, client edges.TagServiceClient) {
 func TagViewByName(ctx context.Context, client edges.TagServiceClient) {
 	request := &pb.Name{Name: "TAG"}
 
-	reply, err := client.ViewByName(ctx, request)
+	reply, err := client.Name(ctx, request)
 
 	if err != nil {
 		log.Fatalf("Error when calling grpc service: %s", err)

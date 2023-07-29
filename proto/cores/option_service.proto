@@ -6,37 +6,37 @@ option go_package = "github.com/snple/kokomi/pb/cores;cores";
 import "option_message.proto";
 import "generic_message.proto";
 
-message ListOptionRequest {
+message OptionListRequest {
     pb.Page page = 1;
     string device_id = 2;
     string tags = 3;
     string type = 4;
 }
 
-message ListOptionResponse {
+message OptionListResponse {
     pb.Page page = 1;
     uint32 count = 2;
     repeated pb.Option option = 3;
 }
 
-message ViewOptionByNameRequest {
+message OptionNameRequest {
     string device_id = 1;
     string name = 2;
 }
 
-message CloneOptionRequest {
+message OptionCloneRequest {
     string id = 1;
     string device_id = 2;
 }
 
-message PullOptionRequest {
+message OptionPullRequest {
     int64 after = 1;
     uint32 limit = 2;
     string device_id = 3;
     string type = 4;
 }
 
-message PullOptionResponse {
+message OptionPullResponse {
     int64 after = 1;
     uint32 limit = 2;
     repeated pb.Option option = 3;
@@ -46,12 +46,12 @@ service OptionService {
     rpc Create(pb.Option) returns (pb.Option) {}
     rpc Update(pb.Option) returns (pb.Option) {}
     rpc View(pb.Id) returns (pb.Option) {}
-    rpc ViewByName(ViewOptionByNameRequest) returns (pb.Option) {}
-    rpc ViewByNameFull(pb.Name) returns (pb.Option) {}
+    rpc Name(OptionNameRequest) returns (pb.Option) {}
+    rpc NameFull(pb.Name) returns (pb.Option) {}
     rpc Delete(pb.Id) returns (pb.MyBool) {}
-    rpc List(ListOptionRequest) returns (ListOptionResponse) {}
-    rpc Clone(CloneOptionRequest) returns (pb.MyBool) {}
+    rpc List(OptionListRequest) returns (OptionListResponse) {}
+    rpc Clone(OptionCloneRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.Id) returns (pb.Option) {}
-    rpc Pull(PullOptionRequest) returns (PullOptionResponse) {}
+    rpc Pull(OptionPullRequest) returns (OptionPullResponse) {}
     rpc Sync(pb.Option) returns (pb.MyBool) {}
 }

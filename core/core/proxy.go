@@ -199,7 +199,7 @@ func (s *ProxyService) View(ctx context.Context, in *pb.Id) (*pb.Proxy, error) {
 	return &output, nil
 }
 
-func (s *ProxyService) ViewByName(ctx context.Context, in *cores.ViewProxyByNameRequest) (*pb.Proxy, error) {
+func (s *ProxyService) Name(ctx context.Context, in *cores.ProxyNameRequest) (*pb.Proxy, error) {
 	var output pb.Proxy
 	var err error
 
@@ -228,7 +228,7 @@ func (s *ProxyService) ViewByName(ctx context.Context, in *cores.ViewProxyByName
 	return &output, nil
 }
 
-func (s *ProxyService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Proxy, error) {
+func (s *ProxyService) NameFull(ctx context.Context, in *pb.Name) (*pb.Proxy, error) {
 	var output pb.Proxy
 	// var err error
 
@@ -310,9 +310,9 @@ func (s *ProxyService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 	return &output, nil
 }
 
-func (s *ProxyService) List(ctx context.Context, in *cores.ListProxyRequest) (*cores.ListProxyResponse, error) {
+func (s *ProxyService) List(ctx context.Context, in *cores.ProxyListRequest) (*cores.ProxyListResponse, error) {
 	var err error
-	var output cores.ListProxyResponse
+	var output cores.ProxyListResponse
 
 	// basic validation
 	{
@@ -400,7 +400,7 @@ func (s *ProxyService) List(ctx context.Context, in *cores.ListProxyRequest) (*c
 	return &output, nil
 }
 
-func (s *ProxyService) Link(ctx context.Context, in *cores.LinkProxyRequest) (*pb.MyBool, error) {
+func (s *ProxyService) Link(ctx context.Context, in *cores.ProxyLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -427,7 +427,7 @@ func (s *ProxyService) Link(ctx context.Context, in *cores.LinkProxyRequest) (*p
 	return &output, nil
 }
 
-func (s *ProxyService) Clone(ctx context.Context, in *cores.CloneProxyRequest) (*pb.MyBool, error) {
+func (s *ProxyService) Clone(ctx context.Context, in *cores.ProxyCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -442,7 +442,7 @@ func (s *ProxyService) Clone(ctx context.Context, in *cores.CloneProxyRequest) (
 		}
 	}
 
-	err = s.cs.getClone().clonePort(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
+	err = s.cs.getClone().proxy(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
 	if err != nil {
 		return &output, err
 	}
@@ -566,9 +566,9 @@ func (s *ProxyService) viewWithDeleted(ctx context.Context, id string) (model.Pr
 	return item, nil
 }
 
-func (s *ProxyService) Pull(ctx context.Context, in *cores.PullProxyRequest) (*cores.PullProxyResponse, error) {
+func (s *ProxyService) Pull(ctx context.Context, in *cores.ProxyPullRequest) (*cores.ProxyPullResponse, error) {
 	var err error
-	var output cores.PullProxyResponse
+	var output cores.ProxyPullResponse
 
 	// basic validation
 	{

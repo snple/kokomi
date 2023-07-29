@@ -223,7 +223,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 	return &output, nil
 }
 
-func (s *TagService) ViewByName(ctx context.Context, in *cores.ViewTagByNameRequest) (*pb.Tag, error) {
+func (s *TagService) Name(ctx context.Context, in *cores.TagNameRequest) (*pb.Tag, error) {
 	var output pb.Tag
 	var err error
 
@@ -259,7 +259,7 @@ func (s *TagService) ViewByName(ctx context.Context, in *cores.ViewTagByNameRequ
 	return &output, nil
 }
 
-func (s *TagService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
+func (s *TagService) NameFull(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
 	var output pb.Tag
 	var err error
 
@@ -358,9 +358,9 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 	return &output, nil
 }
 
-func (s *TagService) List(ctx context.Context, in *cores.ListTagRequest) (*cores.ListTagResponse, error) {
+func (s *TagService) List(ctx context.Context, in *cores.TagListRequest) (*cores.TagListResponse, error) {
 	var err error
-	var output cores.ListTagResponse
+	var output cores.TagListResponse
 
 	// basic validation
 	{
@@ -458,7 +458,7 @@ func (s *TagService) List(ctx context.Context, in *cores.ListTagRequest) (*cores
 	return &output, nil
 }
 
-func (s *TagService) Clone(ctx context.Context, in *cores.CloneTagRequest) (*pb.MyBool, error) {
+func (s *TagService) Clone(ctx context.Context, in *cores.TagCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -473,7 +473,7 @@ func (s *TagService) Clone(ctx context.Context, in *cores.CloneTagRequest) (*pb.
 		}
 	}
 
-	err = s.cs.getClone().cloneTag(ctx, s.cs.GetDB(), in.GetId(), in.GetSourceId())
+	err = s.cs.getClone().tag(ctx, s.cs.GetDB(), in.GetId(), in.GetSourceId())
 	if err != nil {
 		return &output, err
 	}
@@ -605,7 +605,7 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 	return &output, nil
 }
 
-func (s *TagService) GetValueByName(ctx context.Context, in *cores.GetTagValueByNameRequest) (*cores.TagNameValue, error) {
+func (s *TagService) GetValueByName(ctx context.Context, in *cores.TagGetValueByNameRequest) (*cores.TagNameValue, error) {
 	var err error
 	var output cores.TagNameValue
 
@@ -905,9 +905,9 @@ func (s *TagService) viewWithDeleted(ctx context.Context, id string) (model.Tag,
 	return item, nil
 }
 
-func (s *TagService) Pull(ctx context.Context, in *cores.PullTagRequest) (*cores.PullTagResponse, error) {
+func (s *TagService) Pull(ctx context.Context, in *cores.TagPullRequest) (*cores.TagPullResponse, error) {
 	var err error
-	var output cores.PullTagResponse
+	var output cores.TagPullResponse
 
 	// basic validation
 	{
@@ -1228,9 +1228,9 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 	return &output, nil
 }
 
-func (s *TagService) PullValue(ctx context.Context, in *cores.PullTagValueRequest) (*cores.PullTagValueResponse, error) {
+func (s *TagService) PullValue(ctx context.Context, in *cores.TagPullValueRequest) (*cores.TagPullValueResponse, error) {
 	var err error
-	var output cores.PullTagValueResponse
+	var output cores.TagPullValueResponse
 
 	// basic validation
 	{

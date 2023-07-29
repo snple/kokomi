@@ -79,7 +79,7 @@ func (s *CableService) View(ctx context.Context, in *pb.Id) (*pb.Cable, error) {
 	return s.ss.Edge().GetCable().View(ctx, in)
 }
 
-func (s *CableService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Cable, error) {
+func (s *CableService) Name(ctx context.Context, in *pb.Name) (*pb.Cable, error) {
 	var output pb.Cable
 	var err error
 
@@ -95,7 +95,7 @@ func (s *CableService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Cable, 
 		return &output, err
 	}
 
-	return s.ss.Edge().GetCable().ViewByName(ctx, in)
+	return s.ss.Edge().GetCable().Name(ctx, in)
 }
 
 func (s *CableService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
@@ -117,9 +117,9 @@ func (s *CableService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 	return s.ss.Edge().GetCable().Delete(ctx, in)
 }
 
-func (s *CableService) List(ctx context.Context, in *slots.ListCableRequest) (*slots.ListCableResponse, error) {
+func (s *CableService) List(ctx context.Context, in *slots.CableListRequest) (*slots.CableListResponse, error) {
 	var err error
-	var output slots.ListCableResponse
+	var output slots.CableListResponse
 
 	// basic validation
 	{
@@ -133,7 +133,7 @@ func (s *CableService) List(ctx context.Context, in *slots.ListCableRequest) (*s
 		return &output, err
 	}
 
-	request := &edges.ListCableRequest{
+	request := &edges.CableListRequest{
 		Page: in.GetPage(),
 		Tags: in.GetTags(),
 		Type: in.GetType(),
@@ -151,7 +151,7 @@ func (s *CableService) List(ctx context.Context, in *slots.ListCableRequest) (*s
 	return &output, nil
 }
 
-func (s *CableService) Link(ctx context.Context, in *slots.LinkCableRequest) (*pb.MyBool, error) {
+func (s *CableService) Link(ctx context.Context, in *slots.CableLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -167,7 +167,7 @@ func (s *CableService) Link(ctx context.Context, in *slots.LinkCableRequest) (*p
 		return &output, err
 	}
 
-	request2 := &edges.LinkCableRequest{Id: in.GetId(), Status: in.GetStatus()}
+	request2 := &edges.CableLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 
 	reply, err := s.ss.Edge().GetCable().Link(ctx, request2)
 	if err != nil {
@@ -201,9 +201,9 @@ func (s *CableService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Cabl
 	return reply, nil
 }
 
-func (s *CableService) Pull(ctx context.Context, in *slots.PullCableRequest) (*slots.PullCableResponse, error) {
+func (s *CableService) Pull(ctx context.Context, in *slots.CablePullRequest) (*slots.CablePullResponse, error) {
 	var err error
-	var output slots.PullCableResponse
+	var output slots.CablePullResponse
 
 	// basic validation
 	{
@@ -220,7 +220,7 @@ func (s *CableService) Pull(ctx context.Context, in *slots.PullCableRequest) (*s
 		return &output, err
 	}
 
-	request := &edges.PullCableRequest{
+	request := &edges.CablePullRequest{
 		After: in.GetAfter(),
 		Limit: in.GetLimit(),
 		Type:  in.GetType(),

@@ -178,7 +178,7 @@ func (s *NodeService) loop() {
 
 	s.es.Logger().Sugar().Info("device login success")
 
-	s.linkDevice(s.ctx)
+	s.DeviceLink(s.ctx)
 	s.es.GetStatus().SetDeviceLink(consts.ON)
 	defer s.es.GetStatus().SetDeviceLink(consts.OFF)
 
@@ -236,7 +236,7 @@ func (s *NodeService) ticker() {
 		case <-linkStatusTicker.C:
 			if option := s.es.GetQuic(); option.IsNone() {
 				if s.es.GetStatus().GetDeviceLink() == consts.ON {
-					err := s.linkDevice(s.ctx)
+					err := s.DeviceLink(s.ctx)
 					if err != nil {
 						s.es.Logger().Sugar().Errorf("link device : %v", err)
 					} else {
@@ -314,10 +314,10 @@ func (s *NodeService) SetToken(ctx context.Context) context.Context {
 	return metadata.SetToken(ctx, s.token)
 }
 
-func (s *NodeService) linkDevice(ctx context.Context) error {
+func (s *NodeService) DeviceLink(ctx context.Context) error {
 	ctx = metadata.SetToken(ctx, s.GetToken())
 
-	request := &nodes.LinkDeviceRequest{Status: consts.ON}
+	request := &nodes.DeviceLinkRequest{Status: consts.ON}
 	_, err := s.DeviceServiceClient().Link(ctx, request)
 	if err != nil {
 		return err
@@ -378,7 +378,7 @@ func (s *NodeService) login(ctx context.Context) error {
 		}
 	}
 
-	request := &nodes.LoginDeviceRequest{
+	request := &nodes.DeviceLoginRequest{
 		Id:     option_device_id,
 		Secret: option_secret,
 	}

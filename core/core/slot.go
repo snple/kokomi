@@ -197,7 +197,7 @@ func (s *SlotService) View(ctx context.Context, in *pb.Id) (*pb.Slot, error) {
 	return &output, nil
 }
 
-func (s *SlotService) ViewByName(ctx context.Context, in *cores.ViewSlotByNameRequest) (*pb.Slot, error) {
+func (s *SlotService) Name(ctx context.Context, in *cores.SlotNameRequest) (*pb.Slot, error) {
 	var output pb.Slot
 	var err error
 
@@ -226,7 +226,7 @@ func (s *SlotService) ViewByName(ctx context.Context, in *cores.ViewSlotByNameRe
 	return &output, nil
 }
 
-func (s *SlotService) ViewByNameFull(ctx context.Context, in *pb.Name) (*pb.Slot, error) {
+func (s *SlotService) NameFull(ctx context.Context, in *pb.Name) (*pb.Slot, error) {
 	var output pb.Slot
 	// var err error
 
@@ -308,9 +308,9 @@ func (s *SlotService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 	return &output, nil
 }
 
-func (s *SlotService) List(ctx context.Context, in *cores.ListSlotRequest) (*cores.ListSlotResponse, error) {
+func (s *SlotService) List(ctx context.Context, in *cores.SlotListRequest) (*cores.SlotListResponse, error) {
 	var err error
-	var output cores.ListSlotResponse
+	var output cores.SlotListResponse
 
 	// basic validation
 	{
@@ -398,7 +398,7 @@ func (s *SlotService) List(ctx context.Context, in *cores.ListSlotRequest) (*cor
 	return &output, nil
 }
 
-func (s *SlotService) Link(ctx context.Context, in *cores.LinkSlotRequest) (*pb.MyBool, error) {
+func (s *SlotService) Link(ctx context.Context, in *cores.SlotLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -425,7 +425,7 @@ func (s *SlotService) Link(ctx context.Context, in *cores.LinkSlotRequest) (*pb.
 	return &output, nil
 }
 
-func (s *SlotService) Clone(ctx context.Context, in *cores.CloneSlotRequest) (*pb.MyBool, error) {
+func (s *SlotService) Clone(ctx context.Context, in *cores.SlotCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -440,7 +440,7 @@ func (s *SlotService) Clone(ctx context.Context, in *cores.CloneSlotRequest) (*p
 		}
 	}
 
-	err = s.cs.getClone().cloneSlot(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
+	err = s.cs.getClone().slot(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
 	if err != nil {
 		return &output, err
 	}
@@ -563,9 +563,9 @@ func (s *SlotService) viewWithDeleted(ctx context.Context, id string) (model.Slo
 	return item, nil
 }
 
-func (s *SlotService) Pull(ctx context.Context, in *cores.PullSlotRequest) (*cores.PullSlotResponse, error) {
+func (s *SlotService) Pull(ctx context.Context, in *cores.SlotPullRequest) (*cores.SlotPullResponse, error) {
 	var err error
-	var output cores.PullSlotResponse
+	var output cores.SlotPullResponse
 
 	// basic validation
 	{

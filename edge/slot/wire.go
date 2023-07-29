@@ -79,7 +79,7 @@ func (s *WireService) View(ctx context.Context, in *pb.Id) (*pb.Wire, error) {
 	return s.ss.Edge().GetWire().View(ctx, in)
 }
 
-func (s *WireService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
+func (s *WireService) Name(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
 	var output pb.Wire
 	var err error
 
@@ -95,7 +95,7 @@ func (s *WireService) ViewByName(ctx context.Context, in *pb.Name) (*pb.Wire, er
 		return &output, err
 	}
 
-	return s.ss.Edge().GetWire().ViewByName(ctx, in)
+	return s.ss.Edge().GetWire().Name(ctx, in)
 }
 
 func (s *WireService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
@@ -117,9 +117,9 @@ func (s *WireService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 	return s.ss.Edge().GetWire().Delete(ctx, in)
 }
 
-func (s *WireService) List(ctx context.Context, in *slots.ListWireRequest) (*slots.ListWireResponse, error) {
+func (s *WireService) List(ctx context.Context, in *slots.WireListRequest) (*slots.WireListResponse, error) {
 	var err error
-	var output slots.ListWireResponse
+	var output slots.WireListResponse
 
 	// basic validation
 	{
@@ -133,7 +133,7 @@ func (s *WireService) List(ctx context.Context, in *slots.ListWireRequest) (*slo
 		return &output, err
 	}
 
-	request := &edges.ListWireRequest{
+	request := &edges.WireListRequest{
 		Page:    in.GetPage(),
 		CableId: in.GetCableId(),
 		Tags:    in.GetTags(),
@@ -290,9 +290,9 @@ func (s *WireService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Wire,
 	return reply, nil
 }
 
-func (s *WireService) Pull(ctx context.Context, in *slots.PullWireRequest) (*slots.PullWireResponse, error) {
+func (s *WireService) Pull(ctx context.Context, in *slots.WirePullRequest) (*slots.WirePullResponse, error) {
 	var err error
-	var output slots.PullWireResponse
+	var output slots.WirePullResponse
 
 	// basic validation
 	{
@@ -309,7 +309,7 @@ func (s *WireService) Pull(ctx context.Context, in *slots.PullWireRequest) (*slo
 		return &output, err
 	}
 
-	request := &edges.PullWireRequest{
+	request := &edges.WirePullRequest{
 		After:   in.GetAfter(),
 		Limit:   in.GetLimit(),
 		CableId: in.GetCableId(),
@@ -388,9 +388,9 @@ func (s *WireService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, e
 	return s.ss.Edge().GetWire().DeleteValue(ctx, in)
 }
 
-func (s *WireService) PullValue(ctx context.Context, in *slots.PullWireValueRequest) (*slots.PullWireValueResponse, error) {
+func (s *WireService) PullValue(ctx context.Context, in *slots.WirePullValueRequest) (*slots.WirePullValueResponse, error) {
 	var err error
-	var output slots.PullWireValueResponse
+	var output slots.WirePullValueResponse
 
 	// basic validation
 	{
@@ -407,7 +407,7 @@ func (s *WireService) PullValue(ctx context.Context, in *slots.PullWireValueRequ
 		return &output, err
 	}
 
-	request := &edges.PullWireValueRequest{
+	request := &edges.WirePullValueRequest{
 		After:   in.GetAfter(),
 		Limit:   in.GetLimit(),
 		CableId: in.GetCableId(),
