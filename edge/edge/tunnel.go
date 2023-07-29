@@ -197,16 +197,15 @@ func (s *TunnelService) checkProxy(proxy *pb.Proxy) {
 				return
 			}
 
-			if proxy.GetName() != listen.proxy.GetName() ||
-				proxy.GetNetwork() != listen.proxy.GetNetwork() ||
-				proxy.GetAddress() != listen.proxy.GetAddress() ||
-				proxy.GetTarget() != listen.proxy.GetTarget() {
-
-				listen.stop()
+			if proxy.GetName() == listen.proxy.GetName() &&
+				proxy.GetNetwork() == listen.proxy.GetNetwork() &&
+				proxy.GetAddress() == listen.proxy.GetAddress() &&
+				proxy.GetTarget() == listen.proxy.GetTarget() {
+				return
 			}
-		}
 
-		if proxy.GetNetwork() == "" || proxy.GetAddress() == "" ||
+			listen.stop()
+		} else if proxy.GetNetwork() == "" || proxy.GetAddress() == "" ||
 			proxy.GetTarget() == "" || proxy.GetStatus() != consts.ON {
 			return
 		}
