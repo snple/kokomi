@@ -44,7 +44,7 @@ func WireView(ctx context.Context, client cores.WireServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func WireViewByName(ctx context.Context, client cores.WireServiceClient) {
+func WireName(ctx context.Context, client cores.WireServiceClient) {
 	request := &cores.WireNameRequest{Name: "Wire"}
 
 	reply, err := client.Name(ctx, request)
@@ -55,7 +55,7 @@ func WireViewByName(ctx context.Context, client cores.WireServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func WireViewByNameFull(ctx context.Context, client cores.WireServiceClient) {
+func WireNameFull(ctx context.Context, client cores.WireServiceClient) {
 	request := &pb.Name{Name: "device1.source1.TX"}
 
 	reply, err := client.NameFull(ctx, request)

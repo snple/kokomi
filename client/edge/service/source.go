@@ -39,7 +39,7 @@ func SourceView(ctx context.Context, client edges.SourceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func SourceViewByName(ctx context.Context, client edges.SourceServiceClient) {
+func SourceName(ctx context.Context, client edges.SourceServiceClient) {
 	request := &pb.Name{Name: "Source"}
 
 	reply, err := client.Name(ctx, request)

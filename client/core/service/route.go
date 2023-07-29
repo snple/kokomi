@@ -39,7 +39,7 @@ func RouteView(ctx context.Context, client cores.RouteServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func RouteViewByName(ctx context.Context, client cores.RouteServiceClient) {
+func RouteName(ctx context.Context, client cores.RouteServiceClient) {
 	request := &pb.Name{Name: "Route"}
 
 	reply, err := client.Name(ctx, request)

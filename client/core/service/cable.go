@@ -40,7 +40,7 @@ func CableView(ctx context.Context, client cores.CableServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func CableViewByName(ctx context.Context, client cores.CableServiceClient) {
+func CableName(ctx context.Context, client cores.CableServiceClient) {
 	request := &cores.CableNameRequest{Name: "Cable"}
 
 	reply, err := client.Name(ctx, request)
@@ -51,7 +51,7 @@ func CableViewByName(ctx context.Context, client cores.CableServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func CableViewByNameFull(ctx context.Context, client cores.CableServiceClient) {
+func CableNameFull(ctx context.Context, client cores.CableServiceClient) {
 	request := &pb.Name{Name: "device1.Cable1"}
 
 	reply, err := client.NameFull(ctx, request)

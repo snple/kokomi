@@ -45,7 +45,7 @@ func TagView(ctx context.Context, client edges.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagViewByName(ctx context.Context, client edges.TagServiceClient) {
+func TagName(ctx context.Context, client edges.TagServiceClient) {
 	request := &pb.Name{Name: "TAG"}
 
 	reply, err := client.Name(ctx, request)
