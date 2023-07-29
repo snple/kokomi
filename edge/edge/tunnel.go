@@ -192,17 +192,17 @@ func (s *TunnelService) checkProxy(proxy *pb.Proxy) {
 		defer s.lock.Unlock()
 
 		if listen, ok := s.listens[proxy.GetId()]; ok {
-			if proxy.GetName() == listen.proxy.GetName() &&
-				proxy.GetNetwork() == listen.proxy.GetNetwork() &&
-				proxy.GetAddress() == listen.proxy.GetAddress() &&
-				proxy.GetTarget() == listen.proxy.GetTarget() {
+			if proxy.GetStatus() != consts.ON {
+				listen.stop()
 				return
 			}
 
-			listen.stop()
+			if proxy.GetName() != listen.proxy.GetName() ||
+				proxy.GetNetwork() != listen.proxy.GetNetwork() ||
+				proxy.GetAddress() != listen.proxy.GetAddress() ||
+				proxy.GetTarget() != listen.proxy.GetTarget() {
 
-			if proxy.GetStatus() != consts.ON {
-				return
+				listen.stop()
 			}
 		}
 
