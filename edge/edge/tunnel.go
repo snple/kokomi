@@ -127,7 +127,6 @@ func (s *TunnelService) checkProxyUpdated() error {
 					s.lock.Lock()
 					if listen, ok := s.listens[remote.GetId()]; ok {
 						listen.stop()
-						delete(s.listens, remote.GetId())
 					}
 					s.lock.Unlock()
 				} else {
@@ -188,17 +187,11 @@ func (s *TunnelService) openStreamSync() (quic.Stream, error) {
 }
 
 func (s *TunnelService) checkProxy(proxy *pb.Proxy) {
-	{
+	goon := func() (goon bool) {
 		s.lock.Lock()
 		defer s.lock.Unlock()
 
 		if listen, ok := s.listens[proxy.GetId()]; ok {
-			if proxy.GetStatus() != consts.ON {
-				listen.stop()
-				delete(s.listens, proxy.GetId())
-				return
-			}
-
 			if proxy.GetName() == listen.proxy.GetName() &&
 				proxy.GetNetwork() == listen.proxy.GetNetwork() &&
 				proxy.GetAddress() == listen.proxy.GetAddress() &&
@@ -207,37 +200,45 @@ func (s *TunnelService) checkProxy(proxy *pb.Proxy) {
 			}
 
 			listen.stop()
-			delete(s.listens, proxy.GetId())
+
+			if proxy.GetStatus() != consts.ON {
+				return
+			}
 		}
 
 		if proxy.GetNetwork() == "" || proxy.GetAddress() == "" ||
 			proxy.GetTarget() == "" || proxy.GetStatus() != consts.ON {
 			return
 		}
-	}
 
-	listen, err := newListen(s, proxy)
-	if err != nil {
-		s.es.Logger().Sugar().Errorf("newListen error: %v", err)
+		goon = true
 		return
-	}
-
-	go func() {
-		s.closeWG.Add(1)
-		defer s.closeWG.Done()
-
-		s.lock.Lock()
-		s.listens[proxy.GetId()] = listen
-		s.lock.Unlock()
-
-		listen.accept()
-
-		s.lock.Lock()
-		delete(s.listens, proxy.GetId())
-		s.lock.Unlock()
-
-		listen.closeWG.Wait()
 	}()
+
+	if goon {
+		listen, err := newListen(s, proxy)
+		if err != nil {
+			s.es.Logger().Sugar().Errorf("newListen error: %v", err)
+			return
+		}
+
+		go func() {
+			s.closeWG.Add(1)
+			defer s.closeWG.Done()
+
+			s.lock.Lock()
+			s.listens[proxy.GetId()] = listen
+			s.lock.Unlock()
+
+			listen.accept()
+
+			s.lock.Lock()
+			delete(s.listens, proxy.GetId())
+			s.lock.Unlock()
+
+			listen.closeWG.Wait()
+		}()
+	}
 }
 
 type tunnelListener struct {
