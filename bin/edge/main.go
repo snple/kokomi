@@ -21,6 +21,7 @@ import (
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
 )
 
@@ -102,7 +103,7 @@ func main() {
 
 			grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 		} else {
-			grpcOpts = append(grpcOpts, grpc.WithInsecure())
+			grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		}
 
 		edgeOpts = append(edgeOpts, edge.WithNode(edge.NodeOptions{
