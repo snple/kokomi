@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"math/rand"
 	"net"
 	"os"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/dgraph-io/badger/v4"
 	"github.com/quic-go/quic-go"
+	"github.com/snple/kokomi"
 	"github.com/snple/kokomi/bin/edge/config"
 	"github.com/snple/kokomi/bin/edge/log"
 	"github.com/snple/kokomi/db"
@@ -26,6 +28,14 @@ import (
 )
 
 func main() {
+	if len(os.Args) >= 2 {
+		switch os.Args[1] {
+		case "version", "-V":
+			fmt.Printf("kokomi edge version: %v\n", kokomi.Version)
+			return
+		}
+	}
+
 	rand.Seed(time.Now().Unix())
 
 	config.Parse()

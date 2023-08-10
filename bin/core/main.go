@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"math/rand"
 	"net"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/quic-go/quic-go"
+	"github.com/snple/kokomi"
 	"github.com/snple/kokomi/bin/core/config"
 	"github.com/snple/kokomi/bin/core/log"
 	"github.com/snple/kokomi/core/core"
@@ -24,6 +26,14 @@ import (
 )
 
 func main() {
+	if len(os.Args) >= 2 {
+		switch os.Args[1] {
+		case "version", "-V":
+			fmt.Printf("kokomi core version: %v\n", kokomi.Version)
+			return
+		}
+	}
+
 	rand.Seed(time.Now().Unix())
 
 	config.Parse()
