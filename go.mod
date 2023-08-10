@@ -1,6 +1,6 @@
 module github.com/snple/kokomi
 
-go 1.18
+go 1.20
 
 require (
 	github.com/BurntSushi/toml v1.3.2
@@ -11,8 +11,8 @@ require (
 	github.com/klauspost/compress v1.16.7
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/onsi/ginkgo/v2 v2.11.0
-	github.com/onsi/gomega v1.27.8
-	github.com/quic-go/quic-go v0.37.3
+	github.com/onsi/gomega v1.27.10
+	github.com/quic-go/quic-go v0.37.4
 	github.com/snple/rgrpc v0.2.0
 	github.com/snple/types v0.1.0
 	github.com/uptrace/bun v1.1.14
@@ -32,7 +32,7 @@ require (
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/glog v1.1.1 // indirect
+	github.com/golang/glog v1.1.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
@@ -54,7 +54,7 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
-	golang.org/x/exp v0.0.0-20230807204917-050eac23e9de // indirect
+	golang.org/x/exp v0.0.0-20230810033253-352e893a4cad // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
