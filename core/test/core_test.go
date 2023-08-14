@@ -8,8 +8,6 @@ import (
 	"github.com/snple/kokomi/core/core"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/sqlitedialect"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 var _ = Describe("Test core API", Label("library"), func() {

@@ -425,6 +425,11 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.Id) (*pb.MyBool, err
 			}
 		}
 
+		s.cs.GetSync().destory(ctx, tx, item.ID)
+		if err != nil {
+			return status.Errorf(codes.Internal, "Delete: %v", err)
+		}
+
 		done = true
 		err = tx.Commit()
 		if err != nil {
@@ -658,7 +663,7 @@ func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, er
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Updated")
 		}
 	}
 

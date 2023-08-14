@@ -50,7 +50,7 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *cores.SyncUpdate
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Updated")
 		}
 	}
 
@@ -439,4 +439,17 @@ func (s *SyncService) waitUpdated2(ctx context.Context,
 	}()
 
 	return output
+}
+
+func (s *SyncService) destory(ctx context.Context, db bun.IDB, id string) error {
+	ids := []string{id, id + model.SYNC_TAG_VALUE_SUFFIX, id + model.SYNC_WIRE_VALUE_SUFFIX}
+
+	for _, id := range ids {
+		_, err := db.NewDelete().Model(&model.Sync{}).Where("id = ?", id).Exec(ctx)
+		if err != nil {
+			return status.Errorf(codes.Internal, "Delete: %v", err)
+		}
+	}
+
+	return nil
 }

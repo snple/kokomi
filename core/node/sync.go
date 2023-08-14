@@ -33,7 +33,7 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *nodes.SyncUpdate
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Updated")
 		}
 	}
 

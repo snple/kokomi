@@ -314,7 +314,7 @@ func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, er
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid device updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Updated")
 		}
 	}
 
