@@ -11,7 +11,6 @@ import (
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/cores"
 	"github.com/snple/kokomi/util"
-	"github.com/snple/types/cache"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,8 +19,6 @@ import (
 type DeviceService struct {
 	cs *CoreService
 
-	cache *cache.Cache[*model.Device]
-
 	cores.UnimplementedDeviceServiceServer
 }
 
@@ -29,15 +26,6 @@ func newDeviceService(cs *CoreService) *DeviceService {
 	s := &DeviceService{
 		cs: cs,
 	}
-
-	s.cache = cache.NewCache(func(key string) (*model.Device, time.Duration, error) {
-		n, err := s.view(context.Background(), key)
-		if err != nil {
-			return nil, 0, err
-		}
-
-		return &n, time.Second * 3, nil
-	})
 
 	return s
 }
