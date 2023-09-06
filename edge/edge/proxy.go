@@ -200,7 +200,7 @@ func (s *ProxyService) Name(ctx context.Context, in *pb.Name) (*pb.Proxy, error)
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -428,7 +428,7 @@ func (s *ProxyService) ViewByID(ctx context.Context, id string) (model.Proxy, er
 	return item, nil
 }
 
-func (s *ProxyService) viewByName(ctx context.Context, name string) (model.Proxy, error) {
+func (s *ProxyService) ViewByName(ctx context.Context, name string) (model.Proxy, error) {
 	item := model.Proxy{
 		Name: name,
 	}

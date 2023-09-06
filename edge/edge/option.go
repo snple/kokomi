@@ -195,7 +195,7 @@ func (s *OptionService) Name(ctx context.Context, in *pb.Name) (*pb.Option, erro
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -370,7 +370,7 @@ func (s *OptionService) ViewByID(ctx context.Context, id string) (model.Option, 
 	return item, nil
 }
 
-func (s *OptionService) viewByName(ctx context.Context, name string) (model.Option, error) {
+func (s *OptionService) ViewByName(ctx context.Context, name string) (model.Option, error) {
 	item := model.Option{}
 
 	err := s.es.GetDB().NewSelect().Model(&item).Where("name = ?", name).Scan(ctx)
@@ -526,7 +526,7 @@ func (s *OptionService) Has(ctx context.Context, name string) (bool, error) {
 }
 
 func (s *OptionService) Get(ctx context.Context, name string) (string, error) {
-	item, err := s.viewByName(ctx, name)
+	item, err := s.ViewByName(ctx, name)
 	if err != nil {
 		return "", err
 	}

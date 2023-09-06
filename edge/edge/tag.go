@@ -240,7 +240,7 @@ func (s *TagService) Name(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -540,7 +540,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -607,7 +607,7 @@ func (s *TagService) setValueByName(ctx context.Context, in *pb.TagNameValue, ch
 	}
 
 	// source
-	source, err := s.es.GetSource().viewByName(ctx, sourceName)
+	source, err := s.es.GetSource().ViewByName(ctx, sourceName)
 	if err != nil {
 		return &output, err
 	}
@@ -667,7 +667,7 @@ func (s *TagService) ViewByID(ctx context.Context, id string) (model.Tag, error)
 	return item, nil
 }
 
-func (s *TagService) viewByName(ctx context.Context, name string) (model.Tag, error) {
+func (s *TagService) ViewByName(ctx context.Context, name string) (model.Tag, error) {
 	item := model.Tag{}
 
 	sourceName := consts.DEFAULT_SOURCE
@@ -683,7 +683,7 @@ func (s *TagService) viewByName(ctx context.Context, name string) (model.Tag, er
 		itemName = splits[1]
 	}
 
-	source, err := s.es.GetSource().viewByName(ctx, sourceName)
+	source, err := s.es.GetSource().ViewByName(ctx, sourceName)
 	if err != nil {
 		return item, err
 	}

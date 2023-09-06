@@ -292,7 +292,7 @@ func (s *WireService) NameFull(ctx context.Context, in *pb.Name) (*pb.Wire, erro
 		}
 	}
 
-	device, err := s.cs.GetDevice().viewByName(ctx, deviceName)
+	device, err := s.cs.GetDevice().ViewByName(ctx, deviceName)
 	if err != nil {
 		return &output, err
 	}

@@ -199,7 +199,7 @@ func (s *PortService) Name(ctx context.Context, in *pb.Name) (*pb.Port, error) {
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -427,7 +427,7 @@ func (s *PortService) ViewByID(ctx context.Context, id string) (model.Port, erro
 	return item, nil
 }
 
-func (s *PortService) viewByName(ctx context.Context, name string) (model.Port, error) {
+func (s *PortService) ViewByName(ctx context.Context, name string) (model.Port, error) {
 	item := model.Port{
 		Name: name,
 	}

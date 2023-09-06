@@ -254,7 +254,7 @@ func (s *PortService) NameFull(ctx context.Context, in *pb.Name) (*pb.Port, erro
 		itemName = splits[1]
 	}
 
-	device, err := s.cs.GetDevice().viewByName(ctx, deviceName)
+	device, err := s.cs.GetDevice().ViewByName(ctx, deviceName)
 	if err != nil {
 		return &output, err
 	}

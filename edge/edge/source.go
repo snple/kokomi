@@ -201,7 +201,7 @@ func (s *SourceService) Name(ctx context.Context, in *pb.Name) (*pb.Source, erro
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -433,7 +433,7 @@ func (s *SourceService) ViewByID(ctx context.Context, id string) (model.Source, 
 	return item, nil
 }
 
-func (s *SourceService) viewByName(ctx context.Context, name string) (model.Source, error) {
+func (s *SourceService) ViewByName(ctx context.Context, name string) (model.Source, error) {
 	item := model.Source{
 		Name: name,
 	}

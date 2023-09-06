@@ -199,7 +199,7 @@ func (s *SlotService) Name(ctx context.Context, in *pb.Name) (*pb.Slot, error) {
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -414,7 +414,7 @@ func (s *SlotService) ViewByID(ctx context.Context, id string) (model.Slot, erro
 	return item, nil
 }
 
-func (s *SlotService) viewByName(ctx context.Context, name string) (model.Slot, error) {
+func (s *SlotService) ViewByName(ctx context.Context, name string) (model.Slot, error) {
 	item := model.Slot{}
 
 	err := s.es.GetDB().NewSelect().Model(&item).Where("name = ?", name).Scan(ctx)

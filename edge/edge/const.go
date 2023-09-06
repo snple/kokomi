@@ -206,7 +206,7 @@ func (s *ConstService) Name(ctx context.Context, in *pb.Name) (*pb.Const, error)
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -465,7 +465,7 @@ func (s *ConstService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Con
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -505,7 +505,7 @@ func (s *ConstService) setValueByName(ctx context.Context, in *pb.ConstNameValue
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -559,7 +559,7 @@ func (s *ConstService) ViewByID(ctx context.Context, id string) (model.Const, er
 	return item, nil
 }
 
-func (s *ConstService) viewByName(ctx context.Context, name string) (model.Const, error) {
+func (s *ConstService) ViewByName(ctx context.Context, name string) (model.Const, error) {
 	item := model.Const{}
 
 	err := s.es.GetDB().NewSelect().Model(&item).Where("name = ?", name).Scan(ctx)

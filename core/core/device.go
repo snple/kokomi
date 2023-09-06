@@ -200,7 +200,7 @@ func (s *DeviceService) Name(ctx context.Context, in *pb.Name) (*pb.Device, erro
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return nil, err
 	}
@@ -495,7 +495,7 @@ func (s *DeviceService) ViewByID(ctx context.Context, id string) (model.Device, 
 	return item, nil
 }
 
-func (s *DeviceService) viewByName(ctx context.Context, name string) (model.Device, error) {
+func (s *DeviceService) ViewByName(ctx context.Context, name string) (model.Device, error) {
 	item := model.Device{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("name = ?", name).Scan(ctx)

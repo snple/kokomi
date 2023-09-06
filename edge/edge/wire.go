@@ -239,7 +239,7 @@ func (s *WireService) Name(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -598,7 +598,7 @@ func (s *WireService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Wire
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -665,7 +665,7 @@ func (s *WireService) setValueByName(ctx context.Context, in *pb.WireNameValue, 
 	}
 
 	// cable
-	cable, err := s.es.GetCable().viewByName(ctx, cableName)
+	cable, err := s.es.GetCable().ViewByName(ctx, cableName)
 	if err != nil {
 		return &output, err
 	}
@@ -725,7 +725,7 @@ func (s *WireService) ViewByID(ctx context.Context, id string) (model.Wire, erro
 	return item, nil
 }
 
-func (s *WireService) viewByName(ctx context.Context, name string) (model.Wire, error) {
+func (s *WireService) ViewByName(ctx context.Context, name string) (model.Wire, error) {
 	item := model.Wire{}
 
 	cableName := consts.DEFAULT_CABLE
@@ -742,7 +742,7 @@ func (s *WireService) viewByName(ctx context.Context, name string) (model.Wire, 
 
 	}
 
-	cable, err := s.es.GetCable().viewByName(ctx, cableName)
+	cable, err := s.es.GetCable().ViewByName(ctx, cableName)
 	if err != nil {
 		return item, err
 	}

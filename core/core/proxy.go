@@ -256,7 +256,7 @@ func (s *ProxyService) NameFull(ctx context.Context, in *pb.Name) (*pb.Proxy, er
 		itemName = splits[1]
 	}
 
-	device, err := s.cs.GetDevice().viewByName(ctx, deviceName)
+	device, err := s.cs.GetDevice().ViewByName(ctx, deviceName)
 	if err != nil {
 		return &output, err
 	}

@@ -197,7 +197,7 @@ func (s *CableService) Name(ctx context.Context, in *pb.Name) (*pb.Cable, error)
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -429,7 +429,7 @@ func (s *CableService) ViewByID(ctx context.Context, id string) (model.Cable, er
 	return item, nil
 }
 
-func (s *CableService) viewByName(ctx context.Context, name string) (model.Cable, error) {
+func (s *CableService) ViewByName(ctx context.Context, name string) (model.Cable, error) {
 	item := model.Cable{}
 
 	err := s.es.GetDB().NewSelect().Model(&item).Where("name = ?", name).Scan(ctx)

@@ -265,7 +265,7 @@ func (s *RouteService) Name(ctx context.Context, in *pb.Name) (*cores.Route, err
 		}
 	}
 
-	item, err := s.viewByName(ctx, in.GetName())
+	item, err := s.ViewByName(ctx, in.GetName())
 	if err != nil {
 		return nil, err
 	}
@@ -419,7 +419,7 @@ func (s *RouteService) ViewByID(ctx context.Context, id string) (model.Route, er
 	return item, nil
 }
 
-func (s *RouteService) viewByName(ctx context.Context, name string) (model.Route, error) {
+func (s *RouteService) ViewByName(ctx context.Context, name string) (model.Route, error) {
 	item := model.Route{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("name = ?", name).Scan(ctx)

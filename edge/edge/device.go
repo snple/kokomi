@@ -108,7 +108,7 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 		}
 	}
 
-	item, err := s.view(ctx)
+	item, err := s.ViewByID(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -155,7 +155,7 @@ func (s *DeviceService) View(ctx context.Context, in *pb.MyEmpty) (*pb.Device, e
 		}
 	}
 
-	item, err := s.view(ctx)
+	item, err := s.ViewByID(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -218,7 +218,7 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.MyEmpty) (*pb.MyBool
 	return &output, nil
 }
 
-func (s *DeviceService) view(ctx context.Context) (model.Device, error) {
+func (s *DeviceService) ViewByID(ctx context.Context) (model.Device, error) {
 	item := model.Device{}
 
 	err := s.es.GetDB().NewSelect().Model(&item).Scan(ctx)
