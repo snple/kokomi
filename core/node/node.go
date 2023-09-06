@@ -28,8 +28,6 @@ type NodeService struct {
 	source      *SourceService
 	tag         *TagService
 	constant    *ConstService
-	cable       *CableService
-	wire        *WireService
 	rgrpc       *RgrpcService
 	quic        types.Option[*QuicService]
 
@@ -68,8 +66,6 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 	ns.source = newSourceService(ns)
 	ns.tag = newTagService(ns)
 	ns.constant = newConstService(ns)
-	ns.cable = newCableService(ns)
-	ns.wire = newWireService(ns)
 	ns.rgrpc = newRgrpcService(ns)
 
 	if ns.dopts.QuicOptions.enable {
@@ -127,8 +123,6 @@ func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 	nodes.RegisterSourceServiceServer(server, ns.source)
 	nodes.RegisterTagServiceServer(server, ns.tag)
 	nodes.RegisterConstServiceServer(server, ns.constant)
-	nodes.RegisterCableServiceServer(server, ns.cable)
-	nodes.RegisterWireServiceServer(server, ns.wire)
 	rgrpc.RegisterRgrpcServiceServer(server, ns.rgrpc)
 }
 

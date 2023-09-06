@@ -91,15 +91,6 @@ func main() {
 	// }
 	// t2 := time.Now()
 	// fmt.Println("t2-t1", t2.Sub(t1))
-
-	// wire := edges.NewWireServiceClient(conn)
-	// t1 := time.Now()
-	// for i := 0; i < 10000; i++ {
-	// 	service.WireSetValue(ctx, wire)
-	// 	service.WireGetValue(ctx, wire)
-	// }
-	// t2 := time.Now()
-	// fmt.Println("t2-t1", t2.Sub(t1))
 }
 
 func loadCert() (*tls.Config, error) {

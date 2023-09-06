@@ -20,33 +20,26 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	SyncService_SetDeviceUpdated_FullMethodName     = "/edges.SyncService/SetDeviceUpdated"
-	SyncService_GetDeviceUpdated_FullMethodName     = "/edges.SyncService/GetDeviceUpdated"
-	SyncService_WaitDeviceUpdated_FullMethodName    = "/edges.SyncService/WaitDeviceUpdated"
-	SyncService_SetSlotUpdated_FullMethodName       = "/edges.SyncService/SetSlotUpdated"
-	SyncService_GetSlotUpdated_FullMethodName       = "/edges.SyncService/GetSlotUpdated"
-	SyncService_SetOptionUpdated_FullMethodName     = "/edges.SyncService/SetOptionUpdated"
-	SyncService_GetOptionUpdated_FullMethodName     = "/edges.SyncService/GetOptionUpdated"
-	SyncService_SetPortUpdated_FullMethodName       = "/edges.SyncService/SetPortUpdated"
-	SyncService_GetPortUpdated_FullMethodName       = "/edges.SyncService/GetPortUpdated"
-	SyncService_SetProxyUpdated_FullMethodName      = "/edges.SyncService/SetProxyUpdated"
-	SyncService_GetProxyUpdated_FullMethodName      = "/edges.SyncService/GetProxyUpdated"
-	SyncService_SetSourceUpdated_FullMethodName     = "/edges.SyncService/SetSourceUpdated"
-	SyncService_GetSourceUpdated_FullMethodName     = "/edges.SyncService/GetSourceUpdated"
-	SyncService_SetTagUpdated_FullMethodName        = "/edges.SyncService/SetTagUpdated"
-	SyncService_GetTagUpdated_FullMethodName        = "/edges.SyncService/GetTagUpdated"
-	SyncService_SetConstUpdated_FullMethodName      = "/edges.SyncService/SetConstUpdated"
-	SyncService_GetConstUpdated_FullMethodName      = "/edges.SyncService/GetConstUpdated"
-	SyncService_SetCableUpdated_FullMethodName      = "/edges.SyncService/SetCableUpdated"
-	SyncService_GetCableUpdated_FullMethodName      = "/edges.SyncService/GetCableUpdated"
-	SyncService_SetWireUpdated_FullMethodName       = "/edges.SyncService/SetWireUpdated"
-	SyncService_GetWireUpdated_FullMethodName       = "/edges.SyncService/GetWireUpdated"
-	SyncService_SetTagValueUpdated_FullMethodName   = "/edges.SyncService/SetTagValueUpdated"
-	SyncService_GetTagValueUpdated_FullMethodName   = "/edges.SyncService/GetTagValueUpdated"
-	SyncService_WaitTagValueUpdated_FullMethodName  = "/edges.SyncService/WaitTagValueUpdated"
-	SyncService_SetWireValueUpdated_FullMethodName  = "/edges.SyncService/SetWireValueUpdated"
-	SyncService_GetWireValueUpdated_FullMethodName  = "/edges.SyncService/GetWireValueUpdated"
-	SyncService_WaitWireValueUpdated_FullMethodName = "/edges.SyncService/WaitWireValueUpdated"
+	SyncService_SetDeviceUpdated_FullMethodName    = "/edges.SyncService/SetDeviceUpdated"
+	SyncService_GetDeviceUpdated_FullMethodName    = "/edges.SyncService/GetDeviceUpdated"
+	SyncService_WaitDeviceUpdated_FullMethodName   = "/edges.SyncService/WaitDeviceUpdated"
+	SyncService_SetSlotUpdated_FullMethodName      = "/edges.SyncService/SetSlotUpdated"
+	SyncService_GetSlotUpdated_FullMethodName      = "/edges.SyncService/GetSlotUpdated"
+	SyncService_SetOptionUpdated_FullMethodName    = "/edges.SyncService/SetOptionUpdated"
+	SyncService_GetOptionUpdated_FullMethodName    = "/edges.SyncService/GetOptionUpdated"
+	SyncService_SetPortUpdated_FullMethodName      = "/edges.SyncService/SetPortUpdated"
+	SyncService_GetPortUpdated_FullMethodName      = "/edges.SyncService/GetPortUpdated"
+	SyncService_SetProxyUpdated_FullMethodName     = "/edges.SyncService/SetProxyUpdated"
+	SyncService_GetProxyUpdated_FullMethodName     = "/edges.SyncService/GetProxyUpdated"
+	SyncService_SetSourceUpdated_FullMethodName    = "/edges.SyncService/SetSourceUpdated"
+	SyncService_GetSourceUpdated_FullMethodName    = "/edges.SyncService/GetSourceUpdated"
+	SyncService_SetTagUpdated_FullMethodName       = "/edges.SyncService/SetTagUpdated"
+	SyncService_GetTagUpdated_FullMethodName       = "/edges.SyncService/GetTagUpdated"
+	SyncService_SetConstUpdated_FullMethodName     = "/edges.SyncService/SetConstUpdated"
+	SyncService_GetConstUpdated_FullMethodName     = "/edges.SyncService/GetConstUpdated"
+	SyncService_SetTagValueUpdated_FullMethodName  = "/edges.SyncService/SetTagValueUpdated"
+	SyncService_GetTagValueUpdated_FullMethodName  = "/edges.SyncService/GetTagValueUpdated"
+	SyncService_WaitTagValueUpdated_FullMethodName = "/edges.SyncService/WaitTagValueUpdated"
 )
 
 // SyncServiceClient is the client API for SyncService service.
@@ -70,16 +63,9 @@ type SyncServiceClient interface {
 	GetTagUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetConstUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetConstUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetCableUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetCableUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetWireUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetWireUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetTagValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	WaitTagValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (SyncService_WaitTagValueUpdatedClient, error)
-	SetWireValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetWireValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	WaitWireValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (SyncService_WaitWireValueUpdatedClient, error)
 }
 
 type syncServiceClient struct {
@@ -266,42 +252,6 @@ func (c *syncServiceClient) GetConstUpdated(ctx context.Context, in *pb.MyEmpty,
 	return out, nil
 }
 
-func (c *syncServiceClient) SetCableUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetCableUpdated_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) GetCableUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
-	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetCableUpdated_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) SetWireUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetWireUpdated_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) GetWireUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
-	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetWireUpdated_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *syncServiceClient) SetTagValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, SyncService_SetTagValueUpdated_FullMethodName, in, out, opts...)
@@ -352,56 +302,6 @@ func (x *syncServiceWaitTagValueUpdatedClient) Recv() (*pb.MyBool, error) {
 	return m, nil
 }
 
-func (c *syncServiceClient) SetWireValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetWireValueUpdated_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) GetWireValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
-	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetWireValueUpdated_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) WaitWireValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (SyncService_WaitWireValueUpdatedClient, error) {
-	stream, err := c.cc.NewStream(ctx, &SyncService_ServiceDesc.Streams[2], SyncService_WaitWireValueUpdated_FullMethodName, opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &syncServiceWaitWireValueUpdatedClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type SyncService_WaitWireValueUpdatedClient interface {
-	Recv() (*pb.MyBool, error)
-	grpc.ClientStream
-}
-
-type syncServiceWaitWireValueUpdatedClient struct {
-	grpc.ClientStream
-}
-
-func (x *syncServiceWaitWireValueUpdatedClient) Recv() (*pb.MyBool, error) {
-	m := new(pb.MyBool)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
 // SyncServiceServer is the server API for SyncService service.
 // All implementations must embed UnimplementedSyncServiceServer
 // for forward compatibility
@@ -423,16 +323,9 @@ type SyncServiceServer interface {
 	GetTagUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetConstUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetConstUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetCableUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetCableUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetWireUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetWireUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetTagValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetTagValueUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	WaitTagValueUpdated(*pb.MyEmpty, SyncService_WaitTagValueUpdatedServer) error
-	SetWireValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetWireValueUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	WaitWireValueUpdated(*pb.MyEmpty, SyncService_WaitWireValueUpdatedServer) error
 	mustEmbedUnimplementedSyncServiceServer()
 }
 
@@ -491,18 +384,6 @@ func (UnimplementedSyncServiceServer) SetConstUpdated(context.Context, *SyncUpda
 func (UnimplementedSyncServiceServer) GetConstUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConstUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) SetCableUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetCableUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) GetCableUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCableUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) SetWireUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetWireUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) GetWireUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetWireUpdated not implemented")
-}
 func (UnimplementedSyncServiceServer) SetTagValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetTagValueUpdated not implemented")
 }
@@ -511,15 +392,6 @@ func (UnimplementedSyncServiceServer) GetTagValueUpdated(context.Context, *pb.My
 }
 func (UnimplementedSyncServiceServer) WaitTagValueUpdated(*pb.MyEmpty, SyncService_WaitTagValueUpdatedServer) error {
 	return status.Errorf(codes.Unimplemented, "method WaitTagValueUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) SetWireValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetWireValueUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) GetWireValueUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetWireValueUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) WaitWireValueUpdated(*pb.MyEmpty, SyncService_WaitWireValueUpdatedServer) error {
-	return status.Errorf(codes.Unimplemented, "method WaitWireValueUpdated not implemented")
 }
 func (UnimplementedSyncServiceServer) mustEmbedUnimplementedSyncServiceServer() {}
 
@@ -843,78 +715,6 @@ func _SyncService_GetConstUpdated_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_SetCableUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUpdated)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).SetCableUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_SetCableUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetCableUpdated(ctx, req.(*SyncUpdated))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_GetCableUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.MyEmpty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).GetCableUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_GetCableUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetCableUpdated(ctx, req.(*pb.MyEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_SetWireUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUpdated)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).SetWireUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_SetWireUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetWireUpdated(ctx, req.(*SyncUpdated))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_GetWireUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.MyEmpty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).GetWireUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_GetWireUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetWireUpdated(ctx, req.(*pb.MyEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _SyncService_SetTagValueUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncUpdated)
 	if err := dec(in); err != nil {
@@ -969,63 +769,6 @@ type syncServiceWaitTagValueUpdatedServer struct {
 }
 
 func (x *syncServiceWaitTagValueUpdatedServer) Send(m *pb.MyBool) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func _SyncService_SetWireValueUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUpdated)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).SetWireValueUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_SetWireValueUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetWireValueUpdated(ctx, req.(*SyncUpdated))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_GetWireValueUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.MyEmpty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).GetWireValueUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_GetWireValueUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetWireValueUpdated(ctx, req.(*pb.MyEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_WaitWireValueUpdated_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(pb.MyEmpty)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(SyncServiceServer).WaitWireValueUpdated(m, &syncServiceWaitWireValueUpdatedServer{stream})
-}
-
-type SyncService_WaitWireValueUpdatedServer interface {
-	Send(*pb.MyBool) error
-	grpc.ServerStream
-}
-
-type syncServiceWaitWireValueUpdatedServer struct {
-	grpc.ServerStream
-}
-
-func (x *syncServiceWaitWireValueUpdatedServer) Send(m *pb.MyBool) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -1101,36 +844,12 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SyncService_GetConstUpdated_Handler,
 		},
 		{
-			MethodName: "SetCableUpdated",
-			Handler:    _SyncService_SetCableUpdated_Handler,
-		},
-		{
-			MethodName: "GetCableUpdated",
-			Handler:    _SyncService_GetCableUpdated_Handler,
-		},
-		{
-			MethodName: "SetWireUpdated",
-			Handler:    _SyncService_SetWireUpdated_Handler,
-		},
-		{
-			MethodName: "GetWireUpdated",
-			Handler:    _SyncService_GetWireUpdated_Handler,
-		},
-		{
 			MethodName: "SetTagValueUpdated",
 			Handler:    _SyncService_SetTagValueUpdated_Handler,
 		},
 		{
 			MethodName: "GetTagValueUpdated",
 			Handler:    _SyncService_GetTagValueUpdated_Handler,
-		},
-		{
-			MethodName: "SetWireValueUpdated",
-			Handler:    _SyncService_SetWireValueUpdated_Handler,
-		},
-		{
-			MethodName: "GetWireValueUpdated",
-			Handler:    _SyncService_GetWireValueUpdated_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
@@ -1142,11 +861,6 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "WaitTagValueUpdated",
 			Handler:       _SyncService_WaitTagValueUpdated_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "WaitWireValueUpdated",
-			Handler:       _SyncService_WaitWireValueUpdated_Handler,
 			ServerStreams: true,
 		},
 	},

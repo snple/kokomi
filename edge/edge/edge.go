@@ -31,8 +31,6 @@ type EdgeService struct {
 	source   *SourceService
 	tag      *TagService
 	constant *ConstService
-	cable    *CableService
-	wire     *WireService
 	control  *ControlService
 
 	node   types.Option[*NodeService]
@@ -95,8 +93,6 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 	es.source = newSourceService(es)
 	es.tag = newTagService(es)
 	es.constant = newConstService(es)
-	es.cable = newCableService(es)
-	es.wire = newWireService(es)
 	es.control = newControlService(es)
 
 	if es.dopts.NodeOptions.enable {
@@ -158,6 +154,14 @@ func (es *EdgeService) Start() {
 		}()
 	}
 
+	if es.dopts.cache {
+		go func() {
+			es.closeWG.Add(1)
+			defer es.closeWG.Done()
+
+			es.cacheGC()
+		}()
+	}
 }
 
 func (es *EdgeService) Stop() {
@@ -244,14 +248,6 @@ func (es *EdgeService) GetConst() *ConstService {
 	return es.constant
 }
 
-func (es *EdgeService) GetCable() *CableService {
-	return es.cable
-}
-
-func (es *EdgeService) GetWire() *WireService {
-	return es.wire
-}
-
 func (es *EdgeService) GetControl() *ControlService {
 	return es.control
 }
@@ -276,6 +272,26 @@ func (es *EdgeService) Logger() *zap.Logger {
 	return es.dopts.logger
 }
 
+func (es *EdgeService) cacheGC() {
+	es.Logger().Sugar().Info("cache gc started")
+
+	ticker := time.NewTicker(es.dopts.cacheGCTTL)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-es.ctx.Done():
+			return
+		case <-ticker.C:
+			{
+				es.GetSource().GC()
+				es.GetTag().GC()
+				es.GetConst().GC()
+			}
+		}
+	}
+}
+
 func (es *EdgeService) Register(server *grpc.Server) {
 	edges.RegisterSyncServiceServer(server, es.sync)
 	edges.RegisterDeviceServiceServer(server, es.device)
@@ -286,8 +302,6 @@ func (es *EdgeService) Register(server *grpc.Server) {
 	edges.RegisterSourceServiceServer(server, es.source)
 	edges.RegisterTagServiceServer(server, es.tag)
 	edges.RegisterConstServiceServer(server, es.constant)
-	edges.RegisterCableServiceServer(server, es.cable)
-	edges.RegisterWireServiceServer(server, es.wire)
 	edges.RegisterControlServiceServer(server, es.control)
 }
 
@@ -301,8 +315,6 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Source)(nil),
 		(*model.Tag)(nil),
 		(*model.Const)(nil),
-		(*model.Cable)(nil),
-		(*model.Wire)(nil),
 	}
 
 	for _, model := range models {
@@ -325,7 +337,10 @@ type edgeOptions struct {
 	BadgerOptions   badger.Options
 	BadgerGCOptions BadgerGCOptions
 
-	linkTTL time.Duration
+	linkTTL    time.Duration
+	cache      bool
+	cacheTTL   time.Duration
+	cacheGCTTL time.Duration
 }
 
 type NodeOptions struct {
@@ -374,7 +389,10 @@ func defaultEdgeOptions() edgeOptions {
 			GC:             time.Hour,
 			GCDiscardRatio: 0.7,
 		},
-		linkTTL: 3 * time.Minute,
+		linkTTL:    3 * time.Minute,
+		cache:      true,
+		cacheTTL:   3 * time.Second,
+		cacheGCTTL: 3 * time.Hour,
 	}
 }
 
@@ -474,5 +492,23 @@ func WithBadgerGC(options *BadgerGCOptions) EdgeOption {
 func WithLinkTTL(d time.Duration) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		o.linkTTL = d
+	})
+}
+
+func WithCache(enable bool) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.cache = enable
+	})
+}
+
+func WithCacheTTL(d time.Duration) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.cacheTTL = d
+	})
+}
+
+func WithCacheGCTTL(d time.Duration) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.cacheGCTTL = d
 	})
 }

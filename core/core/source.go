@@ -12,6 +12,7 @@ import (
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/cores"
 	"github.com/snple/kokomi/util"
+	"github.com/snple/types/cache"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,12 +21,15 @@ import (
 type SourceService struct {
 	cs *CoreService
 
+	cache *cache.Cache[model.Source]
+
 	cores.UnimplementedSourceServiceServer
 }
 
 func newSourceService(cs *CoreService) *SourceService {
 	return &SourceService{
-		cs: cs,
+		cs:    cs,
+		cache: cache.NewCache[model.Source](nil),
 	}
 }
 
@@ -545,6 +549,8 @@ func (s *SourceService) afterDelete(ctx context.Context, item *model.Source) err
 	return nil
 }
 
+// sync
+
 func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Source, error) {
 	var output pb.Source
 	var err error
@@ -777,4 +783,50 @@ SKIP:
 	output.Bool = true
 
 	return &output, nil
+}
+
+// cache
+
+func (s *SourceService) GC() {
+	s.cache.GC()
+}
+
+func (s *SourceService) ViewFromCacheByID(ctx context.Context, id string) (model.Source, error) {
+	if !s.cs.dopts.cache {
+		return s.ViewByID(ctx, id)
+	}
+
+	if option := s.cache.Get(id); option.IsSome() {
+		return option.Unwrap(), nil
+	}
+
+	item, err := s.ViewByID(ctx, id)
+	if err != nil {
+		return item, err
+	}
+
+	s.cache.Set(id, item, s.cs.dopts.cacheTTL)
+
+	return item, nil
+}
+
+func (s *SourceService) ViewFromCacheByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Source, error) {
+	if !s.cs.dopts.cache {
+		return s.ViewByDeviceIDAndName(ctx, deviceID, name)
+	}
+
+	id := deviceID + name
+
+	if option := s.cache.Get(id); option.IsSome() {
+		return option.Unwrap(), nil
+	}
+
+	item, err := s.ViewByDeviceIDAndName(ctx, deviceID, name)
+	if err != nil {
+		return item, err
+	}
+
+	s.cache.Set(id, item, s.cs.dopts.cacheTTL)
+
+	return item, nil
 }

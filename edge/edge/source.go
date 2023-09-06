@@ -12,6 +12,7 @@ import (
 	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/kokomi/pb/nodes"
 	"github.com/snple/kokomi/util"
+	"github.com/snple/types/cache"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,12 +21,15 @@ import (
 type SourceService struct {
 	es *EdgeService
 
+	cache *cache.Cache[model.Source]
+
 	edges.UnimplementedSourceServiceServer
 }
 
 func newSourceService(es *EdgeService) *SourceService {
 	return &SourceService{
-		es: es,
+		es:    es,
+		cache: cache.NewCache[model.Source](nil),
 	}
 }
 
@@ -499,6 +503,8 @@ func (s *SourceService) afterDelete(ctx context.Context, item *model.Source) err
 	return nil
 }
 
+// sync
+
 func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Source, error) {
 	var output pb.Source
 	var err error
@@ -714,4 +720,48 @@ SKIP:
 	output.Bool = true
 
 	return &output, nil
+}
+
+// cache
+
+func (s *SourceService) GC() {
+	s.cache.GC()
+}
+
+func (s *SourceService) ViewFromCacheByID(ctx context.Context, id string) (model.Source, error) {
+	if !s.es.dopts.cache {
+		return s.ViewByID(ctx, id)
+	}
+
+	if option := s.cache.Get(id); option.IsSome() {
+		return option.Unwrap(), nil
+	}
+
+	item, err := s.ViewByID(ctx, id)
+	if err != nil {
+		return item, err
+	}
+
+	s.cache.Set(id, item, s.es.dopts.cacheTTL)
+
+	return item, nil
+}
+
+func (s *SourceService) ViewFromCacheByName(ctx context.Context, name string) (model.Source, error) {
+	if !s.es.dopts.cache {
+		return s.ViewByName(ctx, name)
+	}
+
+	if option := s.cache.Get(name); option.IsSome() {
+		return option.Unwrap(), nil
+	}
+
+	item, err := s.ViewByName(ctx, name)
+	if err != nil {
+		return item, err
+	}
+
+	s.cache.Set(name, item, s.es.dopts.cacheTTL)
+
+	return item, nil
 }

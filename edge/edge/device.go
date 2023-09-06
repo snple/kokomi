@@ -3,17 +3,22 @@ package edge
 import (
 	"context"
 	"database/sql"
+	"sync"
 	"time"
 
 	"github.com/snple/kokomi/edge/model"
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/edges"
+	"github.com/snple/types/cache"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type DeviceService struct {
 	es *EdgeService
+
+	cache *cache.Value[model.Device]
+	lock  sync.RWMutex
 
 	edges.UnimplementedDeviceServiceServer
 }
@@ -178,8 +183,6 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.MyEmpty) (*pb.MyBool
 			(*model.Source)(nil),
 			(*model.Tag)(nil),
 			(*model.Const)(nil),
-			(*model.Cable)(nil),
-			(*model.Wire)(nil),
 		}
 
 		tx, err := s.es.GetDB().BeginTx(ctx, nil)
@@ -430,4 +433,31 @@ SKIP:
 	output.Bool = true
 
 	return &output, nil
+}
+
+// cache
+
+func (s *DeviceService) ViewFromCacheByID(ctx context.Context) (model.Device, error) {
+	if !s.es.dopts.cache {
+		return s.ViewByID(ctx)
+	}
+
+	s.lock.RLock()
+	if s.cache.Alive() {
+		s.lock.RUnlock()
+		return s.cache.Data, nil
+	}
+	s.lock.RUnlock()
+
+	item, err := s.ViewByID(ctx)
+	if err != nil {
+		return item, err
+	}
+
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	value := cache.NewValue[model.Device](item, s.es.dopts.cacheTTL)
+	s.cache = &value
+
+	return item, nil
 }

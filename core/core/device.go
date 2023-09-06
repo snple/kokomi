@@ -11,6 +11,7 @@ import (
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/cores"
 	"github.com/snple/kokomi/util"
+	"github.com/snple/types/cache"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -19,12 +20,15 @@ import (
 type DeviceService struct {
 	cs *CoreService
 
+	cache *cache.Cache[model.Device]
+
 	cores.UnimplementedDeviceServiceServer
 }
 
 func newDeviceService(cs *CoreService) *DeviceService {
 	s := &DeviceService{
-		cs: cs,
+		cs:    cs,
+		cache: cache.NewCache[model.Device](nil),
 	}
 
 	return s
@@ -389,10 +393,7 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.Id) (*pb.MyBool, err
 			(*model.Source)(nil),
 			(*model.Tag)(nil),
 			(*model.Const)(nil),
-			(*model.Cable)(nil),
-			(*model.Wire)(nil),
 			(*model.TagValue)(nil),
-			(*model.WireValue)(nil),
 		}
 
 		tx, err := s.cs.GetDB().BeginTx(ctx, nil)
@@ -547,6 +548,8 @@ func (s *DeviceService) afterDelete(ctx context.Context, item *model.Device) err
 
 	return nil
 }
+
+// sync
 
 func (s *DeviceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Device, error) {
 	var output pb.Device
@@ -761,4 +764,48 @@ SKIP:
 	output.Bool = true
 
 	return &output, nil
+}
+
+// cache
+
+func (s *DeviceService) GC() {
+	s.cache.GC()
+}
+
+func (s *DeviceService) ViewFromCacheByID(ctx context.Context, id string) (model.Device, error) {
+	if !s.cs.dopts.cache {
+		return s.ViewByID(ctx, id)
+	}
+
+	if option := s.cache.Get(id); option.IsSome() {
+		return option.Unwrap(), nil
+	}
+
+	item, err := s.ViewByID(ctx, id)
+	if err != nil {
+		return item, err
+	}
+
+	s.cache.Set(id, item, s.cs.dopts.cacheTTL)
+
+	return item, nil
+}
+
+func (s *DeviceService) ViewFromCacheByName(ctx context.Context, name string) (model.Device, error) {
+	if !s.cs.dopts.cache {
+		return s.ViewByName(ctx, name)
+	}
+
+	if option := s.cache.Get(name); option.IsSome() {
+		return option.Unwrap(), nil
+	}
+
+	item, err := s.ViewByName(ctx, name)
+	if err != nil {
+		return item, err
+	}
+
+	s.cache.Set(name, item, s.cs.dopts.cacheTTL)
+
+	return item, nil
 }

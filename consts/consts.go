@@ -9,7 +9,5 @@ const (
 	DEFAULT_DEVICE = "device"
 	DEFAULT_SOURCE = "source"
 	DEFAULT_TAG    = "tag"
-	DEFAULT_VAR    = "var"
-	DEFAULT_CABLE  = "cable"
-	DEFAULT_WIRE   = "wire"
+	DEFAULT_CONST  = "const"
 )

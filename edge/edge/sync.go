@@ -408,98 +408,6 @@ func (s *SyncService) GetConstUpdated(ctx context.Context, in *pb.MyEmpty) (*edg
 	return &output, nil
 }
 
-func (s *SyncService) SetCableUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
-	var output pb.MyBool
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Cable.Updated")
-		}
-	}
-
-	err = s.setCableUpdated(ctx, time.UnixMicro(in.GetUpdated()))
-	if err != nil {
-		return &output, err
-	}
-
-	output.Bool = true
-
-	return &output, nil
-}
-
-func (s *SyncService) GetCableUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
-	var output edges.SyncUpdated
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	t, err := s.getCableUpdated(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	output.Updated = t.UnixMicro()
-
-	return &output, nil
-}
-
-func (s *SyncService) SetWireUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
-	var output pb.MyBool
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Updated")
-		}
-	}
-
-	err = s.setWireUpdated(ctx, time.UnixMicro(in.GetUpdated()))
-	if err != nil {
-		return &output, err
-	}
-
-	output.Bool = true
-
-	return &output, nil
-}
-
-func (s *SyncService) GetWireUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
-	var output edges.SyncUpdated
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	t, err := s.getWireUpdated(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	output.Updated = t.UnixMicro()
-
-	return &output, nil
-}
-
 func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
@@ -550,58 +458,6 @@ func (s *SyncService) WaitTagValueUpdated(in *pb.MyEmpty,
 	stream edges.SyncService_WaitTagValueUpdatedServer) error {
 
 	return s.waitUpdated(in, stream, s.waitsTVal)
-}
-
-func (s *SyncService) SetWireValueUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
-	var output pb.MyBool
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Value.Updated")
-		}
-	}
-
-	err = s.setWireValueUpdated(ctx, time.UnixMicro(in.GetUpdated()))
-	if err != nil {
-		return &output, err
-	}
-
-	output.Bool = true
-
-	return &output, nil
-}
-
-func (s *SyncService) GetWireValueUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
-	var output edges.SyncUpdated
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	t, err := s.getWireValueUpdated(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	output.Updated = t.UnixMicro()
-
-	return &output, nil
-}
-
-func (s *SyncService) WaitWireValueUpdated(in *pb.MyEmpty,
-	stream edges.SyncService_WaitWireValueUpdatedServer) error {
-
-	return s.waitUpdated(in, stream, s.waitsWVal)
 }
 
 func (s *SyncService) WaitDeviceUpdated2(ctx context.Context) chan bool {
@@ -687,22 +543,6 @@ func (s *SyncService) setConstUpdated(ctx context.Context, updated time.Time) er
 	return s.setUpdated(ctx, model.SYNC_CONST, updated)
 }
 
-func (s *SyncService) getCableUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_CABLE)
-}
-
-func (s *SyncService) setCableUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_CABLE, updated)
-}
-
-func (s *SyncService) getWireUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_WIRE)
-}
-
-func (s *SyncService) setWireUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_WIRE, updated)
-}
-
 func (s *SyncService) getTagValueUpdated(ctx context.Context) (time.Time, error) {
 	return s.getUpdated(ctx, model.SYNC_TAG_VALUE)
 }
@@ -714,21 +554,6 @@ func (s *SyncService) setTagValueUpdated(ctx context.Context, updated time.Time)
 	}
 
 	s.notifyUpdated(s.waitsTVal)
-
-	return nil
-}
-
-func (s *SyncService) getWireValueUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_WIRE_VALUE)
-}
-
-func (s *SyncService) setWireValueUpdated(ctx context.Context, updated time.Time) error {
-	err := s.setUpdated(ctx, model.SYNC_WIRE_VALUE, updated)
-	if err != nil {
-		return err
-	}
-
-	s.notifyUpdated(s.waitsWVal)
 
 	return nil
 }
@@ -763,22 +588,6 @@ func (s *SyncService) getTagValueUpdatedLocalToRemote(ctx context.Context) (time
 
 func (s *SyncService) setTagValueUpdatedLocalToRemote(ctx context.Context, updated time.Time) error {
 	return s.setUpdated(ctx, model.SYNC_TAG_VALUE_LOCAL_TO_REMOTE, updated)
-}
-
-func (s *SyncService) getWireValueUpdatedRemoteToLocal(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_WIRE_VALUE_REMOTE_TO_LOCAL)
-}
-
-func (s *SyncService) setWireValueUpdatedRemoteToLocal(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_WIRE_VALUE_REMOTE_TO_LOCAL, updated)
-}
-
-func (s *SyncService) getWireValueUpdatedLocalToRemote(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_WIRE_VALUE_LOCAL_TO_REMOTE)
-}
-
-func (s *SyncService) setWireValueUpdatedLocalToRemote(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_WIRE_VALUE_LOCAL_TO_REMOTE, updated)
 }
 
 func (s *SyncService) getUpdated(ctx context.Context, key string) (time.Time, error) {

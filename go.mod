@@ -14,7 +14,7 @@ require (
 	github.com/onsi/gomega v1.27.10
 	github.com/quic-go/quic-go v0.38.1
 	github.com/snple/rgrpc v0.2.0
-	github.com/snple/types v0.2.0
+	github.com/snple/types v0.2.1
 	github.com/uptrace/bun v1.1.14
 	github.com/uptrace/bun/dialect/sqlitedialect v1.1.14
 	github.com/uptrace/bun/extra/bundebug v1.1.14

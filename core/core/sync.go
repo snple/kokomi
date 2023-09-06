@@ -159,68 +159,6 @@ func (s *SyncService) WaitTagValueUpdated(in *pb.Id,
 	return s.waitUpdated(in, stream, s.waitsTVal)
 }
 
-func (s *SyncService) SetWireValueUpdated(ctx context.Context, in *cores.SyncUpdated) (*pb.MyBool, error) {
-	var output pb.MyBool
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
-		}
-
-		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.Value.Updated")
-		}
-	}
-
-	err = s.setWireValueUpdated(ctx, s.cs.GetDB(), in.GetId(), time.UnixMicro(in.GetUpdated()))
-	if err != nil {
-		return &output, err
-	}
-
-	output.Bool = true
-
-	return &output, nil
-}
-
-func (s *SyncService) GetWireValueUpdated(ctx context.Context, in *pb.Id) (*cores.SyncUpdated, error) {
-	var output cores.SyncUpdated
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
-		}
-	}
-
-	output.Id = in.GetId()
-
-	t, err := s.getWireValueUpdated(ctx, s.cs.GetDB(), in.GetId())
-	if err != nil {
-		return &output, err
-	}
-
-	output.Updated = t.UnixMicro()
-
-	return &output, nil
-}
-
-func (s *SyncService) WaitWireValueUpdated(in *pb.Id,
-	stream cores.SyncService_WaitWireValueUpdatedServer) error {
-
-	return s.waitUpdated(in, stream, s.waitsWVal)
-}
-
 func (s *SyncService) WaitDeviceUpdated2(ctx context.Context, id string) chan bool {
 	return s.waitUpdated2(ctx, id, s.waits)
 }
@@ -259,21 +197,6 @@ func (s *SyncService) setTagValueUpdated(ctx context.Context, db bun.IDB, id str
 	}
 
 	s.notifyUpdated(id, s.waitsTVal)
-
-	return nil
-}
-
-func (s *SyncService) getWireValueUpdated(ctx context.Context, db bun.IDB, id string) (time.Time, error) {
-	return s.getUpdated(ctx, db, id+model.SYNC_WIRE_VALUE_SUFFIX)
-}
-
-func (s *SyncService) setWireValueUpdated(ctx context.Context, db bun.IDB, id string, updated time.Time) error {
-	err := s.setUpdated(ctx, db, id+model.SYNC_WIRE_VALUE_SUFFIX, updated)
-	if err != nil {
-		return err
-	}
-
-	s.notifyUpdated(id, s.waitsWVal)
 
 	return nil
 }
@@ -442,7 +365,7 @@ func (s *SyncService) waitUpdated2(ctx context.Context,
 }
 
 func (s *SyncService) destory(ctx context.Context, db bun.IDB, id string) error {
-	ids := []string{id, id + model.SYNC_TAG_VALUE_SUFFIX, id + model.SYNC_WIRE_VALUE_SUFFIX}
+	ids := []string{id, id + model.SYNC_TAG_VALUE_SUFFIX}
 
 	for _, id := range ids {
 		_, err := db.NewDelete().Model(&model.Sync{}).Where("id = ?", id).Exec(ctx)

@@ -27,13 +27,9 @@ type CoreService struct {
 	source      *SourceService
 	tag         *TagService
 	constant    *ConstService
-	cable       *CableService
-	wire        *WireService
 	control     *ControlService
 
 	clone *cloneService
-
-	route *RouteService
 
 	ctx     context.Context
 	cancel  func()
@@ -79,19 +75,22 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.source = newSourceService(cs)
 	cs.tag = newTagService(cs)
 	cs.constant = newConstService(cs)
-	cs.cable = newCableService(cs)
-	cs.wire = newWireService(cs)
 	cs.control = newControlService(cs)
 
 	cs.clone = newCloneService(cs)
-
-	cs.route = newRouteService(cs)
 
 	return cs, nil
 }
 
 func (cs *CoreService) Start() {
+	if cs.dopts.cache {
+		go func() {
+			cs.closeWG.Add(1)
+			defer cs.closeWG.Done()
 
+			cs.cacheGC()
+		}()
+	}
 }
 
 func (cs *CoreService) Stop() {
@@ -149,14 +148,6 @@ func (cs *CoreService) GetConst() *ConstService {
 	return cs.constant
 }
 
-func (cs *CoreService) GetCable() *CableService {
-	return cs.cable
-}
-
-func (cs *CoreService) GetWire() *WireService {
-	return cs.wire
-}
-
 func (cs *CoreService) GetControl() *ControlService {
 	return cs.control
 }
@@ -165,16 +156,33 @@ func (cs *CoreService) getClone() *cloneService {
 	return cs.clone
 }
 
-func (cs *CoreService) GetRoute() *RouteService {
-	return cs.route
-}
-
 func (cs *CoreService) Context() context.Context {
 	return cs.ctx
 }
 
 func (cs *CoreService) Logger() *zap.Logger {
 	return cs.dopts.logger
+}
+
+func (cs *CoreService) cacheGC() {
+	cs.Logger().Sugar().Info("cache gc started")
+
+	ticker := time.NewTicker(cs.dopts.cacheGCTTL)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-cs.ctx.Done():
+			return
+		case <-ticker.C:
+			{
+				cs.GetDevice().GC()
+				cs.GetSource().GC()
+				cs.GetTag().GC()
+				cs.GetConst().GC()
+			}
+		}
+	}
 }
 
 func (cs *CoreService) Register(server *grpc.Server) {
@@ -188,10 +196,7 @@ func (cs *CoreService) Register(server *grpc.Server) {
 	cores.RegisterSourceServiceServer(server, cs.source)
 	cores.RegisterTagServiceServer(server, cs.tag)
 	cores.RegisterConstServiceServer(server, cs.constant)
-	cores.RegisterCableServiceServer(server, cs.cable)
-	cores.RegisterWireServiceServer(server, cs.wire)
 	cores.RegisterControlServiceServer(server, cs.control)
-	cores.RegisterRouteServiceServer(server, cs.route)
 }
 
 func CreateSchema(db bun.IDB) error {
@@ -206,11 +211,7 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Source)(nil),
 		(*model.Tag)(nil),
 		(*model.Const)(nil),
-		(*model.Cable)(nil),
-		(*model.Wire)(nil),
 		(*model.TagValue)(nil),
-		(*model.WireValue)(nil),
-		(*model.Route)(nil),
 	}
 
 	for _, model := range models {
@@ -223,8 +224,11 @@ func CreateSchema(db bun.IDB) error {
 }
 
 type coreOptions struct {
-	logger  *zap.Logger
-	linkTTL time.Duration
+	logger     *zap.Logger
+	linkTTL    time.Duration
+	cache      bool
+	cacheTTL   time.Duration
+	cacheGCTTL time.Duration
 }
 
 func defaultCoreOptions() coreOptions {
@@ -234,8 +238,11 @@ func defaultCoreOptions() coreOptions {
 	}
 
 	return coreOptions{
-		logger:  logger,
-		linkTTL: 3 * time.Minute,
+		logger:     logger,
+		linkTTL:    3 * time.Minute,
+		cache:      true,
+		cacheTTL:   3 * time.Second,
+		cacheGCTTL: 3 * time.Hour,
 	}
 }
 
@@ -268,5 +275,23 @@ func WithLogger(logger *zap.Logger) CoreOption {
 func WithLinkTTL(d time.Duration) CoreOption {
 	return newFuncCoreOption(func(o *coreOptions) {
 		o.linkTTL = d
+	})
+}
+
+func WithCache(enable bool) CoreOption {
+	return newFuncCoreOption(func(o *coreOptions) {
+		o.cache = enable
+	})
+}
+
+func WithCacheTTL(d time.Duration) CoreOption {
+	return newFuncCoreOption(func(o *coreOptions) {
+		o.cacheTTL = d
+	})
+}
+
+func WithCacheGCTTL(d time.Duration) CoreOption {
+	return newFuncCoreOption(func(o *coreOptions) {
+		o.cacheGCTTL = d
 	})
 }

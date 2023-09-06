@@ -79,39 +79,6 @@ func main() {
 	// service.ProxyCreate(ctx, proxy)
 	// service.ProxyUpdate(ctx, proxy)
 	// service.ProxyDelete(ctx, proxy)
-
-	cable := cores.NewCableServiceClient(conn)
-	service.CableList(ctx, cable)
-	// service.CableView(ctx, cable)
-	// service.CableName(ctx, cable)
-	// service.CableNameFull(ctx, cable)
-	// service.CableCreate(ctx, cable)
-	// service.CableUpdate(ctx, cable)
-	// service.CableDelete(ctx, cable)
-
-	wire := cores.NewWireServiceClient(conn)
-	service.WireList(ctx, wire)
-	// service.WireView(ctx, wire)
-	// service.WireName(ctx, wire)
-	// service.WireNameFull(ctx, wire)
-	// service.WireCreate(ctx, wire)
-	// service.WireUpdate(ctx, wire)
-	// service.WireDelete(ctx, wire)
-	// service.WireGetValue(ctx, wire)
-	// for {
-	// 	service.WireSetValue(ctx, wire)
-	// 	time.Sleep(time.Second * 5)
-	// }
-	// service.WireGetValueByName(ctx, wire)
-	// service.WireSetValueByName(ctx, wire)
-
-	route := cores.NewRouteServiceClient(conn)
-	service.RouteList(ctx, route)
-	// service.RouteView(ctx, route)
-	// service.RouteName(ctx, route)
-	// service.RouteCreate(ctx, route)
-	// service.RouteUpdate(ctx, route)
-	// service.RouteDelete(ctx, route)
 }
 
 func loadCert() (*tls.Config, error) {

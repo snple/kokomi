@@ -13,9 +13,8 @@ type Sync struct {
 }
 
 const (
-	SYNC_DEVICE_SUFFIX     = ""
-	SYNC_TAG_VALUE_SUFFIX  = "_tgv"
-	SYNC_WIRE_VALUE_SUFFIX = "_wev"
+	SYNC_DEVICE_SUFFIX    = ""
+	SYNC_TAG_VALUE_SUFFIX = "_tgv"
 )
 
 type SyncGlobal struct {

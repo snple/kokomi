@@ -13,6 +13,7 @@ import (
 	"github.com/snple/kokomi/pb/cores"
 	"github.com/snple/kokomi/util"
 	"github.com/snple/kokomi/util/datatype"
+	"github.com/snple/types/cache"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -21,12 +22,15 @@ import (
 type ConstService struct {
 	cs *CoreService
 
+	cache *cache.Cache[model.Const]
+
 	cores.UnimplementedConstServiceServer
 }
 
 func newConstService(cs *CoreService) *ConstService {
 	return &ConstService{
-		cs: cs,
+		cs:    cs,
+		cache: cache.NewCache[model.Const](nil),
 	}
 }
 
@@ -430,194 +434,6 @@ func (s *ConstService) Clone(ctx context.Context, in *cores.ConstCloneRequest) (
 	return &output, nil
 }
 
-func (s *ConstService) GetValue(ctx context.Context, in *pb.Id) (*pb.ConstValue, error) {
-	var err error
-	var output pb.ConstValue
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
-		}
-	}
-
-	item, err := s.ViewByID(ctx, in.GetId())
-	if err != nil {
-		return &output, err
-	}
-
-	output.Id = in.GetId()
-	output.Value = item.Value
-	output.Updated = item.Updated.UnixMicro()
-
-	return &output, nil
-}
-
-func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
-	return s.setValue(ctx, in, true)
-}
-
-func (s *ConstService) SetValueUnchecked(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
-	return s.setValue(ctx, in, false)
-}
-
-func (s *ConstService) setValue(ctx context.Context, in *pb.ConstValue, check bool) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
-		}
-	}
-
-	item, err := s.ViewByID(ctx, in.GetId())
-	if err != nil {
-		return &output, err
-	}
-
-	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Const.Status != ON")
-	}
-
-	if check {
-		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Const.Access != ON")
-		}
-	}
-
-	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
-	}
-
-	item.Value = in.GetValue()
-	item.Updated = time.Now()
-
-	_, err = s.cs.GetDB().NewUpdate().Model(&item).Column("value", "updated").WherePK().Exec(ctx)
-	if err != nil {
-		return &output, status.Errorf(codes.Internal, "Update: %v", err)
-	}
-
-	if err = s.afterUpdate(ctx, &item); err != nil {
-		return &output, err
-	}
-
-	output.Bool = true
-
-	return &output, nil
-}
-
-func (s *ConstService) GetValueByName(ctx context.Context, in *cores.ConstGetValueByNameRequest) (*cores.ConstNameValue, error) {
-	var err error
-	var output cores.ConstNameValue
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
-		}
-
-		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
-		}
-	}
-
-	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
-	if err != nil {
-		return &output, err
-	}
-
-	output.DeviceId = in.GetDeviceId()
-	output.Id = item.ID
-	output.Name = in.GetName()
-	output.Value = item.Value
-	output.Updated = item.Updated.UnixMicro()
-
-	return &output, nil
-}
-
-func (s *ConstService) SetValueByName(ctx context.Context, in *cores.ConstNameValue) (*pb.MyBool, error) {
-	return s.setValueByName(ctx, in, true)
-}
-
-func (s *ConstService) SetValueByNameUnchecked(ctx context.Context, in *cores.ConstNameValue) (*pb.MyBool, error) {
-	return s.setValueByName(ctx, in, false)
-}
-
-func (s *ConstService) setValueByName(ctx context.Context, in *cores.ConstNameValue, check bool) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetDeviceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
-		}
-
-		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
-		}
-
-		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Value")
-		}
-	}
-
-	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
-	if err != nil {
-		return &output, err
-	}
-
-	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Const.Status != ON")
-	}
-
-	if check {
-		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Const.Access != ON")
-		}
-	}
-
-	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
-	}
-
-	item.Value = in.GetValue()
-	item.Updated = time.Now()
-
-	_, err = s.cs.GetDB().NewUpdate().Model(&item).Column("value", "updated").WherePK().Exec(ctx)
-	if err != nil {
-		return &output, status.Errorf(codes.Internal, "Update: %v", err)
-	}
-
-	if err = s.afterUpdate(ctx, &item); err != nil {
-		return &output, err
-	}
-
-	output.Bool = true
-
-	return &output, nil
-}
-
 func (s *ConstService) ViewByID(ctx context.Context, id string) (model.Const, error) {
 	item := model.Const{
 		ID: id,
@@ -689,6 +505,8 @@ func (s *ConstService) afterDelete(ctx context.Context, item *model.Const) error
 
 	return nil
 }
+
+// sync
 
 func (s *ConstService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Const, error) {
 	var output pb.Const
@@ -913,6 +731,242 @@ SKIP:
 		if err != nil {
 			return &output, status.Errorf(codes.Internal, "Update: %v", err)
 		}
+	}
+
+	if err = s.afterUpdate(ctx, &item); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+// cache
+
+func (s *ConstService) GC() {
+	s.cache.GC()
+}
+
+func (s *ConstService) ViewFromCacheByID(ctx context.Context, id string) (model.Const, error) {
+	if !s.cs.dopts.cache {
+		return s.ViewByID(ctx, id)
+	}
+
+	if option := s.cache.Get(id); option.IsSome() {
+		return option.Unwrap(), nil
+	}
+
+	item, err := s.ViewByID(ctx, id)
+	if err != nil {
+		return item, err
+	}
+
+	s.cache.Set(id, item, s.cs.dopts.cacheTTL)
+
+	return item, nil
+}
+
+func (s *ConstService) ViewFromCacheByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Const, error) {
+	if !s.cs.dopts.cache {
+		return s.ViewByDeviceIDAndName(ctx, deviceID, name)
+	}
+
+	id := deviceID + name
+
+	if option := s.cache.Get(id); option.IsSome() {
+		return option.Unwrap(), nil
+	}
+
+	item, err := s.ViewByDeviceIDAndName(ctx, deviceID, name)
+	if err != nil {
+		return item, err
+	}
+
+	s.cache.Set(id, item, s.cs.dopts.cacheTTL)
+
+	return item, nil
+}
+
+// value
+
+func (s *ConstService) GetValue(ctx context.Context, in *pb.Id) (*pb.ConstValue, error) {
+	var err error
+	var output pb.ConstValue
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
+		}
+	}
+
+	item, err := s.ViewFromCacheByID(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	output.Id = in.GetId()
+	output.Value = item.Value
+	output.Updated = item.Updated.UnixMicro()
+
+	return &output, nil
+}
+
+func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
+	return s.setValue(ctx, in, true)
+}
+
+func (s *ConstService) SetValueUnchecked(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
+	return s.setValue(ctx, in, false)
+}
+
+func (s *ConstService) setValue(ctx context.Context, in *pb.ConstValue, check bool) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
+		}
+	}
+
+	item, err := s.ViewFromCacheByID(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	if item.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Const.Status != ON")
+	}
+
+	if check {
+		if item.Access != consts.ON {
+			return &output, status.Errorf(codes.FailedPrecondition, "Const.Access != ON")
+		}
+	}
+
+	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
+	if err != nil {
+		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	}
+
+	item.Value = in.GetValue()
+	item.Updated = time.Now()
+
+	_, err = s.cs.GetDB().NewUpdate().Model(&item).Column("value", "updated").WherePK().Exec(ctx)
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "Update: %v", err)
+	}
+
+	if err = s.afterUpdate(ctx, &item); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *ConstService) GetValueByName(ctx context.Context, in *cores.ConstGetValueByNameRequest) (*cores.ConstNameValue, error) {
+	var err error
+	var output cores.ConstNameValue
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetDeviceId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+		}
+
+		if len(in.GetName()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
+		}
+	}
+
+	item, err := s.ViewFromCacheByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	if err != nil {
+		return &output, err
+	}
+
+	output.DeviceId = in.GetDeviceId()
+	output.Id = item.ID
+	output.Name = in.GetName()
+	output.Value = item.Value
+	output.Updated = item.Updated.UnixMicro()
+
+	return &output, nil
+}
+
+func (s *ConstService) SetValueByName(ctx context.Context, in *cores.ConstNameValue) (*pb.MyBool, error) {
+	return s.setValueByName(ctx, in, true)
+}
+
+func (s *ConstService) SetValueByNameUnchecked(ctx context.Context, in *cores.ConstNameValue) (*pb.MyBool, error) {
+	return s.setValueByName(ctx, in, false)
+}
+
+func (s *ConstService) setValueByName(ctx context.Context, in *cores.ConstNameValue, check bool) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetDeviceId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+		}
+
+		if len(in.GetName()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
+		}
+
+		if len(in.GetValue()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Value")
+		}
+	}
+
+	item, err := s.ViewFromCacheByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	if err != nil {
+		return &output, err
+	}
+
+	if item.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Const.Status != ON")
+	}
+
+	if check {
+		if item.Access != consts.ON {
+			return &output, status.Errorf(codes.FailedPrecondition, "Const.Access != ON")
+		}
+	}
+
+	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
+	if err != nil {
+		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	}
+
+	item.Value = in.GetValue()
+	item.Updated = time.Now()
+
+	_, err = s.cs.GetDB().NewUpdate().Model(&item).Column("value", "updated").WherePK().Exec(ctx)
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "Update: %v", err)
 	}
 
 	if err = s.afterUpdate(ctx, &item); err != nil {

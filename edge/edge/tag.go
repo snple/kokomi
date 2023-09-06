@@ -17,6 +17,7 @@ import (
 	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/kokomi/util"
 	"github.com/snple/kokomi/util/datatype"
+	"github.com/snple/types/cache"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -25,12 +26,15 @@ import (
 type TagService struct {
 	es *EdgeService
 
+	cache *cache.Cache[model.Tag]
+
 	edges.UnimplementedTagServiceServer
 }
 
 func newTagService(es *EdgeService) *TagService {
 	return &TagService{
-		es: es,
+		es:    es,
+		cache: cache.NewCache[model.Tag](nil),
 	}
 }
 
@@ -415,241 +419,6 @@ func (s *TagService) Clone(ctx context.Context, in *edges.TagCloneRequest) (*pb.
 	return &output, nil
 }
 
-func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, error) {
-	var err error
-	var output pb.TagValue
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
-		}
-	}
-
-	output.Id = in.GetId()
-
-	item2, err := s.getTagValueUpdated(ctx, in.GetId())
-	if err != nil {
-		if code, ok := status.FromError(err); ok {
-			if code.Code() == codes.NotFound {
-				return &output, nil
-			}
-		}
-
-		return &output, err
-	}
-
-	output.Value = item2.Value
-	output.Updated = item2.Updated.UnixMicro()
-
-	return &output, nil
-}
-
-func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
-	return s.setValue(ctx, in, true)
-}
-
-func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
-	return s.setValue(ctx, in, false)
-}
-
-func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
-		}
-
-		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
-		}
-	}
-
-	// tag
-	item, err := s.ViewByID(ctx, in.GetId())
-	if err != nil {
-		return &output, err
-	}
-
-	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
-	}
-
-	if check {
-		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
-		}
-	}
-
-	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
-	}
-
-	// validation device and source
-	{
-		// source
-		{
-			source, err := s.es.GetSource().ViewByID(ctx, item.SourceID)
-			if err != nil {
-				return &output, err
-			}
-
-			if source.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
-			}
-		}
-	}
-
-	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
-		return &output, err
-	}
-
-	if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
-		return &output, err
-	}
-
-	output.Bool = true
-
-	return &output, nil
-}
-
-func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
-	var err error
-	var output pb.TagNameValue
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
-		}
-	}
-
-	item, err := s.ViewByName(ctx, in.GetName())
-	if err != nil {
-		return &output, err
-	}
-
-	output.Id = item.ID
-	output.Name = in.GetName()
-
-	item2, err := s.getTagValueUpdated(ctx, item.ID)
-	if err != nil {
-		if code, ok := status.FromError(err); ok {
-			if code.Code() == codes.NotFound {
-				return &output, nil
-			}
-		}
-
-		return &output, err
-	}
-
-	output.Value = item2.Value
-	output.Updated = item2.Updated.UnixMicro()
-
-	return &output, nil
-}
-
-func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
-	return s.setValueByName(ctx, in, true)
-}
-
-func (s *TagService) SetValueByNameUnchecked(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
-	return s.setValueByName(ctx, in, false)
-}
-
-func (s *TagService) setValueByName(ctx context.Context, in *pb.TagNameValue, check bool) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetName()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
-		}
-
-		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
-		}
-	}
-
-	// name
-	sourceName := consts.DEFAULT_SOURCE
-	itemName := in.GetName()
-
-	if strings.Contains(itemName, ".") {
-		splits := strings.Split(itemName, ".")
-		if len(splits) != 2 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
-		}
-
-		sourceName = splits[0]
-		itemName = splits[1]
-	}
-
-	// source
-	source, err := s.es.GetSource().ViewByName(ctx, sourceName)
-	if err != nil {
-		return &output, err
-	}
-
-	if source.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
-	}
-
-	// tag
-	item, err := s.ViewBySourceIDAndName(ctx, source.ID, itemName)
-	if err != nil {
-		return &output, err
-	}
-
-	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
-	}
-
-	if check {
-		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
-		}
-	}
-
-	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
-	}
-
-	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
-		return &output, err
-	}
-
-	if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
-		return &output, err
-	}
-
-	output.Bool = true
-
-	return &output, nil
-}
-
 func (s *TagService) ViewByID(ctx context.Context, id string) (model.Tag, error) {
 	item := model.Tag{
 		ID: id,
@@ -772,6 +541,8 @@ func (s *TagService) afterDelete(ctx context.Context, item *model.Tag) error {
 
 	return nil
 }
+
+// sync
 
 func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 	var output pb.Tag
@@ -1005,6 +776,329 @@ SKIP:
 	return &output, nil
 }
 
+// cache
+
+func (s *TagService) GC() {
+	s.cache.GC()
+}
+
+func (s *TagService) ViewFromCacheByID(ctx context.Context, id string) (model.Tag, error) {
+	if !s.es.dopts.cache {
+		return s.ViewByID(ctx, id)
+	}
+
+	if option := s.cache.Get(id); option.IsSome() {
+		return option.Unwrap(), nil
+	}
+
+	item, err := s.ViewByID(ctx, id)
+	if err != nil {
+		return item, err
+	}
+
+	s.cache.Set(id, item, s.es.dopts.cacheTTL)
+
+	return item, nil
+}
+
+func (s *TagService) ViewFromCacheByName(ctx context.Context, name string) (model.Tag, error) {
+	if !s.es.dopts.cache {
+		return s.ViewByName(ctx, name)
+	}
+
+	if option := s.cache.Get(name); option.IsSome() {
+		return option.Unwrap(), nil
+	}
+
+	item, err := s.ViewByName(ctx, name)
+	if err != nil {
+		return item, err
+	}
+
+	s.cache.Set(name, item, s.es.dopts.cacheTTL)
+
+	return item, nil
+}
+
+func (s *TagService) ViewFromCacheBySourceIDAndName(ctx context.Context, sourceID, name string) (model.Tag, error) {
+	if !s.es.dopts.cache {
+		return s.ViewBySourceIDAndName(ctx, sourceID, name)
+	}
+
+	id := sourceID + name
+
+	if option := s.cache.Get(id); option.IsSome() {
+		return option.Unwrap(), nil
+	}
+
+	item, err := s.ViewBySourceIDAndName(ctx, sourceID, name)
+	if err != nil {
+		return item, err
+	}
+
+	s.cache.Set(id, item, s.es.dopts.cacheTTL)
+
+	return item, nil
+}
+
+func (s *TagService) ViewFromCacheBySourceIDAndAddress(ctx context.Context, sourceID, address string) (model.Tag, error) {
+	if !s.es.dopts.cache {
+		return s.ViewBySourceIDAndAddress(ctx, sourceID, address)
+	}
+
+	id := sourceID + address
+
+	if option := s.cache.Get(id); option.IsSome() {
+		return option.Unwrap(), nil
+	}
+
+	item, err := s.ViewBySourceIDAndAddress(ctx, sourceID, address)
+	if err != nil {
+		return item, err
+	}
+
+	s.cache.Set(id, item, s.es.dopts.cacheTTL)
+
+	return item, nil
+}
+
+// value
+
+func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, error) {
+	var err error
+	var output pb.TagValue
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+		}
+	}
+
+	output.Id = in.GetId()
+
+	item2, err := s.getTagValueUpdated(ctx, in.GetId())
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return &output, nil
+			}
+		}
+
+		return &output, err
+	}
+
+	output.Value = item2.Value
+	output.Updated = item2.Updated.UnixMicro()
+
+	return &output, nil
+}
+
+func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+	return s.setValue(ctx, in, true)
+}
+
+func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+	return s.setValue(ctx, in, false)
+}
+
+func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+		}
+
+		if len(in.GetValue()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
+		}
+	}
+
+	// tag
+	item, err := s.ViewFromCacheByID(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	if item.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
+	}
+
+	if check {
+		if item.Access != consts.ON {
+			return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
+		}
+	}
+
+	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
+	if err != nil {
+		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	}
+
+	// validation device and source
+	{
+		// source
+		{
+			source, err := s.es.GetSource().ViewFromCacheByID(ctx, item.SourceID)
+			if err != nil {
+				return &output, err
+			}
+
+			if source.Status != consts.ON {
+				return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
+			}
+		}
+	}
+
+	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
+		return &output, err
+	}
+
+	if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
+	var err error
+	var output pb.TagNameValue
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetName()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+		}
+	}
+
+	item, err := s.ViewFromCacheByName(ctx, in.GetName())
+	if err != nil {
+		return &output, err
+	}
+
+	output.Id = item.ID
+	output.Name = in.GetName()
+
+	item2, err := s.getTagValueUpdated(ctx, item.ID)
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return &output, nil
+			}
+		}
+
+		return &output, err
+	}
+
+	output.Value = item2.Value
+	output.Updated = item2.Updated.UnixMicro()
+
+	return &output, nil
+}
+
+func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
+	return s.setValueByName(ctx, in, true)
+}
+
+func (s *TagService) SetValueByNameUnchecked(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
+	return s.setValueByName(ctx, in, false)
+}
+
+func (s *TagService) setValueByName(ctx context.Context, in *pb.TagNameValue, check bool) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetName()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+		}
+
+		if len(in.GetValue()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
+		}
+	}
+
+	// name
+	sourceName := consts.DEFAULT_SOURCE
+	itemName := in.GetName()
+
+	if strings.Contains(itemName, ".") {
+		splits := strings.Split(itemName, ".")
+		if len(splits) != 2 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+		}
+
+		sourceName = splits[0]
+		itemName = splits[1]
+	}
+
+	// source
+	source, err := s.es.GetSource().ViewFromCacheByName(ctx, sourceName)
+	if err != nil {
+		return &output, err
+	}
+
+	if source.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
+	}
+
+	// tag
+	item, err := s.ViewFromCacheBySourceIDAndName(ctx, source.ID, itemName)
+	if err != nil {
+		return &output, err
+	}
+
+	if item.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
+	}
+
+	if check {
+		if item.Access != consts.ON {
+			return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
+		}
+	}
+
+	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
+	if err != nil {
+		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	}
+
+	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
+		return &output, err
+	}
+
+	if err = s.afterUpdateValue(ctx, &item, in.GetValue()); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
 func (s *TagService) getTagValue(ctx context.Context, id string) (string, error) {
 	item2, err := s.getTagValueUpdated(ctx, id)
 	if err != nil {
@@ -1030,6 +1124,8 @@ func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, valu
 
 	return nil
 }
+
+// sync value
 
 func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
 	var output pb.TagValueUpdated

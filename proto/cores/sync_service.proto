@@ -17,9 +17,6 @@ service SyncService {
     rpc SetTagValueUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetTagValueUpdated(pb.Id) returns (SyncUpdated) {}
     rpc WaitTagValueUpdated(pb.Id) returns (stream pb.MyBool) {}
-    rpc SetWireValueUpdated(SyncUpdated) returns (pb.MyBool) {}
-    rpc GetWireValueUpdated(pb.Id) returns (SyncUpdated) {}
-    rpc WaitWireValueUpdated(pb.Id) returns (stream pb.MyBool) {}
 }
 
 service SyncGlobalService {

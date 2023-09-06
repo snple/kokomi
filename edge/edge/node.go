@@ -112,10 +112,6 @@ func (s *NodeService) push() error {
 		return err
 	}
 
-	if err := s.syncWireValue2(s.ctx); err != nil {
-		return err
-	}
-
 	s.es.Logger().Sugar().Info("push success")
 
 	return nil
@@ -147,10 +143,6 @@ func (s *NodeService) pull() error {
 	}
 
 	if err := s.syncTagValue1(s.ctx); err != nil {
-		return err
-	}
-
-	if err := s.syncWireValue1(s.ctx); err != nil {
 		return err
 	}
 
@@ -193,8 +185,6 @@ func (s *NodeService) loop() {
 		go s.waitLocalDeviceUpdated()
 		go s.waitRemoteTagValueUpdated()
 		go s.waitLocalTagValueUpdated()
-		go s.waitRemoteWireValueUpdated()
-		go s.waitLocalWireValueUpdated()
 	}
 
 	err = s.linkRgrpc(s.ctx)
@@ -288,14 +278,6 @@ func (s *NodeService) TagServiceClient() nodes.TagServiceClient {
 
 func (s *NodeService) ConstServiceClient() nodes.ConstServiceClient {
 	return nodes.NewConstServiceClient(s.NodeConn)
-}
-
-func (s *NodeService) CableServiceClient() nodes.CableServiceClient {
-	return nodes.NewCableServiceClient(s.NodeConn)
-}
-
-func (s *NodeService) WireServiceClient() nodes.WireServiceClient {
-	return nodes.NewWireServiceClient(s.NodeConn)
 }
 
 func (s *NodeService) RrpcServiceClient() rgrpc.RgrpcServiceClient {
@@ -538,74 +520,6 @@ func (s *NodeService) waitLocalTagValueUpdated() {
 	}
 }
 
-func (s *NodeService) waitRemoteWireValueUpdated() {
-	s.closeWG.Add(1)
-	defer s.closeWG.Done()
-
-	for {
-		ctx := metadata.SetToken(s.ctx, s.GetToken())
-
-		stream, err := s.SyncServiceClient().WaitWireValueUpdated(ctx, &pb.MyEmpty{})
-		if err != nil {
-			if code, ok := status.FromError(err); ok {
-				if code.Code() == codes.Canceled {
-					return
-				}
-			}
-
-			s.es.Logger().Sugar().Errorf("WaitWireValueUpdated: %v", err)
-			return
-		}
-
-		for {
-			_, err := stream.Recv()
-			if err != nil {
-				if err == io.EOF {
-					break
-				}
-				if code, ok := status.FromError(err); ok {
-					if code.Code() == codes.Canceled {
-						return
-					}
-				}
-
-				s.es.Logger().Sugar().Errorf("WaitWireValueUpdated.Recv(): %v", err)
-				return
-			}
-
-			err = s.syncWireValue1(s.ctx)
-			if err != nil {
-				s.es.Logger().Sugar().Errorf("syncWireValue1: %v", err)
-			}
-		}
-	}
-}
-
-func (s *NodeService) waitLocalWireValueUpdated() {
-	s.closeWG.Add(1)
-	defer s.closeWG.Done()
-
-	for {
-		output := s.es.GetSync().WaitWireValueUpdated2(s.ctx)
-
-		<-output
-		err := s.syncWireValue2(s.ctx)
-		if err != nil {
-			s.es.Logger().Sugar().Errorf("syncWireValue2: %v", err)
-		}
-
-		ok := <-output
-		if ok {
-			err := s.syncWireValue2(s.ctx)
-			if err != nil {
-				s.es.Logger().Sugar().Errorf("syncWireValue2: %v", err)
-			}
-		} else {
-			return
-		}
-	}
-}
-
 func (s *NodeService) sync(ctx context.Context) error {
 	if err := s.sync1(ctx); err != nil {
 		return err
@@ -619,15 +533,7 @@ func (s *NodeService) sync(ctx context.Context) error {
 		return err
 	}
 
-	if err := s.syncTagValue2(ctx); err != nil {
-		return err
-	}
-
-	if err := s.syncWireValue1(ctx); err != nil {
-		return err
-	}
-
-	return s.syncWireValue2(ctx)
+	return s.syncTagValue2(ctx)
 }
 
 func (s *NodeService) sync1(ctx context.Context) error {
@@ -652,16 +558,4 @@ func (s *NodeService) syncTagValue2(ctx context.Context) error {
 	ctx = metadata.SetToken(ctx, s.GetToken())
 
 	return s.syncTagValueLocalToRemote(ctx)
-}
-
-func (s *NodeService) syncWireValue1(ctx context.Context) error {
-	ctx = metadata.SetToken(ctx, s.GetToken())
-
-	return s.syncWireValueRemoteToLocal(ctx)
-}
-
-func (s *NodeService) syncWireValue2(ctx context.Context) error {
-	ctx = metadata.SetToken(ctx, s.GetToken())
-
-	return s.syncWireValueLocalToRemote(ctx)
 }
