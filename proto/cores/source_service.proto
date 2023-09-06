@@ -139,15 +139,15 @@ service TagService {
     rpc Delete(pb.Id) returns (pb.MyBool) {}
     rpc List(TagListRequest) returns (TagListResponse) {}
     rpc Clone(TagCloneRequest) returns (pb.MyBool) {}
+    rpc ViewWithDeleted(pb.Id) returns (pb.Tag) {}
+    rpc Pull(TagPullRequest) returns (TagPullResponse) {}
+    rpc Sync(pb.Tag) returns (pb.MyBool) {}
     rpc GetValue(pb.Id) returns (pb.TagValue) {}
     rpc SetValue(pb.TagValue) returns (pb.MyBool) {}
     rpc SetValueUnchecked(pb.TagValue) returns (pb.MyBool) {}
     rpc GetValueByName(TagGetValueByNameRequest) returns (TagNameValue) {}
     rpc SetValueByName(TagNameValue) returns (pb.MyBool) {}
     rpc SetValueByNameUnchecked(TagNameValue) returns (pb.MyBool) {}
-    rpc ViewWithDeleted(pb.Id) returns (pb.Tag) {}
-    rpc Pull(TagPullRequest) returns (TagPullResponse) {}
-    rpc Sync(pb.Tag) returns (pb.MyBool) {}
     rpc ViewValue(pb.Id) returns (pb.TagValueUpdated) {}
     rpc DeleteValue(pb.Id) returns (pb.MyBool) {}
     rpc PullValue(TagPullValueRequest) returns (TagPullValueResponse) {}

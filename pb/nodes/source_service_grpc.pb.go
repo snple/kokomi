@@ -449,15 +449,15 @@ const (
 	TagService_Name_FullMethodName                    = "/nodes.TagService/Name"
 	TagService_Delete_FullMethodName                  = "/nodes.TagService/Delete"
 	TagService_List_FullMethodName                    = "/nodes.TagService/List"
+	TagService_Pull_FullMethodName                    = "/nodes.TagService/Pull"
+	TagService_ViewWithDeleted_FullMethodName         = "/nodes.TagService/ViewWithDeleted"
+	TagService_Sync_FullMethodName                    = "/nodes.TagService/Sync"
 	TagService_GetValue_FullMethodName                = "/nodes.TagService/GetValue"
 	TagService_SetValue_FullMethodName                = "/nodes.TagService/SetValue"
 	TagService_SetValueUnchecked_FullMethodName       = "/nodes.TagService/SetValueUnchecked"
 	TagService_GetValueByName_FullMethodName          = "/nodes.TagService/GetValueByName"
 	TagService_SetValueByName_FullMethodName          = "/nodes.TagService/SetValueByName"
 	TagService_SetValueByNameUnchecked_FullMethodName = "/nodes.TagService/SetValueByNameUnchecked"
-	TagService_ViewWithDeleted_FullMethodName         = "/nodes.TagService/ViewWithDeleted"
-	TagService_Pull_FullMethodName                    = "/nodes.TagService/Pull"
-	TagService_Sync_FullMethodName                    = "/nodes.TagService/Sync"
 	TagService_ViewValue_FullMethodName               = "/nodes.TagService/ViewValue"
 	TagService_DeleteValue_FullMethodName             = "/nodes.TagService/DeleteValue"
 	TagService_PullValue_FullMethodName               = "/nodes.TagService/PullValue"
@@ -474,15 +474,15 @@ type TagServiceClient interface {
 	Name(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Tag, error)
 	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
 	List(ctx context.Context, in *TagListRequest, opts ...grpc.CallOption) (*TagListResponse, error)
+	Pull(ctx context.Context, in *TagPullRequest, opts ...grpc.CallOption) (*TagPullResponse, error)
+	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Tag, error)
+	Sync(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValue, error)
 	SetValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueUnchecked(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetValueByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.TagNameValue, error)
 	SetValueByName(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	SetValueByNameUnchecked(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
-	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Tag, error)
-	Pull(ctx context.Context, in *TagPullRequest, opts ...grpc.CallOption) (*TagPullResponse, error)
-	Sync(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValueUpdated, error)
 	DeleteValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
 	PullValue(ctx context.Context, in *TagPullValueRequest, opts ...grpc.CallOption) (*TagPullValueResponse, error)
@@ -551,6 +551,33 @@ func (c *tagServiceClient) List(ctx context.Context, in *TagListRequest, opts ..
 	return out, nil
 }
 
+func (c *tagServiceClient) Pull(ctx context.Context, in *TagPullRequest, opts ...grpc.CallOption) (*TagPullResponse, error) {
+	out := new(TagPullResponse)
+	err := c.cc.Invoke(ctx, TagService_Pull_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tagServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Tag, error) {
+	out := new(pb.Tag)
+	err := c.cc.Invoke(ctx, TagService_ViewWithDeleted_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tagServiceClient) Sync(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, TagService_Sync_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *tagServiceClient) GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValue, error) {
 	out := new(pb.TagValue)
 	err := c.cc.Invoke(ctx, TagService_GetValue_FullMethodName, in, out, opts...)
@@ -605,33 +632,6 @@ func (c *tagServiceClient) SetValueByNameUnchecked(ctx context.Context, in *pb.T
 	return out, nil
 }
 
-func (c *tagServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Tag, error) {
-	out := new(pb.Tag)
-	err := c.cc.Invoke(ctx, TagService_ViewWithDeleted_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) Pull(ctx context.Context, in *TagPullRequest, opts ...grpc.CallOption) (*TagPullResponse, error) {
-	out := new(TagPullResponse)
-	err := c.cc.Invoke(ctx, TagService_Pull_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) Sync(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_Sync_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *tagServiceClient) ViewValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValueUpdated, error) {
 	out := new(pb.TagValueUpdated)
 	err := c.cc.Invoke(ctx, TagService_ViewValue_FullMethodName, in, out, opts...)
@@ -678,15 +678,15 @@ type TagServiceServer interface {
 	Name(context.Context, *pb.Name) (*pb.Tag, error)
 	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
 	List(context.Context, *TagListRequest) (*TagListResponse, error)
+	Pull(context.Context, *TagPullRequest) (*TagPullResponse, error)
+	ViewWithDeleted(context.Context, *pb.Id) (*pb.Tag, error)
+	Sync(context.Context, *pb.Tag) (*pb.MyBool, error)
 	GetValue(context.Context, *pb.Id) (*pb.TagValue, error)
 	SetValue(context.Context, *pb.TagValue) (*pb.MyBool, error)
 	SetValueUnchecked(context.Context, *pb.TagValue) (*pb.MyBool, error)
 	GetValueByName(context.Context, *pb.Name) (*pb.TagNameValue, error)
 	SetValueByName(context.Context, *pb.TagNameValue) (*pb.MyBool, error)
 	SetValueByNameUnchecked(context.Context, *pb.TagNameValue) (*pb.MyBool, error)
-	ViewWithDeleted(context.Context, *pb.Id) (*pb.Tag, error)
-	Pull(context.Context, *TagPullRequest) (*TagPullResponse, error)
-	Sync(context.Context, *pb.Tag) (*pb.MyBool, error)
 	ViewValue(context.Context, *pb.Id) (*pb.TagValueUpdated, error)
 	DeleteValue(context.Context, *pb.Id) (*pb.MyBool, error)
 	PullValue(context.Context, *TagPullValueRequest) (*TagPullValueResponse, error)
@@ -716,6 +716,15 @@ func (UnimplementedTagServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool
 func (UnimplementedTagServiceServer) List(context.Context, *TagListRequest) (*TagListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
+func (UnimplementedTagServiceServer) Pull(context.Context, *TagPullRequest) (*TagPullResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
+}
+func (UnimplementedTagServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Tag, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
+}
+func (UnimplementedTagServiceServer) Sync(context.Context, *pb.Tag) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
+}
 func (UnimplementedTagServiceServer) GetValue(context.Context, *pb.Id) (*pb.TagValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValue not implemented")
 }
@@ -733,15 +742,6 @@ func (UnimplementedTagServiceServer) SetValueByName(context.Context, *pb.TagName
 }
 func (UnimplementedTagServiceServer) SetValueByNameUnchecked(context.Context, *pb.TagNameValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetValueByNameUnchecked not implemented")
-}
-func (UnimplementedTagServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Tag, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
-}
-func (UnimplementedTagServiceServer) Pull(context.Context, *TagPullRequest) (*TagPullResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
-}
-func (UnimplementedTagServiceServer) Sync(context.Context, *pb.Tag) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedTagServiceServer) ViewValue(context.Context, *pb.Id) (*pb.TagValueUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewValue not implemented")
@@ -876,6 +876,60 @@ func _TagService_List_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TagService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TagPullRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).Pull(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_Pull_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).Pull(ctx, req.(*TagPullRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TagService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Id)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).ViewWithDeleted(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_ViewWithDeleted_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).ViewWithDeleted(ctx, req.(*pb.Id))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TagService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Tag)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).Sync(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_Sync_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).Sync(ctx, req.(*pb.Tag))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TagService_GetValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
@@ -984,60 +1038,6 @@ func _TagService_SetValueByNameUnchecked_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.Id)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TagServiceServer).ViewWithDeleted(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TagService_ViewWithDeleted_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).ViewWithDeleted(ctx, req.(*pb.Id))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TagService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TagPullRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TagServiceServer).Pull(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TagService_Pull_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).Pull(ctx, req.(*TagPullRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TagService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.Tag)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TagServiceServer).Sync(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TagService_Sync_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).Sync(ctx, req.(*pb.Tag))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _TagService_ViewValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
@@ -1142,6 +1142,18 @@ var TagService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TagService_List_Handler,
 		},
 		{
+			MethodName: "Pull",
+			Handler:    _TagService_Pull_Handler,
+		},
+		{
+			MethodName: "ViewWithDeleted",
+			Handler:    _TagService_ViewWithDeleted_Handler,
+		},
+		{
+			MethodName: "Sync",
+			Handler:    _TagService_Sync_Handler,
+		},
+		{
 			MethodName: "GetValue",
 			Handler:    _TagService_GetValue_Handler,
 		},
@@ -1164,18 +1176,6 @@ var TagService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetValueByNameUnchecked",
 			Handler:    _TagService_SetValueByNameUnchecked_Handler,
-		},
-		{
-			MethodName: "ViewWithDeleted",
-			Handler:    _TagService_ViewWithDeleted_Handler,
-		},
-		{
-			MethodName: "Pull",
-			Handler:    _TagService_Pull_Handler,
-		},
-		{
-			MethodName: "Sync",
-			Handler:    _TagService_Sync_Handler,
 		},
 		{
 			MethodName: "ViewValue",

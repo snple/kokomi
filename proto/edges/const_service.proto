@@ -45,13 +45,13 @@ service ConstService {
     rpc Delete(pb.Id) returns (pb.MyBool) {}
     rpc List(ConstListRequest) returns (ConstListResponse) {}
     rpc Clone(ConstCloneRequest) returns (pb.MyBool) {}
+    rpc ViewWithDeleted(pb.Id) returns (pb.Const) {}
+    rpc Pull(ConstPullRequest) returns (ConstPullResponse) {}
+    rpc Sync(pb.Const) returns (pb.MyBool) {}
     rpc GetValue(pb.Id) returns (pb.ConstValue) {}
     rpc SetValue(pb.ConstValue) returns (pb.MyBool) {}
     rpc SetValueUnchecked(pb.ConstValue) returns (pb.MyBool) {}
     rpc GetValueByName(pb.Name) returns (pb.ConstNameValue) {}
     rpc SetValueByName(pb.ConstNameValue) returns (pb.MyBool) {}
     rpc SetValueByNameUnchecked(pb.ConstNameValue) returns (pb.MyBool) {}
-    rpc ViewWithDeleted(pb.Id) returns (pb.Const) {}
-    rpc Pull(ConstPullRequest) returns (ConstPullResponse) {}
-    rpc Sync(pb.Const) returns (pb.MyBool) {}
 }
