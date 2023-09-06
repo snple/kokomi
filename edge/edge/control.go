@@ -53,7 +53,7 @@ func (s *ControlService) GetTagValue(ctx context.Context, in *pb.Id) (*pb.TagVal
 	output.Id = in.GetId()
 
 	// tag
-	tag, err := s.es.GetTag().view(ctx, in.GetId())
+	tag, err := s.es.GetTag().ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -66,7 +66,7 @@ func (s *ControlService) GetTagValue(ctx context.Context, in *pb.Id) (*pb.TagVal
 	{
 		// source
 		{
-			source, err := s.es.GetSource().view(ctx, tag.SourceID)
+			source, err := s.es.GetSource().ViewByID(ctx, tag.SourceID)
 			if err != nil {
 				return &output, err
 			}
@@ -114,7 +114,7 @@ func (s *ControlService) SetTagValue(ctx context.Context, in *pb.TagValue) (*pb.
 	}
 
 	// tag
-	tag, err := s.es.GetTag().view(ctx, in.GetId())
+	tag, err := s.es.GetTag().ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -136,7 +136,7 @@ func (s *ControlService) SetTagValue(ctx context.Context, in *pb.TagValue) (*pb.
 	{
 		// source
 		{
-			source, err := s.es.GetSource().view(ctx, tag.SourceID)
+			source, err := s.es.GetSource().ViewByID(ctx, tag.SourceID)
 			if err != nil {
 				return &output, err
 			}

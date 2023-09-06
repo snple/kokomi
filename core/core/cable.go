@@ -50,7 +50,7 @@ func (s *CableService) Create(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 
 	// device validation
 	{
-		_, err = s.cs.GetDevice().view(ctx, in.GetDeviceId())
+		_, err = s.cs.GetDevice().ViewByID(ctx, in.GetDeviceId())
 		if err != nil {
 			return &output, err
 		}
@@ -123,7 +123,7 @@ func (s *CableService) Update(ctx context.Context, in *pb.Cable) (*pb.Cable, err
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -185,7 +185,7 @@ func (s *CableService) View(ctx context.Context, in *pb.Id) (*pb.Cable, error) {
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -284,7 +284,7 @@ func (s *CableService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -411,7 +411,7 @@ func (s *CableService) Link(ctx context.Context, in *cores.CableLinkRequest) (*p
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -465,7 +465,7 @@ func (s *CableService) Clone(ctx context.Context, in *cores.CableCloneRequest) (
 	return &output, nil
 }
 
-func (s *CableService) view(ctx context.Context, id string) (model.Cable, error) {
+func (s *CableService) ViewByID(ctx context.Context, id string) (model.Cable, error) {
 	item := model.Cable{
 		ID: id,
 	}

@@ -73,7 +73,7 @@ func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 
 	// cable validation
 	{
-		_, err = s.es.GetCable().view(ctx, in.GetCableId())
+		_, err = s.es.GetCable().ViewByID(ctx, in.GetCableId())
 		if err != nil {
 			return &output, err
 		}
@@ -138,7 +138,7 @@ func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error)
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -209,7 +209,7 @@ func (s *WireService) View(ctx context.Context, in *pb.Id) (*pb.Wire, error) {
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -271,7 +271,7 @@ func (s *WireService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -475,7 +475,7 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 	}
 
 	// wire
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -497,7 +497,7 @@ func (s *WireService) setValue(ctx context.Context, in *pb.WireValue, check bool
 
 	// cable
 	{
-		cable, err := s.es.GetCable().view(ctx, item.CableID)
+		cable, err := s.es.GetCable().ViewByID(ctx, item.CableID)
 		if err != nil {
 			return &output, err
 		}
@@ -544,7 +544,7 @@ func (s *WireService) SyncValue(ctx context.Context, in *pb.WireValue) (*pb.MyBo
 	}
 
 	// wire
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -708,7 +708,7 @@ func (s *WireService) setValueByName(ctx context.Context, in *pb.WireNameValue, 
 	return &output, nil
 }
 
-func (s *WireService) view(ctx context.Context, id string) (model.Wire, error) {
+func (s *WireService) ViewByID(ctx context.Context, id string) (model.Wire, error) {
 	item := model.Wire{
 		ID: id,
 	}

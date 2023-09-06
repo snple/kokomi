@@ -86,7 +86,7 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 
 	// source validation
 	{
-		source, err := s.cs.GetSource().view(ctx, in.GetSourceId())
+		source, err := s.cs.GetSource().ViewByID(ctx, in.GetSourceId())
 		if err != nil {
 			return &output, err
 		}
@@ -136,7 +136,7 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -208,7 +208,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -336,7 +336,7 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -545,7 +545,7 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 	}
 
 	// tag
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -569,7 +569,7 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 	{
 		// device
 		{
-			device, err := s.cs.GetDevice().view(ctx, item.DeviceID)
+			device, err := s.cs.GetDevice().ViewByID(ctx, item.DeviceID)
 			if err != nil {
 				return &output, err
 			}
@@ -581,7 +581,7 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 
 		// source
 		{
-			source, err := s.cs.GetSource().view(ctx, item.SourceID)
+			source, err := s.cs.GetSource().ViewByID(ctx, item.SourceID)
 			if err != nil {
 				return &output, err
 			}
@@ -682,7 +682,7 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 	}
 
 	// device
-	device, err := s.cs.GetDevice().view(ctx, in.GetDeviceId())
+	device, err := s.cs.GetDevice().ViewByID(ctx, in.GetDeviceId())
 	if err != nil {
 		return &output, err
 	}
@@ -749,7 +749,7 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 	return &output, nil
 }
 
-func (s *TagService) view(ctx context.Context, id string) (model.Tag, error) {
+func (s *TagService) ViewByID(ctx context.Context, id string) (model.Tag, error) {
 	item := model.Tag{
 		ID: id,
 	}
@@ -1319,7 +1319,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 	}
 
 	// tag
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}

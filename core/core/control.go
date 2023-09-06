@@ -48,7 +48,7 @@ func (s *ControlService) GetTagValue(ctx context.Context, in *pb.Id) (*pb.TagVal
 	output.Id = in.GetId()
 
 	// tag
-	item, err := s.cs.GetTag().view(ctx, in.GetId())
+	item, err := s.cs.GetTag().ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -61,7 +61,7 @@ func (s *ControlService) GetTagValue(ctx context.Context, in *pb.Id) (*pb.TagVal
 	{
 		// device
 		{
-			device, err := s.cs.GetDevice().view(ctx, item.DeviceID)
+			device, err := s.cs.GetDevice().ViewByID(ctx, item.DeviceID)
 			if err != nil {
 				return &output, err
 			}
@@ -73,7 +73,7 @@ func (s *ControlService) GetTagValue(ctx context.Context, in *pb.Id) (*pb.TagVal
 
 		// source
 		{
-			source, err := s.cs.GetSource().view(ctx, item.SourceID)
+			source, err := s.cs.GetSource().ViewByID(ctx, item.SourceID)
 			if err != nil {
 				return &output, err
 			}
@@ -113,7 +113,7 @@ func (s *ControlService) SetTagValue(ctx context.Context, in *pb.TagValue) (*pb.
 	}
 
 	// tag
-	item, err := s.cs.GetTag().view(ctx, in.GetId())
+	item, err := s.cs.GetTag().ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -135,7 +135,7 @@ func (s *ControlService) SetTagValue(ctx context.Context, in *pb.TagValue) (*pb.
 	{
 		// device
 		{
-			device, err := s.cs.GetDevice().view(ctx, item.DeviceID)
+			device, err := s.cs.GetDevice().ViewByID(ctx, item.DeviceID)
 			if err != nil {
 				return &output, err
 			}
@@ -147,7 +147,7 @@ func (s *ControlService) SetTagValue(ctx context.Context, in *pb.TagValue) (*pb.
 
 		// source
 		{
-			source, err := s.cs.GetSource().view(ctx, item.SourceID)
+			source, err := s.cs.GetSource().ViewByID(ctx, item.SourceID)
 			if err != nil {
 				return &output, err
 			}

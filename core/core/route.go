@@ -71,12 +71,12 @@ func (s *RouteService) Create(ctx context.Context, in *cores.Route) (*cores.Rout
 
 	// validation src and dst
 	{
-		_, err = s.cs.GetCable().view(ctx, in.GetSrc())
+		_, err = s.cs.GetCable().ViewByID(ctx, in.GetSrc())
 		if err != nil {
 			return &output, err
 		}
 
-		_, err = s.cs.GetCable().view(ctx, in.GetDst())
+		_, err = s.cs.GetCable().ViewByID(ctx, in.GetDst())
 		if err != nil {
 			return &output, err
 		}
@@ -181,7 +181,7 @@ func (s *RouteService) Update(ctx context.Context, in *cores.Route) (*cores.Rout
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -240,7 +240,7 @@ func (s *RouteService) View(ctx context.Context, in *pb.Id) (*cores.Route, error
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -290,7 +290,7 @@ func (s *RouteService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -402,7 +402,7 @@ func (s *RouteService) List(ctx context.Context, in *cores.RouteListRequest) (*c
 	return &output, nil
 }
 
-func (s *RouteService) view(ctx context.Context, id string) (model.Route, error) {
+func (s *RouteService) ViewByID(ctx context.Context, id string) (model.Route, error) {
 	item := model.Route{
 		ID: id,
 	}

@@ -50,7 +50,7 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 
 	// device validation
 	{
-		_, err = s.cs.GetDevice().view(ctx, in.GetDeviceId())
+		_, err = s.cs.GetDevice().ViewByID(ctx, in.GetDeviceId())
 		if err != nil {
 			return &output, err
 		}
@@ -125,7 +125,7 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -189,7 +189,7 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -288,7 +288,7 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -419,7 +419,7 @@ func (s *SourceService) Link(ctx context.Context, in *cores.SourceLinkRequest) (
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -473,7 +473,7 @@ func (s *SourceService) Clone(ctx context.Context, in *cores.SourceCloneRequest)
 	return &output, nil
 }
 
-func (s *SourceService) view(ctx context.Context, id string) (model.Source, error) {
+func (s *SourceService) ViewByID(ctx context.Context, id string) (model.Source, error) {
 	item := model.Source{
 		ID: id,
 	}

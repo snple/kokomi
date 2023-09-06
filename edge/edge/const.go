@@ -115,7 +115,7 @@ func (s *ConstService) Update(ctx context.Context, in *pb.Const) (*pb.Const, err
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -181,7 +181,7 @@ func (s *ConstService) View(ctx context.Context, in *pb.Id) (*pb.Const, error) {
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -231,7 +231,7 @@ func (s *ConstService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -379,7 +379,7 @@ func (s *ConstService) GetValue(ctx context.Context, in *pb.Id) (*pb.ConstValue,
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -414,7 +414,7 @@ func (s *ConstService) setValue(ctx context.Context, in *pb.ConstValue, check bo
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -542,7 +542,7 @@ func (s *ConstService) setValueByName(ctx context.Context, in *pb.ConstNameValue
 	return &output, nil
 }
 
-func (s *ConstService) view(ctx context.Context, id string) (model.Const, error) {
+func (s *ConstService) ViewByID(ctx context.Context, id string) (model.Const, error) {
 	item := model.Const{
 		ID: id,
 	}

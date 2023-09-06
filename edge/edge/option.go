@@ -109,7 +109,7 @@ func (s *OptionService) Update(ctx context.Context, in *pb.Option) (*pb.Option, 
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -170,7 +170,7 @@ func (s *OptionService) View(ctx context.Context, in *pb.Id) (*pb.Option, error)
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -220,7 +220,7 @@ func (s *OptionService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -353,7 +353,7 @@ func (s *OptionService) Clone(ctx context.Context, in *edges.OptionCloneRequest)
 	return &output, nil
 }
 
-func (s *OptionService) view(ctx context.Context, id string) (model.Option, error) {
+func (s *OptionService) ViewByID(ctx context.Context, id string) (model.Option, error) {
 	item := model.Option{
 		ID: id,
 	}

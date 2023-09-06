@@ -50,7 +50,7 @@ func (s *PortService) Create(ctx context.Context, in *pb.Port) (*pb.Port, error)
 
 	// device validation
 	{
-		_, err = s.cs.GetDevice().view(ctx, in.GetDeviceId())
+		_, err = s.cs.GetDevice().ViewByID(ctx, in.GetDeviceId())
 		if err != nil {
 			return &output, err
 		}
@@ -124,7 +124,7 @@ func (s *PortService) Update(ctx context.Context, in *pb.Port) (*pb.Port, error)
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -187,7 +187,7 @@ func (s *PortService) View(ctx context.Context, in *pb.Id) (*pb.Port, error) {
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -286,7 +286,7 @@ func (s *PortService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -413,7 +413,7 @@ func (s *PortService) Link(ctx context.Context, in *cores.PortLinkRequest) (*pb.
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -450,7 +450,7 @@ func (s *PortService) Clone(ctx context.Context, in *cores.PortCloneRequest) (*p
 	return &output, nil
 }
 
-func (s *PortService) view(ctx context.Context, id string) (model.Port, error) {
+func (s *PortService) ViewByID(ctx context.Context, id string) (model.Port, error) {
 	item := model.Port{
 		ID: id,
 	}

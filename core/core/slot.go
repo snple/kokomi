@@ -50,7 +50,7 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 
 	// device validation
 	{
-		_, err = s.cs.GetDevice().view(ctx, in.GetDeviceId())
+		_, err = s.cs.GetDevice().ViewByID(ctx, in.GetDeviceId())
 		if err != nil {
 			return &output, err
 		}
@@ -124,7 +124,7 @@ func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -187,7 +187,7 @@ func (s *SlotService) View(ctx context.Context, in *pb.Id) (*pb.Slot, error) {
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -286,7 +286,7 @@ func (s *SlotService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -413,7 +413,7 @@ func (s *SlotService) Link(ctx context.Context, in *cores.SlotLinkRequest) (*pb.
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -450,7 +450,7 @@ func (s *SlotService) Clone(ctx context.Context, in *cores.SlotCloneRequest) (*p
 	return &output, nil
 }
 
-func (s *SlotService) view(ctx context.Context, id string) (model.Slot, error) {
+func (s *SlotService) ViewByID(ctx context.Context, id string) (model.Slot, error) {
 	item := model.Slot{
 		ID: id,
 	}

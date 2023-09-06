@@ -50,7 +50,7 @@ func (s *ProxyService) Create(ctx context.Context, in *pb.Proxy) (*pb.Proxy, err
 
 	// device validation
 	{
-		_, err = s.cs.GetDevice().view(ctx, in.GetDeviceId())
+		_, err = s.cs.GetDevice().ViewByID(ctx, in.GetDeviceId())
 		if err != nil {
 			return &output, err
 		}
@@ -125,7 +125,7 @@ func (s *ProxyService) Update(ctx context.Context, in *pb.Proxy) (*pb.Proxy, err
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -189,7 +189,7 @@ func (s *ProxyService) View(ctx context.Context, in *pb.Id) (*pb.Proxy, error) {
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -288,7 +288,7 @@ func (s *ProxyService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -415,7 +415,7 @@ func (s *ProxyService) Link(ctx context.Context, in *cores.ProxyLinkRequest) (*p
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -452,7 +452,7 @@ func (s *ProxyService) Clone(ctx context.Context, in *cores.ProxyCloneRequest) (
 	return &output, nil
 }
 
-func (s *ProxyService) view(ctx context.Context, id string) (model.Proxy, error) {
+func (s *ProxyService) ViewByID(ctx context.Context, id string) (model.Proxy, error) {
 	item := model.Proxy{
 		ID: id,
 	}

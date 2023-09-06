@@ -112,7 +112,7 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -175,7 +175,7 @@ func (s *DeviceService) View(ctx context.Context, in *pb.Id) (*pb.Device, error)
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -225,7 +225,7 @@ func (s *DeviceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -352,7 +352,7 @@ func (s *DeviceService) Link(ctx context.Context, in *cores.DeviceLinkRequest) (
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -375,7 +375,7 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.Id) (*pb.MyBool, err
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -478,7 +478,7 @@ func (s *DeviceService) Clone(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 	return &output, nil
 }
 
-func (s *DeviceService) view(ctx context.Context, id string) (model.Device, error) {
+func (s *DeviceService) ViewByID(ctx context.Context, id string) (model.Device, error) {
 	item := model.Device{
 		ID: id,
 	}

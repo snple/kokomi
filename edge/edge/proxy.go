@@ -111,7 +111,7 @@ func newProxyService(es *EdgeService) *ProxyService {
 // 		}
 // 	}
 
-// 	item, err := s.view(ctx, in.GetId())
+// 	item, err := s.ViewByID(ctx, in.GetId())
 // 	if err != nil {
 // 		return &output, err
 // 	}
@@ -175,7 +175,7 @@ func (s *ProxyService) View(ctx context.Context, in *pb.Id) (*pb.Proxy, error) {
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -225,7 +225,7 @@ func (s *ProxyService) Name(ctx context.Context, in *pb.Name) (*pb.Proxy, error)
 // 		}
 // 	}
 
-// 	item, err := s.view(ctx, in.GetId())
+// 	item, err := s.ViewByID(ctx, in.GetId())
 // 	if err != nil {
 // 		return &output, err
 // 	}
@@ -344,7 +344,7 @@ func (s *ProxyService) Link(ctx context.Context, in *edges.ProxyLinkRequest) (*p
 		}
 	}
 
-	item, err := s.view(ctx, in.GetId())
+	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -411,7 +411,7 @@ func (s *ProxyService) Clone(ctx context.Context, in *edges.ProxyCloneRequest) (
 	return &output, nil
 }
 
-func (s *ProxyService) view(ctx context.Context, id string) (model.Proxy, error) {
+func (s *ProxyService) ViewByID(ctx context.Context, id string) (model.Proxy, error) {
 	item := model.Proxy{
 		ID: id,
 	}
