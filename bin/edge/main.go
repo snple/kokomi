@@ -117,6 +117,7 @@ func main() {
 		}
 
 		edgeOpts = append(edgeOpts, edge.WithNode(edge.NodeOptions{
+			Enable:      true,
 			Addr:        config.Config.NodeClient.Addr,
 			GRPCOptions: grpcOpts,
 		}))
@@ -140,6 +141,7 @@ func main() {
 		}
 
 		edgeOpts = append(edgeOpts, edge.WithQuic(edge.QuicOptions{
+			Enable:     true,
 			Addr:       config.Config.QuicClient.Addr,
 			TLSConfig:  tlsConfig,
 			QUICConfig: quicConfig,

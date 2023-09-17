@@ -95,14 +95,14 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 	es.constant = newConstService(es)
 	es.control = newControlService(es)
 
-	if es.dopts.NodeOptions.enable {
+	if es.dopts.NodeOptions.Enable {
 		node, err := newNodeService(es)
 		if err != nil {
 			return nil, err
 		}
 		es.node = types.Some(node)
 
-		if es.dopts.QuicOptions.enable {
+		if es.dopts.QuicOptions.Enable {
 			quic, err := newQuicService(es)
 			if err != nil {
 				return es, err
@@ -344,13 +344,13 @@ type edgeOptions struct {
 }
 
 type NodeOptions struct {
-	enable      bool
+	Enable      bool
 	Addr        string
 	GRPCOptions []grpc.DialOption
 }
 
 type QuicOptions struct {
-	enable     bool
+	Enable     bool
 	Addr       string
 	TLSConfig  *tls.Config
 	QUICConfig *quic.Config
@@ -436,7 +436,6 @@ func WithDeviceID(id, secret string) EdgeOption {
 func WithNode(options NodeOptions) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		o.NodeOptions = options
-		o.NodeOptions.enable = true
 	})
 }
 
@@ -449,7 +448,6 @@ func WithQuic(options QuicOptions) EdgeOption {
 		options.QUICConfig.EnableDatagrams = true
 
 		o.QuicOptions = options
-		o.QuicOptions.enable = true
 	})
 }
 
