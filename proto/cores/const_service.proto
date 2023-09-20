@@ -69,8 +69,8 @@ service ConstService {
     rpc Sync(pb.Const) returns (pb.MyBool) {}
     rpc GetValue(pb.Id) returns (pb.ConstValue) {}
     rpc SetValue(pb.ConstValue) returns (pb.MyBool) {}
-    rpc SetValueUnchecked(pb.ConstValue) returns (pb.MyBool) {}
+    rpc SetValueForce(pb.ConstValue) returns (pb.MyBool) {}
     rpc GetValueByName(ConstGetValueByNameRequest) returns (ConstNameValue) {}
     rpc SetValueByName(ConstNameValue) returns (pb.MyBool) {}
-    rpc SetValueByNameUnchecked(ConstNameValue) returns (pb.MyBool) {}
+    rpc SetValueByNameForce(ConstNameValue) returns (pb.MyBool) {}
 }

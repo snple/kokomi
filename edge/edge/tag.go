@@ -902,7 +902,7 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 	return s.setValue(ctx, in, true)
 }
 
-func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *TagService) SetValueForce(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
 	return s.setValue(ctx, in, false)
 }
 
@@ -1018,7 +1018,7 @@ func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*
 	return s.setValueByName(ctx, in, true)
 }
 
-func (s *TagService) SetValueByNameUnchecked(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
+func (s *TagService) SetValueByNameForce(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
 	return s.setValueByName(ctx, in, false)
 }
 

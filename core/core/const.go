@@ -477,6 +477,7 @@ func (s *ConstService) copyModelToOutput(output *pb.Const, item *model.Const) {
 	output.Value = item.Value
 	output.HValue = item.HValue
 	output.LValue = item.LValue
+	output.Config = item.Config
 	output.Status = item.Status
 	output.Access = item.Access
 	output.Created = item.Created.UnixMicro()
@@ -821,7 +822,7 @@ func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyB
 	return s.setValue(ctx, in, true)
 }
 
-func (s *ConstService) SetValueUnchecked(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValueForce(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
 	return s.setValue(ctx, in, false)
 }
 
@@ -914,7 +915,7 @@ func (s *ConstService) SetValueByName(ctx context.Context, in *cores.ConstNameVa
 	return s.setValueByName(ctx, in, true)
 }
 
-func (s *ConstService) SetValueByNameUnchecked(ctx context.Context, in *cores.ConstNameValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValueByNameForce(ctx context.Context, in *cores.ConstNameValue) (*pb.MyBool, error) {
 	return s.setValueByName(ctx, in, false)
 }
 

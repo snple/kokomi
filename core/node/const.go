@@ -254,7 +254,7 @@ func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyB
 	return s.ns.Core().GetConst().SetValue(ctx, in)
 }
 
-func (s *ConstService) SetValueUnchecked(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValueForce(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -281,7 +281,7 @@ func (s *ConstService) SetValueUnchecked(ctx context.Context, in *pb.ConstValue)
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.Core().GetConst().SetValueUnchecked(ctx, in)
+	return s.ns.Core().GetConst().SetValueForce(ctx, in)
 }
 
 func (s *ConstService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.ConstNameValue, error) {
@@ -334,7 +334,7 @@ func (s *ConstService) SetValueByName(ctx context.Context, in *pb.ConstNameValue
 		&cores.ConstNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 
-func (s *ConstService) SetValueByNameUnchecked(ctx context.Context, in *pb.ConstNameValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValueByNameForce(ctx context.Context, in *pb.ConstNameValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -350,7 +350,7 @@ func (s *ConstService) SetValueByNameUnchecked(ctx context.Context, in *pb.Const
 		return &output, err
 	}
 
-	return s.ns.Core().GetConst().SetValueByNameUnchecked(ctx,
+	return s.ns.Core().GetConst().SetValueByNameForce(ctx,
 		&cores.ConstNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 

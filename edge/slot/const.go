@@ -188,7 +188,7 @@ func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyB
 	return s.ss.Edge().GetConst().SetValue(ctx, in)
 }
 
-func (s *ConstService) SetValueUnchecked(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValueForce(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -204,7 +204,7 @@ func (s *ConstService) SetValueUnchecked(ctx context.Context, in *pb.ConstValue)
 		return &output, err
 	}
 
-	return s.ss.Edge().GetConst().SetValueUnchecked(ctx, in)
+	return s.ss.Edge().GetConst().SetValueForce(ctx, in)
 }
 
 func (s *ConstService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.ConstNameValue, error) {
@@ -245,7 +245,7 @@ func (s *ConstService) SetValueByName(ctx context.Context, in *pb.ConstNameValue
 	return s.ss.Edge().GetConst().SetValueByName(ctx, in)
 }
 
-func (s *ConstService) SetValueByNameUnchecked(ctx context.Context, in *pb.ConstNameValue) (*pb.MyBool, error) {
+func (s *ConstService) SetValueByNameForce(ctx context.Context, in *pb.ConstNameValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -261,7 +261,7 @@ func (s *ConstService) SetValueByNameUnchecked(ctx context.Context, in *pb.Const
 		return &output, err
 	}
 
-	return s.ss.Edge().GetConst().SetValueByNameUnchecked(ctx, in)
+	return s.ss.Edge().GetConst().SetValueByNameForce(ctx, in)
 }
 
 func (s *ConstService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Const, error) {

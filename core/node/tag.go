@@ -264,7 +264,7 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 	return s.ns.Core().GetTag().SetValue(ctx, in)
 }
 
-func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *TagService) SetValueForce(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -291,7 +291,7 @@ func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*p
 		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
 	}
 
-	return s.ns.Core().GetTag().SetValueUnchecked(ctx, in)
+	return s.ns.Core().GetTag().SetValueForce(ctx, in)
 }
 
 func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
@@ -344,7 +344,7 @@ func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*
 		&cores.TagNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 
-func (s *TagService) SetValueByNameUnchecked(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
+func (s *TagService) SetValueByNameForce(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -360,7 +360,7 @@ func (s *TagService) SetValueByNameUnchecked(ctx context.Context, in *pb.TagName
 		return &output, err
 	}
 
-	return s.ns.Core().GetTag().SetValueByNameUnchecked(ctx,
+	return s.ns.Core().GetTag().SetValueByNameForce(ctx,
 		&cores.TagNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 

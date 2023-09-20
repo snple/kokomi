@@ -190,7 +190,7 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 	return s.ss.Edge().GetTag().SetValue(ctx, in)
 }
 
-func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *TagService) SetValueForce(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -206,7 +206,7 @@ func (s *TagService) SetValueUnchecked(ctx context.Context, in *pb.TagValue) (*p
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().SetValueUnchecked(ctx, in)
+	return s.ss.Edge().GetTag().SetValueForce(ctx, in)
 }
 
 func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
@@ -247,7 +247,7 @@ func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*
 	return s.ss.Edge().GetTag().SetValueByName(ctx, in)
 }
 
-func (s *TagService) SetValueByNameUnchecked(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
+func (s *TagService) SetValueByNameForce(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -263,7 +263,7 @@ func (s *TagService) SetValueByNameUnchecked(ctx context.Context, in *pb.TagName
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().SetValueByNameUnchecked(ctx, in)
+	return s.ss.Edge().GetTag().SetValueByNameForce(ctx, in)
 }
 
 func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
