@@ -187,57 +187,58 @@ func (s *TunnelService) openStreamSync() (quic.Stream, error) {
 }
 
 func (s *TunnelService) checkProxy(proxy *pb.Proxy) {
-	goon := func() (goon bool) {
-		s.lock.Lock()
-		defer s.lock.Unlock()
+	s.lock.Lock()
+	defer s.lock.Unlock()
 
-		if listen, ok := s.listens[proxy.GetId()]; ok {
-			if proxy.GetStatus() != consts.ON {
-				listen.stop()
-				return
-			}
-
-			if proxy.GetName() == listen.proxy.GetName() &&
-				proxy.GetNetwork() == listen.proxy.GetNetwork() &&
-				proxy.GetAddress() == listen.proxy.GetAddress() &&
-				proxy.GetTarget() == listen.proxy.GetTarget() {
-				return
-			}
-
+	if listen, ok := s.listens[proxy.GetId()]; ok {
+		if proxy.GetStatus() != consts.ON {
 			listen.stop()
-		} else if proxy.GetNetwork() == "" || proxy.GetAddress() == "" ||
-			proxy.GetTarget() == "" || proxy.GetStatus() != consts.ON {
 			return
 		}
 
-		goon = true
-		return
-	}()
+		if proxy.GetName() == listen.proxy.GetName() &&
+			proxy.GetNetwork() == listen.proxy.GetNetwork() &&
+			proxy.GetAddress() == listen.proxy.GetAddress() &&
+			proxy.GetTarget() == listen.proxy.GetTarget() {
+			return
+		}
 
-	if goon {
+		listen.stop()
+	} else if proxy.GetNetwork() == "" || proxy.GetAddress() == "" ||
+		proxy.GetTarget() == "" || proxy.GetStatus() != consts.ON {
+		return
+	}
+
+	go func() {
+		s.closeWG.Add(1)
+		defer s.closeWG.Done()
+
+		time.Sleep(time.Millisecond * 100)
+
+		s.lock.Lock()
+		if _, ok := s.listens[proxy.GetId()]; ok {
+			s.lock.Unlock()
+			return
+		}
+
 		listen, err := newListen(s, proxy)
 		if err != nil {
 			s.es.Logger().Sugar().Errorf("newListen error: %v", err)
+			s.lock.Unlock()
 			return
 		}
 
-		go func() {
-			s.closeWG.Add(1)
-			defer s.closeWG.Done()
+		s.listens[proxy.GetId()] = listen
+		s.lock.Unlock()
 
-			s.lock.Lock()
-			s.listens[proxy.GetId()] = listen
-			s.lock.Unlock()
+		listen.accept()
 
-			listen.accept()
+		s.lock.Lock()
+		delete(s.listens, proxy.GetId())
+		s.lock.Unlock()
 
-			s.lock.Lock()
-			delete(s.listens, proxy.GetId())
-			s.lock.Unlock()
-
-			listen.closeWG.Wait()
-		}()
-	}
+		listen.closeWG.Wait()
+	}()
 }
 
 type tunnelListener struct {
