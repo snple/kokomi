@@ -73,6 +73,25 @@ func (s *TunnelService) stop() {
 	s.closeWG.Wait()
 }
 
+func (s *TunnelService) ticker() error {
+	request := edges.ProxyListRequest{
+		Page: &pb.Page{
+			Limit: 1000,
+		},
+	}
+
+	reply, err := s.es.GetProxy().List(s.ctx, &request)
+	if err != nil {
+		return err
+	}
+
+	for _, proxy := range reply.GetProxy() {
+		s.startProxy(proxy)
+	}
+
+	return nil
+}
+
 func (s *TunnelService) waitDeviceUpdated() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
@@ -159,25 +178,6 @@ func (s *TunnelService) setUpdated(updated int64) {
 	s.updated = updated
 }
 
-func (s *TunnelService) ticker() error {
-	request := edges.ProxyListRequest{
-		Page: &pb.Page{
-			Limit: 1000,
-		},
-	}
-
-	reply, err := s.es.GetProxy().List(s.ctx, &request)
-	if err != nil {
-		return err
-	}
-
-	for _, proxy := range reply.GetProxy() {
-		s.checkProxy(proxy)
-	}
-
-	return nil
-}
-
 func (s *TunnelService) openStreamSync() (quic.Stream, error) {
 	if option := s.es.GetQuic(); option.IsSome() {
 		return option.Unwrap().OpenStreamSync()
@@ -186,50 +186,31 @@ func (s *TunnelService) openStreamSync() (quic.Stream, error) {
 	return nil, errors.New("quic service not enable")
 }
 
-func (s *TunnelService) checkProxy(proxy *pb.Proxy) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
-	if listen, ok := s.listens[proxy.GetId()]; ok {
-		if proxy.GetStatus() != consts.ON {
-			listen.stop()
-			return
-		}
-
-		if proxy.GetName() == listen.proxy.GetName() &&
-			proxy.GetNetwork() == listen.proxy.GetNetwork() &&
-			proxy.GetAddress() == listen.proxy.GetAddress() &&
-			proxy.GetTarget() == listen.proxy.GetTarget() {
-			return
-		}
-
-		listen.stop()
-	} else if proxy.GetNetwork() == "" || proxy.GetAddress() == "" ||
+func (s *TunnelService) startProxy(proxy *pb.Proxy) {
+	if proxy.GetNetwork() == "" || proxy.GetAddress() == "" ||
 		proxy.GetTarget() == "" || proxy.GetStatus() != consts.ON {
 		return
 	}
 
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	if _, ok := s.listens[proxy.GetId()]; ok {
+		return
+	}
+
+	listen, err := newListen(s, proxy)
+	if err != nil {
+		s.es.Logger().Sugar().Errorf("newListen error: %v", err)
+		s.lock.Unlock()
+		return
+	}
+
+	s.listens[proxy.GetId()] = listen
+
 	go func() {
 		s.closeWG.Add(1)
 		defer s.closeWG.Done()
-
-		time.Sleep(time.Millisecond * 100)
-
-		s.lock.Lock()
-		if _, ok := s.listens[proxy.GetId()]; ok {
-			s.lock.Unlock()
-			return
-		}
-
-		listen, err := newListen(s, proxy)
-		if err != nil {
-			s.es.Logger().Sugar().Errorf("newListen error: %v", err)
-			s.lock.Unlock()
-			return
-		}
-
-		s.listens[proxy.GetId()] = listen
-		s.lock.Unlock()
 
 		listen.accept()
 
@@ -239,6 +220,23 @@ func (s *TunnelService) checkProxy(proxy *pb.Proxy) {
 
 		listen.closeWG.Wait()
 	}()
+}
+
+func (s *TunnelService) checkProxy(proxy *pb.Proxy) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	if listen, ok := s.listens[proxy.GetId()]; ok {
+		if proxy.GetStatus() == consts.ON &&
+			proxy.GetName() == listen.proxy.GetName() &&
+			proxy.GetNetwork() == listen.proxy.GetNetwork() &&
+			proxy.GetAddress() == listen.proxy.GetAddress() &&
+			proxy.GetTarget() == listen.proxy.GetTarget() {
+			return
+		}
+
+		listen.stop()
+	}
 }
 
 type tunnelListener struct {
