@@ -21,7 +21,6 @@ type SyncService struct {
 	lock      sync.RWMutex
 	waits     map[string]map[chan struct{}]struct{}
 	waitsTVal map[string]map[chan struct{}]struct{}
-	waitsWVal map[string]map[chan struct{}]struct{}
 
 	cores.UnimplementedSyncServiceServer
 }
@@ -31,7 +30,6 @@ func newSyncService(cs *CoreService) *SyncService {
 		cs:        cs,
 		waits:     make(map[string]map[chan struct{}]struct{}),
 		waitsTVal: make(map[string]map[chan struct{}]struct{}),
-		waitsWVal: make(map[string]map[chan struct{}]struct{}),
 	}
 }
 
@@ -94,7 +92,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.Id) (*cores.S
 func (s *SyncService) WaitDeviceUpdated(in *pb.Id,
 	stream cores.SyncService_WaitDeviceUpdatedServer) error {
 
-	return s.waitUpdated(in, stream, s.waits)
+	return s.waitUpdated(in, stream, NOTIFY)
 }
 
 func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *cores.SyncUpdated) (*pb.MyBool, error) {
@@ -156,19 +154,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.Id) (*cores
 func (s *SyncService) WaitTagValueUpdated(in *pb.Id,
 	stream cores.SyncService_WaitTagValueUpdatedServer) error {
 
-	return s.waitUpdated(in, stream, s.waitsTVal)
-}
-
-func (s *SyncService) WaitDeviceUpdated2(ctx context.Context, id string) chan bool {
-	return s.waitUpdated2(ctx, id, s.waits)
-}
-
-func (s *SyncService) WaitTagValueUpdated2(ctx context.Context, id string) chan bool {
-	return s.waitUpdated2(ctx, id, s.waitsTVal)
-}
-
-func (s *SyncService) WaitWireValueUpdated2(ctx context.Context, id string) chan bool {
-	return s.waitUpdated2(ctx, id, s.waitsWVal)
+	return s.waitUpdated(in, stream, NOTIFY_TVAL)
 }
 
 func (s *SyncService) getDeviceUpdated(ctx context.Context, db bun.IDB, id string) (time.Time, error) {
@@ -181,7 +167,7 @@ func (s *SyncService) setDeviceUpdated(ctx context.Context, db bun.IDB, id strin
 		return err
 	}
 
-	s.notifyUpdated(id, s.waits)
+	s.notifyUpdated(id, NOTIFY)
 
 	return nil
 }
@@ -196,7 +182,7 @@ func (s *SyncService) setTagValueUpdated(ctx context.Context, db bun.IDB, id str
 		return err
 	}
 
-	s.notifyUpdated(id, s.waitsTVal)
+	s.notifyUpdated(id, NOTIFY_TVAL)
 
 	return nil
 }
@@ -249,17 +235,118 @@ func (s *SyncService) setUpdated(ctx context.Context, db bun.IDB, id string, upd
 	return nil
 }
 
-func (s *SyncService) notifyUpdated(id string, waits map[string]map[chan struct{}]struct{}) {
+type NotifyType int
+
+const (
+	NOTIFY      NotifyType = 0
+	NOTIFY_TVAL NotifyType = 1
+)
+
+func (s *SyncService) notifyUpdated(id string, nt NotifyType) {
 	s.lock.RLock()
-	if chans, ok := waits[id]; ok {
-		for wait := range chans {
-			select {
-			case wait <- struct{}{}:
-			default:
+	defer s.lock.RUnlock()
+
+	switch nt {
+	case NOTIFY:
+		if waits, ok := s.waits[id]; ok {
+			for wait := range waits {
+				select {
+				case wait <- struct{}{}:
+				default:
+				}
+			}
+		}
+	case NOTIFY_TVAL:
+		if waits, ok := s.waitsTVal[id]; ok {
+			for wait := range waits {
+				select {
+				case wait <- struct{}{}:
+				default:
+				}
 			}
 		}
 	}
-	s.lock.RUnlock()
+}
+
+func (s *SyncService) Notify(id string, nt NotifyType) *Notify {
+	ch := make(chan struct{}, 1)
+
+	s.lock.Lock()
+
+	switch nt {
+	case NOTIFY:
+		if waits, ok := s.waits[id]; ok {
+			waits[ch] = struct{}{}
+		} else {
+			waits := map[chan struct{}]struct{}{
+				ch: {},
+			}
+			s.waits[id] = waits
+		}
+	case NOTIFY_TVAL:
+		if waits, ok := s.waitsTVal[id]; ok {
+			waits[ch] = struct{}{}
+		} else {
+			waits := map[chan struct{}]struct{}{
+				ch: {},
+			}
+			s.waitsTVal[id] = waits
+		}
+	}
+	s.lock.Unlock()
+
+	n := &Notify{
+		id,
+		s,
+		ch,
+		nt,
+	}
+
+	n.notify()
+
+	return n
+}
+
+type Notify struct {
+	id string
+	ss *SyncService
+	ch chan struct{}
+	nt NotifyType
+}
+
+func (n *Notify) notify() {
+	select {
+	case n.ch <- struct{}{}:
+	default:
+	}
+}
+
+func (w *Notify) Wait() <-chan struct{} {
+	return w.ch
+}
+
+func (n *Notify) Close() {
+	n.ss.lock.Lock()
+	defer n.ss.lock.Unlock()
+
+	switch n.nt {
+	case NOTIFY:
+		if waits, ok := n.ss.waits[n.id]; ok {
+			delete(waits, n.ch)
+
+			if len(waits) == 0 {
+				delete(n.ss.waits, n.id)
+			}
+		}
+	case NOTIFY_TVAL:
+		if waits, ok := n.ss.waitsTVal[n.id]; ok {
+			delete(waits, n.ch)
+
+			if len(waits) == 0 {
+				delete(n.ss.waitsTVal, n.id)
+			}
+		}
+	}
 }
 
 type waitUpdatedStream interface {
@@ -267,7 +354,37 @@ type waitUpdatedStream interface {
 	grpc.ServerStream
 }
 
-func (s *SyncService) waitUpdated(in *pb.Id,
+func (s *SyncService) waitUpdated(in *pb.Id, stream waitUpdatedStream, nt NotifyType) error {
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+		}
+	}
+
+	notify := s.Notify(in.GetId(), nt)
+	defer notify.Close()
+
+	for {
+		select {
+		case <-notify.Wait():
+			err = stream.Send(&pb.MyBool{Bool: true})
+			if err != nil {
+				return err
+			}
+		case <-stream.Context().Done():
+			return nil
+		}
+	}
+}
+
+func (s *SyncService) waitUpdated2(in *pb.Id,
 	stream waitUpdatedStream,
 	waits map[string]map[chan struct{}]struct{}) error {
 	var err error
@@ -322,46 +439,6 @@ func (s *SyncService) waitUpdated(in *pb.Id,
 	}
 
 	return stream.Send(&pb.MyBool{Bool: true})
-}
-
-func (s *SyncService) waitUpdated2(ctx context.Context,
-	id string, waits map[string]map[chan struct{}]struct{}) chan bool {
-	wait := make(chan struct{}, 1)
-	output := make(chan bool, 2)
-
-	s.lock.Lock()
-	if chans, ok := waits[id]; ok {
-		chans[wait] = struct{}{}
-	} else {
-		chans := map[chan struct{}]struct{}{
-			wait: {},
-		}
-		waits[id] = chans
-	}
-	s.lock.Unlock()
-
-	go func() {
-		defer func() {
-			s.lock.Lock()
-			if chans, ok := waits[id]; ok {
-				delete(chans, wait)
-
-				if len(chans) == 0 {
-					delete(waits, id)
-				}
-			}
-			s.lock.Unlock()
-		}()
-
-		select {
-		case <-wait:
-			output <- true
-		case <-ctx.Done():
-			output <- false
-		}
-	}()
-
-	return output
 }
 
 func (s *SyncService) destory(ctx context.Context, db bun.IDB, id string) error {

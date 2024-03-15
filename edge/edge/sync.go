@@ -20,7 +20,6 @@ type SyncService struct {
 	lock      sync.RWMutex
 	waits     map[chan struct{}]struct{}
 	waitsTVal map[chan struct{}]struct{}
-	waitsWVal map[chan struct{}]struct{}
 
 	edges.UnimplementedSyncServiceServer
 }
@@ -30,7 +29,6 @@ func newSyncService(es *EdgeService) *SyncService {
 		es:        es,
 		waits:     make(map[chan struct{}]struct{}),
 		waitsTVal: make(map[chan struct{}]struct{}),
-		waitsWVal: make(map[chan struct{}]struct{}),
 	}
 }
 
@@ -83,7 +81,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*ed
 func (s *SyncService) WaitDeviceUpdated(in *pb.MyEmpty,
 	stream edges.SyncService_WaitDeviceUpdatedServer) error {
 
-	return s.waitUpdated(in, stream, s.waits)
+	return s.waitUpdated(in, stream, NOTIFY)
 }
 
 func (s *SyncService) SetSlotUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
@@ -457,19 +455,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*
 func (s *SyncService) WaitTagValueUpdated(in *pb.MyEmpty,
 	stream edges.SyncService_WaitTagValueUpdatedServer) error {
 
-	return s.waitUpdated(in, stream, s.waitsTVal)
-}
-
-func (s *SyncService) WaitDeviceUpdated2(ctx context.Context) chan bool {
-	return s.waitUpdated2(ctx, s.waits)
-}
-
-func (s *SyncService) WaitTagValueUpdated2(ctx context.Context) chan bool {
-	return s.waitUpdated2(ctx, s.waitsTVal)
-}
-
-func (s *SyncService) WaitWireValueUpdated2(ctx context.Context) chan bool {
-	return s.waitUpdated2(ctx, s.waitsWVal)
+	return s.waitUpdated(in, stream, NOTIFY_TVAL)
 }
 
 func (s *SyncService) getDeviceUpdated(ctx context.Context) (time.Time, error) {
@@ -482,7 +468,7 @@ func (s *SyncService) setDeviceUpdated(ctx context.Context, updated time.Time) e
 		return err
 	}
 
-	s.notifyUpdated(s.waits)
+	s.notifyUpdated(NOTIFY)
 
 	return nil
 }
@@ -553,7 +539,7 @@ func (s *SyncService) setTagValueUpdated(ctx context.Context, updated time.Time)
 		return err
 	}
 
-	s.notifyUpdated(s.waitsTVal)
+	s.notifyUpdated(NOTIFY_TVAL)
 
 	return nil
 }
@@ -624,15 +610,85 @@ func (s *SyncService) setUpdated(ctx context.Context, key string, updated time.T
 	return nil
 }
 
-func (s *SyncService) notifyUpdated(chans map[chan struct{}]struct{}) {
+type NotifyType int
+
+const (
+	NOTIFY      NotifyType = 0
+	NOTIFY_TVAL NotifyType = 1
+)
+
+func (s *SyncService) notifyUpdated(nt NotifyType) {
 	s.lock.RLock()
-	for wait := range chans {
-		select {
-		case wait <- struct{}{}:
-		default:
+	defer s.lock.RUnlock()
+
+	switch nt {
+	case NOTIFY:
+		for wait := range s.waits {
+			select {
+			case wait <- struct{}{}:
+			default:
+			}
+		}
+	case NOTIFY_TVAL:
+		for wait := range s.waitsTVal {
+			select {
+			case wait <- struct{}{}:
+			default:
+			}
 		}
 	}
-	s.lock.RUnlock()
+}
+
+func (s *SyncService) Notify(nt NotifyType) *Notify {
+	ch := make(chan struct{}, 1)
+
+	s.lock.Lock()
+	switch nt {
+	case NOTIFY:
+		s.waits[ch] = struct{}{}
+	case NOTIFY_TVAL:
+		s.waitsTVal[ch] = struct{}{}
+	}
+	s.lock.Unlock()
+
+	n := &Notify{
+		s,
+		ch,
+		nt,
+	}
+
+	n.notify()
+
+	return n
+}
+
+type Notify struct {
+	ss *SyncService
+	ch chan struct{}
+	nt NotifyType
+}
+
+func (n *Notify) notify() {
+	select {
+	case n.ch <- struct{}{}:
+	default:
+	}
+}
+
+func (w *Notify) Wait() <-chan struct{} {
+	return w.ch
+}
+
+func (n *Notify) Close() {
+	n.ss.lock.Lock()
+	defer n.ss.lock.Unlock()
+
+	switch n.nt {
+	case NOTIFY:
+		delete(n.ss.waits, n.ch)
+	case NOTIFY_TVAL:
+		delete(n.ss.waitsTVal, n.ch)
+	}
 }
 
 type waitUpdatedStream interface {
@@ -640,8 +696,7 @@ type waitUpdatedStream interface {
 	grpc.ServerStream
 }
 
-func (s *SyncService) waitUpdated(in *pb.MyEmpty,
-	stream waitUpdatedStream, chans map[chan struct{}]struct{}) error {
+func (s *SyncService) waitUpdated(in *pb.MyEmpty, stream waitUpdatedStream, nt NotifyType) error {
 	var err error
 
 	// basic validation
@@ -651,57 +706,18 @@ func (s *SyncService) waitUpdated(in *pb.MyEmpty,
 		}
 	}
 
-	wait := make(chan struct{}, 1)
+	notify := s.Notify(nt)
+	defer notify.Close()
 
-	s.lock.Lock()
-	chans[wait] = struct{}{}
-	s.lock.Unlock()
-
-	defer func() {
-		s.lock.Lock()
-		delete(chans, wait)
-		s.lock.Unlock()
-	}()
-
-	err = stream.Send(&pb.MyBool{Bool: true})
-	if err != nil {
-		return err
-	}
-
-	select {
-	case <-wait:
-	case <-stream.Context().Done():
-		return nil
-	}
-
-	return stream.Send(&pb.MyBool{Bool: true})
-}
-
-func (s *SyncService) waitUpdated2(ctx context.Context,
-	chans map[chan struct{}]struct{}) chan bool {
-	wait := make(chan struct{}, 1)
-	output := make(chan bool, 2)
-
-	s.lock.Lock()
-	chans[wait] = struct{}{}
-	s.lock.Unlock()
-
-	output <- true
-
-	go func() {
-		defer func() {
-			s.lock.Lock()
-			delete(chans, wait)
-			s.lock.Unlock()
-		}()
-
+	for {
 		select {
-		case <-wait:
-			output <- true
-		case <-ctx.Done():
-			output <- false
+		case <-notify.Wait():
+			err = stream.Send(&pb.MyBool{Bool: true})
+			if err != nil {
+				return err
+			}
+		case <-stream.Context().Done():
+			return nil
 		}
-	}()
-
-	return output
+	}
 }

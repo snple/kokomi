@@ -84,12 +84,7 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 
 func (cs *CoreService) Start() {
 	if cs.dopts.cache {
-		go func() {
-			cs.closeWG.Add(1)
-			defer cs.closeWG.Done()
-
-			cs.cacheGC()
-		}()
+		go cs.cacheGC()
 	}
 }
 
@@ -165,6 +160,9 @@ func (cs *CoreService) Logger() *zap.Logger {
 }
 
 func (cs *CoreService) cacheGC() {
+	cs.closeWG.Add(1)
+	defer cs.closeWG.Done()
+
 	cs.Logger().Sugar().Info("cache gc started")
 
 	ticker := time.NewTicker(cs.dopts.cacheGCTTL)

@@ -431,23 +431,18 @@ func (s *NodeService) waitLocalDeviceUpdated() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
+	notify := s.es.GetSync().Notify(NOTIFY)
+	defer notify.Close()
+
 	for {
-		output := s.es.GetSync().WaitDeviceUpdated2(s.ctx)
-
-		<-output
-		err := s.sync2(s.ctx)
-		if err != nil {
-			s.es.Logger().Sugar().Errorf("sync2: %v", err)
-		}
-
-		ok := <-output
-		if ok {
+		select {
+		case <-s.ctx.Done():
+			return
+		case <-notify.Wait():
 			err := s.sync2(s.ctx)
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("sync2: %v", err)
 			}
-		} else {
-			return
 		}
 	}
 }
@@ -499,23 +494,18 @@ func (s *NodeService) waitLocalTagValueUpdated() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
+	notify := s.es.GetSync().Notify(NOTIFY_TVAL)
+	defer notify.Close()
+
 	for {
-		output := s.es.GetSync().WaitTagValueUpdated2(s.ctx)
-
-		<-output
-		err := s.syncTagValue2(s.ctx)
-		if err != nil {
-			s.es.Logger().Sugar().Errorf("syncTagValue2: %v", err)
-		}
-
-		ok := <-output
-		if ok {
+		select {
+		case <-s.ctx.Done():
+			return
+		case <-notify.Wait():
 			err := s.syncTagValue2(s.ctx)
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("syncTagValue2: %v", err)
 			}
-		} else {
-			return
 		}
 	}
 }

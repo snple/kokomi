@@ -96,23 +96,18 @@ func (s *TunnelService) waitDeviceUpdated() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
+	notify := s.es.GetSync().Notify(NOTIFY)
+	defer notify.Close()
+
 	for {
-		output := s.es.GetSync().WaitDeviceUpdated2(s.ctx)
-
-		<-output
-		err := s.checkProxyUpdated()
-		if err != nil {
-			s.es.Logger().Sugar().Errorf("tunnel checkProxyUpdated: %v", err)
-		}
-
-		ok := <-output
-		if ok {
+		select {
+		case <-s.ctx.Done():
+			return
+		case <-notify.Wait():
 			err := s.checkProxyUpdated()
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("tunnel checkProxyUpdated: %v", err)
 			}
-		} else {
-			return
 		}
 	}
 }

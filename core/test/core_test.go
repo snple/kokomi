@@ -3,46 +3,46 @@ package test
 import (
 	"database/sql"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	"github.com/onsi/ginkgo/v2"
+	"github.com/onsi/gomega"
 	"github.com/snple/kokomi/core/core"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/sqlitedialect"
 )
 
-var _ = Describe("Test core API", Label("library"), func() {
+var _ = ginkgo.Describe("Test core API", ginkgo.Label("library"), func() {
 	var db *bun.DB
 
-	BeforeEach(func() {
+	ginkgo.BeforeEach(func() {
 		sqlite, err := sql.Open("sqlite3", ":memory:")
-		Expect(err).ToNot(HaveOccurred())
+		gomega.Expect(err).ToNot(gomega.HaveOccurred())
 
 		db = bun.NewDB(sqlite, sqlitedialect.New())
 
 		err = core.CreateSchema(db)
-		Expect(err).ToNot(HaveOccurred())
+		gomega.Expect(err).ToNot(gomega.HaveOccurred())
 	})
 
-	Context("init, start and stop core", func() {
+	ginkgo.Context("init, start and stop core", func() {
 		var cs *core.CoreService
 
-		It("init", func(ctx SpecContext) {
+		ginkgo.It("init", func(ctx ginkgo.SpecContext) {
 			var err error
 			cs, err = core.Core(db)
-			Expect(err).ToNot(HaveOccurred())
+			gomega.Expect(err).ToNot(gomega.HaveOccurred())
 		})
 
-		It("start", func(ctx SpecContext) {
+		ginkgo.It("start", func(ctx ginkgo.SpecContext) {
 			cs.Start()
 		})
 
-		It("Stop", func(ctx SpecContext) {
+		ginkgo.It("Stop", func(ctx ginkgo.SpecContext) {
 			c := make(chan bool)
 			go func() {
 				cs.Stop()
 				close(c)
 			}()
-			Eventually(c, "1s").Should(BeClosed())
+			gomega.Eventually(c, "1s").Should(gomega.BeClosed())
 
 		})
 	})
