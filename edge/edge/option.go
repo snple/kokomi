@@ -398,7 +398,7 @@ func (s *OptionService) copyModelToOutput(output *pb.Option, item *model.Option)
 	output.Deleted = item.Deleted.UnixMicro()
 }
 
-func (s *OptionService) afterUpdate(ctx context.Context, item *model.Option) error {
+func (s *OptionService) afterUpdate(ctx context.Context, _ *model.Option) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
@@ -414,7 +414,7 @@ func (s *OptionService) afterUpdate(ctx context.Context, item *model.Option) err
 	return nil
 }
 
-func (s *OptionService) afterDelete(ctx context.Context, item *model.Option) error {
+func (s *OptionService) afterDelete(ctx context.Context, _ *model.Option) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())

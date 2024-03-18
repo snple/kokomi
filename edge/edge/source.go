@@ -471,7 +471,7 @@ func (s *SourceService) copyModelToOutput(output *pb.Source, item *model.Source)
 	output.Deleted = item.Deleted.UnixMicro()
 }
 
-func (s *SourceService) afterUpdate(ctx context.Context, item *model.Source) error {
+func (s *SourceService) afterUpdate(ctx context.Context, _ *model.Source) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
@@ -487,7 +487,7 @@ func (s *SourceService) afterUpdate(ctx context.Context, item *model.Source) err
 	return nil
 }
 
-func (s *SourceService) afterDelete(ctx context.Context, item *model.Source) error {
+func (s *SourceService) afterDelete(ctx context.Context, _ *model.Source) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())

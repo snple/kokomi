@@ -460,7 +460,7 @@ func (s *PortService) copyModelToOutput(output *pb.Port, item *model.Port) {
 	output.Deleted = item.Deleted.UnixMicro()
 }
 
-func (s *PortService) afterUpdate(ctx context.Context, item *model.Port) error {
+func (s *PortService) afterUpdate(ctx context.Context, _ *model.Port) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
@@ -476,7 +476,7 @@ func (s *PortService) afterUpdate(ctx context.Context, item *model.Port) error {
 	return nil
 }
 
-func (s *PortService) afterDelete(ctx context.Context, item *model.Port) error {
+func (s *PortService) afterDelete(ctx context.Context, _ *model.Port) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())

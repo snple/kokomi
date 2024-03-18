@@ -462,7 +462,7 @@ func (s *ProxyService) copyModelToOutput(output *pb.Proxy, item *model.Proxy) {
 	output.Deleted = item.Deleted.UnixMicro()
 }
 
-func (s *ProxyService) afterUpdate(ctx context.Context, item *model.Proxy) error {
+func (s *ProxyService) afterUpdate(ctx context.Context, _ *model.Proxy) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
@@ -478,7 +478,7 @@ func (s *ProxyService) afterUpdate(ctx context.Context, item *model.Proxy) error
 	return nil
 }
 
-func (s *ProxyService) afterDelete(ctx context.Context, item *model.Proxy) error {
+func (s *ProxyService) afterDelete(ctx context.Context, _ *model.Proxy) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())

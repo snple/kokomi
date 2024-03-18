@@ -251,7 +251,7 @@ func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device)
 	output.Deleted = item.Updated.UnixMicro()
 }
 
-func (s *DeviceService) afterUpdate(ctx context.Context, item *model.Device) error {
+func (s *DeviceService) afterUpdate(ctx context.Context, _ *model.Device) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())

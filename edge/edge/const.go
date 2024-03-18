@@ -418,7 +418,7 @@ func (s *ConstService) copyModelToOutput(output *pb.Const, item *model.Const) {
 	output.Deleted = item.Deleted.UnixMicro()
 }
 
-func (s *ConstService) afterUpdate(ctx context.Context, item *model.Const) error {
+func (s *ConstService) afterUpdate(ctx context.Context, _ *model.Const) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
@@ -434,7 +434,7 @@ func (s *ConstService) afterUpdate(ctx context.Context, item *model.Const) error
 	return nil
 }
 
-func (s *ConstService) afterDelete(ctx context.Context, item *model.Const) error {
+func (s *ConstService) afterDelete(ctx context.Context, _ *model.Const) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())

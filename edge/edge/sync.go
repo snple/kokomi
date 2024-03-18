@@ -576,7 +576,7 @@ func (s *SyncService) setTagValueUpdatedLocalToRemote(ctx context.Context, updat
 	return s.setUpdated(ctx, model.SYNC_TAG_VALUE_LOCAL_TO_REMOTE, updated)
 }
 
-func (s *SyncService) getUpdated(ctx context.Context, key string) (time.Time, error) {
+func (s *SyncService) getUpdated(_ context.Context, key string) (time.Time, error) {
 	txn := s.es.GetBadgerDB().NewTransactionAt(uint64(time.Now().UnixMicro()), false)
 	defer txn.Discard()
 
@@ -591,7 +591,7 @@ func (s *SyncService) getUpdated(ctx context.Context, key string) (time.Time, er
 	return time.UnixMicro(int64(dbitem.Version())), nil
 }
 
-func (s *SyncService) setUpdated(ctx context.Context, key string, updated time.Time) error {
+func (s *SyncService) setUpdated(_ context.Context, key string, updated time.Time) error {
 	ts := uint64(updated.UnixMicro())
 
 	txn := s.es.GetBadgerDB().NewTransactionAt(ts, true)

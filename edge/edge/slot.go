@@ -445,7 +445,7 @@ func (s *SlotService) copyModelToOutput(output *pb.Slot, item *model.Slot) {
 	output.Deleted = item.Deleted.UnixMicro()
 }
 
-func (s *SlotService) afterUpdate(ctx context.Context, item *model.Slot) error {
+func (s *SlotService) afterUpdate(ctx context.Context, _ *model.Slot) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
@@ -461,7 +461,7 @@ func (s *SlotService) afterUpdate(ctx context.Context, item *model.Slot) error {
 	return nil
 }
 
-func (s *SlotService) afterDelete(ctx context.Context, item *model.Slot) error {
+func (s *SlotService) afterDelete(ctx context.Context, _ *model.Slot) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())

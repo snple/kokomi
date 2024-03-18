@@ -510,7 +510,7 @@ func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
 	output.Deleted = item.Deleted.UnixMicro()
 }
 
-func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
+func (s *TagService) afterUpdate(ctx context.Context, _ *model.Tag) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
@@ -526,7 +526,7 @@ func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
 	return nil
 }
 
-func (s *TagService) afterDelete(ctx context.Context, item *model.Tag) error {
+func (s *TagService) afterDelete(ctx context.Context, _ *model.Tag) error {
 	var err error
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
@@ -1114,7 +1114,7 @@ func (s *TagService) getTagValue(ctx context.Context, id string) (string, error)
 	return item2.Value, nil
 }
 
-func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, value string) error {
+func (s *TagService) afterUpdateValue(ctx context.Context, _ *model.Tag, _ string) error {
 	var err error
 
 	err = s.es.GetSync().setTagValueUpdated(ctx, time.Now())
@@ -1337,7 +1337,7 @@ func (a sortTagValue) Len() int           { return len(a) }
 func (a sortTagValue) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a sortTagValue) Less(i, j int) bool { return a[i].Updated.Before(a[j].Updated) }
 
-func (s *TagService) setTagValueUpdated(ctx context.Context, item *model.Tag, value string, updated time.Time) error {
+func (s *TagService) setTagValueUpdated(_ context.Context, item *model.Tag, value string, updated time.Time) error {
 	item2 := model.TagValue{
 		ID:       item.ID,
 		SourceID: item.SourceID,
@@ -1375,7 +1375,7 @@ func (s *TagService) setTagValueUpdated(ctx context.Context, item *model.Tag, va
 	return nil
 }
 
-func (s *TagService) getTagValueUpdated(ctx context.Context, id string) (model.TagValue, error) {
+func (s *TagService) getTagValueUpdated(_ context.Context, id string) (model.TagValue, error) {
 	item := model.TagValue{
 		ID: id,
 	}

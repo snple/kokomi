@@ -963,7 +963,7 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 
 	output.Id = in.GetId()
 
-	item2, err := s.viewValueUpdated(ctx, in.GetId())
+	item2, err := s.getTagValueUpdated(ctx, in.GetId())
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1055,7 +1055,7 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 		}
 	}
 
-	if err = s.updateTagValue(ctx, &item, in.GetValue(), time.Now()); err != nil {
+	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
 		return &output, err
 	}
 
@@ -1096,7 +1096,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *cores.TagGetValueBy
 	output.Id = item.ID
 	output.Name = in.GetName()
 
-	item2, err := s.viewValueUpdated(ctx, item.ID)
+	item2, err := s.getTagValueUpdated(ctx, item.ID)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1199,7 +1199,7 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	if err = s.updateTagValue(ctx, &item, in.GetValue(), time.Now()); err != nil {
+	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
 		return &output, err
 	}
 
@@ -1213,7 +1213,7 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 }
 
 func (s *TagService) getTagValue(ctx context.Context, id string) (string, error) {
-	item2, err := s.viewValueUpdated(ctx, id)
+	item2, err := s.getTagValueUpdated(ctx, id)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1227,38 +1227,7 @@ func (s *TagService) getTagValue(ctx context.Context, id string) (string, error)
 	return item2.Value, nil
 }
 
-func (s *TagService) updateTagValue(ctx context.Context, item *model.Tag, value string, updated time.Time) error {
-	var err error
-
-	item2 := model.TagValue{
-		ID:       item.ID,
-		DeviceID: item.DeviceID,
-		SourceID: item.SourceID,
-		Value:    value,
-		Updated:  updated,
-	}
-
-	ret, err := s.cs.GetDB().NewUpdate().Model(&item2).WherePK().WhereAllWithDeleted().Exec(ctx)
-	if err != nil {
-		return status.Errorf(codes.Internal, "Update: %v", err)
-	}
-
-	n, err := ret.RowsAffected()
-	if err != nil {
-		return status.Errorf(codes.Internal, "RowsAffected: %v", err)
-	}
-
-	if n < 1 {
-		_, err = s.cs.GetDB().NewInsert().Model(&item2).Exec(ctx)
-		if err != nil {
-			return status.Errorf(codes.Internal, "Insert: %v", err)
-		}
-	}
-
-	return nil
-}
-
-func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, value string) error {
+func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, _ string) error {
 	var err error
 
 	err = s.cs.GetSync().setTagValueUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
@@ -1286,7 +1255,7 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		}
 	}
 
-	item, err := s.viewValueUpdated(ctx, in.GetId())
+	item, err := s.getTagValueUpdated(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -1311,7 +1280,7 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		}
 	}
 
-	item, err := s.viewValueUpdated(ctx, in.GetId())
+	item, err := s.getTagValueUpdated(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -1368,31 +1337,6 @@ func (s *TagService) PullValue(ctx context.Context, in *cores.TagPullValueReques
 	return &output, nil
 }
 
-func (s *TagService) viewValueUpdated(ctx context.Context, id string) (model.TagValue, error) {
-	item := model.TagValue{
-		ID: id,
-	}
-
-	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Tag.ID: %v", err, item.ID)
-		}
-
-		return item, status.Errorf(codes.Internal, "Query: %v", err)
-	}
-
-	return item, nil
-}
-
-func (s *TagService) copyModelToOutputTagValue(output *pb.TagValueUpdated, item *model.TagValue) {
-	output.Id = item.ID
-	output.DeviceId = item.DeviceID
-	output.SourceId = item.SourceID
-	output.Value = item.Value
-	output.Updated = item.Updated.UnixMicro()
-}
-
 func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
@@ -1427,7 +1371,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	value, err := s.viewValueUpdated(ctx, in.GetId())
+	value, err := s.getTagValueUpdated(ctx, in.GetId())
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1443,7 +1387,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 	}
 
 UPDATED:
-	if err = s.updateTagValue(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
+	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
 		return &output, err
 	}
 
@@ -1454,4 +1398,60 @@ UPDATED:
 	output.Bool = true
 
 	return &output, nil
+}
+
+func (s *TagService) setTagValueUpdated(ctx context.Context, item *model.Tag, value string, updated time.Time) error {
+	var err error
+
+	item2 := model.TagValue{
+		ID:       item.ID,
+		DeviceID: item.DeviceID,
+		SourceID: item.SourceID,
+		Value:    value,
+		Updated:  updated,
+	}
+
+	ret, err := s.cs.GetDB().NewUpdate().Model(&item2).WherePK().WhereAllWithDeleted().Exec(ctx)
+	if err != nil {
+		return status.Errorf(codes.Internal, "Update: %v", err)
+	}
+
+	n, err := ret.RowsAffected()
+	if err != nil {
+		return status.Errorf(codes.Internal, "RowsAffected: %v", err)
+	}
+
+	if n < 1 {
+		_, err = s.cs.GetDB().NewInsert().Model(&item2).Exec(ctx)
+		if err != nil {
+			return status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (s *TagService) getTagValueUpdated(ctx context.Context, id string) (model.TagValue, error) {
+	item := model.TagValue{
+		ID: id,
+	}
+
+	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return item, status.Errorf(codes.NotFound, "Query: %v, Tag.ID: %v", err, item.ID)
+		}
+
+		return item, status.Errorf(codes.Internal, "Query: %v", err)
+	}
+
+	return item, nil
+}
+
+func (s *TagService) copyModelToOutputTagValue(output *pb.TagValueUpdated, item *model.TagValue) {
+	output.Id = item.ID
+	output.DeviceId = item.DeviceID
+	output.SourceId = item.SourceID
+	output.Value = item.Value
+	output.Updated = item.Updated.UnixMicro()
 }
