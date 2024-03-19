@@ -209,11 +209,11 @@ func (s *TunnelService) startProxy(proxy *pb.Proxy) {
 
 		listen.accept()
 
+		listen.closeWG.Wait()
+
 		s.lock.Lock()
 		delete(s.listens, proxy.GetId())
 		s.lock.Unlock()
-
-		listen.closeWG.Wait()
 	}()
 }
 
