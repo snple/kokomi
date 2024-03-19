@@ -349,12 +349,19 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 	Metadata: "nodes/sync_service.proto",
 }
 
-const ()
+const (
+	SyncGlobalService_SetUpdated_FullMethodName  = "/nodes.SyncGlobalService/SetUpdated"
+	SyncGlobalService_GetUpdated_FullMethodName  = "/nodes.SyncGlobalService/GetUpdated"
+	SyncGlobalService_WaitUpdated_FullMethodName = "/nodes.SyncGlobalService/WaitUpdated"
+)
 
 // SyncGlobalServiceClient is the client API for SyncGlobalService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SyncGlobalServiceClient interface {
+	SetUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetUpdated(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*SyncUpdated, error)
+	WaitUpdated(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (SyncGlobalService_WaitUpdatedClient, error)
 }
 
 type syncGlobalServiceClient struct {
@@ -365,10 +372,63 @@ func NewSyncGlobalServiceClient(cc grpc.ClientConnInterface) SyncGlobalServiceCl
 	return &syncGlobalServiceClient{cc}
 }
 
+func (c *syncGlobalServiceClient) SetUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, SyncGlobalService_SetUpdated_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *syncGlobalServiceClient) GetUpdated(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*SyncUpdated, error) {
+	out := new(SyncUpdated)
+	err := c.cc.Invoke(ctx, SyncGlobalService_GetUpdated_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *syncGlobalServiceClient) WaitUpdated(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (SyncGlobalService_WaitUpdatedClient, error) {
+	stream, err := c.cc.NewStream(ctx, &SyncGlobalService_ServiceDesc.Streams[0], SyncGlobalService_WaitUpdated_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &syncGlobalServiceWaitUpdatedClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type SyncGlobalService_WaitUpdatedClient interface {
+	Recv() (*pb.MyBool, error)
+	grpc.ClientStream
+}
+
+type syncGlobalServiceWaitUpdatedClient struct {
+	grpc.ClientStream
+}
+
+func (x *syncGlobalServiceWaitUpdatedClient) Recv() (*pb.MyBool, error) {
+	m := new(pb.MyBool)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // SyncGlobalServiceServer is the server API for SyncGlobalService service.
 // All implementations must embed UnimplementedSyncGlobalServiceServer
 // for forward compatibility
 type SyncGlobalServiceServer interface {
+	SetUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
+	GetUpdated(context.Context, *pb.Id) (*SyncUpdated, error)
+	WaitUpdated(*pb.Id, SyncGlobalService_WaitUpdatedServer) error
 	mustEmbedUnimplementedSyncGlobalServiceServer()
 }
 
@@ -376,6 +436,15 @@ type SyncGlobalServiceServer interface {
 type UnimplementedSyncGlobalServiceServer struct {
 }
 
+func (UnimplementedSyncGlobalServiceServer) SetUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUpdated not implemented")
+}
+func (UnimplementedSyncGlobalServiceServer) GetUpdated(context.Context, *pb.Id) (*SyncUpdated, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUpdated not implemented")
+}
+func (UnimplementedSyncGlobalServiceServer) WaitUpdated(*pb.Id, SyncGlobalService_WaitUpdatedServer) error {
+	return status.Errorf(codes.Unimplemented, "method WaitUpdated not implemented")
+}
 func (UnimplementedSyncGlobalServiceServer) mustEmbedUnimplementedSyncGlobalServiceServer() {}
 
 // UnsafeSyncGlobalServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -389,13 +458,85 @@ func RegisterSyncGlobalServiceServer(s grpc.ServiceRegistrar, srv SyncGlobalServ
 	s.RegisterService(&SyncGlobalService_ServiceDesc, srv)
 }
 
+func _SyncGlobalService_SetUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SyncUpdated)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SyncGlobalServiceServer).SetUpdated(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SyncGlobalService_SetUpdated_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SyncGlobalServiceServer).SetUpdated(ctx, req.(*SyncUpdated))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SyncGlobalService_GetUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Id)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SyncGlobalServiceServer).GetUpdated(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SyncGlobalService_GetUpdated_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SyncGlobalServiceServer).GetUpdated(ctx, req.(*pb.Id))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SyncGlobalService_WaitUpdated_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(pb.Id)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(SyncGlobalServiceServer).WaitUpdated(m, &syncGlobalServiceWaitUpdatedServer{stream})
+}
+
+type SyncGlobalService_WaitUpdatedServer interface {
+	Send(*pb.MyBool) error
+	grpc.ServerStream
+}
+
+type syncGlobalServiceWaitUpdatedServer struct {
+	grpc.ServerStream
+}
+
+func (x *syncGlobalServiceWaitUpdatedServer) Send(m *pb.MyBool) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // SyncGlobalService_ServiceDesc is the grpc.ServiceDesc for SyncGlobalService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var SyncGlobalService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "nodes.SyncGlobalService",
 	HandlerType: (*SyncGlobalServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "nodes/sync_service.proto",
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SetUpdated",
+			Handler:    _SyncGlobalService_SetUpdated_Handler,
+		},
+		{
+			MethodName: "GetUpdated",
+			Handler:    _SyncGlobalService_GetUpdated_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "WaitUpdated",
+			Handler:       _SyncGlobalService_WaitUpdated_Handler,
+			ServerStreams: true,
+		},
+	},
+	Metadata: "nodes/sync_service.proto",
 }

@@ -349,6 +349,10 @@ func (n *Notify) Close() {
 	}
 }
 
+func (n *Notify) Id() string {
+	return n.id
+}
+
 type waitUpdatedStream interface {
 	Send(*pb.MyBool) error
 	grpc.ServerStream

@@ -6,7 +6,7 @@ option go_package = "github.com/snple/kokomi/pb/nodes;nodes";
 import "generic_message.proto";
 
 message SyncUpdated {
-    // string id = 1;
+    string id = 1;
     int64 updated = 2;
 }
 
@@ -20,5 +20,7 @@ service SyncService {
 }
 
 service SyncGlobalService {
-
+    rpc SetUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetUpdated(pb.Id) returns (SyncUpdated) {}
+    rpc WaitUpdated(pb.Id) returns (stream pb.MyBool) {}
 }

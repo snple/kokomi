@@ -20,5 +20,7 @@ service SyncService {
 }
 
 service SyncGlobalService {
-
+    rpc SetUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetUpdated(pb.Id) returns (SyncUpdated) {}
+    rpc WaitUpdated(pb.Id) returns (stream pb.MyBool) {}
 }

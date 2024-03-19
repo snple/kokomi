@@ -18,15 +18,79 @@ import (
 type SyncGlobalService struct {
 	cs *CoreService
 
-	lock sync.RWMutex
+	lock  sync.RWMutex
+	waits map[string]map[chan struct{}]struct{}
 
 	cores.UnimplementedSyncGlobalServiceServer
 }
 
 func newSyncGlobalService(cs *CoreService) *SyncGlobalService {
 	return &SyncGlobalService{
-		cs: cs,
+		cs:    cs,
+		waits: make(map[string]map[chan struct{}]struct{}),
 	}
+}
+
+func (s *SyncGlobalService) SetUpdated(ctx context.Context, in *cores.SyncUpdated) (*pb.MyBool, error) {
+	var output pb.MyBool
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid ID")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Updated")
+		}
+	}
+
+	err = s.setUpdated(ctx, s.cs.GetDB(), in.GetId(), time.UnixMicro(in.GetUpdated()))
+	if err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *SyncGlobalService) GetUpdated(ctx context.Context, in *pb.Id) (*cores.SyncUpdated, error) {
+	var output cores.SyncUpdated
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if len(in.GetId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid ID")
+		}
+	}
+
+	output.Id = in.GetId()
+
+	t, err := s.getUpdated(ctx, s.cs.GetDB(), in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	output.Updated = t.UnixMicro()
+
+	return &output, nil
+}
+
+func (s *SyncGlobalService) WaitDeviceUpdated(in *pb.Id,
+	stream cores.SyncGlobalService_WaitUpdatedServer) error {
+
+	return s.waitUpdated(in, stream)
 }
 
 func (s *SyncGlobalService) getUpdated(ctx context.Context, db bun.IDB, key string) (time.Time, error) {
@@ -74,18 +138,82 @@ func (s *SyncGlobalService) setUpdated(ctx context.Context, db bun.IDB, key stri
 		}
 	}
 
+	s.notifyUpdated(key)
+
 	return nil
 }
 
-func (s *SyncGlobalService) notifyUpdated(chans map[chan struct{}]struct{}) {
+func (s *SyncGlobalService) notifyUpdated(id string) {
 	s.lock.RLock()
-	for wait := range chans {
-		select {
-		case wait <- struct{}{}:
-		default:
+	defer s.lock.RUnlock()
+
+	if waits, ok := s.waits[id]; ok {
+		for wait := range waits {
+			select {
+			case wait <- struct{}{}:
+			default:
+			}
 		}
 	}
-	s.lock.RUnlock()
+}
+
+func (s *SyncGlobalService) Notify(id string) *GlobalNotify {
+	ch := make(chan struct{}, 1)
+
+	s.lock.Lock()
+	if waits, ok := s.waits[id]; ok {
+		waits[ch] = struct{}{}
+	} else {
+		waits := map[chan struct{}]struct{}{
+			ch: {},
+		}
+		s.waits[id] = waits
+	}
+	s.lock.Unlock()
+
+	n := &GlobalNotify{
+		id,
+		s,
+		ch,
+	}
+
+	n.notify()
+
+	return n
+}
+
+type GlobalNotify struct {
+	id string
+	ss *SyncGlobalService
+	ch chan struct{}
+}
+
+func (n *GlobalNotify) notify() {
+	select {
+	case n.ch <- struct{}{}:
+	default:
+	}
+}
+
+func (w *GlobalNotify) Wait() <-chan struct{} {
+	return w.ch
+}
+
+func (n *GlobalNotify) Close() {
+	n.ss.lock.Lock()
+	defer n.ss.lock.Unlock()
+
+	if waits, ok := n.ss.waits[n.id]; ok {
+		delete(waits, n.ch)
+
+		if len(waits) == 0 {
+			delete(n.ss.waits, n.id)
+		}
+	}
+}
+
+func (n *GlobalNotify) Id() string {
+	return n.id
 }
 
 type globalWaitUpdatedStream interface {
@@ -93,8 +221,7 @@ type globalWaitUpdatedStream interface {
 	grpc.ServerStream
 }
 
-func (s *SyncGlobalService) waitUpdated(in *pb.MyEmpty,
-	stream globalWaitUpdatedStream, chans map[chan struct{}]struct{}) error {
+func (s *SyncGlobalService) waitUpdated(in *pb.Id, stream globalWaitUpdatedStream) error {
 	var err error
 
 	// basic validation
@@ -102,59 +229,24 @@ func (s *SyncGlobalService) waitUpdated(in *pb.MyEmpty,
 		if in == nil {
 			return status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
-	}
 
-	wait := make(chan struct{}, 1)
-
-	s.lock.Lock()
-	chans[wait] = struct{}{}
-	s.lock.Unlock()
-
-	defer func() {
-		s.lock.Lock()
-		delete(chans, wait)
-		s.lock.Unlock()
-	}()
-
-	err = stream.Send(&pb.MyBool{Bool: true})
-	if err != nil {
-		return err
-	}
-
-	select {
-	case <-wait:
-	case <-stream.Context().Done():
-		return nil
-	}
-
-	return stream.Send(&pb.MyBool{Bool: true})
-}
-
-func (s *SyncGlobalService) waitUpdated2(ctx context.Context,
-	chans map[chan struct{}]struct{}) chan bool {
-	wait := make(chan struct{}, 1)
-	output := make(chan bool, 2)
-
-	s.lock.Lock()
-	chans[wait] = struct{}{}
-	s.lock.Unlock()
-
-	output <- true
-
-	go func() {
-		defer func() {
-			s.lock.Lock()
-			delete(chans, wait)
-			s.lock.Unlock()
-		}()
-
-		select {
-		case <-wait:
-			output <- true
-		case <-ctx.Done():
-			output <- false
+		if len(in.GetId()) == 0 {
+			return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
-	}()
+	}
 
-	return output
+	notify := s.Notify(in.GetId())
+	defer notify.Close()
+
+	for {
+		select {
+		case <-notify.Wait():
+			err = stream.Send(&pb.MyBool{Bool: true})
+			if err != nil {
+				return err
+			}
+		case <-stream.Context().Done():
+			return nil
+		}
+	}
 }
