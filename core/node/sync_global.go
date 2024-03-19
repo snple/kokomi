@@ -80,7 +80,7 @@ func (s *SyncGlobalService) GetUpdated(ctx context.Context, in *pb.Id) (*nodes.S
 	return &output, nil
 }
 
-func (s *SyncGlobalService) WaitDeviceUpdated(in *pb.Id, stream nodes.SyncGlobalService_WaitUpdatedServer) error {
+func (s *SyncGlobalService) WaitUpdated(in *pb.Id, stream nodes.SyncGlobalService_WaitUpdatedServer) error {
 	var err error
 
 	// basic validation
@@ -94,10 +94,10 @@ func (s *SyncGlobalService) WaitDeviceUpdated(in *pb.Id, stream nodes.SyncGlobal
 		}
 	}
 
-	deviceID, err := validateToken(stream.Context())
+	_, err = validateToken(stream.Context())
 	if err != nil {
 		return err
 	}
 
-	return s.ns.Core().GetSyncGlobal().WaitUpdated(&pb.Id{Id: deviceID}, stream)
+	return s.ns.Core().GetSyncGlobal().WaitUpdated(in, stream)
 }
