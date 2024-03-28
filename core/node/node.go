@@ -22,7 +22,6 @@ type NodeService struct {
 	sync_global *SyncGlobalService
 	device      *DeviceService
 	slot        *SlotService
-	option      *OptionService
 	port        *PortService
 	proxy       *ProxyService
 	source      *SourceService
@@ -60,7 +59,6 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 	ns.sync_global = newSyncGlobalService(ns)
 	ns.device = newDeviceService(ns)
 	ns.slot = newSlotService(ns)
-	ns.option = newOptionService(ns)
 	ns.port = newPortService(ns)
 	ns.proxy = newProxyService(ns)
 	ns.source = newSourceService(ns)
@@ -117,7 +115,6 @@ func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 	nodes.RegisterSyncGlobalServiceServer(server, ns.sync_global)
 	nodes.RegisterDeviceServiceServer(server, ns.device)
 	nodes.RegisterSlotServiceServer(server, ns.slot)
-	nodes.RegisterOptionServiceServer(server, ns.option)
 	nodes.RegisterPortServiceServer(server, ns.port)
 	nodes.RegisterProxyServiceServer(server, ns.proxy)
 	nodes.RegisterSourceServiceServer(server, ns.source)

@@ -9,7 +9,6 @@ import (
 
 	"github.com/cenkalti/backoff/v4"
 	"github.com/snple/kokomi/consts"
-	"github.com/snple/kokomi/edge/model"
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/kokomi/pb/nodes"
@@ -256,10 +255,6 @@ func (s *NodeService) SlotServiceClient() nodes.SlotServiceClient {
 	return nodes.NewSlotServiceClient(s.NodeConn)
 }
 
-func (s *NodeService) OptionServiceClient() nodes.OptionServiceClient {
-	return nodes.NewOptionServiceClient(s.NodeConn)
-}
-
 func (s *NodeService) PortServiceClient() nodes.PortServiceClient {
 	return nodes.NewPortServiceClient(s.NodeConn)
 }
@@ -328,41 +323,9 @@ func (s *NodeService) login(ctx context.Context) error {
 
 	var err error
 
-	option_device_id := s.es.dopts.deviceID
-
-	{
-		has, err := s.es.GetOption().Has(ctx, model.OPTION_DEVICE_ID)
-		if err != nil {
-			return err
-		}
-
-		if has {
-			option_device_id, err = s.es.GetOption().Get(ctx, model.OPTION_DEVICE_ID)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	option_secret := s.es.dopts.secret
-
-	{
-		has, err := s.es.GetOption().Has(ctx, model.OPTION_SECRET)
-		if err != nil {
-			return err
-		}
-
-		if has {
-			option_secret, err = s.es.GetOption().Get(ctx, model.OPTION_SECRET)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
 	request := &nodes.DeviceLoginRequest{
-		Id:     option_device_id,
-		Secret: option_secret,
+		Id:     s.es.dopts.deviceID,
+		Secret: s.es.dopts.secret,
 	}
 
 	// try login

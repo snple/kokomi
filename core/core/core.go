@@ -21,7 +21,6 @@ type CoreService struct {
 	sync_global *SyncGlobalService
 	device      *DeviceService
 	slot        *SlotService
-	option      *OptionService
 	port        *PortService
 	proxy       *ProxyService
 	source      *SourceService
@@ -69,7 +68,6 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.sync_global = newSyncGlobalService(cs)
 	cs.device = newDeviceService(cs)
 	cs.slot = newSlotService(cs)
-	cs.option = newOptionService(cs)
 	cs.port = newPortService(cs)
 	cs.proxy = newProxyService(cs)
 	cs.source = newSourceService(cs)
@@ -117,10 +115,6 @@ func (cs *CoreService) GetDevice() *DeviceService {
 
 func (cs *CoreService) GetSlot() *SlotService {
 	return cs.slot
-}
-
-func (cs *CoreService) GetOption() *OptionService {
-	return cs.option
 }
 
 func (cs *CoreService) GetPort() *PortService {
@@ -188,7 +182,6 @@ func (cs *CoreService) Register(server *grpc.Server) {
 	cores.RegisterSyncGlobalServiceServer(server, cs.sync_global)
 	cores.RegisterDeviceServiceServer(server, cs.device)
 	cores.RegisterSlotServiceServer(server, cs.slot)
-	cores.RegisterOptionServiceServer(server, cs.option)
 	cores.RegisterPortServiceServer(server, cs.port)
 	cores.RegisterProxyServiceServer(server, cs.proxy)
 	cores.RegisterSourceServiceServer(server, cs.source)
@@ -203,7 +196,6 @@ func CreateSchema(db bun.IDB) error {
 		(*model.SyncGlobal)(nil),
 		(*model.Device)(nil),
 		(*model.Slot)(nil),
-		(*model.Option)(nil),
 		(*model.Port)(nil),
 		(*model.Proxy)(nil),
 		(*model.Source)(nil),

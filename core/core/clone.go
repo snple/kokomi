@@ -77,29 +77,6 @@ func (s *cloneService) device(ctx context.Context, db bun.IDB, deviceID string) 
 		}
 	}
 
-	// option
-	{
-		var options []model.Option
-
-		err = db.NewSelect().Model(&options).Where("device_id = ?", deviceID).Order("id ASC").Scan(ctx)
-		if err != nil {
-			return status.Errorf(codes.Internal, "Query: %v", err)
-		}
-
-		for _, option := range options {
-			option.ID = util.RandomID()
-			option.DeviceID = device.ID
-
-			option.Created = time.Now()
-			option.Updated = time.Now()
-
-			_, err = db.NewInsert().Model(&option).Exec(ctx)
-			if err != nil {
-				return status.Errorf(codes.Internal, "Insert: %v", err)
-			}
-		}
-	}
-
 	// port
 	{
 		var slots []model.Port
@@ -236,59 +213,6 @@ func (s *cloneService) slot(ctx context.Context, db bun.IDB, slotID, deviceID st
 
 	item := model.Slot{
 		ID: slotID,
-	}
-
-	err = db.NewSelect().Model(&item).WherePK().Scan(ctx)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return status.Errorf(codes.NotFound, "Query: %v", err)
-		}
-
-		return status.Errorf(codes.Internal, "Query: %v", err)
-	}
-
-	// device validation
-	if len(deviceID) > 0 {
-		device := model.Device{
-			ID: deviceID,
-		}
-
-		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
-			}
-
-			return status.Errorf(codes.Internal, "Query: %v", err)
-		}
-
-		item.DeviceID = device.ID
-	}
-
-	item.ID = util.RandomID()
-	item.Name = fmt.Sprintf("%v_clone_%v", item.Name, randNameSuffix())
-
-	item.Created = time.Now()
-	item.Updated = time.Now()
-
-	_, err = db.NewInsert().Model(&item).Exec(ctx)
-	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
-	}
-
-	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
-	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
-	}
-
-	return nil
-}
-
-func (s *cloneService) option(ctx context.Context, db bun.IDB, optionID, deviceID string) error {
-	var err error
-
-	item := model.Option{
-		ID: optionID,
 	}
 
 	err = db.NewSelect().Model(&item).WherePK().Scan(ctx)

@@ -23,7 +23,6 @@ type SlotService struct {
 
 	sync     *SyncService
 	device   *DeviceService
-	option   *OptionService
 	source   *SourceService
 	tag      *TagService
 	constant *ConstService
@@ -58,7 +57,6 @@ func Slot(es *edge.EdgeService, opts ...SlotOption) (*SlotService, error) {
 
 	ss.sync = newSyncService(ss)
 	ss.device = newDeviceService(ss)
-	ss.option = newOptionService(ss)
 	ss.source = newSourceService(ss)
 	ss.tag = newTagService(ss)
 	ss.constant = newConstService(ss)
@@ -92,7 +90,6 @@ func (ss *SlotService) RegisterGrpc(server *grpc.Server) {
 	slots.RegisterSyncServiceServer(server, ss.sync)
 	slots.RegisterDeviceServiceServer(server, ss.device)
 	slots.RegisterSlotServiceServer(server, ss)
-	slots.RegisterOptionServiceServer(server, ss.option)
 	slots.RegisterSourceServiceServer(server, ss.source)
 	slots.RegisterTagServiceServer(server, ss.tag)
 	slots.RegisterConstServiceServer(server, ss.constant)

@@ -25,7 +25,6 @@ type EdgeService struct {
 	sync     *SyncService
 	device   *DeviceService
 	slot     *SlotService
-	option   *OptionService
 	port     *PortService
 	proxy    *ProxyService
 	source   *SourceService
@@ -87,7 +86,6 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 	es.sync = newSyncService(es)
 	es.device = newDeviceService(es)
 	es.slot = newSlotService(es)
-	es.option = newOptionService(es)
 	es.port = newPortService(es)
 	es.proxy = newProxyService(es)
 	es.source = newSourceService(es)
@@ -224,10 +222,6 @@ func (es *EdgeService) GetSlot() *SlotService {
 	return es.slot
 }
 
-func (es *EdgeService) GetOption() *OptionService {
-	return es.option
-}
-
 func (es *EdgeService) GetPort() *PortService {
 	return es.port
 }
@@ -296,7 +290,6 @@ func (es *EdgeService) Register(server *grpc.Server) {
 	edges.RegisterSyncServiceServer(server, es.sync)
 	edges.RegisterDeviceServiceServer(server, es.device)
 	edges.RegisterSlotServiceServer(server, es.slot)
-	edges.RegisterOptionServiceServer(server, es.option)
 	edges.RegisterPortServiceServer(server, es.port)
 	edges.RegisterProxyServiceServer(server, es.proxy)
 	edges.RegisterSourceServiceServer(server, es.source)
@@ -309,7 +302,6 @@ func CreateSchema(db bun.IDB) error {
 	models := []interface{}{
 		(*model.Device)(nil),
 		(*model.Slot)(nil),
-		(*model.Option)(nil),
 		(*model.Port)(nil),
 		(*model.Proxy)(nil),
 		(*model.Source)(nil),

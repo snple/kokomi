@@ -2,10 +2,8 @@ package edge
 
 import (
 	"context"
-	"strings"
 	"time"
 
-	"github.com/snple/kokomi/edge/model"
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/kokomi/pb/nodes"
@@ -60,34 +58,6 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 			}
 
 			if len(remotes.GetSlot()) < int(limit) {
-				break
-			}
-		}
-	}
-
-	// option
-	{
-		after := deviceUpdated2.UnixMicro()
-		limit := uint32(10)
-
-		for {
-			remotes, err := s.OptionServiceClient().Pull(ctx, &nodes.OptionPullRequest{After: after, Limit: limit})
-			if err != nil {
-				return err
-			}
-
-			for _, remote := range remotes.GetOption() {
-				if !strings.HasPrefix(remote.GetName(), model.OPTION_PRIVATE_PREFIX) {
-					_, err := s.es.GetOption().Sync(ctx, remote)
-					if err != nil {
-						return err
-					}
-				}
-
-				after = remote.GetUpdated()
-			}
-
-			if len(remotes.GetOption()) < int(limit) {
 				break
 			}
 		}
@@ -275,34 +245,6 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 			}
 
 			if len(locals.GetSlot()) < int(limit) {
-				break
-			}
-		}
-	}
-
-	// option
-	{
-		after := deviceUpdated2.UnixMicro()
-		limit := uint32(10)
-
-		for {
-			locals, err := s.es.GetOption().Pull(ctx, &edges.OptionPullRequest{After: after, Limit: limit})
-			if err != nil {
-				return err
-			}
-
-			for _, local := range locals.GetOption() {
-				if !strings.HasPrefix(local.GetName(), model.OPTION_PRIVATE_PREFIX) {
-					_, err = s.OptionServiceClient().Sync(ctx, local)
-					if err != nil {
-						return err
-					}
-				}
-
-				after = local.GetUpdated()
-			}
-
-			if len(locals.GetOption()) < int(limit) {
 				break
 			}
 		}
