@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/quic-go/quic-go"
-	"github.com/snple/kokomi/core/core"
+	"github.com/snple/kokomi/core"
 	"github.com/snple/kokomi/pb/nodes"
 	"github.com/snple/rgrpc"
 	"github.com/snple/types"

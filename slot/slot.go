@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/snple/kokomi/consts"
-	"github.com/snple/kokomi/edge/edge"
+	"github.com/snple/kokomi/edge"
 	"github.com/snple/kokomi/pb"
 	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/kokomi/pb/slots"
