@@ -207,9 +207,7 @@ func (s *TunnelService) startProxy(proxy *pb.Proxy) {
 		s.closeWG.Add(1)
 		defer s.closeWG.Done()
 
-		listen.accept()
-
-		listen.closeWG.Wait()
+		listen.run()
 
 		s.lock.Lock()
 		delete(s.listens, proxy.GetId())
@@ -281,9 +279,8 @@ func (tl *tunnelListener) stop() {
 	tl.closeWG.Wait()
 }
 
-func (tl *tunnelListener) accept() {
-	tl.closeWG.Add(1)
-	defer tl.closeWG.Done()
+func (tl *tunnelListener) run() {
+	defer tl.closeWG.Wait()
 
 	defer func() {
 		tl.lock.Lock()
