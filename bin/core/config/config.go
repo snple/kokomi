@@ -10,20 +10,32 @@ import (
 )
 
 type ConfigStruct struct {
-	Debug       bool        `toml:"debug"`
-	DB          DB          `toml:"db"`
-	CoreService GRPCService `toml:"core"`
-	NodeService GRPCService `toml:"node"`
-	QuicService QuicService `toml:"quic"`
-	Status      Status      `toml:"status"`
-	Gin         Gin         `toml:"gin"`
-	HttpService HttpService `toml:"http"`
-	Statics     []Static    `toml:"static"`
+	Debug       bool         `toml:"debug"`
+	DB          DB           `toml:"db"`
+	InfluxDB    InfluxDB     `toml:"influxdb"`
+	CoreService GRPCService  `toml:"core"`
+	NodeService GRPCService  `toml:"node"`
+	QuicService QuicService  `toml:"quic"`
+	Status      Status       `toml:"status"`
+	Gin         Gin          `toml:"gin"`
+	WebService  HttpService  `toml:"web"`
+	ApiService  HttpService  `toml:"api"`
+	Statics     []Static     `toml:"static"`
+	MqttService MqttService  `toml:"mqtt"`
+	MqttListen  []MqttListen `toml:"mqtt_listen"`
 }
 
 type DB struct {
 	Debug bool   `toml:"debug"`
 	File  string `toml:"file"`
+}
+
+type InfluxDB struct {
+	Enable bool   `toml:"enable"`
+	Url    string `toml:"url"`
+	Org    string `toml:"org"`
+	Bucket string `toml:"bucket"`
+	Token  string `toml:"token"`
 }
 
 type GRPCService struct {
@@ -53,18 +65,37 @@ type Gin struct {
 
 type HttpService struct {
 	Enable bool   `toml:"enable"`
+	Debug  bool   `toml:"debug"`
 	Addr   string `toml:"addr"`
 	TLS    bool   `toml:"tls"`
+	CA     string `toml:"ca"`
 	Cert   string `toml:"cert"`
 	Key    string `toml:"key"`
 }
 
 type Static struct {
-	Addr string `toml:"addr"`
-	Path string `toml:"path"`
-	TLS  bool   `toml:"tls"`
-	Cert string `toml:"cert"`
-	Key  string `toml:"key"`
+	Enable bool   `toml:"enable"`
+	Addr   string `toml:"addr"`
+	Path   string `toml:"path"`
+	TLS    bool   `toml:"tls"`
+	Cert   string `toml:"cert"`
+	Key    string `toml:"key"`
+}
+
+type MqttService struct {
+	Enable bool `toml:"enable"`
+	Cache  bool `toml:"cache"`
+	Save   bool `toml:"save"`
+}
+
+type MqttListen struct {
+	Enable bool   `toml:"enable"`
+	Addr   string `toml:"addr"`
+	TLS    bool   `toml:"tls"`
+	CA     string `toml:"ca"`
+	Cert   string `toml:"cert"`
+	Key    string `toml:"key"`
+	Ws     bool   `toml:"ws"`
 }
 
 func DefaultConfig() ConfigStruct {
@@ -98,6 +129,12 @@ func DefaultConfig() ConfigStruct {
 		},
 		Status: Status{
 			LinkTTL: 3 * 60,
+		},
+		WebService: HttpService{
+			Addr: ":8006",
+		},
+		ApiService: HttpService{
+			Addr: ":8008",
 		},
 	}
 }

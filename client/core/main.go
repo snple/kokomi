@@ -79,6 +79,17 @@ func main() {
 	// service.ProxyCreate(ctx, proxy)
 	// service.ProxyUpdate(ctx, proxy)
 	// service.ProxyDelete(ctx, proxy)
+
+	// tag := cores.NewTagServiceClient(conn)
+	// service.TagGetValue(ctx, tag)
+	// service.TagSetValue(ctx, tag)
+
+	// control := cores.NewControlServiceClient(conn)
+	// service.ControlGetTagValue(ctx, control)
+	// service.ControlSetTagValue(ctx, control)
+
+	// sync := cores.NewSyncServiceClient(conn)
+	// service.SetDeviceUpdated(ctx, sync)
 }
 
 func loadCert() (*tls.Config, error) {

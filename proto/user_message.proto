@@ -1,0 +1,18 @@
+syntax = "proto3";
+package pb;
+
+option go_package = "github.com/snple/kokomi/pb;pb";
+
+message User {
+    string id = 1;
+    string name = 2;
+    string desc = 3;
+    string tags = 4;
+    string type = 5;
+    // string pass = 6;
+    string role = 7;
+    sint32 status = 8;
+    int64 created = 9;
+    int64 updated = 10;
+    int64 deleted = 11;
+}

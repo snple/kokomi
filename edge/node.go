@@ -275,6 +275,10 @@ func (s *NodeService) ConstServiceClient() nodes.ConstServiceClient {
 	return nodes.NewConstServiceClient(s.NodeConn)
 }
 
+func (s *NodeService) DataServiceClient() nodes.DataServiceClient {
+	return nodes.NewDataServiceClient(s.NodeConn)
+}
+
 func (s *NodeService) RrpcServiceClient() rgrpc.RgrpcServiceClient {
 	return rgrpc.NewRgrpcServiceClient(s.NodeConn)
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/dgraph-io/badger/v4"
 	"github.com/quic-go/quic-go"
+	"github.com/snple/kokomi/db"
 	"github.com/snple/kokomi/edge/model"
 	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/types"
@@ -30,6 +31,8 @@ type EdgeService struct {
 	source   *SourceService
 	tag      *TagService
 	constant *ConstService
+	data     *DataService
+	save     types.Option[*SaveService]
 	control  *ControlService
 
 	node   types.Option[*NodeService]
@@ -37,6 +40,9 @@ type EdgeService struct {
 	tunnel types.Option[*TunnelService]
 
 	clone *cloneService
+
+	auth *AuthService
+	user *UserService
 
 	ctx     context.Context
 	cancel  func()
@@ -91,6 +97,12 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 	es.source = newSourceService(es)
 	es.tag = newTagService(es)
 	es.constant = newConstService(es)
+	es.data = newDataService(es)
+
+	if es.dopts.save {
+		es.save = types.Some(newSaveService(es))
+	}
+
 	es.control = newControlService(es)
 
 	if es.dopts.NodeOptions.Enable {
@@ -113,6 +125,9 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 	}
 
 	es.clone = newCloneService(es)
+
+	es.auth = newAuthService(es)
+	es.user = newUserService(es)
 
 	return es, nil
 }
@@ -152,6 +167,15 @@ func (es *EdgeService) Start() {
 		}()
 	}
 
+	if es.save.IsSome() {
+		go func() {
+			es.closeWG.Add(1)
+			defer es.closeWG.Done()
+
+			es.save.Unwrap().start()
+		}()
+	}
+
 	if es.dopts.cache {
 		go func() {
 			es.closeWG.Add(1)
@@ -163,6 +187,10 @@ func (es *EdgeService) Start() {
 }
 
 func (es *EdgeService) Stop() {
+	if es.save.IsSome() {
+		es.save.Unwrap().stop()
+	}
+
 	if es.tunnel.IsSome() {
 		es.tunnel.Unwrap().stop()
 	}
@@ -206,6 +234,14 @@ func (es *EdgeService) GetBadgerDB() *badger.DB {
 	return es.badger.GetDB()
 }
 
+func (es *EdgeService) GetInfluxDB() types.Option[*db.InfluxDB] {
+	if es.dopts.influxdb != nil {
+		return types.Some(es.dopts.influxdb)
+	}
+
+	return types.None[*db.InfluxDB]()
+}
+
 func (es *EdgeService) GetStatus() *StatusService {
 	return es.status
 }
@@ -242,6 +278,14 @@ func (es *EdgeService) GetConst() *ConstService {
 	return es.constant
 }
 
+func (es *EdgeService) GetData() *DataService {
+	return es.data
+}
+
+func (es *EdgeService) GetSave() types.Option[*SaveService] {
+	return es.save
+}
+
 func (es *EdgeService) GetControl() *ControlService {
 	return es.control
 }
@@ -256,6 +300,14 @@ func (es *EdgeService) GetQuic() types.Option[*QuicService] {
 
 func (es *EdgeService) getClone() *cloneService {
 	return es.clone
+}
+
+func (es *EdgeService) GetAuth() *AuthService {
+	return es.auth
+}
+
+func (es *EdgeService) GetUser() *UserService {
+	return es.user
 }
 
 func (es *EdgeService) Context() context.Context {
@@ -281,6 +333,7 @@ func (es *EdgeService) cacheGC() {
 				es.GetSource().GC()
 				es.GetTag().GC()
 				es.GetConst().GC()
+				es.GetUser().GC()
 			}
 		}
 	}
@@ -295,7 +348,12 @@ func (es *EdgeService) Register(server *grpc.Server) {
 	edges.RegisterSourceServiceServer(server, es.source)
 	edges.RegisterTagServiceServer(server, es.tag)
 	edges.RegisterConstServiceServer(server, es.constant)
+	edges.RegisterDataServiceServer(server, es.data)
 	edges.RegisterControlServiceServer(server, es.control)
+
+	edges.RegisterAuthServiceServer(server, es.auth)
+	edges.RegisterUserServiceServer(server, es.user)
+
 }
 
 func CreateSchema(db bun.IDB) error {
@@ -307,6 +365,7 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Source)(nil),
 		(*model.Tag)(nil),
 		(*model.Const)(nil),
+		(*model.User)(nil),
 	}
 
 	for _, model := range models {
@@ -329,10 +388,13 @@ type edgeOptions struct {
 	BadgerOptions   badger.Options
 	BadgerGCOptions BadgerGCOptions
 
-	linkTTL    time.Duration
-	cache      bool
-	cacheTTL   time.Duration
-	cacheGCTTL time.Duration
+	linkTTL      time.Duration
+	cache        bool
+	cacheTTL     time.Duration
+	cacheGCTTL   time.Duration
+	influxdb     *db.InfluxDB
+	save         bool
+	saveInterval time.Duration
 }
 
 type NodeOptions struct {
@@ -381,10 +443,12 @@ func defaultEdgeOptions() edgeOptions {
 			GC:             time.Hour,
 			GCDiscardRatio: 0.7,
 		},
-		linkTTL:    3 * time.Minute,
-		cache:      true,
-		cacheTTL:   3 * time.Second,
-		cacheGCTTL: 3 * time.Hour,
+		linkTTL:      3 * time.Minute,
+		cache:        true,
+		cacheTTL:     3 * time.Second,
+		cacheGCTTL:   3 * time.Hour,
+		save:         false,
+		saveInterval: time.Minute,
 	}
 }
 
@@ -500,5 +564,23 @@ func WithCacheTTL(d time.Duration) EdgeOption {
 func WithCacheGCTTL(d time.Duration) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		o.cacheGCTTL = d
+	})
+}
+
+func WithInfluxDB(influxdb *db.InfluxDB) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.influxdb = influxdb
+	})
+}
+
+func WithSave(enable bool) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.save = enable
+	})
+}
+
+func WithSaveInterval(d time.Duration) EdgeOption {
+	return newFuncEdgeOption(func(o *edgeOptions) {
+		o.saveInterval = d
 	})
 }

@@ -1,0 +1,19 @@
+syntax = "proto3";
+package nodes;
+
+option go_package = "github.com/snple/kokomi/pb/nodes;nodes";
+
+import "user_message.proto";
+
+message LoginRequest {
+    string name = 1;
+    string pass = 2;
+}
+
+message LoginResponse {
+    pb.User user = 1;
+}
+
+service AuthService {
+    rpc Login(LoginRequest) returns (LoginResponse) {}
+}

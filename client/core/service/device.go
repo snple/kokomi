@@ -98,7 +98,7 @@ func DeviceDelete(ctx context.Context, client cores.DeviceServiceClient) {
 }
 
 func DeviceDestory(ctx context.Context, client cores.DeviceServiceClient) {
-	request := &pb.Id{Id: "017b8d58b001f3aad847d47e"}
+	request := &pb.Id{Id: "0189f3d94f0d1579c4e2a817"}
 
 	reply, err := client.Destory(ctx, request)
 

@@ -27,8 +27,12 @@ type NodeService struct {
 	source      *SourceService
 	tag         *TagService
 	constant    *ConstService
+	data        *DataService
 	rgrpc       *RgrpcService
 	quic        types.Option[*QuicService]
+
+	auth *AuthService
+	user *UserService
 
 	ctx     context.Context
 	cancel  func()
@@ -64,6 +68,7 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 	ns.source = newSourceService(ns)
 	ns.tag = newTagService(ns)
 	ns.constant = newConstService(ns)
+	ns.data = newDataService(ns)
 	ns.rgrpc = newRgrpcService(ns)
 
 	if ns.dopts.QuicOptions.enable {
@@ -74,6 +79,9 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 
 		ns.quic = types.Some(quic)
 	}
+
+	ns.auth = newAuthService(ns)
+	ns.user = newUserService(ns)
 
 	return ns, nil
 }
@@ -120,7 +128,11 @@ func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 	nodes.RegisterSourceServiceServer(server, ns.source)
 	nodes.RegisterTagServiceServer(server, ns.tag)
 	nodes.RegisterConstServiceServer(server, ns.constant)
+	nodes.RegisterDataServiceServer(server, ns.data)
 	rgrpc.RegisterRgrpcServiceServer(server, ns.rgrpc)
+
+	nodes.RegisterAuthServiceServer(server, ns.auth)
+	nodes.RegisterUserServiceServer(server, ns.user)
 }
 
 type nodeOptions struct {
