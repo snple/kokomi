@@ -10,19 +10,17 @@ import (
 )
 
 type ConfigStruct struct {
-	Debug       bool         `toml:"debug"`
-	DB          DB           `toml:"db"`
-	InfluxDB    InfluxDB     `toml:"influxdb"`
-	CoreService GRPCService  `toml:"core"`
-	NodeService GRPCService  `toml:"node"`
-	QuicService QuicService  `toml:"quic"`
-	Status      Status       `toml:"status"`
-	Gin         Gin          `toml:"gin"`
-	WebService  HttpService  `toml:"web"`
-	ApiService  HttpService  `toml:"api"`
-	Statics     []Static     `toml:"static"`
-	MqttService MqttService  `toml:"mqtt"`
-	MqttListen  []MqttListen `toml:"mqtt_listen"`
+	Debug       bool        `toml:"debug"`
+	DB          DB          `toml:"db"`
+	InfluxDB    InfluxDB    `toml:"influxdb"`
+	CoreService GRPCService `toml:"core"`
+	NodeService GRPCService `toml:"node"`
+	QuicService QuicService `toml:"quic"`
+	Status      Status      `toml:"status"`
+	Gin         Gin         `toml:"gin"`
+	WebService  HttpService `toml:"web"`
+	ApiService  HttpService `toml:"api"`
+	Statics     []Static    `toml:"static"`
 }
 
 type DB struct {
@@ -80,22 +78,6 @@ type Static struct {
 	TLS    bool   `toml:"tls"`
 	Cert   string `toml:"cert"`
 	Key    string `toml:"key"`
-}
-
-type MqttService struct {
-	Enable bool `toml:"enable"`
-	Cache  bool `toml:"cache"`
-	Save   bool `toml:"save"`
-}
-
-type MqttListen struct {
-	Enable bool   `toml:"enable"`
-	Addr   string `toml:"addr"`
-	TLS    bool   `toml:"tls"`
-	CA     string `toml:"ca"`
-	Cert   string `toml:"cert"`
-	Key    string `toml:"key"`
-	Ws     bool   `toml:"ws"`
 }
 
 func DefaultConfig() ConfigStruct {

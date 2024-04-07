@@ -19,7 +19,6 @@ import (
 	"github.com/snple/kokomi/bin/core/config"
 	"github.com/snple/kokomi/bin/core/log"
 	"github.com/snple/kokomi/core"
-	"github.com/snple/kokomi/core/plugins/mqtt"
 	"github.com/snple/kokomi/db"
 	"github.com/snple/kokomi/http"
 	"github.com/snple/kokomi/http/core/api"
@@ -323,34 +322,6 @@ func main() {
 		} else {
 			go engine.Run(static.Addr)
 		}
-	}
-
-	if config.Config.MqttService.Enable {
-		opts := make([]mqtt.MqttOption, 0)
-
-		opts = append(opts, mqtt.WithCache(config.Config.MqttService.Cache))
-		opts = append(opts, mqtt.WithSave(config.Config.MqttService.Save))
-
-		for _, option := range config.Config.MqttListen {
-			if option.Enable {
-				opts = append(opts, mqtt.WithListenOption(mqtt.ListenOption{
-					Addr: option.Addr,
-					TLS:  option.TLS,
-					CA:   option.CA,
-					Cert: option.Cert,
-					Key:  option.Key,
-					Ws:   option.Ws,
-				}))
-			}
-		}
-
-		ms, err := mqtt.NewMqttService(cs, opts...)
-		if err != nil {
-			log.Logger.Sugar().Fatalf("NewMqttService: %v", err)
-		}
-
-		go ms.Start()
-		defer ms.Stop()
 	}
 
 	signalCh := make(chan os.Signal, 1)
