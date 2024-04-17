@@ -3,7 +3,7 @@ package util
 import "github.com/danclive/nson-go"
 
 func RandomID() string {
-	return nson.NewMessageId().Hex()
+	return nson.NewId().Hex()
 }
 
 var ZreoMessageId = nson.MessageId(make([]byte, 12))

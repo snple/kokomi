@@ -1172,9 +1172,9 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, err
 	}
 
-	idb, err := nson.MessageIdFromHex(item.ID)
+	idb, err := nson.IdFromHex(item.ID)
 	if err != nil {
-		return &output, status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
+		return &output, status.Errorf(codes.Internal, "IdFromHex: %v", err)
 	}
 
 	ts := uint64(time.Now().UnixMicro())
@@ -1345,9 +1345,9 @@ func (s *TagService) setTagValueUpdated(_ context.Context, item *model.Tag, valu
 		Updated:  updated,
 	}
 
-	idb, err := nson.MessageIdFromHex(item.ID)
+	idb, err := nson.IdFromHex(item.ID)
 	if err != nil {
-		return status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
+		return status.Errorf(codes.Internal, "IdFromHex: %v", err)
 	}
 
 	data, err := json.Marshal(item2)
@@ -1380,9 +1380,9 @@ func (s *TagService) getTagValueUpdated(_ context.Context, id string) (model.Tag
 		ID: id,
 	}
 
-	idb, err := nson.MessageIdFromHex(item.ID)
+	idb, err := nson.IdFromHex(item.ID)
 	if err != nil {
-		return item, status.Errorf(codes.Internal, "MessageIdFromHex: %v", err)
+		return item, status.Errorf(codes.Internal, "IdFromHex: %v", err)
 	}
 
 	txn := s.es.GetBadgerDB().NewTransactionAt(uint64(time.Now().UnixMicro()), false)
