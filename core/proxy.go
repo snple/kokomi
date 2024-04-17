@@ -72,6 +72,16 @@ func (s *ProxyService) Create(ctx context.Context, in *pb.Proxy) (*pb.Proxy, err
 		}
 	}
 
+	// target validation
+	{
+		if in.GetTarget() != "" {
+			_, err = s.cs.GetPort().ViewByID(ctx, in.GetTarget())
+			if err != nil {
+				return &output, err
+			}
+		}
+	}
+
 	item := model.Proxy{
 		ID:       in.GetId(),
 		DeviceID: in.GetDeviceId(),
@@ -145,6 +155,16 @@ func (s *ProxyService) Update(ctx context.Context, in *pb.Proxy) (*pb.Proxy, err
 		} else {
 			if modelItem.ID != item.ID {
 				return &output, status.Error(codes.AlreadyExists, "Proxy.Name must be unique")
+			}
+		}
+	}
+
+	// target validation
+	{
+		if in.GetTarget() != "" {
+			_, err = s.cs.GetPort().ViewByID(ctx, in.GetId())
+			if err != nil {
+				return &output, err
 			}
 		}
 	}

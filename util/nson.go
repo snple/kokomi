@@ -8,22 +8,22 @@ import (
 	"github.com/danclive/nson-go"
 )
 
-func ReadNsonMessage(reader io.Reader) (nson.Message, error) {
+func ReadNsonMessage(reader io.Reader) (nson.Map, error) {
 	rb, err := ReadNsonBytes(reader)
 	if err != nil {
 		return nil, err
 	}
 
 	rbuff := bytes.NewBuffer(rb)
-	value, err := nson.Message{}.Decode(rbuff)
+	value, err := nson.Map{}.Decode(rbuff)
 	if err != nil {
 		return nil, err
 	}
 
-	return value.(nson.Message), nil
+	return value.(nson.Map), nil
 }
 
-func WriteNsonMessage(writer io.Writer, message nson.Message) error {
+func WriteNsonMessage(writer io.Writer, message nson.Map) error {
 	wbuff := new(bytes.Buffer)
 	err := message.Encode(wbuff)
 	if err != nil {

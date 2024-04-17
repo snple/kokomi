@@ -5,16 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net"
 	"sync"
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
 	"github.com/danclive/nson-go"
 	"github.com/quic-go/quic-go"
-	"github.com/snple/kokomi/consts"
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/kokomi/util"
 	"github.com/snple/types"
 )
@@ -28,18 +24,15 @@ type QuicService struct {
 	ctx     context.Context
 	cancel  func()
 	closeWG sync.WaitGroup
-
-	linkNum map[string]int
 }
 
 func newQuicService(es *EdgeService) (*QuicService, error) {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(es.Context())
 
 	s := &QuicService{
-		es:      es,
-		ctx:     ctx,
-		cancel:  cancel,
-		linkNum: make(map[string]int),
+		es:     es,
+		ctx:    ctx,
+		cancel: cancel,
 	}
 
 	return s, nil
@@ -54,8 +47,6 @@ func (s *QuicService) start() {
 	}
 
 	s.es.Logger().Info("start quic service")
-
-	go s.syncLinkStatus()
 
 	for {
 		select {
@@ -91,7 +82,7 @@ func (s *QuicService) loop() error {
 			var err error
 			conn, err = s.connect(s.ctx)
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("quic connect: %v", err)
+				s.es.Logger().Sugar().Infof("quic connect: %v", err)
 			}
 
 			return err
@@ -114,9 +105,9 @@ func (s *QuicService) loop() error {
 
 	ctx := conn.Context()
 	<-ctx.Done()
-	if !errors.Is(ctx.Err(), context.Canceled) {
-		s.es.Logger().Sugar().Errorf("break conn error: %v", ctx.Err())
-	}
+	// if !errors.Is(ctx.Err(), context.Canceled) {
+	s.es.Logger().Sugar().Debugf("break conn error: %v", ctx.Err())
+	// }
 
 	s.lock.Lock()
 	s.conn.Take()
@@ -142,7 +133,7 @@ func (s *QuicService) connect(ctx context.Context) (quic.Connection, error) {
 }
 
 func (s *QuicService) handshake(conn quic.Connection) error {
-	stream, err := conn.OpenStreamSync(context.Background())
+	stream, err := conn.OpenStreamSync(s.ctx)
 	if err != nil {
 		return err
 	}
@@ -153,12 +144,12 @@ func (s *QuicService) handshake(conn quic.Connection) error {
 			panic("node not enable")
 		}
 
-		wmessage := nson.Message{
+		request := nson.Map{
 			"method": nson.String("handshake"),
 			"token":  nson.String(option.Unwrap().GetToken()),
 		}
 
-		err = util.WriteNsonMessage(stream, wmessage)
+		err = util.WriteNsonMessage(stream, request)
 		if err != nil {
 			return err
 		}
@@ -170,12 +161,12 @@ func (s *QuicService) handshake(conn quic.Connection) error {
 	}
 
 	{
-		rmessage, err := util.ReadNsonMessage(stream)
+		response, err := util.ReadNsonMessage(stream)
 		if err != nil {
 			return err
 		}
 
-		code, err := rmessage.GetI32("code")
+		code, err := response.GetI32("code")
 		if err != nil {
 			return err
 		}
@@ -228,7 +219,7 @@ func (s *QuicService) handleStream(stream quic.Stream) error {
 		return err
 	}
 
-	rmessage, err := util.ReadNsonMessage(stream)
+	request, err := util.ReadNsonMessage(stream)
 	if err != nil {
 		return err
 	}
@@ -238,75 +229,24 @@ func (s *QuicService) handleStream(stream quic.Stream) error {
 		return err
 	}
 
-	portId, conn, err := s.openPort(rmessage)
+	method, err := request.GetString("method")
 	if err != nil {
-		wmessage := nson.Message{}
-		wmessage.Insert("code", nson.I32(400))
-		util.WriteNsonMessage(stream, wmessage)
-		return err
+		return fmt.Errorf("message format error: %v", err)
 	}
 
-	defer conn.Close()
-
-	wmessage := nson.Message{}
-	wmessage.Insert("code", nson.I32(0))
-	err = util.WriteNsonMessage(stream, wmessage)
-	if err != nil {
-		return err
+	switch method {
+	case "proxy":
+		if option := s.es.GetQuicProxy(); option.IsSome() {
+			return option.Unwrap().handleProxy(request, stream)
+		}
 	}
 
-	s.incLinkNum(portId)
-
-	errChan := make(chan error)
-	go quicStreamCopy1(stream, conn, errChan)
-	go quicStreamCopy2(conn, stream, errChan)
-
-	err = <-errChan
-	if err != nil {
-		s.es.Logger().Sugar().Errorf("stream.Copy error: %v", err)
+	response := nson.Map{
+		"code": nson.I32(404),
 	}
+	util.WriteNsonMessage(stream, response)
 
-	<-errChan
-
-	s.decLinkNum(portId)
-
-	return err
-}
-
-func (s *QuicService) openPort(rmessage nson.Message) (string, net.Conn, error) {
-	method, err := rmessage.GetString("method")
-	if err != nil {
-		return "", nil, err
-	}
-
-	portId, err := rmessage.GetString("port")
-	if err != nil {
-		return "", nil, err
-	}
-
-	if method != "proxy" || portId == "" {
-		return "", nil, errors.New(`method != "proxy" || portId == ""`)
-	}
-
-	port, err := s.es.GetPort().View(context.Background(), &pb.Id{Id: portId})
-	if err != nil {
-		return "", nil, fmt.Errorf("view port %v, err: %v", portId, err)
-	}
-
-	if port.GetStatus() != consts.ON {
-		return port.GetId(), nil, errors.New("port.status != consts.ON")
-	}
-
-	if port.GetNetwork() == "" || port.GetAddress() == "" {
-		return port.GetId(), nil, errors.New("port.network == '' || port.address == ''")
-	}
-
-	conn, err := net.DialTimeout(port.GetNetwork(), port.GetAddress(), time.Second*5)
-	if err != nil {
-		return port.GetId(), nil, err
-	}
-
-	return port.GetId(), conn, nil
+	return nil
 }
 
 func (s *QuicService) OpenStreamSync() (quic.Stream, error) {
@@ -314,78 +254,8 @@ func (s *QuicService) OpenStreamSync() (quic.Stream, error) {
 	defer s.lock.RUnlock()
 
 	if s.conn.IsSome() {
-		return s.conn.Unwrap().OpenStreamSync(context.Background())
+		return s.conn.Unwrap().OpenStreamSync(s.ctx)
 	}
 
 	return nil, errors.New("quic not connect")
-}
-
-func (s *QuicService) incLinkNum(portId string) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
-	if num, ok := s.linkNum[portId]; ok {
-		s.linkNum[portId] = num + 1
-	} else {
-		s.linkNum[portId] = 1
-	}
-}
-
-func (s *QuicService) decLinkNum(portId string) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
-	if num, ok := s.linkNum[portId]; ok {
-		if num-1 == 0 {
-			delete(s.linkNum, portId)
-		} else {
-			s.linkNum[portId] = num - 1
-		}
-	}
-}
-
-func (s *QuicService) syncLinkStatus() {
-	s.closeWG.Add(1)
-	defer s.closeWG.Done()
-
-	ticker := time.NewTicker(time.Duration(60) * time.Second)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-s.ctx.Done():
-			return
-		case <-ticker.C:
-			{
-				s.lock.RLock()
-				for portId, num := range s.linkNum {
-					go func(portId string, num int) {
-						request := edges.PortLinkRequest{Id: portId, Status: int32(num)}
-
-						ctx := context.Background()
-						s.es.GetPort().Link(ctx, &request)
-					}(portId, num)
-				}
-				s.lock.RUnlock()
-			}
-		}
-	}
-}
-
-func quicStreamCopy1(dst quic.Stream, src net.Conn, errCh chan error) {
-	_, err := io.Copy(dst, src)
-	errCh <- err
-
-	dst.CancelWrite(1)
-}
-
-func quicStreamCopy2(dst net.Conn, src quic.Stream, errCh chan error) {
-	_, err := io.Copy(dst, src)
-	errCh <- err
-
-	if tc, ok := dst.(*net.TCPConn); ok {
-		tc.CloseWrite()
-	} else if tc, ok := dst.(*net.UnixConn); ok {
-		tc.CloseWrite()
-	}
 }

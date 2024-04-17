@@ -28,138 +28,6 @@ func newProxyService(es *EdgeService) *ProxyService {
 	}
 }
 
-// func (s *ProxyService) Create(ctx context.Context, in *pb.Proxy) (*pb.Proxy, error) {
-// 	var output pb.Proxy
-// 	var err error
-
-// 	// basic validation
-// 	{
-// 		if in == nil {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-// 		}
-
-// 		if len(in.GetName()) == 0 {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Name")
-// 		}
-// 	}
-
-// 	// name validation
-// 	{
-// 		if len(in.GetName()) < 2 {
-// 			return &output, status.Error(codes.InvalidArgument, "Proxy.Name min 2 character")
-// 		}
-
-// 		err = s.es.GetDB().NewSelect().Model(&model.Proxy{}).Where("name = ?", in.GetName()).Scan(ctx)
-// 		if err != nil {
-// 			if err != sql.ErrNoRows {
-// 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
-// 			}
-// 		} else {
-// 			return &output, status.Error(codes.AlreadyExists, "Proxy.Name must be unique")
-// 		}
-// 	}
-
-// 	item := model.Proxy{
-// 		ID:      in.GetId(),
-// 		Name:    in.GetName(),
-// 		Desc:    in.GetDesc(),
-// 		Tags:    in.GetTags(),
-// 		Type:    in.GetType(),
-// 		Network: in.GetNetwork(),
-// 		Address: in.GetAddress(),
-// 		Target:  in.GetTarget(),
-// 		Config:  in.GetConfig(),
-// 		Status:  in.GetStatus(),
-// 		Created: time.Now(),
-// 		Updated: time.Now(),
-// 	}
-
-// 	if len(item.ID) == 0 {
-// 		item.ID = util.RandomID()
-// 	}
-
-// 	_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
-// 	if err != nil {
-// 		return &output, status.Errorf(codes.Internal, "Insert: %v", err)
-// 	}
-
-// 	if err = s.afterUpdate(ctx, &item); err != nil {
-// 		return &output, err
-// 	}
-
-// 	s.copyModelToOutput(&output, &item)
-
-// 	return &output, nil
-// }
-
-// func (s *ProxyService) Update(ctx context.Context, in *pb.Proxy) (*pb.Proxy, error) {
-// 	var output pb.Proxy
-// 	var err error
-
-// 	// basic validation
-// 	{
-// 		if in == nil {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-// 		}
-
-// 		if len(in.GetId()) == 0 {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
-// 		}
-
-// 		if len(in.GetName()) == 0 {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.Name")
-// 		}
-// 	}
-
-// 	item, err := s.ViewByID(ctx, in.GetId())
-// 	if err != nil {
-// 		return &output, err
-// 	}
-
-// 	// name validation
-// 	{
-// 		if len(in.GetName()) < 2 {
-// 			return &output, status.Error(codes.InvalidArgument, "Proxy.Name min 2 character")
-// 		}
-
-// 		modelItem := model.Proxy{}
-// 		err = s.es.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
-// 		if err != nil {
-// 			if err != sql.ErrNoRows {
-// 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
-// 			}
-// 		} else {
-// 			if modelItem.ID != item.ID {
-// 				return &output, status.Error(codes.AlreadyExists, "Proxy.Name must be unique")
-// 			}
-// 		}
-// 	}
-
-// 	item.Name = in.GetName()
-// 	item.Desc = in.GetDesc()
-// 	item.Tags = in.GetTags()
-// 	item.Type = in.GetType()
-// 	item.Network = in.GetNetwork()
-// 	item.Address = in.GetAddress()
-// 	item.Target = in.GetTarget()
-// 	item.Config = in.GetConfig()
-// 	item.Status = in.GetStatus()
-// 	item.Updated = time.Now()
-
-// 	_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
-// 	if err != nil {
-// 		return &output, status.Errorf(codes.Internal, "Update: %v", err)
-// 	}
-
-// 	if err = s.afterUpdate(ctx, &item); err != nil {
-// 		return &output, err
-// 	}
-
-// 	s.copyModelToOutput(&output, &item)
-
-// 	return &output, nil
-// }
-
 func (s *ProxyService) View(ctx context.Context, in *pb.Id) (*pb.Proxy, error) {
 	var output pb.Proxy
 	var err error
@@ -209,43 +77,6 @@ func (s *ProxyService) Name(ctx context.Context, in *pb.Name) (*pb.Proxy, error)
 
 	return &output, nil
 }
-
-// func (s *ProxyService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
-// 	var err error
-// 	var output pb.MyBool
-
-// 	// basic validation
-// 	{
-// 		if in == nil {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-// 		}
-
-// 		if len(in.GetId()) == 0 {
-// 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
-// 		}
-// 	}
-
-// 	item, err := s.ViewByID(ctx, in.GetId())
-// 	if err != nil {
-// 		return &output, err
-// 	}
-
-// 	item.Updated = time.Now()
-// 	item.Deleted = time.Now()
-
-// 	_, err = s.es.GetDB().NewUpdate().Model(&item).Column("updated", "deleted").WherePK().Exec(ctx)
-// 	if err != nil {
-// 		return &output, status.Errorf(codes.Internal, "Delete: %v", err)
-// 	}
-
-// 	if err = s.afterDelete(ctx, &item); err != nil {
-// 		return &output, err
-// 	}
-
-// 	output.Bool = true
-
-// 	return &output, nil
-// }
 
 func (s *ProxyService) List(ctx context.Context, in *edges.ProxyListRequest) (*edges.ProxyListResponse, error) {
 	var err error
@@ -362,48 +193,6 @@ func (s *ProxyService) Link(ctx context.Context, in *edges.ProxyLinkRequest) (*p
 				return &output, err
 			}
 		}
-	}
-
-	output.Bool = true
-
-	return &output, nil
-}
-
-func (s *ProxyService) Clone(ctx context.Context, in *edges.ProxyCloneRequest) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if len(in.GetId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Proxy.ID")
-		}
-	}
-
-	tx, err := s.es.GetDB().BeginTx(ctx, nil)
-	if err != nil {
-		return &output, status.Errorf(codes.Internal, "BeginTx: %v", err)
-	}
-	var done bool
-	defer func() {
-		if !done {
-			_ = tx.Rollback()
-		}
-	}()
-
-	err = s.es.getClone().proxy(ctx, tx, in.GetId())
-	if err != nil {
-		return &output, err
-	}
-
-	done = true
-	err = tx.Commit()
-	if err != nil {
-		return &output, status.Errorf(codes.Internal, "Commit: %v", err)
 	}
 
 	output.Bool = true
@@ -647,6 +436,7 @@ SKIP:
 			Status:  in.GetStatus(),
 			Created: time.UnixMicro(in.GetCreated()),
 			Updated: time.UnixMicro(in.GetUpdated()),
+			Deleted: time.UnixMicro(in.GetDeleted()),
 		}
 
 		_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -689,6 +479,7 @@ SKIP:
 		item.Target = in.GetTarget()
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
+		item.Created = time.UnixMicro(in.GetCreated())
 		item.Updated = time.UnixMicro(in.GetUpdated())
 		item.Deleted = time.UnixMicro(in.GetDeleted())
 

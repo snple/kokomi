@@ -113,15 +113,16 @@ func (s *QuicService) acceptConn() error {
 		go func() {
 			err := s.handleConn(conn)
 			if err != nil {
-				if !errors.Is(err, context.Canceled) {
-					s.ns.Logger().Sugar().Errorf("QuicService.handleConn(conn) error: %v", err)
-				}
+				s.ns.Logger().Sugar().Debugf("QuicService.handleConn(conn) error: %v", err)
 			}
 		}()
 	}
 }
 
 func (s *QuicService) handleConn(conn quic.Connection) error {
+	s.closeWG.Add(1)
+	defer s.closeWG.Done()
+
 	defer conn.CloseWithError(1, "break")
 
 	deviceID, err := s.handshake(conn)
@@ -148,18 +149,21 @@ func (s *QuicService) handshake(conn quic.Connection) (string, error) {
 		return "", err
 	}
 
-	wmessage := nson.Message{}
-
 	deviceId, err := s.validate(stream)
 	if err != nil {
-		wmessage.Insert("code", nson.I32(400))
-		util.WriteNsonMessage(stream, wmessage)
+		response := nson.Map{
+			"code": nson.I32(400),
+		}
+
+		util.WriteNsonMessage(stream, response)
 		return "", err
 	}
 
-	wmessage.Insert("code", nson.I32(0))
+	response := nson.Map{
+		"code": nson.I32(0),
+	}
 
-	err = util.WriteNsonMessage(stream, wmessage)
+	err = util.WriteNsonMessage(stream, response)
 	if err != nil {
 		return "", err
 	}
@@ -175,7 +179,7 @@ func (s *QuicService) validate(stream quic.Stream) (string, error) {
 		return "", err
 	}
 
-	rmessage, err := util.ReadNsonMessage(stream)
+	request, err := util.ReadNsonMessage(stream)
 	if err != nil {
 		return "", err
 	}
@@ -185,18 +189,18 @@ func (s *QuicService) validate(stream quic.Stream) (string, error) {
 		return "", err
 	}
 
-	method, err := rmessage.GetString("method")
+	method, err := request.GetString("method")
 	if err != nil {
-		return "", fmt.Errorf("rmessage.GetString('method') error: %v", err)
+		return "", fmt.Errorf("request.GetString('method') error: %v", err)
 	}
 
 	if method != "handshake" {
 		return "", fmt.Errorf("method != 'handshake'")
 	}
 
-	tks, err := rmessage.GetString("token")
+	tks, err := request.GetString("token")
 	if err != nil {
-		return "", fmt.Errorf("rmessage.GetString('token') error: %v", err)
+		return "", fmt.Errorf("request.GetString('token') error: %v", err)
 	}
 
 	ok, deviceId := token.ValidateDeviceToken(tks)
@@ -221,12 +225,12 @@ func (s *QuicService) ping(conn quic.Connection, stream quic.Stream, deviceId st
 	defer stream.Close()
 
 	handle := func() error {
-		wmessage := nson.Message{
+		request := nson.Map{
 			"method": nson.String("ping"),
 			"t":      nson.I64(time.Now().UnixMilli()),
 		}
 
-		err := util.WriteNsonMessage(stream, wmessage)
+		err := util.WriteNsonMessage(stream, request)
 		if err != nil {
 			return err
 		}
@@ -236,7 +240,7 @@ func (s *QuicService) ping(conn quic.Connection, stream quic.Stream, deviceId st
 			return err
 		}
 
-		rmessage, err := util.ReadNsonMessage(stream)
+		response, err := util.ReadNsonMessage(stream)
 		if err != nil {
 			return err
 		}
@@ -246,7 +250,7 @@ func (s *QuicService) ping(conn quic.Connection, stream quic.Stream, deviceId st
 			return err
 		}
 
-		method, err := rmessage.GetString("method")
+		method, err := response.GetString("method")
 		if err != nil {
 			return err
 		}
@@ -255,7 +259,7 @@ func (s *QuicService) ping(conn quic.Connection, stream quic.Stream, deviceId st
 			return errors.New("rtt method != 'ping'")
 		}
 
-		t, err := rmessage.GetI64("t")
+		t, err := response.GetI64("t")
 		if err != nil {
 			return err
 		}
@@ -283,6 +287,8 @@ func (s *QuicService) ping(conn quic.Connection, stream quic.Stream, deviceId st
 }
 
 func (s *QuicService) accept(conn quic.Connection, deviceId string) error {
+	defer conn.CloseWithError(1, "exit")
+
 	for {
 		stream, err := conn.AcceptStream(s.ctx)
 		if err != nil {
@@ -306,7 +312,7 @@ func (s *QuicService) handleStream(stream quic.Stream, deviceId string) error {
 		return err
 	}
 
-	rmessage, err := util.ReadNsonMessage(stream)
+	request, err := util.ReadNsonMessage(stream)
 	if err != nil {
 		return err
 	}
@@ -316,11 +322,12 @@ func (s *QuicService) handleStream(stream quic.Stream, deviceId string) error {
 		return err
 	}
 
-	stream2, err := s.openStream(rmessage, deviceId)
+	stream2, err := s.openStream(request, deviceId)
 	if err != nil {
-		wmessage := nson.Message{}
-		wmessage.Insert("code", nson.I32(400))
-		util.WriteNsonMessage(stream, wmessage)
+		response := nson.Map{
+			"code": nson.I32(400),
+		}
+		util.WriteNsonMessage(stream, response)
 		return err
 	}
 
@@ -340,13 +347,13 @@ func (s *QuicService) handleStream(stream quic.Stream, deviceId string) error {
 	return err
 }
 
-func (s *QuicService) openStream(rmessage nson.Message, deviceId string) (quic.Stream, error) {
-	method, err := rmessage.GetString("method")
+func (s *QuicService) openStream(request nson.Map, deviceId string) (quic.Stream, error) {
+	method, err := request.GetString("method")
 	if err != nil {
 		return nil, err
 	}
 
-	proxyId, err := rmessage.GetString("proxy")
+	proxyId, err := request.GetString("proxy")
 	if err != nil {
 		return nil, err
 	}
@@ -391,13 +398,13 @@ func (s *QuicService) openStream(rmessage nson.Message, deviceId string) (quic.S
 			return nil, err
 		}
 
-		wmessage := nson.Message{
+		request := nson.Map{
 			"method": nson.String("proxy"),
 			"proxy":  nson.String(proxy.GetId()),
 			"port":   nson.String(port.GetId()),
 		}
 
-		err = util.WriteNsonMessage(stream2, wmessage)
+		err = util.WriteNsonMessage(stream2, request)
 		if err != nil {
 			stream2.Close()
 			return nil, err

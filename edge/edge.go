@@ -35,9 +35,9 @@ type EdgeService struct {
 	save     types.Option[*SaveService]
 	control  *ControlService
 
-	node   types.Option[*NodeService]
-	quic   types.Option[*QuicService]
-	tunnel types.Option[*TunnelService]
+	node      types.Option[*NodeService]
+	quic      types.Option[*QuicService]
+	quicProxy types.Option[*QuicProxyService]
 
 	clone *cloneService
 
@@ -120,7 +120,7 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 
 			es.quic = types.Some(quic)
 
-			es.tunnel = types.Some(newTunnelService(es))
+			es.quicProxy = types.Some(newQuicProxyService(es))
 		}
 	}
 
@@ -158,12 +158,12 @@ func (es *EdgeService) Start() {
 		}()
 	}
 
-	if es.tunnel.IsSome() {
+	if es.quicProxy.IsSome() {
 		go func() {
 			es.closeWG.Add(1)
 			defer es.closeWG.Done()
 
-			es.tunnel.Unwrap().start()
+			es.quicProxy.Unwrap().start()
 		}()
 	}
 
@@ -191,8 +191,8 @@ func (es *EdgeService) Stop() {
 		es.save.Unwrap().stop()
 	}
 
-	if es.tunnel.IsSome() {
-		es.tunnel.Unwrap().stop()
+	if es.quicProxy.IsSome() {
+		es.quicProxy.Unwrap().stop()
 	}
 
 	if es.quic.IsSome() {
@@ -296,6 +296,10 @@ func (es *EdgeService) GetNode() types.Option[*NodeService] {
 
 func (es *EdgeService) GetQuic() types.Option[*QuicService] {
 	return es.quic
+}
+
+func (es *EdgeService) GetQuicProxy() types.Option[*QuicProxyService] {
+	return es.quicProxy
 }
 
 func (es *EdgeService) getClone() *cloneService {
