@@ -479,7 +479,6 @@ SKIP:
 		item.Target = in.GetTarget()
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
-		item.Created = time.UnixMicro(in.GetCreated())
 		item.Updated = time.UnixMicro(in.GetUpdated())
 		item.Deleted = time.UnixMicro(in.GetDeleted())
 

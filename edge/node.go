@@ -170,8 +170,8 @@ func (s *NodeService) loop() {
 	s.es.Logger().Sugar().Info("device login success")
 
 	s.DeviceLink(s.ctx)
-	s.connect(true)
-	defer s.connect(false)
+	s.link(true)
+	defer s.link(false)
 
 	if err := s.sync(s.ctx); err != nil {
 		s.es.Logger().Sugar().Errorf("sync: %v", err)
@@ -198,11 +198,11 @@ func (s *NodeService) loop() {
 	}
 }
 
-func (s *NodeService) IsConnected() bool {
+func (s *NodeService) IsLinked() bool {
 	return s.es.GetStatus().GetDeviceLink() == consts.ON
 }
 
-func (s *NodeService) connect(value bool) {
+func (s *NodeService) link(value bool) {
 	if value {
 		s.es.GetStatus().SetDeviceLink(consts.ON)
 	} else {
@@ -228,7 +228,7 @@ func (s *NodeService) ticker() {
 		case <-s.ctx.Done():
 			return
 		case <-tokenRefreshTicker.C:
-			if s.IsConnected() {
+			if s.IsLinked() {
 				err := s.login(s.ctx)
 				if err != nil {
 					s.es.Logger().Sugar().Errorf("device login: %v", err)
@@ -236,7 +236,7 @@ func (s *NodeService) ticker() {
 			}
 		case <-linkStatusTicker.C:
 			if option := s.es.GetQuic(); option.IsNone() {
-				if s.IsConnected() {
+				if s.IsLinked() {
 					err := s.DeviceLink(s.ctx)
 					if err != nil {
 						s.es.Logger().Sugar().Errorf("link device : %v", err)
@@ -246,7 +246,7 @@ func (s *NodeService) ticker() {
 				}
 			}
 		case <-syncTicker.C:
-			if s.IsConnected() {
+			if s.IsLinked() {
 				if err := s.sync(s.ctx); err != nil {
 					s.es.Logger().Sugar().Errorf("sync: %v", err)
 				}

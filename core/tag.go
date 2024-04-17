@@ -789,6 +789,7 @@ SKIP:
 			Save:     in.GetSave(),
 			Created:  time.UnixMicro(in.GetCreated()),
 			Updated:  time.UnixMicro(in.GetUpdated()),
+			Deleted:  time.UnixMicro(in.GetDeleted()),
 		}
 
 		_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)

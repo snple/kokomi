@@ -705,6 +705,7 @@ SKIP:
 			Save:     in.GetSave(),
 			Created:  time.UnixMicro(in.GetCreated()),
 			Updated:  time.UnixMicro(in.GetUpdated()),
+			Deleted:  time.UnixMicro(in.GetDeleted()),
 		}
 
 		// source validation
