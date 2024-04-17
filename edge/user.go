@@ -373,11 +373,11 @@ func (s *UserService) copyModelToOutput(output *pb.User, item *model.User) {
 	output.Deleted = item.Deleted.UnixMicro()
 }
 
-func (s *UserService) afterUpdate(ctx context.Context, item *model.User) error {
+func (s *UserService) afterUpdate(_ context.Context, _ *model.User) error {
 	return nil
 }
 
-func (s *UserService) afterDelete(ctx context.Context, item *model.User) error {
+func (s *UserService) afterDelete(_ context.Context, _ *model.User) error {
 	return nil
 }
 
