@@ -11,7 +11,6 @@ import (
 	"github.com/snple/kokomi/pb/slots"
 	"github.com/snple/kokomi/util/metadata"
 	"github.com/snple/kokomi/util/token"
-	"github.com/snple/rgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -26,7 +25,6 @@ type SlotService struct {
 	source   *SourceService
 	tag      *TagService
 	constant *ConstService
-	rgrpc    *RgrpcService
 
 	ctx     context.Context
 	cancel  func()
@@ -60,7 +58,6 @@ func Slot(es *edge.EdgeService, opts ...SlotOption) (*SlotService, error) {
 	ss.source = newSourceService(ss)
 	ss.tag = newTagService(ss)
 	ss.constant = newConstService(ss)
-	ss.rgrpc = newRgrpcService(ss)
 
 	return ss, nil
 }
@@ -93,7 +90,6 @@ func (ss *SlotService) RegisterGrpc(server *grpc.Server) {
 	slots.RegisterSourceServiceServer(server, ss.source)
 	slots.RegisterTagServiceServer(server, ss.tag)
 	slots.RegisterConstServiceServer(server, ss.constant)
-	rgrpc.RegisterRgrpcServiceServer(server, ss.rgrpc)
 }
 
 type slotOptions struct {

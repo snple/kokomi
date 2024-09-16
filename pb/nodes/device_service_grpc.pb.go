@@ -26,6 +26,7 @@ const (
 	DeviceService_Link_FullMethodName            = "/nodes.DeviceService/Link"
 	DeviceService_ViewWithDeleted_FullMethodName = "/nodes.DeviceService/ViewWithDeleted"
 	DeviceService_Sync_FullMethodName            = "/nodes.DeviceService/Sync"
+	DeviceService_KeepAlive_FullMethodName       = "/nodes.DeviceService/KeepAlive"
 )
 
 // DeviceServiceClient is the client API for DeviceService service.
@@ -38,6 +39,7 @@ type DeviceServiceClient interface {
 	Link(ctx context.Context, in *DeviceLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*pb.Device, error)
 	Sync(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.MyBool, error)
+	KeepAlive(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
 }
 
 type deviceServiceClient struct {
@@ -108,6 +110,25 @@ func (c *deviceServiceClient) Sync(ctx context.Context, in *pb.Device, opts ...g
 	return out, nil
 }
 
+func (c *deviceServiceClient) KeepAlive(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &DeviceService_ServiceDesc.Streams[0], DeviceService_KeepAlive_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[pb.MyEmpty, pb.MyBool]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type DeviceService_KeepAliveClient = grpc.ServerStreamingClient[pb.MyBool]
+
 // DeviceServiceServer is the server API for DeviceService service.
 // All implementations must embed UnimplementedDeviceServiceServer
 // for forward compatibility.
@@ -118,6 +139,7 @@ type DeviceServiceServer interface {
 	Link(context.Context, *DeviceLinkRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.MyEmpty) (*pb.Device, error)
 	Sync(context.Context, *pb.Device) (*pb.MyBool, error)
+	KeepAlive(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
 	mustEmbedUnimplementedDeviceServiceServer()
 }
 
@@ -145,6 +167,9 @@ func (UnimplementedDeviceServiceServer) ViewWithDeleted(context.Context, *pb.MyE
 }
 func (UnimplementedDeviceServiceServer) Sync(context.Context, *pb.Device) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
+}
+func (UnimplementedDeviceServiceServer) KeepAlive(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error {
+	return status.Errorf(codes.Unimplemented, "method KeepAlive not implemented")
 }
 func (UnimplementedDeviceServiceServer) mustEmbedUnimplementedDeviceServiceServer() {}
 func (UnimplementedDeviceServiceServer) testEmbeddedByValue()                       {}
@@ -275,6 +300,17 @@ func _DeviceService_Sync_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DeviceService_KeepAlive_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(pb.MyEmpty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(DeviceServiceServer).KeepAlive(m, &grpc.GenericServerStream[pb.MyEmpty, pb.MyBool]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type DeviceService_KeepAliveServer = grpc.ServerStreamingServer[pb.MyBool]
+
 // DeviceService_ServiceDesc is the grpc.ServiceDesc for DeviceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -307,6 +343,12 @@ var DeviceService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _DeviceService_Sync_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "KeepAlive",
+			Handler:       _DeviceService_KeepAlive_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "nodes/device_service.proto",
 }

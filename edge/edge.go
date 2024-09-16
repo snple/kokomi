@@ -30,7 +30,6 @@ type EdgeService struct {
 	source   *SourceService
 	tag      *TagService
 	constant *ConstService
-	control  *ControlService
 
 	node      types.Option[*NodeService]
 	quic      types.Option[*QuicService]
@@ -91,8 +90,6 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 	es.source = newSourceService(es)
 	es.tag = newTagService(es)
 	es.constant = newConstService(es)
-
-	es.control = newControlService(es)
 
 	if es.dopts.NodeOptions.Enable {
 		node, err := newNodeService(es)
@@ -243,10 +240,6 @@ func (es *EdgeService) GetConst() *ConstService {
 	return es.constant
 }
 
-func (es *EdgeService) GetControl() *ControlService {
-	return es.control
-}
-
 func (es *EdgeService) GetNode() types.Option[*NodeService] {
 	return es.node
 }
@@ -300,7 +293,6 @@ func (es *EdgeService) Register(server *grpc.Server) {
 	edges.RegisterSourceServiceServer(server, es.source)
 	edges.RegisterTagServiceServer(server, es.tag)
 	edges.RegisterConstServiceServer(server, es.constant)
-	edges.RegisterControlServiceServer(server, es.control)
 }
 
 func CreateSchema(db bun.IDB) error {

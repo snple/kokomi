@@ -84,10 +84,6 @@ func main() {
 	// service.TagGetValue(ctx, tag)
 	// service.TagSetValue(ctx, tag)
 
-	// control := cores.NewControlServiceClient(conn)
-	// service.ControlGetTagValue(ctx, control)
-	// service.ControlSetTagValue(ctx, control)
-
 	// sync := cores.NewSyncServiceClient(conn)
 	// service.SetDeviceUpdated(ctx, sync)
 }

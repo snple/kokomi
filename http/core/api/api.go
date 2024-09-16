@@ -18,7 +18,6 @@ type ApiService struct {
 	source   *SourceService
 	tag      *TagService
 	constant *ConstService
-	control  *ControlService
 
 	ctx     context.Context
 	cancel  func()
@@ -49,7 +48,6 @@ func NewApiService(cs *core.CoreService, opts ...ApiOption) (*ApiService, error)
 	s.source = newSourceService(s)
 	s.tag = newTagService(s)
 	s.constant = newConstService(s)
-	s.control = newControlService(s)
 
 	return s, nil
 }
@@ -59,7 +57,6 @@ func (s *ApiService) Register(router gin.IRouter) {
 	s.source.register(router)
 	s.tag.register(router)
 	s.constant.register(router)
-	s.control.register(router)
 }
 
 func (s *ApiService) Start() {

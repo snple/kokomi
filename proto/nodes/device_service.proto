@@ -29,4 +29,5 @@ service DeviceService {
     rpc Link(DeviceLinkRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.MyEmpty) returns (pb.Device) {}
     rpc Sync(pb.Device) returns (pb.MyBool) {}
+    rpc KeepAlive(pb.MyEmpty) returns (stream pb.MyBool) {}
 }

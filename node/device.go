@@ -231,3 +231,23 @@ func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, er
 
 	return s.ns.Core().GetDevice().Sync(ctx, in)
 }
+
+func (s *DeviceService) KeepAlive(in *pb.MyEmpty, stream nodes.DeviceService_KeepAliveServer) error {
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(stream.Context())
+	if err != nil {
+		return err
+	}
+
+	<-stream.Context().Done()
+
+	return stream.Context().Err()
+}

@@ -26,7 +26,6 @@ type CoreService struct {
 	source      *SourceService
 	tag         *TagService
 	constant    *ConstService
-	control     *ControlService
 
 	clone *cloneService
 
@@ -76,8 +75,6 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.source = newSourceService(cs)
 	cs.tag = newTagService(cs)
 	cs.constant = newConstService(cs)
-
-	cs.control = newControlService(cs)
 
 	cs.clone = newCloneService(cs)
 
@@ -144,10 +141,6 @@ func (cs *CoreService) GetConst() *ConstService {
 	return cs.constant
 }
 
-func (cs *CoreService) GetControl() *ControlService {
-	return cs.control
-}
-
 func (cs *CoreService) getClone() *cloneService {
 	return cs.clone
 }
@@ -203,7 +196,6 @@ func (cs *CoreService) Register(server *grpc.Server) {
 	cores.RegisterSourceServiceServer(server, cs.source)
 	cores.RegisterTagServiceServer(server, cs.tag)
 	cores.RegisterConstServiceServer(server, cs.constant)
-	cores.RegisterControlServiceServer(server, cs.control)
 
 	cores.RegisterAuthServiceServer(server, cs.auth)
 	cores.RegisterUserServiceServer(server, cs.user)

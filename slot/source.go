@@ -163,7 +163,7 @@ func (s *SourceService) Link(ctx context.Context, in *slots.SourceLinkRequest) (
 		}
 	}
 
-	slotID, err := validateToken(ctx)
+	_, err = validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -174,8 +174,6 @@ func (s *SourceService) Link(ctx context.Context, in *slots.SourceLinkRequest) (
 	if err != nil {
 		return &output, err
 	}
-
-	s.ss.Edge().GetControl().SourceLink(slotID, in.GetId(), in.GetStatus())
 
 	return reply, nil
 }

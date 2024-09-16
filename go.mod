@@ -18,7 +18,6 @@ require (
 	github.com/onsi/ginkgo/v2 v2.20.2
 	github.com/onsi/gomega v1.34.2
 	github.com/quic-go/quic-go v0.46.0
-	github.com/snple/rgrpc v0.2.0
 	github.com/snple/types v0.2.1
 	github.com/uptrace/bun v1.2.3
 	github.com/uptrace/bun/dialect/sqlitedialect v1.2.3

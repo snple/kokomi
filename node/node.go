@@ -9,7 +9,6 @@ import (
 	"github.com/quic-go/quic-go"
 	"github.com/snple/kokomi/core"
 	"github.com/snple/kokomi/pb/nodes"
-	"github.com/snple/rgrpc"
 	"github.com/snple/types"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -27,7 +26,6 @@ type NodeService struct {
 	source      *SourceService
 	tag         *TagService
 	constant    *ConstService
-	rgrpc       *RgrpcService
 	quic        types.Option[*QuicService]
 
 	auth *AuthService
@@ -67,7 +65,6 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 	ns.source = newSourceService(ns)
 	ns.tag = newTagService(ns)
 	ns.constant = newConstService(ns)
-	ns.rgrpc = newRgrpcService(ns)
 
 	if ns.dopts.QuicOptions.enable {
 		quic, err := newQuicService(ns)
@@ -126,7 +123,6 @@ func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 	nodes.RegisterSourceServiceServer(server, ns.source)
 	nodes.RegisterTagServiceServer(server, ns.tag)
 	nodes.RegisterConstServiceServer(server, ns.constant)
-	rgrpc.RegisterRgrpcServiceServer(server, ns.rgrpc)
 
 	nodes.RegisterAuthServiceServer(server, ns.auth)
 	nodes.RegisterUserServiceServer(server, ns.user)

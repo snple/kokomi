@@ -10,10 +10,8 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"github.com/snple/kokomi/consts"
 	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/edges"
 	"github.com/snple/kokomi/pb/nodes"
 	"github.com/snple/kokomi/util/metadata"
-	"github.com/snple/rgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -27,8 +25,6 @@ type NodeService struct {
 	token string
 	lock  sync.RWMutex
 
-	handlerMap rgrpc.HandlerMap
-
 	ctx     context.Context
 	cancel  func()
 	closeWG sync.WaitGroup
@@ -39,7 +35,7 @@ func newNodeService(es *EdgeService) (*NodeService, error) {
 
 	es.Logger().Sugar().Infof("link node service: %v", es.dopts.NodeOptions.Addr)
 
-	nodeConn, err := grpc.Dial(es.dopts.NodeOptions.Addr, es.dopts.NodeOptions.GRPCOptions...)
+	nodeConn, err := grpc.NewClient(es.dopts.NodeOptions.Addr, es.dopts.NodeOptions.GRPCOptions...)
 	if err != nil {
 		return nil, err
 	}
@@ -47,14 +43,11 @@ func newNodeService(es *EdgeService) (*NodeService, error) {
 	ctx, cancel := context.WithCancel(es.Context())
 
 	s := &NodeService{
-		es:         es,
-		NodeConn:   nodeConn,
-		handlerMap: rgrpc.HandlerMap{},
-		ctx:        ctx,
-		cancel:     cancel,
+		es:       es,
+		NodeConn: nodeConn,
+		ctx:      ctx,
+		cancel:   cancel,
 	}
-
-	edges.RegisterControlServiceServer(s.handlerMap, s.es.GetControl())
 
 	return s, nil
 }
@@ -66,6 +59,13 @@ func (s *NodeService) start() {
 	s.es.Logger().Sugar().Info("node service started")
 
 	go s.ticker()
+
+	if s.es.dopts.SyncOptions.Realtime {
+		go s.waitRemoteDeviceUpdated()
+		go s.waitLocalDeviceUpdated()
+		go s.waitRemoteTagValueUpdated()
+		go s.waitLocalTagValueUpdated()
+	}
 
 	for {
 		select {
@@ -179,22 +179,31 @@ func (s *NodeService) loop() {
 		return
 	}
 
-	if s.es.dopts.SyncOptions.Realtime {
-		go s.waitRemoteDeviceUpdated()
-		go s.waitLocalDeviceUpdated()
-		go s.waitRemoteTagValueUpdated()
-		go s.waitLocalTagValueUpdated()
+	ctx, cancel := context.WithTimeout(s.ctx, 10*time.Second)
+	defer cancel()
+
+	stream, err := s.DeviceServiceClient().KeepAlive(ctx, &pb.MyEmpty{})
+	if err != nil {
+		s.es.Logger().Sugar().Errorf("KeepAlive: %v", err)
+		return
 	}
 
-	err = s.linkRgrpc(s.ctx)
-	if err != nil {
-		if code, ok := status.FromError(err); ok {
-			if code.Code() == codes.Canceled {
-				return
+	for {
+		_, err := stream.Recv()
+		if err != nil {
+			if err == io.EOF {
+				break
 			}
-		}
 
-		s.es.Logger().Sugar().Errorf("link rgrpc: %v", err)
+			if code, ok := status.FromError(err); ok {
+				if code.Code() == codes.Canceled {
+					return
+				}
+			}
+
+			s.es.Logger().Sugar().Errorf("KeepAlive.Recv(): %v", err)
+			return
+		}
 	}
 }
 
@@ -287,10 +296,6 @@ func (s *NodeService) ConstServiceClient() nodes.ConstServiceClient {
 	return nodes.NewConstServiceClient(s.NodeConn)
 }
 
-func (s *NodeService) RrpcServiceClient() rgrpc.RgrpcServiceClient {
-	return rgrpc.NewRgrpcServiceClient(s.NodeConn)
-}
-
 func (s *NodeService) GetToken() string {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
@@ -313,20 +318,6 @@ func (s *NodeService) DeviceLink(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (s *NodeService) linkRgrpc(ctx context.Context) error {
-	ctx = metadata.SetToken(ctx, s.GetToken())
-
-	stream, err := s.RrpcServiceClient().OpenRgrpc(ctx)
-	if err != nil {
-		return err
-	}
-	defer stream.CloseSend()
-
-	s.es.Logger().Sugar().Info("link rgrpc success")
-
-	return rgrpc.Serve(stream, s.handlerMap, func() bool { return false })
 }
 
 func (s *NodeService) login(ctx context.Context) error {
