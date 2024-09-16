@@ -74,21 +74,6 @@ func main() {
 
 	coreOpts := make([]core.CoreOption, 0)
 
-	if config.Config.InfluxDB.Enable {
-		influxdb, err := db.ConnectInfluxDB(
-			config.Config.InfluxDB.Url,
-			config.Config.InfluxDB.Org,
-			config.Config.InfluxDB.Bucket,
-			config.Config.InfluxDB.Token,
-		)
-		if err != nil {
-			log.Logger.Sugar().Fatalf("connecting to db: %v", err)
-		}
-		defer influxdb.Close()
-
-		coreOpts = append(coreOpts, core.WithInfluxDB(influxdb))
-	}
-
 	cs, err := core.Core(bundb, coreOpts...)
 	if err != nil {
 		log.Logger.Sugar().Fatalf("NewCoreService: %v", err)

@@ -7,9 +7,7 @@ import (
 	"time"
 
 	"github.com/snple/kokomi/core/model"
-	"github.com/snple/kokomi/db"
 	"github.com/snple/kokomi/pb/cores"
-	"github.com/snple/types"
 	"github.com/uptrace/bun"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -28,7 +26,6 @@ type CoreService struct {
 	source      *SourceService
 	tag         *TagService
 	constant    *ConstService
-	save        types.Option[*SaveService]
 	control     *ControlService
 
 	clone *cloneService
@@ -80,10 +77,6 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.tag = newTagService(cs)
 	cs.constant = newConstService(cs)
 
-	if cs.dopts.save {
-		cs.save = types.Some(newSaveService(cs))
-	}
-
 	cs.control = newControlService(cs)
 
 	cs.clone = newCloneService(cs)
@@ -95,15 +88,6 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 }
 
 func (cs *CoreService) Start() {
-	if cs.save.IsSome() {
-		go func() {
-			cs.closeWG.Add(1)
-			defer cs.closeWG.Done()
-
-			cs.save.Unwrap().start()
-		}()
-	}
-
 	if cs.dopts.cache {
 		go cs.cacheGC()
 	}
@@ -112,24 +96,12 @@ func (cs *CoreService) Start() {
 func (cs *CoreService) Stop() {
 	cs.cancel()
 
-	if cs.save.IsSome() {
-		cs.save.Unwrap().stop()
-	}
-
 	cs.closeWG.Wait()
 	cs.dopts.logger.Sync()
 }
 
 func (cs *CoreService) GetDB() *bun.DB {
 	return cs.db
-}
-
-func (cs *CoreService) GetInfluxDB() types.Option[*db.InfluxDB] {
-	if cs.dopts.influxdb != nil {
-		return types.Some(cs.dopts.influxdb)
-	}
-
-	return types.None[*db.InfluxDB]()
 }
 
 func (cs *CoreService) GetStatus() *StatusService {
@@ -170,10 +142,6 @@ func (cs *CoreService) GetTag() *TagService {
 
 func (cs *CoreService) GetConst() *ConstService {
 	return cs.constant
-}
-
-func (cs *CoreService) GetSave() types.Option[*SaveService] {
-	return cs.save
 }
 
 func (cs *CoreService) GetControl() *ControlService {
@@ -271,8 +239,6 @@ type coreOptions struct {
 	cache        bool
 	cacheTTL     time.Duration
 	cacheGCTTL   time.Duration
-	influxdb     *db.InfluxDB
-	save         bool
 	saveInterval time.Duration
 }
 
@@ -288,7 +254,6 @@ func defaultCoreOptions() coreOptions {
 		cache:        true,
 		cacheTTL:     3 * time.Second,
 		cacheGCTTL:   3 * time.Hour,
-		save:         true,
 		saveInterval: time.Minute,
 	}
 }
@@ -340,18 +305,6 @@ func WithCacheTTL(d time.Duration) CoreOption {
 func WithCacheGCTTL(d time.Duration) CoreOption {
 	return newFuncCoreOption(func(o *coreOptions) {
 		o.cacheGCTTL = d
-	})
-}
-
-func WithInfluxDB(influxdb *db.InfluxDB) CoreOption {
-	return newFuncCoreOption(func(o *coreOptions) {
-		o.influxdb = influxdb
-	})
-}
-
-func WithSave(enable bool) CoreOption {
-	return newFuncCoreOption(func(o *coreOptions) {
-		o.save = enable
 	})
 }
 

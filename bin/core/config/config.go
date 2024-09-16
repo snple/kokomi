@@ -12,7 +12,6 @@ import (
 type ConfigStruct struct {
 	Debug       bool        `toml:"debug"`
 	DB          DB          `toml:"db"`
-	InfluxDB    InfluxDB    `toml:"influxdb"`
 	CoreService GRPCService `toml:"core"`
 	NodeService GRPCService `toml:"node"`
 	QuicService QuicService `toml:"quic"`
@@ -26,14 +25,6 @@ type ConfigStruct struct {
 type DB struct {
 	Debug bool   `toml:"debug"`
 	File  string `toml:"file"`
-}
-
-type InfluxDB struct {
-	Enable bool   `toml:"enable"`
-	Url    string `toml:"url"`
-	Org    string `toml:"org"`
-	Bucket string `toml:"bucket"`
-	Token  string `toml:"token"`
 }
 
 type GRPCService struct {

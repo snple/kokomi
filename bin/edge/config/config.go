@@ -24,8 +24,6 @@ type ConfigStruct struct {
 	Gin         Gin         `toml:"gin"`
 	ApiService  HttpService `toml:"api"`
 	Statics     []Static    `toml:"static"`
-	Upload      Upload      `toml:"upload"`
-	Slim        Slim        `toml:"slim"`
 }
 
 type DB struct {
@@ -102,18 +100,6 @@ type Static struct {
 	Key    string `toml:"key"`
 }
 
-type Upload struct {
-	Enable   bool `toml:"enable"`
-	Interval int  `toml:"interval"`
-	Batch    int  `toml:"batch"`
-}
-
-type GoS7 struct {
-	Enable       bool `toml:"enable"`
-	Interval     int  `toml:"interval"`
-	ReadInterval int  `toml:"read_interval"`
-}
-
 type Slim struct {
 	Enable   bool   `toml:"enable"`
 	Interval int    `toml:"interval"`
@@ -169,16 +155,6 @@ func DefaultConfig() ConfigStruct {
 		},
 		ApiService: HttpService{
 			Addr: ":8012",
-		},
-		Upload: Upload{
-			Enable:   false,
-			Interval: 60,
-			Batch:    1000,
-		},
-		Slim: Slim{
-			Interval: 60,
-			BBolt:    "slim.db",
-			CacheTTL: 60 * 60 * 24 * 7,
 		},
 	}
 }
