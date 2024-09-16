@@ -26,7 +26,6 @@ type SlotService struct {
 	source   *SourceService
 	tag      *TagService
 	constant *ConstService
-	data     *DataService
 	rgrpc    *RgrpcService
 
 	ctx     context.Context
@@ -61,7 +60,6 @@ func Slot(es *edge.EdgeService, opts ...SlotOption) (*SlotService, error) {
 	ss.source = newSourceService(ss)
 	ss.tag = newTagService(ss)
 	ss.constant = newConstService(ss)
-	ss.data = newDataService(ss)
 	ss.rgrpc = newRgrpcService(ss)
 
 	return ss, nil
@@ -95,7 +93,6 @@ func (ss *SlotService) RegisterGrpc(server *grpc.Server) {
 	slots.RegisterSourceServiceServer(server, ss.source)
 	slots.RegisterTagServiceServer(server, ss.tag)
 	slots.RegisterConstServiceServer(server, ss.constant)
-	slots.RegisterDataServiceServer(server, ss.data)
 	rgrpc.RegisterRgrpcServiceServer(server, ss.rgrpc)
 }
 

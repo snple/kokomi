@@ -28,7 +28,6 @@ type CoreService struct {
 	source      *SourceService
 	tag         *TagService
 	constant    *ConstService
-	data        *DataService
 	save        types.Option[*SaveService]
 	control     *ControlService
 
@@ -80,7 +79,6 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.source = newSourceService(cs)
 	cs.tag = newTagService(cs)
 	cs.constant = newConstService(cs)
-	cs.data = newDateService(cs)
 
 	if cs.dopts.save {
 		cs.save = types.Some(newSaveService(cs))
@@ -174,10 +172,6 @@ func (cs *CoreService) GetConst() *ConstService {
 	return cs.constant
 }
 
-func (cs *CoreService) GetData() *DataService {
-	return cs.data
-}
-
 func (cs *CoreService) GetSave() types.Option[*SaveService] {
 	return cs.save
 }
@@ -241,7 +235,6 @@ func (cs *CoreService) Register(server *grpc.Server) {
 	cores.RegisterSourceServiceServer(server, cs.source)
 	cores.RegisterTagServiceServer(server, cs.tag)
 	cores.RegisterConstServiceServer(server, cs.constant)
-	cores.RegisterDataServiceServer(server, cs.data)
 	cores.RegisterControlServiceServer(server, cs.control)
 
 	cores.RegisterAuthServiceServer(server, cs.auth)

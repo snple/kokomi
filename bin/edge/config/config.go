@@ -22,7 +22,6 @@ type ConfigStruct struct {
 	Sync        Sync        `toml:"sync"`
 	Status      Status      `toml:"status"`
 	Gin         Gin         `toml:"gin"`
-	WebService  HttpService `toml:"web"`
 	ApiService  HttpService `toml:"api"`
 	Statics     []Static    `toml:"static"`
 	Upload      Upload      `toml:"upload"`
@@ -167,9 +166,6 @@ func DefaultConfig() ConfigStruct {
 		},
 		Status: Status{
 			LinkTTL: 3 * 60,
-		},
-		WebService: HttpService{
-			Addr: ":8010",
 		},
 		ApiService: HttpService{
 			Addr: ":8012",
