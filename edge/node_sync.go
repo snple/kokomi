@@ -63,58 +63,6 @@ func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {
 		}
 	}
 
-	// port
-	{
-		after := deviceUpdated2.UnixMicro()
-		limit := uint32(10)
-
-		for {
-			remotes, err := s.PortServiceClient().Pull(ctx, &nodes.PortPullRequest{After: after, Limit: limit})
-			if err != nil {
-				return err
-			}
-
-			for _, remote := range remotes.GetPort() {
-				_, err := s.es.GetPort().Sync(ctx, remote)
-				if err != nil {
-					return err
-				}
-
-				after = remote.GetUpdated()
-			}
-
-			if len(remotes.GetPort()) < int(limit) {
-				break
-			}
-		}
-	}
-
-	// proxy
-	{
-		after := deviceUpdated2.UnixMicro()
-		limit := uint32(10)
-
-		for {
-			remotes, err := s.ProxyServiceClient().Pull(ctx, &nodes.ProxyPullRequest{After: after, Limit: limit})
-			if err != nil {
-				return err
-			}
-
-			for _, remote := range remotes.GetProxy() {
-				_, err = s.es.GetProxy().Sync(ctx, remote)
-				if err != nil {
-					return err
-				}
-
-				after = remote.GetUpdated()
-			}
-
-			if len(remotes.GetProxy()) < int(limit) {
-				break
-			}
-		}
-	}
-
 	// source
 	{
 		after := deviceUpdated2.UnixMicro()
@@ -245,32 +193,6 @@ func (s *NodeService) syncLocalToRemote(ctx context.Context) error {
 			}
 
 			if len(locals.GetSlot()) < int(limit) {
-				break
-			}
-		}
-	}
-
-	// port
-	{
-		after := deviceUpdated2.UnixMicro()
-		limit := uint32(10)
-
-		for {
-			locals, err := s.es.GetPort().Pull(ctx, &edges.PortPullRequest{After: after, Limit: limit})
-			if err != nil {
-				return err
-			}
-
-			for _, local := range locals.GetPort() {
-				_, err = s.PortServiceClient().Sync(ctx, local)
-				if err != nil {
-					return err
-				}
-
-				after = local.GetUpdated()
-			}
-
-			if len(locals.GetPort()) < int(limit) {
 				break
 			}
 		}

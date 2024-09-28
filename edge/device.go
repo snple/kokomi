@@ -177,8 +177,6 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.MyEmpty) (*pb.MyBool
 	err = func() error {
 		models := []interface{}{
 			(*model.Slot)(nil),
-			(*model.Port)(nil),
-			(*model.Proxy)(nil),
 			(*model.Source)(nil),
 			(*model.Tag)(nil),
 			(*model.Const)(nil),

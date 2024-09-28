@@ -17,7 +17,6 @@ import (
 
 	"github.com/dgraph-io/badger/v4"
 	"github.com/gin-gonic/gin"
-	"github.com/quic-go/quic-go"
 	"github.com/snple/kokomi"
 	"github.com/snple/kokomi/bin/edge/config"
 	"github.com/snple/kokomi/bin/edge/log"
@@ -137,31 +136,6 @@ func main() {
 			Enable:      true,
 			Addr:        config.Config.NodeClient.Addr,
 			GRPCOptions: grpcOpts,
-		}))
-	}
-
-	if config.Config.QuicClient.Enable {
-		tlsConfig, err := util.LoadClientCert(
-			config.Config.QuicClient.CA,
-			config.Config.QuicClient.Cert,
-			config.Config.QuicClient.Key,
-			config.Config.QuicClient.ServerName,
-			config.Config.QuicClient.InsecureSkipVerify,
-		)
-		if err != nil {
-			log.Logger.Sugar().Fatalf("LoadClientCert: %v", err)
-		}
-
-		quicConfig := &quic.Config{
-			EnableDatagrams: true,
-			MaxIdleTimeout:  time.Minute * 3,
-		}
-
-		edgeOpts = append(edgeOpts, edge.WithQuic(edge.QuicOptions{
-			Enable:     true,
-			Addr:       config.Config.QuicClient.Addr,
-			TLSConfig:  tlsConfig,
-			QUICConfig: quicConfig,
 		}))
 	}
 

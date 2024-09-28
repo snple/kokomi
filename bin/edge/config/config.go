@@ -16,7 +16,6 @@ type ConfigStruct struct {
 	DB          DB          `toml:"db"`
 	BadgerDB    BadgerDB    `toml:"badger"`
 	NodeClient  GRPCClient  `toml:"node"`
-	QuicClient  QuicClient  `toml:"quic"`
 	EdgeService GRPCService `toml:"edge"`
 	SlotService GRPCService `toml:"slot"`
 	Sync        Sync        `toml:"sync"`
@@ -40,16 +39,6 @@ type GRPCClient struct {
 	Enable             bool   `toml:"enable"`
 	Addr               string `toml:"addr"`
 	TLS                bool   `toml:"tls"`
-	CA                 string `toml:"ca"`
-	Cert               string `toml:"cert"`
-	Key                string `toml:"key"`
-	ServerName         string `toml:"server_name"`
-	InsecureSkipVerify bool   `toml:"insecure_skip_verify"`
-}
-
-type QuicClient struct {
-	Enable             bool   `toml:"enable"`
-	Addr               string `toml:"addr"`
 	CA                 string `toml:"ca"`
 	Cert               string `toml:"cert"`
 	Key                string `toml:"key"`
@@ -124,12 +113,6 @@ func DefaultConfig() ConfigStruct {
 			Cert: "certs/client.crt",
 			Key:  "certs/client.key",
 		},
-		QuicClient: QuicClient{
-			Addr: "127.0.0.1:6008",
-			CA:   "certs/ca.crt",
-			Cert: "certs/client.crt",
-			Key:  "certs/client.key",
-		},
 		EdgeService: GRPCService{
 			Addr: "127.0.0.1:6010",
 			TLS:  true,
@@ -187,24 +170,6 @@ func (c *ConfigStruct) Validate() error {
 			if len(c.NodeClient.Key) == 0 {
 				return errors.New("NodeClient.Key must be specified")
 			}
-		}
-	}
-
-	{
-		if len(c.QuicClient.Addr) == 0 {
-			return errors.New("QuicClient.Addr must be specified")
-		}
-
-		if len(c.QuicClient.CA) == 0 {
-			return errors.New("QuicClient.CA must be specified")
-		}
-
-		if len(c.QuicClient.Cert) == 0 {
-			return errors.New("QuicClient.Cert must be specified")
-		}
-
-		if len(c.QuicClient.Key) == 0 {
-			return errors.New("QuicClient.Key must be specified")
 		}
 	}
 

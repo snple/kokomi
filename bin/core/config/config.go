@@ -14,7 +14,6 @@ type ConfigStruct struct {
 	DB          DB          `toml:"db"`
 	CoreService GRPCService `toml:"core"`
 	NodeService GRPCService `toml:"node"`
-	QuicService QuicService `toml:"quic"`
 	Status      Status      `toml:"status"`
 	Gin         Gin         `toml:"gin"`
 	WebService  HttpService `toml:"web"`
@@ -38,14 +37,6 @@ type GRPCService struct {
 
 type Status struct {
 	LinkTTL int `toml:"link_ttl"`
-}
-
-type QuicService struct {
-	Enable bool   `toml:"enable"`
-	Addr   string `toml:"addr"`
-	CA     string `toml:"ca"`
-	Cert   string `toml:"cert"`
-	Key    string `toml:"key"`
 }
 
 type Gin struct {
@@ -89,13 +80,6 @@ func DefaultConfig() ConfigStruct {
 			Enable: true,
 			Addr:   ":6007",
 			TLS:    true,
-			CA:     "certs/ca.crt",
-			Cert:   "certs/server.crt",
-			Key:    "certs/server.key",
-		},
-		QuicService: QuicService{
-			Enable: true,
-			Addr:   ":6008",
 			CA:     "certs/ca.crt",
 			Cert:   "certs/server.crt",
 			Key:    "certs/server.key",
@@ -154,24 +138,6 @@ func (c *ConfigStruct) Validate() error {
 			if len(c.NodeService.Key) == 0 {
 				return errors.New("NodeService.Key must be specified")
 			}
-		}
-	}
-
-	if c.QuicService.Enable {
-		if len(c.QuicService.Addr) == 0 {
-			return errors.New("QuicService.Addr must be specified")
-		}
-
-		if len(c.QuicService.CA) == 0 {
-			return errors.New("QuicService.CA must be specified")
-		}
-
-		if len(c.QuicService.Cert) == 0 {
-			return errors.New("QuicService.Cert must be specified")
-		}
-
-		if len(c.QuicService.Key) == 0 {
-			return errors.New("QuicService.Key must be specified")
 		}
 	}
 

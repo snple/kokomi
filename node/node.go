@@ -2,14 +2,11 @@ package node
 
 import (
 	"context"
-	"crypto/tls"
 	"sync"
 	"time"
 
-	"github.com/quic-go/quic-go"
 	"github.com/snple/kokomi/core"
 	"github.com/snple/kokomi/pb/nodes"
-	"github.com/snple/types"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -21,12 +18,9 @@ type NodeService struct {
 	sync_global *SyncGlobalService
 	device      *DeviceService
 	slot        *SlotService
-	port        *PortService
-	proxy       *ProxyService
 	source      *SourceService
 	tag         *TagService
 	constant    *ConstService
-	quic        types.Option[*QuicService]
 
 	auth *AuthService
 	user *UserService
@@ -60,20 +54,9 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 	ns.sync_global = newSyncGlobalService(ns)
 	ns.device = newDeviceService(ns)
 	ns.slot = newSlotService(ns)
-	ns.port = newPortService(ns)
-	ns.proxy = newProxyService(ns)
 	ns.source = newSourceService(ns)
 	ns.tag = newTagService(ns)
 	ns.constant = newConstService(ns)
-
-	if ns.dopts.QuicOptions.enable {
-		quic, err := newQuicService(ns)
-		if err != nil {
-			return ns, err
-		}
-
-		ns.quic = types.Some(quic)
-	}
 
 	ns.auth = newAuthService(ns)
 	ns.user = newUserService(ns)
@@ -82,20 +65,10 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 }
 
 func (ns *NodeService) Start() {
-	if quic := ns.quic; quic.IsSome() {
-		go func() {
-			ns.closeWG.Add(1)
-			defer ns.closeWG.Done()
 
-			quic.Unwrap().Start()
-		}()
-	}
 }
 
 func (ns *NodeService) Stop() {
-	if quic := ns.quic; quic.IsSome() {
-		quic.Unwrap().Stop()
-	}
 
 	ns.cancel()
 	ns.closeWG.Wait()
@@ -118,8 +91,6 @@ func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 	nodes.RegisterSyncGlobalServiceServer(server, ns.sync_global)
 	nodes.RegisterDeviceServiceServer(server, ns.device)
 	nodes.RegisterSlotServiceServer(server, ns.slot)
-	nodes.RegisterPortServiceServer(server, ns.port)
-	nodes.RegisterProxyServiceServer(server, ns.proxy)
 	nodes.RegisterSourceServiceServer(server, ns.source)
 	nodes.RegisterTagServiceServer(server, ns.tag)
 	nodes.RegisterConstServiceServer(server, ns.constant)
@@ -129,21 +100,12 @@ func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 }
 
 type nodeOptions struct {
-	QuicOptions QuicOptions
-	Ping        time.Duration
-}
-
-type QuicOptions struct {
-	enable     bool
-	Addr       string
-	TLSConfig  *tls.Config
-	QUICConfig *quic.Config
+	Ping time.Duration
 }
 
 func defaultNodeOptions() nodeOptions {
 	return nodeOptions{
-		QuicOptions: QuicOptions{},
-		Ping:        60 * time.Second,
+		Ping: 60 * time.Second,
 	}
 }
 
@@ -165,19 +127,6 @@ func newFuncNodeOption(f func(*nodeOptions)) *funcNodeOption {
 	return &funcNodeOption{
 		f: f,
 	}
-}
-
-func WithQuic(options QuicOptions) NodeOption {
-	return newFuncNodeOption(func(o *nodeOptions) {
-		if len(options.TLSConfig.NextProtos) == 0 {
-			options.TLSConfig.NextProtos = []string{"kokomi"}
-		}
-
-		options.QUICConfig.EnableDatagrams = true
-
-		o.QuicOptions = options
-		o.QuicOptions.enable = true
-	})
 }
 
 func WithPing(d time.Duration) NodeOption {

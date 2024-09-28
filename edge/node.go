@@ -244,14 +244,12 @@ func (s *NodeService) ticker() {
 				}
 			}
 		case <-linkStatusTicker.C:
-			if option := s.es.GetQuic(); option.IsNone() {
-				if s.IsLinked() {
-					err := s.DeviceLink(s.ctx)
-					if err != nil {
-						s.es.Logger().Sugar().Errorf("link device : %v", err)
-					} else {
-						s.es.Logger().Sugar().Info("link device ticker success")
-					}
+			if s.IsLinked() {
+				err := s.DeviceLink(s.ctx)
+				if err != nil {
+					s.es.Logger().Sugar().Errorf("link device : %v", err)
+				} else {
+					s.es.Logger().Sugar().Info("link device ticker success")
 				}
 			}
 		case <-syncTicker.C:
@@ -274,14 +272,6 @@ func (s *NodeService) DeviceServiceClient() nodes.DeviceServiceClient {
 
 func (s *NodeService) SlotServiceClient() nodes.SlotServiceClient {
 	return nodes.NewSlotServiceClient(s.NodeConn)
-}
-
-func (s *NodeService) PortServiceClient() nodes.PortServiceClient {
-	return nodes.NewPortServiceClient(s.NodeConn)
-}
-
-func (s *NodeService) ProxyServiceClient() nodes.ProxyServiceClient {
-	return nodes.NewProxyServiceClient(s.NodeConn)
 }
 
 func (s *NodeService) SourceServiceClient() nodes.SourceServiceClient {

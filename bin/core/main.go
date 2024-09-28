@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/quic-go/quic-go"
 	"github.com/snple/kokomi"
 	"github.com/snple/kokomi/bin/core/config"
 	"github.com/snple/kokomi/bin/core/log"
@@ -112,24 +111,6 @@ func main() {
 
 	if config.Config.NodeService.Enable {
 		nodeOpts := make([]node.NodeOption, 0)
-
-		if config.Config.QuicService.Enable {
-			tlsConfig, err := util.LoadServerCert(config.Config.QuicService.CA, config.Config.QuicService.Cert, config.Config.QuicService.Key)
-			if err != nil {
-				log.Logger.Sugar().Fatal(err)
-			}
-
-			quicConfig := &quic.Config{
-				EnableDatagrams: true,
-				MaxIdleTimeout:  time.Minute * 3,
-			}
-
-			nodeOpts = append(nodeOpts, node.WithQuic(node.QuicOptions{
-				Addr:       config.Config.QuicService.Addr,
-				TLSConfig:  tlsConfig,
-				QUICConfig: quicConfig,
-			}))
-		}
 
 		ns, err := node.Node(cs, nodeOpts...)
 		if err != nil {
