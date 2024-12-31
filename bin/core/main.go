@@ -5,7 +5,6 @@ import (
 	"crypto/x509"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"net"
 	"os"
@@ -223,7 +222,7 @@ func main() {
 			if config.Config.ApiService.CA != "" {
 				pool := x509.NewCertPool()
 
-				ca, err := ioutil.ReadFile(config.Config.ApiService.CA)
+				ca, err := os.ReadFile(config.Config.ApiService.CA)
 				if err != nil {
 					log.Logger.Sugar().Fatal(err)
 				}
