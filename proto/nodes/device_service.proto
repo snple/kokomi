@@ -13,7 +13,7 @@ message DeviceLoginRequest {
 }
 
 message DeviceLoginReply {
-    string id = 1;
+    pb.Device device = 1;
     string token = 2;
 }
 

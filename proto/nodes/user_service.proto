@@ -6,35 +6,6 @@ option go_package = "github.com/snple/kokomi/pb/nodes;nodes";
 import "user_message.proto";
 import "generic_message.proto";
 
-// user
-message UserListRequest {
-    pb.Page page = 1;
-    string tags = 2;
-    string type = 3;
-}
-
-message UserListResponse {
-    pb.Page page = 1;
-    uint32 count = 2;
-    repeated pb.User user = 3;
-}
-
-message UserPullRequest {
-    int64 after = 1;
-    uint32 limit = 2;
-    string type = 3;
-}
-
-message UserPullResponse {
-    int64 after = 1;
-    uint32 limit = 2;
-    repeated pb.User user = 3;
-}
-
 service UserService {
     rpc View(pb.Id) returns (pb.User) {}
-    rpc Name(pb.Name) returns (pb.User) {}
-    rpc List(UserListRequest) returns (UserListResponse) {}
-    rpc ViewWithDeleted(pb.Id) returns (pb.User) {}
-    rpc Pull(UserPullRequest) returns (UserPullResponse) {}
 }

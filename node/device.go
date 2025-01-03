@@ -69,6 +69,9 @@ func (s *DeviceService) Login(ctx context.Context, in *nodes.DeviceLoginRequest)
 
 	s.ns.Logger().Sugar().Infof("device connect success, id: %v, ip: %v", in.GetId(), metadata.GetPeerAddr(ctx))
 
+	reply.Secret = ""
+
+	output.Device = reply
 	output.Token = token
 
 	return &output, nil
