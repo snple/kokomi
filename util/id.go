@@ -6,9 +6,9 @@ func RandomID() string {
 	return nson.NewId().Hex()
 }
 
-var ZreoMessageId = nson.MessageId(make([]byte, 12))
+var ZreoId = nson.Id(make([]byte, 12))
 
-func MessageIdIsZero(id nson.MessageId) bool {
+func IdIsZero(id nson.Id) bool {
 	for _, n := range id {
 		if n != 0 {
 			return false
