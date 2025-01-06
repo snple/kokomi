@@ -43,11 +43,11 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetDeviceId()) == 0 {
+		if in.GetDeviceId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.DeviceID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Name")
 		}
 	}
@@ -92,7 +92,7 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 		Updated:  time.Now(),
 	}
 
-	if len(item.ID) == 0 {
+	if item.ID == "" {
 		item.ID = util.RandomID()
 	}
 
@@ -120,11 +120,11 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Name")
 		}
 	}
@@ -188,7 +188,7 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 	}
@@ -213,11 +213,11 @@ func (s *SourceService) Name(ctx context.Context, in *cores.SourceNameRequest) (
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetDeviceId()) == 0 {
+		if in.GetDeviceId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Name")
 		}
 	}
@@ -242,7 +242,7 @@ func (s *SourceService) NameFull(ctx context.Context, in *pb.Name) (*pb.Source, 
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Name")
 		}
 	}
@@ -287,7 +287,7 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 	}
@@ -340,11 +340,11 @@ func (s *SourceService) List(ctx context.Context, in *cores.SourceListRequest) (
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if len(in.GetDeviceId()) > 0 {
+	if in.GetDeviceId() != "" {
 		query.Where("device_id = ?", in.GetDeviceId())
 	}
 
-	if len(in.GetPage().GetSearch()) > 0 {
+	if in.GetPage().GetSearch() != "" {
 		search := fmt.Sprintf("%%%v%%", in.GetPage().GetSearch())
 
 		query.WhereGroup(" AND ", func(q *bun.SelectQuery) *bun.SelectQuery {
@@ -355,7 +355,7 @@ func (s *SourceService) List(ctx context.Context, in *cores.SourceListRequest) (
 		})
 	}
 
-	if len(in.GetTags()) > 0 {
+	if in.GetTags() != "" {
 		tagsSplit := strings.Split(in.GetTags(), ",")
 
 		if len(tagsSplit) == 1 {
@@ -375,7 +375,7 @@ func (s *SourceService) List(ctx context.Context, in *cores.SourceListRequest) (
 		}
 	}
 
-	if len(in.GetType()) > 0 {
+	if in.GetType() != "" {
 		query = query.Where(`type = ?`, in.GetType())
 	}
 
@@ -383,7 +383,7 @@ func (s *SourceService) List(ctx context.Context, in *cores.SourceListRequest) (
 		query = query.Where(`source = ?`, in.GetSource())
 	}
 
-	if len(in.GetPage().GetOrderBy()) > 0 && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
+	if in.GetPage().GetOrderBy() != "" && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
 		in.GetPage().GetOrderBy() == "created" || in.GetPage().GetOrderBy() == "updated") {
 		query.Order(in.GetPage().GetOrderBy() + " " + in.GetPage().GetSort().String())
 	} else {
@@ -418,7 +418,7 @@ func (s *SourceService) Link(ctx context.Context, in *cores.SourceLinkRequest) (
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 	}
@@ -445,7 +445,7 @@ func (s *SourceService) Clone(ctx context.Context, in *cores.SourceCloneRequest)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 	}
@@ -561,7 +561,7 @@ func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Sou
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 	}
@@ -649,11 +649,11 @@ func (s *SourceService) Sync(ctx context.Context, in *pb.Source) (*pb.MyBool, er
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Source.Name")
 		}
 

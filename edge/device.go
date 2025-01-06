@@ -39,7 +39,7 @@ func newDeviceService(es *EdgeService) *DeviceService {
 // 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 // 		}
 
-// 		if len(in.GetName()) == 0 {
+// 		if in.GetName() == "" {
 // 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
 // 		}
 // 	}
@@ -73,7 +73,7 @@ func newDeviceService(es *EdgeService) *DeviceService {
 // 		Updated:  time.Now(),
 // 	}
 
-// 	if len(item.ID) == 0 {
+// 	if item.ID == "" {
 // 		item.ID = util.RandomID()
 // 	}
 
@@ -101,7 +101,7 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
 		}
 	}
@@ -305,11 +305,11 @@ func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, er
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
 		}
 

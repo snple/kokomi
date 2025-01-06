@@ -32,7 +32,7 @@ func (s *AuthService) Login(ctx context.Context, in *cores.LoginRequest) (*cores
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid User")
 		}
 

@@ -44,7 +44,7 @@ func (s *ConstService) Create(ctx context.Context, in *pb.Const) (*pb.Const, err
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 	}
@@ -82,7 +82,7 @@ func (s *ConstService) Create(ctx context.Context, in *pb.Const) (*pb.Const, err
 		Updated:  time.Now(),
 	}
 
-	if len(item.ID) == 0 {
+	if item.ID == "" {
 		item.ID = util.RandomID()
 	}
 
@@ -110,11 +110,11 @@ func (s *ConstService) Update(ctx context.Context, in *pb.Const) (*pb.Const, err
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 	}
@@ -180,7 +180,7 @@ func (s *ConstService) View(ctx context.Context, in *pb.Id) (*pb.Const, error) {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
@@ -205,7 +205,7 @@ func (s *ConstService) Name(ctx context.Context, in *pb.Name) (*pb.Const, error)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 	}
@@ -230,7 +230,7 @@ func (s *ConstService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
@@ -283,7 +283,7 @@ func (s *ConstService) List(ctx context.Context, in *edges.ConstListRequest) (*e
 
 	query := s.es.GetDB().NewSelect().Model(&items)
 
-	if len(in.GetPage().GetSearch()) > 0 {
+	if in.GetPage().GetSearch() != "" {
 		search := fmt.Sprintf("%%%v%%", in.GetPage().GetSearch())
 
 		query.WhereGroup(" AND ", func(q *bun.SelectQuery) *bun.SelectQuery {
@@ -294,7 +294,7 @@ func (s *ConstService) List(ctx context.Context, in *edges.ConstListRequest) (*e
 		})
 	}
 
-	if len(in.GetTags()) > 0 {
+	if in.GetTags() != "" {
 		tagsSplit := strings.Split(in.GetTags(), ",")
 
 		if len(tagsSplit) == 1 {
@@ -314,11 +314,11 @@ func (s *ConstService) List(ctx context.Context, in *edges.ConstListRequest) (*e
 		}
 	}
 
-	if len(in.GetType()) > 0 {
+	if in.GetType() != "" {
 		query = query.Where(`type = ?`, in.GetType())
 	}
 
-	if len(in.GetPage().GetOrderBy()) > 0 && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
+	if in.GetPage().GetOrderBy() != "" && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
 		in.GetPage().GetOrderBy() == "created" || in.GetPage().GetOrderBy() == "updated") {
 		query.Order(in.GetPage().GetOrderBy() + " " + in.GetPage().GetSort().String())
 	} else {
@@ -353,7 +353,7 @@ func (s *ConstService) Clone(ctx context.Context, in *edges.ConstCloneRequest) (
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
@@ -462,7 +462,7 @@ func (s *ConstService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Cons
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
@@ -542,11 +542,11 @@ func (s *ConstService) Sync(ctx context.Context, in *pb.Const) (*pb.MyBool, erro
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 
@@ -726,7 +726,7 @@ func (s *ConstService) GetValue(ctx context.Context, in *pb.Id) (*pb.ConstValue,
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
@@ -761,7 +761,7 @@ func (s *ConstService) setValue(ctx context.Context, in *pb.ConstValue, check bo
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.ID")
 		}
 	}
@@ -812,7 +812,7 @@ func (s *ConstService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Con
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 	}
@@ -848,7 +848,7 @@ func (s *ConstService) setValueByName(ctx context.Context, in *pb.ConstNameValue
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
 		}
 

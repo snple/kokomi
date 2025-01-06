@@ -43,7 +43,7 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *cores.SyncUpdate
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 
@@ -72,7 +72,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.Id) (*cores.S
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 	}
@@ -105,7 +105,7 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *cores.SyncUpda
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 
@@ -134,7 +134,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.Id) (*cores
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
@@ -367,7 +367,7 @@ func (s *SyncService) waitUpdated(in *pb.Id, stream waitUpdatedStream, nt Notify
 			return status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 	}
@@ -399,7 +399,7 @@ func (s *SyncService) waitUpdated2(in *pb.Id,
 			return status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 	}

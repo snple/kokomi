@@ -44,7 +44,7 @@ func (s *DeviceService) Create(ctx context.Context, in *pb.Device) (*pb.Device, 
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
 		}
 	}
@@ -79,7 +79,7 @@ func (s *DeviceService) Create(ctx context.Context, in *pb.Device) (*pb.Device, 
 		Updated:  time.Now(),
 	}
 
-	if len(item.ID) == 0 {
+	if item.ID == "" {
 		item.ID = util.RandomID()
 	}
 
@@ -107,11 +107,11 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
 		}
 	}
@@ -174,7 +174,7 @@ func (s *DeviceService) View(ctx context.Context, in *pb.Id) (*pb.Device, error)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 	}
@@ -199,7 +199,7 @@ func (s *DeviceService) Name(ctx context.Context, in *pb.Name) (*pb.Device, erro
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
 		}
 	}
@@ -224,7 +224,7 @@ func (s *DeviceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 	}
@@ -277,7 +277,7 @@ func (s *DeviceService) List(ctx context.Context, in *cores.DeviceListRequest) (
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if len(in.GetPage().GetSearch()) > 0 {
+	if in.GetPage().GetSearch() != "" {
 		search := fmt.Sprintf("%%%v%%", in.GetPage().GetSearch())
 
 		query.WhereGroup(" AND ", func(q *bun.SelectQuery) *bun.SelectQuery {
@@ -288,7 +288,7 @@ func (s *DeviceService) List(ctx context.Context, in *cores.DeviceListRequest) (
 		})
 	}
 
-	if len(in.GetTags()) > 0 {
+	if in.GetTags() != "" {
 		tagsSplit := strings.Split(in.GetTags(), ",")
 
 		if len(tagsSplit) == 1 {
@@ -308,15 +308,15 @@ func (s *DeviceService) List(ctx context.Context, in *cores.DeviceListRequest) (
 		}
 	}
 
-	if len(in.GetType()) > 0 {
+	if in.GetType() != "" {
 		query = query.Where(`type = ?`, in.GetType())
 	}
 
-	if len(in.GetArch()) > 0 {
+	if in.GetArch() != "" {
 		query = query.Where(`arch = ?`, in.GetArch())
 	}
 
-	if len(in.GetPage().GetOrderBy()) > 0 && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
+	if in.GetPage().GetOrderBy() != "" && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
 		in.GetPage().GetOrderBy() == "created" || in.GetPage().GetOrderBy() == "updated") {
 		query.Order(in.GetPage().GetOrderBy() + " " + in.GetPage().GetSort().String())
 	} else {
@@ -351,7 +351,7 @@ func (s *DeviceService) Link(ctx context.Context, in *cores.DeviceLinkRequest) (
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 	}
@@ -444,7 +444,7 @@ func (s *DeviceService) Clone(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 	}
@@ -558,7 +558,7 @@ func (s *DeviceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Dev
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 	}
@@ -612,7 +612,7 @@ func (s *DeviceService) Pull(ctx context.Context, in *cores.DevicePullRequest) (
 		query.Where(`type = ?`, in.GetType())
 	}
 
-	if len(in.GetArch()) > 0 {
+	if in.GetArch() != "" {
 		query = query.Where(`arch = ?`, in.GetArch())
 	}
 
@@ -642,11 +642,11 @@ func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, er
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
 		}
 

@@ -34,7 +34,7 @@ func (s *DeviceService) Login(ctx context.Context, in *nodes.DeviceLoginRequest)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 

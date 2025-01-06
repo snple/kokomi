@@ -32,7 +32,7 @@ func (s *SyncGlobalService) SetUpdated(ctx context.Context, in *nodes.SyncUpdate
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid ID")
 		}
 
@@ -60,7 +60,7 @@ func (s *SyncGlobalService) GetUpdated(ctx context.Context, in *pb.Id) (*nodes.S
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid ID")
 		}
 	}
@@ -89,7 +89,7 @@ func (s *SyncGlobalService) WaitUpdated(in *pb.Id, stream nodes.SyncGlobalServic
 			return status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return status.Error(codes.InvalidArgument, "Please supply valid ID")
 		}
 	}

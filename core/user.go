@@ -44,7 +44,7 @@ func (s *UserService) Create(ctx context.Context, in *pb.User) (*pb.User, error)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid User.Name")
 		}
 	}
@@ -77,7 +77,7 @@ func (s *UserService) Create(ctx context.Context, in *pb.User) (*pb.User, error)
 		Updated: time.Now(),
 	}
 
-	if len(item.ID) == 0 {
+	if item.ID == "" {
 		item.ID = util.RandomID()
 	}
 
@@ -105,11 +105,11 @@ func (s *UserService) Update(ctx context.Context, in *pb.User) (*pb.User, error)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid User.ID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid User.Name")
 		}
 	}
@@ -170,7 +170,7 @@ func (s *UserService) View(ctx context.Context, in *pb.Id) (*pb.User, error) {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid User.ID")
 		}
 	}
@@ -195,7 +195,7 @@ func (s *UserService) Name(ctx context.Context, in *pb.Name) (*pb.User, error) {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid User.Name")
 		}
 	}
@@ -220,7 +220,7 @@ func (s *UserService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid User.ID")
 		}
 	}
@@ -270,7 +270,7 @@ func (s *UserService) List(ctx context.Context, in *cores.UserListRequest) (*cor
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if len(in.GetPage().GetSearch()) > 0 {
+	if in.GetPage().GetSearch() != "" {
 		search := fmt.Sprintf("%%%v%%", in.GetPage().GetSearch())
 
 		query.WhereGroup(" AND ", func(q *bun.SelectQuery) *bun.SelectQuery {
@@ -281,7 +281,7 @@ func (s *UserService) List(ctx context.Context, in *cores.UserListRequest) (*cor
 		})
 	}
 
-	if len(in.GetTags()) > 0 {
+	if in.GetTags() != "" {
 		tagsSplit := strings.Split(in.GetTags(), ",")
 
 		if len(tagsSplit) == 1 {
@@ -301,11 +301,11 @@ func (s *UserService) List(ctx context.Context, in *cores.UserListRequest) (*cor
 		}
 	}
 
-	if len(in.GetType()) > 0 {
+	if in.GetType() != "" {
 		query = query.Where(`type = ?`, in.GetType())
 	}
 
-	if len(in.GetPage().GetOrderBy()) > 0 && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
+	if in.GetPage().GetOrderBy() != "" && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
 		in.GetPage().GetOrderBy() == "created" || in.GetPage().GetOrderBy() == "updated") {
 		query.Order(in.GetPage().GetOrderBy() + " " + in.GetPage().GetSort().String())
 	} else {
@@ -393,7 +393,7 @@ func (s *UserService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.User,
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid User.ID")
 		}
 	}
@@ -443,7 +443,7 @@ func (s *UserService) Pull(ctx context.Context, in *cores.UserPullRequest) (*cor
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if len(in.GetType()) > 0 {
+	if in.GetType() != "" {
 		query = query.Where(`type = ?`, in.GetType())
 	}
 

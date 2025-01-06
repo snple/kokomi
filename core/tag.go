@@ -48,7 +48,7 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.SourceID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 	}
@@ -98,7 +98,7 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		item.DeviceID = source.DeviceID
 	}
 
-	if len(item.ID) == 0 {
+	if item.ID == "" {
 		item.ID = util.RandomID()
 	}
 
@@ -131,11 +131,11 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 	}
@@ -207,7 +207,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
@@ -237,11 +237,11 @@ func (s *TagService) Name(ctx context.Context, in *cores.TagNameRequest) (*pb.Ta
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetDeviceId()) == 0 {
+		if in.GetDeviceId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 	}
@@ -273,7 +273,7 @@ func (s *TagService) NameFull(ctx context.Context, in *pb.Name) (*pb.Tag, error)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 	}
@@ -335,7 +335,7 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
@@ -388,7 +388,7 @@ func (s *TagService) List(ctx context.Context, in *cores.TagListRequest) (*cores
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if len(in.GetDeviceId()) > 0 {
+	if in.GetDeviceId() != "" {
 		query.Where("device_id = ?", in.GetDeviceId())
 	}
 
@@ -396,7 +396,7 @@ func (s *TagService) List(ctx context.Context, in *cores.TagListRequest) (*cores
 		query.Where("source_id = ?", in.GetSourceId())
 	}
 
-	if len(in.GetPage().GetSearch()) > 0 {
+	if in.GetPage().GetSearch() != "" {
 		search := fmt.Sprintf("%%%v%%", in.GetPage().GetSearch())
 
 		query.WhereGroup(" AND ", func(q *bun.SelectQuery) *bun.SelectQuery {
@@ -408,7 +408,7 @@ func (s *TagService) List(ctx context.Context, in *cores.TagListRequest) (*cores
 		})
 	}
 
-	if len(in.GetTags()) > 0 {
+	if in.GetTags() != "" {
 		tagsSplit := strings.Split(in.GetTags(), ",")
 
 		if len(tagsSplit) == 1 {
@@ -428,11 +428,11 @@ func (s *TagService) List(ctx context.Context, in *cores.TagListRequest) (*cores
 		}
 	}
 
-	if len(in.GetType()) > 0 {
+	if in.GetType() != "" {
 		query = query.Where(`type = ?`, in.GetType())
 	}
 
-	if len(in.GetPage().GetOrderBy()) > 0 && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
+	if in.GetPage().GetOrderBy() != "" && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
 		in.GetPage().GetOrderBy() == "created" || in.GetPage().GetOrderBy() == "updated") {
 		query.Order(in.GetPage().GetOrderBy() + " " + in.GetPage().GetSort().String())
 	} else {
@@ -472,7 +472,7 @@ func (s *TagService) Clone(ctx context.Context, in *cores.TagCloneRequest) (*pb.
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
@@ -613,7 +613,7 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
@@ -701,11 +701,11 @@ func (s *TagService) Sync(ctx context.Context, in *pb.Tag) (*pb.MyBool, error) {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 
@@ -957,7 +957,7 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
@@ -999,7 +999,7 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 
@@ -1079,11 +1079,11 @@ func (s *TagService) GetValueByName(ctx context.Context, in *cores.TagGetValueBy
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetDeviceId()) == 0 {
+		if in.GetDeviceId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 	}
@@ -1132,11 +1132,11 @@ func (s *TagService) setValueByName(ctx context.Context, in *cores.TagNameValue,
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetDeviceId()) == 0 {
+		if in.GetDeviceId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 
@@ -1251,7 +1251,7 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
@@ -1276,7 +1276,7 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 	}
@@ -1314,7 +1314,7 @@ func (s *TagService) PullValue(ctx context.Context, in *cores.TagPullValueReques
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if len(in.GetDeviceId()) > 0 {
+	if in.GetDeviceId() != "" {
 		query.Where("device_id = ?", in.GetDeviceId())
 	}
 
@@ -1348,7 +1348,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
 		}
 

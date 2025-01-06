@@ -151,7 +151,7 @@ func (s *cloneService) tag(ctx context.Context, db bun.IDB, tagID, sourceID stri
 	}
 
 	// source validation
-	if len(sourceID) > 0 {
+	if sourceID != "" {
 		source := model.Source{
 			ID: sourceID,
 		}

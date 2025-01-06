@@ -179,7 +179,7 @@ func (s *cloneService) slot(ctx context.Context, db bun.IDB, slotID, deviceID st
 	}
 
 	// device validation
-	if len(deviceID) > 0 {
+	if deviceID != "" {
 		device := model.Device{
 			ID: deviceID,
 		}
@@ -232,7 +232,7 @@ func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID, deviceI
 	}
 
 	// device validation
-	if len(deviceID) > 0 {
+	if deviceID != "" {
 		device := model.Device{
 			ID: deviceID,
 		}
@@ -309,7 +309,7 @@ func (s *cloneService) tag(ctx context.Context, db bun.IDB, tagID, sourceID stri
 	}
 
 	// source validation
-	if len(sourceID) > 0 {
+	if sourceID != "" {
 		source := model.Source{
 			ID: sourceID,
 		}
@@ -363,7 +363,7 @@ func (s *cloneService) const_(ctx context.Context, db bun.IDB, constID, deviceID
 	}
 
 	// device validation
-	if len(deviceID) > 0 {
+	if deviceID != "" {
 		device := model.Device{
 			ID: deviceID,
 		}

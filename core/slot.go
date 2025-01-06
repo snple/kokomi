@@ -39,11 +39,11 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetDeviceId()) == 0 {
+		if in.GetDeviceId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.DeviceID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Name")
 		}
 	}
@@ -87,7 +87,7 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 		Updated:  time.Now(),
 	}
 
-	if len(item.ID) == 0 {
+	if item.ID == "" {
 		item.ID = util.RandomID()
 	}
 
@@ -115,11 +115,11 @@ func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.ID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Name")
 		}
 	}
@@ -182,7 +182,7 @@ func (s *SlotService) View(ctx context.Context, in *pb.Id) (*pb.Slot, error) {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.ID")
 		}
 	}
@@ -207,11 +207,11 @@ func (s *SlotService) Name(ctx context.Context, in *cores.SlotNameRequest) (*pb.
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetDeviceId()) == 0 {
+		if in.GetDeviceId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Name")
 		}
 	}
@@ -236,7 +236,7 @@ func (s *SlotService) NameFull(ctx context.Context, in *pb.Name) (*pb.Slot, erro
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Name")
 		}
 	}
@@ -281,7 +281,7 @@ func (s *SlotService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.ID")
 		}
 	}
@@ -334,11 +334,11 @@ func (s *SlotService) List(ctx context.Context, in *cores.SlotListRequest) (*cor
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if len(in.GetDeviceId()) > 0 {
+	if in.GetDeviceId() != "" {
 		query.Where("device_id = ?", in.GetDeviceId())
 	}
 
-	if len(in.GetPage().GetSearch()) > 0 {
+	if in.GetPage().GetSearch() != "" {
 		search := fmt.Sprintf("%%%v%%", in.GetPage().GetSearch())
 
 		query.WhereGroup(" AND ", func(q *bun.SelectQuery) *bun.SelectQuery {
@@ -349,7 +349,7 @@ func (s *SlotService) List(ctx context.Context, in *cores.SlotListRequest) (*cor
 		})
 	}
 
-	if len(in.GetTags()) > 0 {
+	if in.GetTags() != "" {
 		tagsSplit := strings.Split(in.GetTags(), ",")
 
 		if len(tagsSplit) == 1 {
@@ -369,11 +369,11 @@ func (s *SlotService) List(ctx context.Context, in *cores.SlotListRequest) (*cor
 		}
 	}
 
-	if len(in.GetType()) > 0 {
+	if in.GetType() != "" {
 		query = query.Where(`type = ?`, in.GetType())
 	}
 
-	if len(in.GetPage().GetOrderBy()) > 0 && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
+	if in.GetPage().GetOrderBy() != "" && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
 		in.GetPage().GetOrderBy() == "created" || in.GetPage().GetOrderBy() == "updated") {
 		query.Order(in.GetPage().GetOrderBy() + " " + in.GetPage().GetSort().String())
 	} else {
@@ -408,7 +408,7 @@ func (s *SlotService) Link(ctx context.Context, in *cores.SlotLinkRequest) (*pb.
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.ID")
 		}
 	}
@@ -435,7 +435,7 @@ func (s *SlotService) Clone(ctx context.Context, in *cores.SlotCloneRequest) (*p
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.ID")
 		}
 	}
@@ -531,7 +531,7 @@ func (s *SlotService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Slot,
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.ID")
 		}
 	}
@@ -615,11 +615,11 @@ func (s *SlotService) Sync(ctx context.Context, in *pb.Slot) (*pb.MyBool, error)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetId()) == 0 {
+		if in.GetId() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid slot_id")
 		}
 
-		if len(in.GetName()) == 0 {
+		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Name")
 		}
 
