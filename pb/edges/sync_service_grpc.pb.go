@@ -25,26 +25,12 @@ const (
 	SyncService_WaitDeviceUpdated_FullMethodName   = "/edges.SyncService/WaitDeviceUpdated"
 	SyncService_SetSlotUpdated_FullMethodName      = "/edges.SyncService/SetSlotUpdated"
 	SyncService_GetSlotUpdated_FullMethodName      = "/edges.SyncService/GetSlotUpdated"
-	SyncService_SetOptionUpdated_FullMethodName    = "/edges.SyncService/SetOptionUpdated"
-	SyncService_GetOptionUpdated_FullMethodName    = "/edges.SyncService/GetOptionUpdated"
-	SyncService_SetPortUpdated_FullMethodName      = "/edges.SyncService/SetPortUpdated"
-	SyncService_GetPortUpdated_FullMethodName      = "/edges.SyncService/GetPortUpdated"
-	SyncService_SetProxyUpdated_FullMethodName     = "/edges.SyncService/SetProxyUpdated"
-	SyncService_GetProxyUpdated_FullMethodName     = "/edges.SyncService/GetProxyUpdated"
 	SyncService_SetSourceUpdated_FullMethodName    = "/edges.SyncService/SetSourceUpdated"
 	SyncService_GetSourceUpdated_FullMethodName    = "/edges.SyncService/GetSourceUpdated"
 	SyncService_SetTagUpdated_FullMethodName       = "/edges.SyncService/SetTagUpdated"
 	SyncService_GetTagUpdated_FullMethodName       = "/edges.SyncService/GetTagUpdated"
 	SyncService_SetConstUpdated_FullMethodName     = "/edges.SyncService/SetConstUpdated"
 	SyncService_GetConstUpdated_FullMethodName     = "/edges.SyncService/GetConstUpdated"
-	SyncService_SetClassUpdated_FullMethodName     = "/edges.SyncService/SetClassUpdated"
-	SyncService_GetClassUpdated_FullMethodName     = "/edges.SyncService/GetClassUpdated"
-	SyncService_SetAttrUpdated_FullMethodName      = "/edges.SyncService/SetAttrUpdated"
-	SyncService_GetAttrUpdated_FullMethodName      = "/edges.SyncService/GetAttrUpdated"
-	SyncService_SetLogicUpdated_FullMethodName     = "/edges.SyncService/SetLogicUpdated"
-	SyncService_GetLogicUpdated_FullMethodName     = "/edges.SyncService/GetLogicUpdated"
-	SyncService_SetFnUpdated_FullMethodName        = "/edges.SyncService/SetFnUpdated"
-	SyncService_GetFnUpdated_FullMethodName        = "/edges.SyncService/GetFnUpdated"
 	SyncService_SetTagValueUpdated_FullMethodName  = "/edges.SyncService/SetTagValueUpdated"
 	SyncService_GetTagValueUpdated_FullMethodName  = "/edges.SyncService/GetTagValueUpdated"
 	SyncService_WaitTagValueUpdated_FullMethodName = "/edges.SyncService/WaitTagValueUpdated"
@@ -59,26 +45,12 @@ type SyncServiceClient interface {
 	WaitDeviceUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
 	SetSlotUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetSlotUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetOptionUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetOptionUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetPortUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetPortUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetProxyUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetProxyUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetSourceUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetSourceUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetTagUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetTagUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetConstUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetConstUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetClassUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetClassUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetAttrUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetAttrUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetLogicUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetLogicUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetFnUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetFnUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetTagValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	WaitTagValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
@@ -151,66 +123,6 @@ func (c *syncServiceClient) GetSlotUpdated(ctx context.Context, in *pb.MyEmpty, 
 	return out, nil
 }
 
-func (c *syncServiceClient) SetOptionUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetOptionUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) GetOptionUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetOptionUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) SetPortUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetPortUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) GetPortUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetPortUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) SetProxyUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetProxyUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) GetProxyUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetProxyUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *syncServiceClient) SetSourceUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
@@ -271,86 +183,6 @@ func (c *syncServiceClient) GetConstUpdated(ctx context.Context, in *pb.MyEmpty,
 	return out, nil
 }
 
-func (c *syncServiceClient) SetClassUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetClassUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) GetClassUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetClassUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) SetAttrUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetAttrUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) GetAttrUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetAttrUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) SetLogicUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetLogicUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) GetLogicUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetLogicUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) SetFnUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetFnUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *syncServiceClient) GetFnUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetFnUpdated_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *syncServiceClient) SetTagValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
@@ -399,26 +231,12 @@ type SyncServiceServer interface {
 	WaitDeviceUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
 	SetSlotUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetSlotUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetOptionUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetOptionUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetPortUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetPortUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetProxyUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetProxyUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetSourceUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetSourceUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetTagUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetTagUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetConstUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetConstUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetClassUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetClassUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetAttrUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetAttrUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetLogicUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetLogicUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetFnUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetFnUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetTagValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetTagValueUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	WaitTagValueUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
@@ -447,24 +265,6 @@ func (UnimplementedSyncServiceServer) SetSlotUpdated(context.Context, *SyncUpdat
 func (UnimplementedSyncServiceServer) GetSlotUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSlotUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) SetOptionUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetOptionUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) GetOptionUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOptionUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) SetPortUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetPortUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) GetPortUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPortUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) SetProxyUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetProxyUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) GetProxyUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetProxyUpdated not implemented")
-}
 func (UnimplementedSyncServiceServer) SetSourceUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetSourceUpdated not implemented")
 }
@@ -482,30 +282,6 @@ func (UnimplementedSyncServiceServer) SetConstUpdated(context.Context, *SyncUpda
 }
 func (UnimplementedSyncServiceServer) GetConstUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConstUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) SetClassUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetClassUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) GetClassUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetClassUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) SetAttrUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetAttrUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) GetAttrUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAttrUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) SetLogicUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetLogicUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) GetLogicUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetLogicUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) SetFnUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetFnUpdated not implemented")
-}
-func (UnimplementedSyncServiceServer) GetFnUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFnUpdated not implemented")
 }
 func (UnimplementedSyncServiceServer) SetTagValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetTagValueUpdated not implemented")
@@ -620,114 +396,6 @@ func _SyncService_GetSlotUpdated_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_SetOptionUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUpdated)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).SetOptionUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_SetOptionUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetOptionUpdated(ctx, req.(*SyncUpdated))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_GetOptionUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.MyEmpty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).GetOptionUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_GetOptionUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetOptionUpdated(ctx, req.(*pb.MyEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_SetPortUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUpdated)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).SetPortUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_SetPortUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetPortUpdated(ctx, req.(*SyncUpdated))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_GetPortUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.MyEmpty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).GetPortUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_GetPortUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetPortUpdated(ctx, req.(*pb.MyEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_SetProxyUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUpdated)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).SetProxyUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_SetProxyUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetProxyUpdated(ctx, req.(*SyncUpdated))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_GetProxyUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.MyEmpty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).GetProxyUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_GetProxyUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetProxyUpdated(ctx, req.(*pb.MyEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _SyncService_SetSourceUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncUpdated)
 	if err := dec(in); err != nil {
@@ -836,150 +504,6 @@ func _SyncService_GetConstUpdated_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_SetClassUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUpdated)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).SetClassUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_SetClassUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetClassUpdated(ctx, req.(*SyncUpdated))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_GetClassUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.MyEmpty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).GetClassUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_GetClassUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetClassUpdated(ctx, req.(*pb.MyEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_SetAttrUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUpdated)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).SetAttrUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_SetAttrUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetAttrUpdated(ctx, req.(*SyncUpdated))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_GetAttrUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.MyEmpty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).GetAttrUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_GetAttrUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetAttrUpdated(ctx, req.(*pb.MyEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_SetLogicUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUpdated)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).SetLogicUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_SetLogicUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetLogicUpdated(ctx, req.(*SyncUpdated))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_GetLogicUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.MyEmpty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).GetLogicUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_GetLogicUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetLogicUpdated(ctx, req.(*pb.MyEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_SetFnUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUpdated)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).SetFnUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_SetFnUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetFnUpdated(ctx, req.(*SyncUpdated))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SyncService_GetFnUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.MyEmpty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncServiceServer).GetFnUpdated(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SyncService_GetFnUpdated_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetFnUpdated(ctx, req.(*pb.MyEmpty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _SyncService_SetTagValueUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncUpdated)
 	if err := dec(in); err != nil {
@@ -1051,30 +575,6 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SyncService_GetSlotUpdated_Handler,
 		},
 		{
-			MethodName: "SetOptionUpdated",
-			Handler:    _SyncService_SetOptionUpdated_Handler,
-		},
-		{
-			MethodName: "GetOptionUpdated",
-			Handler:    _SyncService_GetOptionUpdated_Handler,
-		},
-		{
-			MethodName: "SetPortUpdated",
-			Handler:    _SyncService_SetPortUpdated_Handler,
-		},
-		{
-			MethodName: "GetPortUpdated",
-			Handler:    _SyncService_GetPortUpdated_Handler,
-		},
-		{
-			MethodName: "SetProxyUpdated",
-			Handler:    _SyncService_SetProxyUpdated_Handler,
-		},
-		{
-			MethodName: "GetProxyUpdated",
-			Handler:    _SyncService_GetProxyUpdated_Handler,
-		},
-		{
 			MethodName: "SetSourceUpdated",
 			Handler:    _SyncService_SetSourceUpdated_Handler,
 		},
@@ -1097,38 +597,6 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetConstUpdated",
 			Handler:    _SyncService_GetConstUpdated_Handler,
-		},
-		{
-			MethodName: "SetClassUpdated",
-			Handler:    _SyncService_SetClassUpdated_Handler,
-		},
-		{
-			MethodName: "GetClassUpdated",
-			Handler:    _SyncService_GetClassUpdated_Handler,
-		},
-		{
-			MethodName: "SetAttrUpdated",
-			Handler:    _SyncService_SetAttrUpdated_Handler,
-		},
-		{
-			MethodName: "GetAttrUpdated",
-			Handler:    _SyncService_GetAttrUpdated_Handler,
-		},
-		{
-			MethodName: "SetLogicUpdated",
-			Handler:    _SyncService_SetLogicUpdated_Handler,
-		},
-		{
-			MethodName: "GetLogicUpdated",
-			Handler:    _SyncService_GetLogicUpdated_Handler,
-		},
-		{
-			MethodName: "SetFnUpdated",
-			Handler:    _SyncService_SetFnUpdated_Handler,
-		},
-		{
-			MethodName: "GetFnUpdated",
-			Handler:    _SyncService_GetFnUpdated_Handler,
 		},
 		{
 			MethodName: "SetTagValueUpdated",
