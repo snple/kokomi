@@ -87,7 +87,7 @@ func (s *SyncGlobalService) GetUpdated(ctx context.Context, in *pb.Id) (*cores.S
 	return &output, nil
 }
 
-func (s *SyncGlobalService) WaitDeviceUpdated(in *pb.Id,
+func (s *SyncGlobalService) WaitUpdated(in *pb.Id,
 	stream cores.SyncGlobalService_WaitUpdatedServer) error {
 
 	return s.waitUpdated(in, stream)

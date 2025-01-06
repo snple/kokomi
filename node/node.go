@@ -14,13 +14,12 @@ import (
 type NodeService struct {
 	cs *core.CoreService
 
-	sync        *SyncService
-	sync_global *SyncGlobalService
-	device      *DeviceService
-	slot        *SlotService
-	source      *SourceService
-	tag         *TagService
-	constant    *ConstService
+	sync     *SyncService
+	device   *DeviceService
+	slot     *SlotService
+	source   *SourceService
+	tag      *TagService
+	constant *ConstService
 
 	auth *AuthService
 	user *UserService
@@ -51,7 +50,6 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 	}
 
 	ns.sync = newSyncService(ns)
-	ns.sync_global = newSyncGlobalService(ns)
 	ns.device = newDeviceService(ns)
 	ns.slot = newSlotService(ns)
 	ns.source = newSourceService(ns)
@@ -88,7 +86,6 @@ func (ns *NodeService) Logger() *zap.Logger {
 
 func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 	nodes.RegisterSyncServiceServer(server, ns.sync)
-	nodes.RegisterSyncGlobalServiceServer(server, ns.sync_global)
 	nodes.RegisterDeviceServiceServer(server, ns.device)
 	nodes.RegisterSlotServiceServer(server, ns.slot)
 	nodes.RegisterSourceServiceServer(server, ns.source)
