@@ -476,12 +476,12 @@ func (s *SourceService) afterUpdate(ctx context.Context, _ *model.Source) error 
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
 	}
 
 	err = s.es.GetSync().setSourceUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setSourceUpdated: %v", err)
 	}
 
 	return nil
@@ -492,12 +492,12 @@ func (s *SourceService) afterDelete(ctx context.Context, _ *model.Source) error 
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
 	}
 
 	err = s.es.GetSync().setSourceUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setSourceUpdated: %v", err)
 	}
 
 	return nil

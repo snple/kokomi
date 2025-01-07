@@ -19,6 +19,15 @@ const (
 
 type SyncGlobal struct {
 	bun.BaseModel `bun:"sync_global"`
-	Key           string    `bun:"type:TEXT,pk" json:"key"`
+	Name          string    `bun:"type:TEXT,pk" json:"name"`
 	Updated       time.Time `bun:"updated" json:"updated"`
 }
+
+const (
+	SYNC_GLOBAL_DEVICE = "device"
+	SYNC_GLOBAL_SLOT   = "slot"
+	SYNC_GLOBAL_SOURCE = "source"
+	SYNC_GLOBAL_TAG    = "tag"
+	SYNC_GLOBAL_CONST  = "const"
+	SYNC_GLOBAL_USER   = "user"
+)

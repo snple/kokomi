@@ -584,7 +584,12 @@ func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
 
 	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+	}
+
+	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_TAG, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "SyncGlobal.setUpdated: %v", err)
 	}
 
 	return nil
@@ -595,7 +600,12 @@ func (s *TagService) afterDelete(ctx context.Context, item *model.Tag) error {
 
 	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+	}
+
+	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_TAG, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "SyncGlobal.setUpdated: %v", err)
 	}
 
 	return nil
@@ -1233,7 +1243,7 @@ func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, _ st
 
 	err = s.cs.GetSync().setTagValueUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setTagValueUpdated: %v", err)
 	}
 
 	return nil

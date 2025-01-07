@@ -515,12 +515,12 @@ func (s *TagService) afterUpdate(ctx context.Context, _ *model.Tag) error {
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
 	}
 
 	err = s.es.GetSync().setTagUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setTagUpdated: %v", err)
 	}
 
 	return nil
@@ -531,12 +531,12 @@ func (s *TagService) afterDelete(ctx context.Context, _ *model.Tag) error {
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
 	}
 
 	err = s.es.GetSync().setTagUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setTagUpdated: %v", err)
 	}
 
 	return nil
@@ -1120,7 +1120,7 @@ func (s *TagService) afterUpdateValue(ctx context.Context, _ *model.Tag, _ strin
 
 	err = s.es.GetSync().setTagValueUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setTagValueUpdated: %v", err)
 	}
 
 	return nil

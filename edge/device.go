@@ -253,7 +253,7 @@ func (s *DeviceService) afterUpdate(ctx context.Context, _ *model.Device) error 
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
 	}
 
 	return nil

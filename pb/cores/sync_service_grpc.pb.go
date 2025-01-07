@@ -328,9 +328,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SyncGlobalServiceClient interface {
-	SetUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetUpdated(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*SyncUpdated, error)
-	WaitUpdated(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
+	SetUpdated(ctx context.Context, in *SyncGlobalUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetUpdated(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*SyncGlobalUpdated, error)
+	WaitUpdated(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
 }
 
 type syncGlobalServiceClient struct {
@@ -341,7 +341,7 @@ func NewSyncGlobalServiceClient(cc grpc.ClientConnInterface) SyncGlobalServiceCl
 	return &syncGlobalServiceClient{cc}
 }
 
-func (c *syncGlobalServiceClient) SetUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *syncGlobalServiceClient) SetUpdated(ctx context.Context, in *SyncGlobalUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, SyncGlobalService_SetUpdated_FullMethodName, in, out, cOpts...)
@@ -351,9 +351,9 @@ func (c *syncGlobalServiceClient) SetUpdated(ctx context.Context, in *SyncUpdate
 	return out, nil
 }
 
-func (c *syncGlobalServiceClient) GetUpdated(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*SyncUpdated, error) {
+func (c *syncGlobalServiceClient) GetUpdated(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*SyncGlobalUpdated, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SyncUpdated)
+	out := new(SyncGlobalUpdated)
 	err := c.cc.Invoke(ctx, SyncGlobalService_GetUpdated_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -361,13 +361,13 @@ func (c *syncGlobalServiceClient) GetUpdated(ctx context.Context, in *pb.Id, opt
 	return out, nil
 }
 
-func (c *syncGlobalServiceClient) WaitUpdated(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error) {
+func (c *syncGlobalServiceClient) WaitUpdated(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &SyncGlobalService_ServiceDesc.Streams[0], SyncGlobalService_WaitUpdated_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[pb.Id, pb.MyBool]{ClientStream: stream}
+	x := &grpc.GenericClientStream[pb.Name, pb.MyBool]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -384,9 +384,9 @@ type SyncGlobalService_WaitUpdatedClient = grpc.ServerStreamingClient[pb.MyBool]
 // All implementations must embed UnimplementedSyncGlobalServiceServer
 // for forward compatibility.
 type SyncGlobalServiceServer interface {
-	SetUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetUpdated(context.Context, *pb.Id) (*SyncUpdated, error)
-	WaitUpdated(*pb.Id, grpc.ServerStreamingServer[pb.MyBool]) error
+	SetUpdated(context.Context, *SyncGlobalUpdated) (*pb.MyBool, error)
+	GetUpdated(context.Context, *pb.Name) (*SyncGlobalUpdated, error)
+	WaitUpdated(*pb.Name, grpc.ServerStreamingServer[pb.MyBool]) error
 	mustEmbedUnimplementedSyncGlobalServiceServer()
 }
 
@@ -397,13 +397,13 @@ type SyncGlobalServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSyncGlobalServiceServer struct{}
 
-func (UnimplementedSyncGlobalServiceServer) SetUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
+func (UnimplementedSyncGlobalServiceServer) SetUpdated(context.Context, *SyncGlobalUpdated) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetUpdated not implemented")
 }
-func (UnimplementedSyncGlobalServiceServer) GetUpdated(context.Context, *pb.Id) (*SyncUpdated, error) {
+func (UnimplementedSyncGlobalServiceServer) GetUpdated(context.Context, *pb.Name) (*SyncGlobalUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUpdated not implemented")
 }
-func (UnimplementedSyncGlobalServiceServer) WaitUpdated(*pb.Id, grpc.ServerStreamingServer[pb.MyBool]) error {
+func (UnimplementedSyncGlobalServiceServer) WaitUpdated(*pb.Name, grpc.ServerStreamingServer[pb.MyBool]) error {
 	return status.Errorf(codes.Unimplemented, "method WaitUpdated not implemented")
 }
 func (UnimplementedSyncGlobalServiceServer) mustEmbedUnimplementedSyncGlobalServiceServer() {}
@@ -428,7 +428,7 @@ func RegisterSyncGlobalServiceServer(s grpc.ServiceRegistrar, srv SyncGlobalServ
 }
 
 func _SyncGlobalService_SetUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SyncUpdated)
+	in := new(SyncGlobalUpdated)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -440,13 +440,13 @@ func _SyncGlobalService_SetUpdated_Handler(srv interface{}, ctx context.Context,
 		FullMethod: SyncGlobalService_SetUpdated_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncGlobalServiceServer).SetUpdated(ctx, req.(*SyncUpdated))
+		return srv.(SyncGlobalServiceServer).SetUpdated(ctx, req.(*SyncGlobalUpdated))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _SyncGlobalService_GetUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.Id)
+	in := new(pb.Name)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -458,17 +458,17 @@ func _SyncGlobalService_GetUpdated_Handler(srv interface{}, ctx context.Context,
 		FullMethod: SyncGlobalService_GetUpdated_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncGlobalServiceServer).GetUpdated(ctx, req.(*pb.Id))
+		return srv.(SyncGlobalServiceServer).GetUpdated(ctx, req.(*pb.Name))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _SyncGlobalService_WaitUpdated_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(pb.Id)
+	m := new(pb.Name)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(SyncGlobalServiceServer).WaitUpdated(m, &grpc.GenericServerStream[pb.Id, pb.MyBool]{ServerStream: stream})
+	return srv.(SyncGlobalServiceServer).WaitUpdated(m, &grpc.GenericServerStream[pb.Name, pb.MyBool]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.

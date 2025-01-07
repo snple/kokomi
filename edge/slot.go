@@ -450,12 +450,12 @@ func (s *SlotService) afterUpdate(ctx context.Context, _ *model.Slot) error {
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
 	}
 
 	err = s.es.GetSync().setSlotUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setSlotUpdated: %v", err)
 	}
 
 	return nil
@@ -466,12 +466,12 @@ func (s *SlotService) afterDelete(ctx context.Context, _ *model.Slot) error {
 
 	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
 	}
 
 	err = s.es.GetSync().setSlotUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setSlotUpdated: %v", err)
 	}
 
 	return nil

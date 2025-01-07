@@ -19,8 +19,13 @@ service SyncService {
     rpc WaitTagValueUpdated(pb.Id) returns (stream pb.MyBool) {}
 }
 
+message SyncGlobalUpdated {
+    string name = 1;
+    int64 updated = 2;
+}
+
 service SyncGlobalService {
-    rpc SetUpdated(SyncUpdated) returns (pb.MyBool) {}
-    rpc GetUpdated(pb.Id) returns (SyncUpdated) {}
-    rpc WaitUpdated(pb.Id) returns (stream pb.MyBool) {}
+    rpc SetUpdated(SyncGlobalUpdated) returns (pb.MyBool) {}
+    rpc GetUpdated(pb.Name) returns (SyncGlobalUpdated) {}
+    rpc WaitUpdated(pb.Name) returns (stream pb.MyBool) {}
 }

@@ -504,7 +504,12 @@ func (s *SlotService) afterUpdate(ctx context.Context, item *model.Slot) error {
 
 	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+	}
+
+	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_SLOT, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "SyncGlobal.setUpdated: %v", err)
 	}
 
 	return nil
@@ -515,7 +520,12 @@ func (s *SlotService) afterDelete(ctx context.Context, item *model.Slot) error {
 
 	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Insert: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+	}
+
+	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_SLOT, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "SyncGlobal.setUpdated: %v", err)
 	}
 
 	return nil

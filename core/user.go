@@ -375,11 +375,25 @@ func (s *UserService) copyModelToOutput(output *pb.User, item *model.User) {
 	output.Deleted = item.Deleted.UnixMicro()
 }
 
-func (s *UserService) afterUpdate(context.Context, *model.User) error {
+func (s *UserService) afterUpdate(ctx context.Context, item *model.User) error {
+	var err error
+
+	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_USER, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "SyncGlobal.setUpdated: %v", err)
+	}
+
 	return nil
 }
 
-func (s *UserService) afterDelete(context.Context, *model.User) error {
+func (s *UserService) afterDelete(ctx context.Context, item *model.User) error {
+	var err error
+
+	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_USER, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "SyncGlobal.setUpdated: %v", err)
+	}
+
 	return nil
 }
 

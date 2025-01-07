@@ -31,7 +31,7 @@ func newSyncGlobalService(cs *CoreService) *SyncGlobalService {
 	}
 }
 
-func (s *SyncGlobalService) SetUpdated(ctx context.Context, in *cores.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncGlobalService) SetUpdated(ctx context.Context, in *cores.SyncGlobalUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -41,8 +41,8 @@ func (s *SyncGlobalService) SetUpdated(ctx context.Context, in *cores.SyncUpdate
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid ID")
+		if in.GetName() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Name")
 		}
 
 		if in.GetUpdated() == 0 {
@@ -50,7 +50,7 @@ func (s *SyncGlobalService) SetUpdated(ctx context.Context, in *cores.SyncUpdate
 		}
 	}
 
-	err = s.setUpdated(ctx, s.cs.GetDB(), in.GetId(), time.UnixMicro(in.GetUpdated()))
+	err = s.setUpdated(ctx, s.cs.GetDB(), in.GetName(), time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -60,8 +60,8 @@ func (s *SyncGlobalService) SetUpdated(ctx context.Context, in *cores.SyncUpdate
 	return &output, nil
 }
 
-func (s *SyncGlobalService) GetUpdated(ctx context.Context, in *pb.Id) (*cores.SyncUpdated, error) {
-	var output cores.SyncUpdated
+func (s *SyncGlobalService) GetUpdated(ctx context.Context, in *pb.Name) (*cores.SyncGlobalUpdated, error) {
+	var output cores.SyncGlobalUpdated
 	var err error
 
 	// basic validation
@@ -70,14 +70,14 @@ func (s *SyncGlobalService) GetUpdated(ctx context.Context, in *pb.Id) (*cores.S
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid ID")
+		if in.GetName() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Name")
 		}
 	}
 
-	output.Id = in.GetId()
+	output.Name = in.GetName()
 
-	t, err := s.getUpdated(ctx, s.cs.GetDB(), in.GetId())
+	t, err := s.getUpdated(ctx, s.cs.GetDB(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -87,15 +87,15 @@ func (s *SyncGlobalService) GetUpdated(ctx context.Context, in *pb.Id) (*cores.S
 	return &output, nil
 }
 
-func (s *SyncGlobalService) WaitUpdated(in *pb.Id,
+func (s *SyncGlobalService) WaitUpdated(in *pb.Name,
 	stream cores.SyncGlobalService_WaitUpdatedServer) error {
 
 	return s.waitUpdated(in, stream)
 }
 
-func (s *SyncGlobalService) getUpdated(ctx context.Context, db bun.IDB, key string) (time.Time, error) {
+func (s *SyncGlobalService) getUpdated(ctx context.Context, db bun.IDB, name string) (time.Time, error) {
 	item := model.SyncGlobal{
-		Key: key,
+		Name: name,
 	}
 
 	err := db.NewSelect().Model(&item).WherePK().Scan(ctx)
@@ -115,9 +115,9 @@ func (s *SyncGlobalService) getUpdated(ctx context.Context, db bun.IDB, key stri
 	return item.Updated, nil
 }
 
-func (s *SyncGlobalService) setUpdated(ctx context.Context, db bun.IDB, key string, updated time.Time) error {
+func (s *SyncGlobalService) setUpdated(ctx context.Context, db bun.IDB, name string, updated time.Time) error {
 	item := model.SyncGlobal{
-		Key:     key,
+		Name:    name,
 		Updated: updated,
 	}
 
@@ -138,16 +138,16 @@ func (s *SyncGlobalService) setUpdated(ctx context.Context, db bun.IDB, key stri
 		}
 	}
 
-	s.notifyUpdated(key)
+	s.notifyUpdated(name)
 
 	return nil
 }
 
-func (s *SyncGlobalService) notifyUpdated(id string) {
+func (s *SyncGlobalService) notifyUpdated(name string) {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 
-	if waits, ok := s.waits[id]; ok {
+	if waits, ok := s.waits[name]; ok {
 		for wait := range waits {
 			select {
 			case wait <- struct{}{}:
@@ -157,22 +157,22 @@ func (s *SyncGlobalService) notifyUpdated(id string) {
 	}
 }
 
-func (s *SyncGlobalService) Notify(id string) *GlobalNotify {
+func (s *SyncGlobalService) Notify(name string) *GlobalNotify {
 	ch := make(chan struct{}, 1)
 
 	s.lock.Lock()
-	if waits, ok := s.waits[id]; ok {
+	if waits, ok := s.waits[name]; ok {
 		waits[ch] = struct{}{}
 	} else {
 		waits := map[chan struct{}]struct{}{
 			ch: {},
 		}
-		s.waits[id] = waits
+		s.waits[name] = waits
 	}
 	s.lock.Unlock()
 
 	n := &GlobalNotify{
-		id,
+		name,
 		s,
 		ch,
 	}
@@ -183,9 +183,9 @@ func (s *SyncGlobalService) Notify(id string) *GlobalNotify {
 }
 
 type GlobalNotify struct {
-	id string
-	ss *SyncGlobalService
-	ch chan struct{}
+	name string
+	ss   *SyncGlobalService
+	ch   chan struct{}
 }
 
 func (n *GlobalNotify) notify() {
@@ -203,17 +203,17 @@ func (n *GlobalNotify) Close() {
 	n.ss.lock.Lock()
 	defer n.ss.lock.Unlock()
 
-	if waits, ok := n.ss.waits[n.id]; ok {
+	if waits, ok := n.ss.waits[n.name]; ok {
 		delete(waits, n.ch)
 
 		if len(waits) == 0 {
-			delete(n.ss.waits, n.id)
+			delete(n.ss.waits, n.name)
 		}
 	}
 }
 
-func (n *GlobalNotify) Id() string {
-	return n.id
+func (n *GlobalNotify) Name() string {
+	return n.name
 }
 
 type globalWaitUpdatedStream interface {
@@ -221,7 +221,7 @@ type globalWaitUpdatedStream interface {
 	grpc.ServerStream
 }
 
-func (s *SyncGlobalService) waitUpdated(in *pb.Id, stream globalWaitUpdatedStream) error {
+func (s *SyncGlobalService) waitUpdated(in *pb.Name, stream globalWaitUpdatedStream) error {
 	var err error
 
 	// basic validation
@@ -230,12 +230,12 @@ func (s *SyncGlobalService) waitUpdated(in *pb.Id, stream globalWaitUpdatedStrea
 			return status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if in.GetId() == "" {
-			return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+		if in.GetName() == "" {
+			return status.Error(codes.InvalidArgument, "Please supply valid Name")
 		}
 	}
 
-	notify := s.Notify(in.GetId())
+	notify := s.Notify(in.GetName())
 	defer notify.Close()
 
 	for {
