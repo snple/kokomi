@@ -163,7 +163,6 @@ func (s *TagService) patch(ctx *gin.Context) {
 	reply.Config = params.Config
 	reply.Status = params.Status
 	reply.Access = params.Access
-	reply.Save = params.Save
 
 	reply2, err := s.ws.Core().GetTag().Update(ctx, reply)
 	if err != nil {

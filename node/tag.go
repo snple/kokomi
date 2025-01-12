@@ -206,164 +206,6 @@ func (s *TagService) List(ctx context.Context, in *nodes.TagListRequest) (*nodes
 	return &output, nil
 }
 
-func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, error) {
-	var err error
-	var output pb.TagValue
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	deviceID, err := validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	reply, err := s.ns.Core().GetTag().View(ctx, in)
-	if err != nil {
-		return &output, err
-	}
-
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
-	}
-
-	return s.ns.Core().GetTag().GetValue(ctx, in)
-}
-
-func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	deviceID, err := validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	request := &pb.Id{Id: in.GetId()}
-
-	reply, err := s.ns.Core().GetTag().View(ctx, request)
-	if err != nil {
-		return &output, err
-	}
-
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
-	}
-
-	return s.ns.Core().GetTag().SetValue(ctx, in)
-}
-
-func (s *TagService) SetValueForce(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	deviceID, err := validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	request := &pb.Id{Id: in.GetId()}
-
-	reply, err := s.ns.Core().GetTag().View(ctx, request)
-	if err != nil {
-		return &output, err
-	}
-
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
-	}
-
-	return s.ns.Core().GetTag().SetValueForce(ctx, in)
-}
-
-func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
-	var err error
-	var output pb.TagNameValue
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	deviceID, err := validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	reply, err := s.ns.Core().GetTag().GetValueByName(ctx,
-		&cores.TagGetValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
-	if err != nil {
-		return &output, err
-	}
-
-	output.Id = reply.GetId()
-	output.Name = reply.GetName()
-	output.Value = reply.GetValue()
-	output.Updated = reply.GetUpdated()
-
-	return &output, nil
-}
-
-func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	deviceID, err := validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	return s.ns.Core().GetTag().SetValueByName(ctx,
-		&cores.TagNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
-}
-
-func (s *TagService) SetValueByNameForce(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	deviceID, err := validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	return s.ns.Core().GetTag().SetValueByNameForce(ctx,
-		&cores.TagNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
-}
-
 func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 	var output pb.Tag
 	var err error
@@ -448,6 +290,116 @@ func (s *TagService) Sync(ctx context.Context, in *pb.Tag) (*pb.MyBool, error) {
 	in.DeviceId = deviceID
 
 	return s.ns.Core().GetTag().Sync(ctx, in)
+}
+
+// value
+
+func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, error) {
+	var err error
+	var output pb.TagValue
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	reply, err := s.ns.Core().GetTag().View(ctx, in)
+	if err != nil {
+		return &output, err
+	}
+
+	if reply.GetDeviceId() != deviceID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	}
+
+	return s.ns.Core().GetTag().GetValue(ctx, in)
+}
+
+func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	request := &pb.Id{Id: in.GetId()}
+
+	reply, err := s.ns.Core().GetTag().View(ctx, request)
+	if err != nil {
+		return &output, err
+	}
+
+	if reply.GetDeviceId() != deviceID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	}
+
+	return s.ns.Core().GetTag().SetValue(ctx, in)
+}
+
+func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
+	var err error
+	var output pb.TagNameValue
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	reply, err := s.ns.Core().GetTag().GetValueByName(ctx,
+		&cores.TagGetValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
+	if err != nil {
+		return &output, err
+	}
+
+	output.Id = reply.GetId()
+	output.Name = reply.GetName()
+	output.Value = reply.GetValue()
+	output.Updated = reply.GetUpdated()
+
+	return &output, nil
+}
+
+func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ns.Core().GetTag().SetValueByName(ctx,
+		&cores.TagNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 
 func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
@@ -570,4 +522,236 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 	}
 
 	return s.ns.Core().GetTag().SyncValue(ctx, in)
+}
+
+// write
+
+func (s *TagService) GetWrite(ctx context.Context, in *pb.Id) (*pb.TagValue, error) {
+	var err error
+	var output pb.TagValue
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	reply, err := s.ns.Core().GetTag().View(ctx, in)
+	if err != nil {
+		return &output, err
+	}
+
+	if reply.GetDeviceId() != deviceID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	}
+
+	return s.ns.Core().GetTag().GetWrite(ctx, in)
+}
+
+func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	request := &pb.Id{Id: in.GetId()}
+
+	reply, err := s.ns.Core().GetTag().View(ctx, request)
+	if err != nil {
+		return &output, err
+	}
+
+	if reply.GetDeviceId() != deviceID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	}
+
+	return s.ns.Core().GetTag().SetWrite(ctx, in)
+}
+
+func (s *TagService) GetWriteByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
+	var err error
+	var output pb.TagNameValue
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	reply, err := s.ns.Core().GetTag().GetWriteByName(ctx,
+		&cores.TagGetValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
+	if err != nil {
+		return &output, err
+	}
+
+	output.Id = reply.GetId()
+	output.Name = reply.GetName()
+	output.Value = reply.GetValue()
+	output.Updated = reply.GetUpdated()
+
+	return &output, nil
+}
+
+func (s *TagService) SetWriteByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ns.Core().GetTag().SetValueByName(ctx,
+		&cores.TagNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
+}
+
+func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
+	var output pb.TagValueUpdated
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	reply, err := s.ns.Core().GetTag().ViewWrite(ctx, in)
+	if err != nil {
+		return &output, err
+	}
+
+	if reply.GetDeviceId() != deviceID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	}
+
+	return reply, nil
+}
+
+func (s *TagService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	reply, err := s.ns.Core().GetTag().ViewWrite(ctx, in)
+	if err != nil {
+		return &output, err
+	}
+
+	if reply.GetDeviceId() != deviceID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	}
+
+	return s.ns.Core().GetTag().DeleteWrite(ctx, in)
+}
+
+func (s *TagService) PullWrite(ctx context.Context, in *nodes.TagPullValueRequest) (*nodes.TagPullValueResponse, error) {
+	var err error
+	var output nodes.TagPullValueResponse
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	output.After = in.GetAfter()
+	output.Limit = in.GetLimit()
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	request := &cores.TagPullValueRequest{
+		After:    in.GetAfter(),
+		Limit:    in.GetLimit(),
+		DeviceId: deviceID,
+		SourceId: in.GetSourceId(),
+	}
+
+	reply, err := s.ns.Core().GetTag().PullWrite(ctx, request)
+	if err != nil {
+		return &output, err
+	}
+
+	output.Tag = reply.GetTag()
+
+	return &output, nil
+}
+
+func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	deviceID, err := validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	request := &pb.Id{Id: in.GetId()}
+
+	reply, err := s.ns.Core().GetTag().View(ctx, request)
+	if err != nil {
+		return &output, err
+	}
+
+	if reply.GetDeviceId() != deviceID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	}
+
+	return s.ns.Core().GetTag().SyncWrite(ctx, in)
 }

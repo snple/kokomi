@@ -374,3 +374,99 @@ PULL:
 
 	return s.es.GetSync().setTagValueUpdatedLocalToRemote(ctx, tagValueUpdated)
 }
+
+func (s *NodeService) syncTagWriteRemoteToLocal(ctx context.Context) error {
+	tagWriteUpdated, err := s.SyncServiceClient().GetTagWriteUpdated(ctx, &pb.MyEmpty{})
+	if err != nil {
+		return err
+	}
+
+	tagWriteUpdated2, err := s.es.GetSync().getTagWriteUpdatedRemoteToLocal(ctx)
+	if err != nil {
+		return err
+	}
+
+	if tagWriteUpdated.GetUpdated() <= tagWriteUpdated2.UnixMicro() {
+		return nil
+	}
+
+	after := tagWriteUpdated2.UnixMicro()
+	limit := uint32(100)
+
+PULL:
+	for {
+		remotes, err := s.TagServiceClient().PullWrite(ctx, &nodes.TagPullValueRequest{After: after, Limit: limit})
+		if err != nil {
+			return err
+		}
+
+		for _, remote := range remotes.GetTag() {
+			if remote.GetUpdated() > tagWriteUpdated.GetUpdated() {
+				break PULL
+			}
+
+			_, err = s.es.GetTag().SyncWrite(ctx,
+				&pb.TagValue{Id: remote.GetId(), Value: remote.GetValue(), Updated: remote.GetUpdated()})
+			if err != nil {
+				s.es.Logger().Sugar().Errorf("SyncWrite: %v", err)
+				return err
+			}
+
+			after = remote.GetUpdated()
+		}
+
+		if len(remotes.GetTag()) < int(limit) {
+			break
+		}
+	}
+
+	return s.es.GetSync().setTagWriteUpdatedRemoteToLocal(ctx, time.UnixMicro(tagWriteUpdated.GetUpdated()))
+}
+
+func (s *NodeService) syncTagWriteLocalToRemote(ctx context.Context) error {
+	tagWriteUpdated, err := s.es.GetSync().getTagWriteUpdated(ctx)
+	if err != nil {
+		return err
+	}
+
+	tagWriteUpdated2, err := s.es.GetSync().getTagWriteUpdatedLocalToRemote(ctx)
+	if err != nil {
+		return err
+	}
+
+	if tagWriteUpdated.UnixMicro() <= tagWriteUpdated2.UnixMicro() {
+		return nil
+	}
+
+	after := tagWriteUpdated2.UnixMicro()
+	limit := uint32(100)
+
+PULL:
+	for {
+		locals, err := s.es.GetTag().PullValue(ctx, &edges.TagPullValueRequest{After: after, Limit: limit})
+		if err != nil {
+			return err
+		}
+
+		for _, local := range locals.GetTag() {
+			if local.GetUpdated() > tagWriteUpdated.UnixMicro() {
+				break PULL
+			}
+
+			_, err = s.TagServiceClient().SyncValue(ctx,
+				&pb.TagValue{Id: local.GetId(), Value: local.GetValue(), Updated: local.GetUpdated()})
+			if err != nil {
+				s.es.Logger().Sugar().Errorf("SyncValue: %v", err)
+				return err
+			}
+
+			after = local.GetUpdated()
+		}
+
+		if len(locals.GetTag()) < int(limit) {
+			break
+		}
+	}
+
+	return s.es.GetSync().setTagWriteUpdatedLocalToRemote(ctx, tagWriteUpdated)
+}

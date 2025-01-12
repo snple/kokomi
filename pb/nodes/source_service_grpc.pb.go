@@ -464,25 +464,31 @@ var SourceService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	TagService_Create_FullMethodName              = "/nodes.TagService/Create"
-	TagService_Update_FullMethodName              = "/nodes.TagService/Update"
-	TagService_View_FullMethodName                = "/nodes.TagService/View"
-	TagService_Name_FullMethodName                = "/nodes.TagService/Name"
-	TagService_Delete_FullMethodName              = "/nodes.TagService/Delete"
-	TagService_List_FullMethodName                = "/nodes.TagService/List"
-	TagService_Pull_FullMethodName                = "/nodes.TagService/Pull"
-	TagService_ViewWithDeleted_FullMethodName     = "/nodes.TagService/ViewWithDeleted"
-	TagService_Sync_FullMethodName                = "/nodes.TagService/Sync"
-	TagService_GetValue_FullMethodName            = "/nodes.TagService/GetValue"
-	TagService_SetValue_FullMethodName            = "/nodes.TagService/SetValue"
-	TagService_SetValueForce_FullMethodName       = "/nodes.TagService/SetValueForce"
-	TagService_GetValueByName_FullMethodName      = "/nodes.TagService/GetValueByName"
-	TagService_SetValueByName_FullMethodName      = "/nodes.TagService/SetValueByName"
-	TagService_SetValueByNameForce_FullMethodName = "/nodes.TagService/SetValueByNameForce"
-	TagService_ViewValue_FullMethodName           = "/nodes.TagService/ViewValue"
-	TagService_DeleteValue_FullMethodName         = "/nodes.TagService/DeleteValue"
-	TagService_PullValue_FullMethodName           = "/nodes.TagService/PullValue"
-	TagService_SyncValue_FullMethodName           = "/nodes.TagService/SyncValue"
+	TagService_Create_FullMethodName          = "/nodes.TagService/Create"
+	TagService_Update_FullMethodName          = "/nodes.TagService/Update"
+	TagService_View_FullMethodName            = "/nodes.TagService/View"
+	TagService_Name_FullMethodName            = "/nodes.TagService/Name"
+	TagService_Delete_FullMethodName          = "/nodes.TagService/Delete"
+	TagService_List_FullMethodName            = "/nodes.TagService/List"
+	TagService_Pull_FullMethodName            = "/nodes.TagService/Pull"
+	TagService_ViewWithDeleted_FullMethodName = "/nodes.TagService/ViewWithDeleted"
+	TagService_Sync_FullMethodName            = "/nodes.TagService/Sync"
+	TagService_GetValue_FullMethodName        = "/nodes.TagService/GetValue"
+	TagService_SetValue_FullMethodName        = "/nodes.TagService/SetValue"
+	TagService_GetValueByName_FullMethodName  = "/nodes.TagService/GetValueByName"
+	TagService_SetValueByName_FullMethodName  = "/nodes.TagService/SetValueByName"
+	TagService_ViewValue_FullMethodName       = "/nodes.TagService/ViewValue"
+	TagService_DeleteValue_FullMethodName     = "/nodes.TagService/DeleteValue"
+	TagService_PullValue_FullMethodName       = "/nodes.TagService/PullValue"
+	TagService_SyncValue_FullMethodName       = "/nodes.TagService/SyncValue"
+	TagService_GetWrite_FullMethodName        = "/nodes.TagService/GetWrite"
+	TagService_SetWrite_FullMethodName        = "/nodes.TagService/SetWrite"
+	TagService_GetWriteByName_FullMethodName  = "/nodes.TagService/GetWriteByName"
+	TagService_SetWriteByName_FullMethodName  = "/nodes.TagService/SetWriteByName"
+	TagService_ViewWrite_FullMethodName       = "/nodes.TagService/ViewWrite"
+	TagService_DeleteWrite_FullMethodName     = "/nodes.TagService/DeleteWrite"
+	TagService_PullWrite_FullMethodName       = "/nodes.TagService/PullWrite"
+	TagService_SyncWrite_FullMethodName       = "/nodes.TagService/SyncWrite"
 )
 
 // TagServiceClient is the client API for TagService service.
@@ -500,14 +506,20 @@ type TagServiceClient interface {
 	Sync(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValue, error)
 	SetValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
-	SetValueForce(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetValueByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.TagNameValue, error)
 	SetValueByName(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
-	SetValueByNameForce(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValueUpdated, error)
 	DeleteValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
 	PullValue(ctx context.Context, in *TagPullValueRequest, opts ...grpc.CallOption) (*TagPullValueResponse, error)
 	SyncValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValue, error)
+	SetWrite(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetWriteByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.TagNameValue, error)
+	SetWriteByName(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
+	ViewWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValueUpdated, error)
+	DeleteWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
+	PullWrite(ctx context.Context, in *TagPullValueRequest, opts ...grpc.CallOption) (*TagPullValueResponse, error)
+	SyncWrite(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type tagServiceClient struct {
@@ -628,16 +640,6 @@ func (c *tagServiceClient) SetValue(ctx context.Context, in *pb.TagValue, opts .
 	return out, nil
 }
 
-func (c *tagServiceClient) SetValueForce(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_SetValueForce_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *tagServiceClient) GetValueByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.TagNameValue, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.TagNameValue)
@@ -652,16 +654,6 @@ func (c *tagServiceClient) SetValueByName(ctx context.Context, in *pb.TagNameVal
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, TagService_SetValueByName_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) SetValueByNameForce(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_SetValueByNameForce_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -708,6 +700,86 @@ func (c *tagServiceClient) SyncValue(ctx context.Context, in *pb.TagValue, opts 
 	return out, nil
 }
 
+func (c *tagServiceClient) GetWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValue, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.TagValue)
+	err := c.cc.Invoke(ctx, TagService_GetWrite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tagServiceClient) SetWrite(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, TagService_SetWrite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tagServiceClient) GetWriteByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.TagNameValue, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.TagNameValue)
+	err := c.cc.Invoke(ctx, TagService_GetWriteByName_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tagServiceClient) SetWriteByName(ctx context.Context, in *pb.TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, TagService_SetWriteByName_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tagServiceClient) ViewWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValueUpdated, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.TagValueUpdated)
+	err := c.cc.Invoke(ctx, TagService_ViewWrite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tagServiceClient) DeleteWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, TagService_DeleteWrite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tagServiceClient) PullWrite(ctx context.Context, in *TagPullValueRequest, opts ...grpc.CallOption) (*TagPullValueResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TagPullValueResponse)
+	err := c.cc.Invoke(ctx, TagService_PullWrite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tagServiceClient) SyncWrite(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, TagService_SyncWrite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TagServiceServer is the server API for TagService service.
 // All implementations must embed UnimplementedTagServiceServer
 // for forward compatibility.
@@ -723,14 +795,20 @@ type TagServiceServer interface {
 	Sync(context.Context, *pb.Tag) (*pb.MyBool, error)
 	GetValue(context.Context, *pb.Id) (*pb.TagValue, error)
 	SetValue(context.Context, *pb.TagValue) (*pb.MyBool, error)
-	SetValueForce(context.Context, *pb.TagValue) (*pb.MyBool, error)
 	GetValueByName(context.Context, *pb.Name) (*pb.TagNameValue, error)
 	SetValueByName(context.Context, *pb.TagNameValue) (*pb.MyBool, error)
-	SetValueByNameForce(context.Context, *pb.TagNameValue) (*pb.MyBool, error)
 	ViewValue(context.Context, *pb.Id) (*pb.TagValueUpdated, error)
 	DeleteValue(context.Context, *pb.Id) (*pb.MyBool, error)
 	PullValue(context.Context, *TagPullValueRequest) (*TagPullValueResponse, error)
 	SyncValue(context.Context, *pb.TagValue) (*pb.MyBool, error)
+	GetWrite(context.Context, *pb.Id) (*pb.TagValue, error)
+	SetWrite(context.Context, *pb.TagValue) (*pb.MyBool, error)
+	GetWriteByName(context.Context, *pb.Name) (*pb.TagNameValue, error)
+	SetWriteByName(context.Context, *pb.TagNameValue) (*pb.MyBool, error)
+	ViewWrite(context.Context, *pb.Id) (*pb.TagValueUpdated, error)
+	DeleteWrite(context.Context, *pb.Id) (*pb.MyBool, error)
+	PullWrite(context.Context, *TagPullValueRequest) (*TagPullValueResponse, error)
+	SyncWrite(context.Context, *pb.TagValue) (*pb.MyBool, error)
 	mustEmbedUnimplementedTagServiceServer()
 }
 
@@ -774,17 +852,11 @@ func (UnimplementedTagServiceServer) GetValue(context.Context, *pb.Id) (*pb.TagV
 func (UnimplementedTagServiceServer) SetValue(context.Context, *pb.TagValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetValue not implemented")
 }
-func (UnimplementedTagServiceServer) SetValueForce(context.Context, *pb.TagValue) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetValueForce not implemented")
-}
 func (UnimplementedTagServiceServer) GetValueByName(context.Context, *pb.Name) (*pb.TagNameValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValueByName not implemented")
 }
 func (UnimplementedTagServiceServer) SetValueByName(context.Context, *pb.TagNameValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetValueByName not implemented")
-}
-func (UnimplementedTagServiceServer) SetValueByNameForce(context.Context, *pb.TagNameValue) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetValueByNameForce not implemented")
 }
 func (UnimplementedTagServiceServer) ViewValue(context.Context, *pb.Id) (*pb.TagValueUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewValue not implemented")
@@ -797,6 +869,30 @@ func (UnimplementedTagServiceServer) PullValue(context.Context, *TagPullValueReq
 }
 func (UnimplementedTagServiceServer) SyncValue(context.Context, *pb.TagValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SyncValue not implemented")
+}
+func (UnimplementedTagServiceServer) GetWrite(context.Context, *pb.Id) (*pb.TagValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWrite not implemented")
+}
+func (UnimplementedTagServiceServer) SetWrite(context.Context, *pb.TagValue) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetWrite not implemented")
+}
+func (UnimplementedTagServiceServer) GetWriteByName(context.Context, *pb.Name) (*pb.TagNameValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWriteByName not implemented")
+}
+func (UnimplementedTagServiceServer) SetWriteByName(context.Context, *pb.TagNameValue) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetWriteByName not implemented")
+}
+func (UnimplementedTagServiceServer) ViewWrite(context.Context, *pb.Id) (*pb.TagValueUpdated, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ViewWrite not implemented")
+}
+func (UnimplementedTagServiceServer) DeleteWrite(context.Context, *pb.Id) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteWrite not implemented")
+}
+func (UnimplementedTagServiceServer) PullWrite(context.Context, *TagPullValueRequest) (*TagPullValueResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PullWrite not implemented")
+}
+func (UnimplementedTagServiceServer) SyncWrite(context.Context, *pb.TagValue) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SyncWrite not implemented")
 }
 func (UnimplementedTagServiceServer) mustEmbedUnimplementedTagServiceServer() {}
 func (UnimplementedTagServiceServer) testEmbeddedByValue()                    {}
@@ -1017,24 +1113,6 @@ func _TagService_SetValue_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_SetValueForce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.TagValue)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TagServiceServer).SetValueForce(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TagService_SetValueForce_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).SetValueForce(ctx, req.(*pb.TagValue))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _TagService_GetValueByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
@@ -1067,24 +1145,6 @@ func _TagService_SetValueByName_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TagServiceServer).SetValueByName(ctx, req.(*pb.TagNameValue))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TagService_SetValueByNameForce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.TagNameValue)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TagServiceServer).SetValueByNameForce(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TagService_SetValueByNameForce_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).SetValueByNameForce(ctx, req.(*pb.TagNameValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1161,6 +1221,150 @@ func _TagService_SyncValue_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TagService_GetWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Id)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).GetWrite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_GetWrite_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).GetWrite(ctx, req.(*pb.Id))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TagService_SetWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.TagValue)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).SetWrite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_SetWrite_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).SetWrite(ctx, req.(*pb.TagValue))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TagService_GetWriteByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Name)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).GetWriteByName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_GetWriteByName_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).GetWriteByName(ctx, req.(*pb.Name))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TagService_SetWriteByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.TagNameValue)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).SetWriteByName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_SetWriteByName_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).SetWriteByName(ctx, req.(*pb.TagNameValue))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TagService_ViewWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Id)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).ViewWrite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_ViewWrite_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).ViewWrite(ctx, req.(*pb.Id))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TagService_DeleteWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Id)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).DeleteWrite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_DeleteWrite_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).DeleteWrite(ctx, req.(*pb.Id))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TagService_PullWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TagPullValueRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).PullWrite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_PullWrite_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).PullWrite(ctx, req.(*TagPullValueRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TagService_SyncWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.TagValue)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TagServiceServer).SyncWrite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TagService_SyncWrite_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).SyncWrite(ctx, req.(*pb.TagValue))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TagService_ServiceDesc is the grpc.ServiceDesc for TagService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1213,20 +1417,12 @@ var TagService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TagService_SetValue_Handler,
 		},
 		{
-			MethodName: "SetValueForce",
-			Handler:    _TagService_SetValueForce_Handler,
-		},
-		{
 			MethodName: "GetValueByName",
 			Handler:    _TagService_GetValueByName_Handler,
 		},
 		{
 			MethodName: "SetValueByName",
 			Handler:    _TagService_SetValueByName_Handler,
-		},
-		{
-			MethodName: "SetValueByNameForce",
-			Handler:    _TagService_SetValueByNameForce_Handler,
 		},
 		{
 			MethodName: "ViewValue",
@@ -1243,6 +1439,38 @@ var TagService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SyncValue",
 			Handler:    _TagService_SyncValue_Handler,
+		},
+		{
+			MethodName: "GetWrite",
+			Handler:    _TagService_GetWrite_Handler,
+		},
+		{
+			MethodName: "SetWrite",
+			Handler:    _TagService_SetWrite_Handler,
+		},
+		{
+			MethodName: "GetWriteByName",
+			Handler:    _TagService_GetWriteByName_Handler,
+		},
+		{
+			MethodName: "SetWriteByName",
+			Handler:    _TagService_SetWriteByName_Handler,
+		},
+		{
+			MethodName: "ViewWrite",
+			Handler:    _TagService_ViewWrite_Handler,
+		},
+		{
+			MethodName: "DeleteWrite",
+			Handler:    _TagService_DeleteWrite_Handler,
+		},
+		{
+			MethodName: "PullWrite",
+			Handler:    _TagService_PullWrite_Handler,
+		},
+		{
+			MethodName: "SyncWrite",
+			Handler:    _TagService_SyncWrite_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

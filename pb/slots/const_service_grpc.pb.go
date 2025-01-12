@@ -20,21 +20,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ConstService_Create_FullMethodName              = "/slots.ConstService/Create"
-	ConstService_Update_FullMethodName              = "/slots.ConstService/Update"
-	ConstService_View_FullMethodName                = "/slots.ConstService/View"
-	ConstService_Name_FullMethodName                = "/slots.ConstService/Name"
-	ConstService_Delete_FullMethodName              = "/slots.ConstService/Delete"
-	ConstService_List_FullMethodName                = "/slots.ConstService/List"
-	ConstService_ViewWithDeleted_FullMethodName     = "/slots.ConstService/ViewWithDeleted"
-	ConstService_Pull_FullMethodName                = "/slots.ConstService/Pull"
-	ConstService_Sync_FullMethodName                = "/slots.ConstService/Sync"
-	ConstService_GetValue_FullMethodName            = "/slots.ConstService/GetValue"
-	ConstService_SetValue_FullMethodName            = "/slots.ConstService/SetValue"
-	ConstService_SetValueForce_FullMethodName       = "/slots.ConstService/SetValueForce"
-	ConstService_GetValueByName_FullMethodName      = "/slots.ConstService/GetValueByName"
-	ConstService_SetValueByName_FullMethodName      = "/slots.ConstService/SetValueByName"
-	ConstService_SetValueByNameForce_FullMethodName = "/slots.ConstService/SetValueByNameForce"
+	ConstService_Create_FullMethodName          = "/slots.ConstService/Create"
+	ConstService_Update_FullMethodName          = "/slots.ConstService/Update"
+	ConstService_View_FullMethodName            = "/slots.ConstService/View"
+	ConstService_Name_FullMethodName            = "/slots.ConstService/Name"
+	ConstService_Delete_FullMethodName          = "/slots.ConstService/Delete"
+	ConstService_List_FullMethodName            = "/slots.ConstService/List"
+	ConstService_ViewWithDeleted_FullMethodName = "/slots.ConstService/ViewWithDeleted"
+	ConstService_Pull_FullMethodName            = "/slots.ConstService/Pull"
+	ConstService_Sync_FullMethodName            = "/slots.ConstService/Sync"
+	ConstService_GetValue_FullMethodName        = "/slots.ConstService/GetValue"
+	ConstService_SetValue_FullMethodName        = "/slots.ConstService/SetValue"
+	ConstService_GetValueByName_FullMethodName  = "/slots.ConstService/GetValueByName"
+	ConstService_SetValueByName_FullMethodName  = "/slots.ConstService/SetValueByName"
 )
 
 // ConstServiceClient is the client API for ConstService service.
@@ -52,10 +50,8 @@ type ConstServiceClient interface {
 	Sync(ctx context.Context, in *pb.Const, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.ConstValue, error)
 	SetValue(ctx context.Context, in *pb.ConstValue, opts ...grpc.CallOption) (*pb.MyBool, error)
-	SetValueForce(ctx context.Context, in *pb.ConstValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetValueByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.ConstNameValue, error)
 	SetValueByName(ctx context.Context, in *pb.ConstNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
-	SetValueByNameForce(ctx context.Context, in *pb.ConstNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
 type constServiceClient struct {
@@ -176,16 +172,6 @@ func (c *constServiceClient) SetValue(ctx context.Context, in *pb.ConstValue, op
 	return out, nil
 }
 
-func (c *constServiceClient) SetValueForce(ctx context.Context, in *pb.ConstValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, ConstService_SetValueForce_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *constServiceClient) GetValueByName(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.ConstNameValue, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.ConstNameValue)
@@ -200,16 +186,6 @@ func (c *constServiceClient) SetValueByName(ctx context.Context, in *pb.ConstNam
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
 	err := c.cc.Invoke(ctx, ConstService_SetValueByName_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *constServiceClient) SetValueByNameForce(ctx context.Context, in *pb.ConstNameValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, ConstService_SetValueByNameForce_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -231,10 +207,8 @@ type ConstServiceServer interface {
 	Sync(context.Context, *pb.Const) (*pb.MyBool, error)
 	GetValue(context.Context, *pb.Id) (*pb.ConstValue, error)
 	SetValue(context.Context, *pb.ConstValue) (*pb.MyBool, error)
-	SetValueForce(context.Context, *pb.ConstValue) (*pb.MyBool, error)
 	GetValueByName(context.Context, *pb.Name) (*pb.ConstNameValue, error)
 	SetValueByName(context.Context, *pb.ConstNameValue) (*pb.MyBool, error)
-	SetValueByNameForce(context.Context, *pb.ConstNameValue) (*pb.MyBool, error)
 	mustEmbedUnimplementedConstServiceServer()
 }
 
@@ -278,17 +252,11 @@ func (UnimplementedConstServiceServer) GetValue(context.Context, *pb.Id) (*pb.Co
 func (UnimplementedConstServiceServer) SetValue(context.Context, *pb.ConstValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetValue not implemented")
 }
-func (UnimplementedConstServiceServer) SetValueForce(context.Context, *pb.ConstValue) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetValueForce not implemented")
-}
 func (UnimplementedConstServiceServer) GetValueByName(context.Context, *pb.Name) (*pb.ConstNameValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValueByName not implemented")
 }
 func (UnimplementedConstServiceServer) SetValueByName(context.Context, *pb.ConstNameValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetValueByName not implemented")
-}
-func (UnimplementedConstServiceServer) SetValueByNameForce(context.Context, *pb.ConstNameValue) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetValueByNameForce not implemented")
 }
 func (UnimplementedConstServiceServer) mustEmbedUnimplementedConstServiceServer() {}
 func (UnimplementedConstServiceServer) testEmbeddedByValue()                      {}
@@ -509,24 +477,6 @@ func _ConstService_SetValue_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ConstService_SetValueForce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.ConstValue)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ConstServiceServer).SetValueForce(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ConstService_SetValueForce_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConstServiceServer).SetValueForce(ctx, req.(*pb.ConstValue))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _ConstService_GetValueByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
@@ -559,24 +509,6 @@ func _ConstService_SetValueByName_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ConstServiceServer).SetValueByName(ctx, req.(*pb.ConstNameValue))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ConstService_SetValueByNameForce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.ConstNameValue)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ConstServiceServer).SetValueByNameForce(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ConstService_SetValueByNameForce_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConstServiceServer).SetValueByNameForce(ctx, req.(*pb.ConstNameValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -633,20 +565,12 @@ var ConstService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ConstService_SetValue_Handler,
 		},
 		{
-			MethodName: "SetValueForce",
-			Handler:    _ConstService_SetValueForce_Handler,
-		},
-		{
 			MethodName: "GetValueByName",
 			Handler:    _ConstService_GetValueByName_Handler,
 		},
 		{
 			MethodName: "SetValueByName",
 			Handler:    _ConstService_SetValueByName_Handler,
-		},
-		{
-			MethodName: "SetValueByNameForce",
-			Handler:    _ConstService_SetValueByNameForce_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

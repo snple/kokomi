@@ -19,7 +19,6 @@ type Source struct {
 	Params        string    `bun:"params,type:TEXT" json:"params"`
 	Config        string    `bun:"config,type:TEXT" json:"config"`
 	Status        int32     `bun:"status" json:"status"`
-	Save          int32     `bun:"save" json:"save"`
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
 	Created       time.Time `bun:"created" json:"created"`
 	Updated       time.Time `bun:"updated" json:"updated"`
@@ -40,7 +39,6 @@ type Tag struct {
 	Config        string    `bun:"config,type:TEXT" json:"config"`
 	Status        int32     `bun:"status" json:"status"`
 	Access        int32     `bun:"access" json:"access"`
-	Save          int32     `bun:"save" json:"save"`
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
 	Created       time.Time `bun:"created" json:"created"`
 	Updated       time.Time `bun:"updated" json:"updated"`
@@ -61,6 +59,13 @@ type TagValue struct {
 	Updated  time.Time `bun:"updated" json:"updated"`
 }
 
+type SortTagValue []TagValue
+
+func (a SortTagValue) Len() int           { return len(a) }
+func (a SortTagValue) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a SortTagValue) Less(i, j int) bool { return a[i].Updated.Before(a[j].Updated) }
+
 const (
 	TAG_VALUE_PREFIX = "tgv_"
+	TAG_WRITE_PREFIX = "tgw_"
 )

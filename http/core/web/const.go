@@ -142,7 +142,6 @@ func (s *ConstService) patch(ctx *gin.Context) {
 	reply.LValue = params.LValue
 	reply.Config = params.Config
 	reply.Status = params.Status
-	reply.Access = params.Access
 
 	reply2, err := s.ws.Core().GetConst().Update(ctx, reply)
 	if err != nil {

@@ -357,3 +357,71 @@ func (s *SyncService) WaitTagValueUpdated(in *pb.MyEmpty, stream slots.SyncServi
 
 	return s.ss.Edge().GetSync().WaitTagValueUpdated(in, stream)
 }
+
+func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
+	var output pb.MyBool
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	return s.ss.Edge().GetSync().SetTagWriteUpdated(ctx,
+		&edges.SyncUpdated{Updated: in.GetUpdated()})
+}
+
+func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
+	var output slots.SyncUpdated
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	reply, err := s.ss.Edge().GetSync().GetTagWriteUpdated(ctx, in)
+	if err != nil {
+		return &output, err
+	}
+
+	output.Updated = reply.GetUpdated()
+
+	return &output, nil
+}
+
+func (s *SyncService) WaitTagWriteUpdated(in *pb.MyEmpty, stream slots.SyncService_WaitTagWriteUpdatedServer) error {
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(stream.Context())
+	if err != nil {
+		return err
+	}
+
+	return s.ss.Edge().GetSync().WaitTagWriteUpdated(in, stream)
+}

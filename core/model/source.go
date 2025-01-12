@@ -20,7 +20,6 @@ type Source struct {
 	Params        string    `bun:"params,type:TEXT" json:"params"`
 	Config        string    `bun:"config,type:TEXT" json:"config"`
 	Status        int32     `bun:"status" json:"status"`
-	Save          int32     `bun:"save" json:"save"`
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
 	Created       time.Time `bun:"created" json:"created"`
 	Updated       time.Time `bun:"updated" json:"updated"`
@@ -42,7 +41,6 @@ type Tag struct {
 	Config        string    `bun:"config,type:TEXT" json:"config"`
 	Status        int32     `bun:"status" json:"status"`
 	Access        int32     `bun:"access" json:"access"`
-	Save          int32     `bun:"save" json:"save"`
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
 	Created       time.Time `bun:"created" json:"created"`
 	Updated       time.Time `bun:"updated" json:"updated"`
@@ -58,6 +56,16 @@ func (t *Tag) ValueTag() uint8 {
 
 type TagValue struct {
 	bun.BaseModel `bun:"tag_value"`
+	ID            string    `bun:"type:TEXT,pk" json:"id"`
+	DeviceID      string    `bun:"device_id,type:TEXT" json:"device_id"`
+	SourceID      string    `bun:"source_id,type:TEXT" json:"source_id"`
+	Value         string    `bun:"value,type:TEXT" json:"value"`
+	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
+	Updated       time.Time `bun:"updated" json:"updated"`
+}
+
+type TagWrite struct {
+	bun.BaseModel `bun:"tag_write"`
 	ID            string    `bun:"type:TEXT,pk" json:"id"`
 	DeviceID      string    `bun:"device_id,type:TEXT" json:"device_id"`
 	SourceID      string    `bun:"source_id,type:TEXT" json:"source_id"`

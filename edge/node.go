@@ -65,6 +65,8 @@ func (s *NodeService) start() {
 		go s.waitLocalDeviceUpdated()
 		go s.waitRemoteTagValueUpdated()
 		go s.waitLocalTagValueUpdated()
+		go s.waitRemoteTagWriteUpdated()
+		go s.waitLocalTagWriteUpdated()
 	}
 
 	for {
@@ -450,7 +452,7 @@ func (s *NodeService) waitLocalTagValueUpdated() {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
-	notify := s.es.GetSync().Notify(NOTIFY_TVAL)
+	notify := s.es.GetSync().Notify(NOTIFY_TW)
 	defer notify.Close()
 
 	for {
@@ -461,6 +463,69 @@ func (s *NodeService) waitLocalTagValueUpdated() {
 			err := s.syncTagValue2(s.ctx)
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("syncTagValue2: %v", err)
+			}
+		}
+	}
+}
+
+func (s *NodeService) waitRemoteTagWriteUpdated() {
+	s.closeWG.Add(1)
+	defer s.closeWG.Done()
+
+	for {
+		ctx := metadata.SetToken(s.ctx, s.GetToken())
+
+		stream, err := s.SyncServiceClient().WaitTagWriteUpdated(ctx, &pb.MyEmpty{})
+		if err != nil {
+			if code, ok := status.FromError(err); ok {
+				if code.Code() == codes.Canceled {
+					return
+				}
+			}
+
+			s.es.Logger().Sugar().Errorf("WaitTagWriteUpdated: %v", err)
+			return
+		}
+
+		for {
+			_, err := stream.Recv()
+			if err != nil {
+				if err == io.EOF {
+					break
+				}
+				if code, ok := status.FromError(err); ok {
+					if code.Code() == codes.Canceled {
+						return
+					}
+				}
+
+				s.es.Logger().Sugar().Errorf("WaitTagWriteUpdated.Recv(): %v", err)
+				return
+			}
+
+			err = s.syncTagWrite1(s.ctx)
+			if err != nil {
+				s.es.Logger().Sugar().Errorf("syncTagWrite1: %v", err)
+			}
+		}
+	}
+}
+
+func (s *NodeService) waitLocalTagWriteUpdated() {
+	s.closeWG.Add(1)
+	defer s.closeWG.Done()
+
+	notify := s.es.GetSync().Notify(NOTIFY_TW)
+	defer notify.Close()
+
+	for {
+		select {
+		case <-s.ctx.Done():
+			return
+		case <-notify.Wait():
+			err := s.syncTagWrite2(s.ctx)
+			if err != nil {
+				s.es.Logger().Sugar().Errorf("syncTagWrite2: %v", err)
 			}
 		}
 	}
@@ -479,7 +544,15 @@ func (s *NodeService) sync(ctx context.Context) error {
 		return err
 	}
 
-	return s.syncTagValue2(ctx)
+	if err := s.syncTagValue2(ctx); err != nil {
+		return err
+	}
+
+	if err := s.syncTagWrite1(ctx); err != nil {
+		return err
+	}
+
+	return s.syncTagWrite2(ctx)
 }
 
 func (s *NodeService) sync1(ctx context.Context) error {
@@ -504,4 +577,16 @@ func (s *NodeService) syncTagValue2(ctx context.Context) error {
 	ctx = metadata.SetToken(ctx, s.GetToken())
 
 	return s.syncTagValueLocalToRemote(ctx)
+}
+
+func (s *NodeService) syncTagWrite1(ctx context.Context) error {
+	ctx = metadata.SetToken(ctx, s.GetToken())
+
+	return s.syncTagWriteRemoteToLocal(ctx)
+}
+
+func (s *NodeService) syncTagWrite2(ctx context.Context) error {
+	ctx = metadata.SetToken(ctx, s.GetToken())
+
+	return s.syncTagWriteLocalToRemote(ctx)
 }

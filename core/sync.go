@@ -18,18 +18,20 @@ import (
 type SyncService struct {
 	cs *CoreService
 
-	lock      sync.RWMutex
-	waits     map[string]map[chan struct{}]struct{}
-	waitsTVal map[string]map[chan struct{}]struct{}
+	lock    sync.RWMutex
+	waits   map[string]map[chan struct{}]struct{}
+	waitsTV map[string]map[chan struct{}]struct{}
+	waitsTW map[string]map[chan struct{}]struct{}
 
 	cores.UnimplementedSyncServiceServer
 }
 
 func newSyncService(cs *CoreService) *SyncService {
 	return &SyncService{
-		cs:        cs,
-		waits:     make(map[string]map[chan struct{}]struct{}),
-		waitsTVal: make(map[string]map[chan struct{}]struct{}),
+		cs:      cs,
+		waits:   make(map[string]map[chan struct{}]struct{}),
+		waitsTV: make(map[string]map[chan struct{}]struct{}),
+		waitsTW: make(map[string]map[chan struct{}]struct{}),
 	}
 }
 
@@ -154,7 +156,69 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.Id) (*cores
 func (s *SyncService) WaitTagValueUpdated(in *pb.Id,
 	stream cores.SyncService_WaitTagValueUpdatedServer) error {
 
-	return s.waitUpdated(in, stream, NOTIFY_TVAL)
+	return s.waitUpdated(in, stream, NOTIFY_TV)
+}
+
+func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *cores.SyncUpdated) (*pb.MyBool, error) {
+	var output pb.MyBool
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
+		}
+	}
+
+	err = s.setTagValueUpdated(ctx, s.cs.GetDB(), in.GetId(), time.UnixMicro(in.GetUpdated()))
+	if err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.Id) (*cores.SyncUpdated, error) {
+	var output cores.SyncUpdated
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+		}
+	}
+
+	output.Id = in.GetId()
+
+	t, err := s.getTagValueUpdated(ctx, s.cs.GetDB(), in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	output.Updated = t.UnixMicro()
+
+	return &output, nil
+}
+
+func (s *SyncService) WaitTagWriteUpdated(in *pb.Id,
+	stream cores.SyncService_WaitTagWriteUpdatedServer) error {
+
+	return s.waitUpdated(in, stream, NOTIFY_TV)
 }
 
 func (s *SyncService) getDeviceUpdated(ctx context.Context, db bun.IDB, id string) (time.Time, error) {
@@ -182,7 +246,22 @@ func (s *SyncService) setTagValueUpdated(ctx context.Context, db bun.IDB, id str
 		return err
 	}
 
-	s.notifyUpdated(id, NOTIFY_TVAL)
+	s.notifyUpdated(id, NOTIFY_TV)
+
+	return nil
+}
+
+func (s *SyncService) getTagWriteUpdated(ctx context.Context, db bun.IDB, id string) (time.Time, error) {
+	return s.getUpdated(ctx, db, id+model.SYNC_TAG_WRITE_SUFFIX)
+}
+
+func (s *SyncService) setTagWriteUpdated(ctx context.Context, db bun.IDB, id string, updated time.Time) error {
+	err := s.setUpdated(ctx, db, id+model.SYNC_TAG_WRITE_SUFFIX, updated)
+	if err != nil {
+		return err
+	}
+
+	s.notifyUpdated(id, NOTIFY_TW)
 
 	return nil
 }
@@ -238,8 +317,9 @@ func (s *SyncService) setUpdated(ctx context.Context, db bun.IDB, id string, upd
 type NotifyType int
 
 const (
-	NOTIFY      NotifyType = 0
-	NOTIFY_TVAL NotifyType = 1
+	NOTIFY    NotifyType = 0
+	NOTIFY_TV NotifyType = 1
+	NOTIFY_TW NotifyType = 2
 )
 
 func (s *SyncService) notifyUpdated(id string, nt NotifyType) {
@@ -256,8 +336,17 @@ func (s *SyncService) notifyUpdated(id string, nt NotifyType) {
 				}
 			}
 		}
-	case NOTIFY_TVAL:
-		if waits, ok := s.waitsTVal[id]; ok {
+	case NOTIFY_TV:
+		if waits, ok := s.waitsTV[id]; ok {
+			for wait := range waits {
+				select {
+				case wait <- struct{}{}:
+				default:
+				}
+			}
+		}
+	case NOTIFY_TW:
+		if waits, ok := s.waitsTW[id]; ok {
 			for wait := range waits {
 				select {
 				case wait <- struct{}{}:
@@ -283,16 +372,26 @@ func (s *SyncService) Notify(id string, nt NotifyType) *Notify {
 			}
 			s.waits[id] = waits
 		}
-	case NOTIFY_TVAL:
-		if waits, ok := s.waitsTVal[id]; ok {
+	case NOTIFY_TV:
+		if waits, ok := s.waitsTV[id]; ok {
 			waits[ch] = struct{}{}
 		} else {
 			waits := map[chan struct{}]struct{}{
 				ch: {},
 			}
-			s.waitsTVal[id] = waits
+			s.waitsTV[id] = waits
+		}
+	case NOTIFY_TW:
+		if waits, ok := s.waitsTW[id]; ok {
+			waits[ch] = struct{}{}
+		} else {
+			waits := map[chan struct{}]struct{}{
+				ch: {},
+			}
+			s.waitsTW[id] = waits
 		}
 	}
+
 	s.lock.Unlock()
 
 	n := &Notify{
@@ -338,12 +437,20 @@ func (n *Notify) Close() {
 				delete(n.ss.waits, n.id)
 			}
 		}
-	case NOTIFY_TVAL:
-		if waits, ok := n.ss.waitsTVal[n.id]; ok {
+	case NOTIFY_TV:
+		if waits, ok := n.ss.waitsTV[n.id]; ok {
 			delete(waits, n.ch)
 
 			if len(waits) == 0 {
-				delete(n.ss.waitsTVal, n.id)
+				delete(n.ss.waitsTV, n.id)
+			}
+		}
+	case NOTIFY_TW:
+		if waits, ok := n.ss.waitsTW[n.id]; ok {
+			delete(waits, n.ch)
+
+			if len(waits) == 0 {
+				delete(n.ss.waitsTW, n.id)
 			}
 		}
 	}
@@ -446,7 +553,7 @@ func (s *SyncService) waitUpdated2(in *pb.Id,
 }
 
 func (s *SyncService) destory(ctx context.Context, db bun.IDB, id string) error {
-	ids := []string{id, id + model.SYNC_TAG_VALUE_SUFFIX}
+	ids := []string{id, id + model.SYNC_TAG_VALUE_SUFFIX, id + model.SYNC_TAG_WRITE_SUFFIX}
 
 	for _, id := range ids {
 		_, err := db.NewDelete().Model(&model.Sync{}).Where("id = ?", id).Exec(ctx)

@@ -22,7 +22,6 @@ type Const struct {
 	LValue        string    `bun:"l_value,type:TEXT" json:"l_value"`
 	Config        string    `bun:"config,type:TEXT" json:"config"`
 	Status        int32     `bun:"status" json:"status"`
-	Access        int32     `bun:"access" json:"access"`
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
 	Created       time.Time `bun:"created" json:"created"`
 	Updated       time.Time `bun:"updated" json:"updated"`

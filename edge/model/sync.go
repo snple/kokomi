@@ -15,9 +15,14 @@ const (
 	SYNC_TAG       = "sync_tag"
 	SYNC_CONST     = "sync_const"
 	SYNC_TAG_VALUE = "sync_tag_value"
+	SYNC_TAG_WRITE = "sync_tag_write"
 
-	SYNC_DEVICE_REMOTE_TO_LOCAL    = "sync_device_rtl"
-	SYNC_DEVICE_LOCAL_TO_REMOTE    = "sync_device_ltr"
+	SYNC_DEVICE_REMOTE_TO_LOCAL = "sync_device_rtl"
+	SYNC_DEVICE_LOCAL_TO_REMOTE = "sync_device_ltr"
+
 	SYNC_TAG_VALUE_REMOTE_TO_LOCAL = "sync_tgv_rtl"
 	SYNC_TAG_VALUE_LOCAL_TO_REMOTE = "sync_tgv_ltr"
+
+	SYNC_TAG_WRITE_REMOTE_TO_LOCAL = "sync_tgw_rtl"
+	SYNC_TAG_WRITE_LOCAL_TO_REMOTE = "sync_tgw_ltr"
 )

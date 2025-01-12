@@ -15,10 +15,9 @@ message Source {
     string config = 9;
     sint32 link = 10;
     sint32 status = 11;
-    sint32 save = 12;
-    int64 created = 13;
-    int64 updated = 14;
-    int64 deleted = 15;
+    int64 created = 12;
+    int64 updated = 13;
+    int64 deleted = 14;
 }
 
 message Tag {
@@ -37,10 +36,9 @@ message Tag {
     string config = 13;
     sint32 status = 14;
     sint32 access = 15;
-    sint32 save = 16;
-    int64 created = 17;
-    int64 updated = 18;
-    int64 deleted = 19;
+    int64 created = 16;
+    int64 updated = 17;
+    int64 deleted = 18;
 }
 
 message TagValue {

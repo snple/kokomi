@@ -90,7 +90,6 @@ func (s *ConstService) Create(ctx context.Context, in *pb.Const) (*pb.Const, err
 		LValue:   in.GetLValue(),
 		Config:   in.GetConfig(),
 		Status:   in.GetStatus(),
-		Access:   in.GetAccess(),
 		Created:  time.Now(),
 		Updated:  time.Now(),
 	}
@@ -166,7 +165,6 @@ func (s *ConstService) Update(ctx context.Context, in *pb.Const) (*pb.Const, err
 	item.LValue = in.GetLValue()
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
-	item.Access = in.GetAccess()
 	item.Updated = time.Now()
 
 	_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
@@ -479,7 +477,6 @@ func (s *ConstService) copyModelToOutput(output *pb.Const, item *model.Const) {
 	output.LValue = item.LValue
 	output.Config = item.Config
 	output.Status = item.Status
-	output.Access = item.Access
 	output.Created = item.Created.UnixMicro()
 	output.Updated = item.Updated.UnixMicro()
 	output.Deleted = item.Deleted.UnixMicro()
@@ -684,7 +681,6 @@ SKIP:
 			LValue:   in.GetLValue(),
 			Config:   in.GetConfig(),
 			Status:   in.GetStatus(),
-			Access:   in.GetAccess(),
 			Created:  time.UnixMicro(in.GetCreated()),
 			Updated:  time.UnixMicro(in.GetUpdated()),
 			Deleted:  time.UnixMicro(in.GetDeleted()),
@@ -735,7 +731,6 @@ SKIP:
 		item.LValue = in.GetLValue()
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
-		item.Access = in.GetAccess()
 		item.Updated = time.UnixMicro(in.GetUpdated())
 		item.Deleted = time.UnixMicro(in.GetDeleted())
 
@@ -830,14 +825,6 @@ func (s *ConstService) GetValue(ctx context.Context, in *pb.Id) (*pb.ConstValue,
 }
 
 func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
-	return s.setValue(ctx, in, true)
-}
-
-func (s *ConstService) SetValueForce(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
-	return s.setValue(ctx, in, false)
-}
-
-func (s *ConstService) setValue(ctx context.Context, in *pb.ConstValue, check bool) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -859,12 +846,6 @@ func (s *ConstService) setValue(ctx context.Context, in *pb.ConstValue, check bo
 
 	if item.Status != consts.ON {
 		return &output, status.Errorf(codes.FailedPrecondition, "Const.Status != ON")
-	}
-
-	if check {
-		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Const.Access != ON")
-		}
 	}
 
 	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
@@ -923,14 +904,6 @@ func (s *ConstService) GetValueByName(ctx context.Context, in *cores.ConstGetVal
 }
 
 func (s *ConstService) SetValueByName(ctx context.Context, in *cores.ConstNameValue) (*pb.MyBool, error) {
-	return s.setValueByName(ctx, in, true)
-}
-
-func (s *ConstService) SetValueByNameForce(ctx context.Context, in *cores.ConstNameValue) (*pb.MyBool, error) {
-	return s.setValueByName(ctx, in, false)
-}
-
-func (s *ConstService) setValueByName(ctx context.Context, in *cores.ConstNameValue, check bool) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -960,12 +933,6 @@ func (s *ConstService) setValueByName(ctx context.Context, in *cores.ConstNameVa
 
 	if item.Status != consts.ON {
 		return &output, status.Errorf(codes.FailedPrecondition, "Const.Status != ON")
-	}
-
-	if check {
-		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Const.Access != ON")
-		}
 	}
 
 	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())

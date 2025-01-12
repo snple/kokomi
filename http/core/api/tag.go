@@ -28,14 +28,12 @@ func (s *TagService) register(router gin.IRouter) {
 	group.GET("/:id", s.getById)
 	group.GET("/:id/value", s.getValueById)
 	group.PATCH("/:id/value", s.setValueById)
-	group.PATCH("/:id/value_force", s.setValueByIdForce)
 
 	group.GET("/name/:name", s.getByName)
 	group.POST("/name", s.getByNames)
 
 	group.POST("/get_value", s.getValueByNames)
 	group.PATCH("/set_value", s.setValueByNames)
-	group.PATCH("/set_value_force", s.setValueByNamesForce)
 }
 
 func (s *TagService) list(ctx *gin.Context) {
@@ -178,36 +176,6 @@ func (s *TagService) setValueById(ctx *gin.Context) {
 	}))
 }
 
-func (s *TagService) setValueByIdForce(ctx *gin.Context) {
-	request := &pb.Id{Id: ctx.Param("id")}
-
-	var params struct {
-		Value string `json:"value"`
-	}
-	if err := ctx.Bind(&params); err != nil {
-		ctx.JSON(util.Error(400, err.Error()))
-		return
-	}
-
-	reply, err := s.as.Core().GetTag().SetValueForce(ctx,
-		&pb.TagValue{Id: request.Id, Value: params.Value})
-	if err != nil {
-		if code, ok := status.FromError(err); ok {
-			if code.Code() == codes.NotFound {
-				ctx.JSON(util.Error(404, err.Error()))
-				return
-			}
-		}
-
-		ctx.JSON(util.Error(400, err.Error()))
-		return
-	}
-
-	ctx.JSON(util.Success(gin.H{
-		"item": reply,
-	}))
-}
-
 func (s *TagService) getByName(ctx *gin.Context) {
 	name := ctx.Param("name")
 
@@ -322,40 +290,6 @@ func (s *TagService) setValueByNames(ctx *gin.Context) {
 
 	for name, value := range params.NameValue {
 		_, err := s.as.Core().GetTag().SetValueByName(ctx,
-			&cores.TagNameValue{DeviceId: params.DeviceId, Name: name, Value: value})
-		if err != nil {
-			errors[name] = err.Error()
-		}
-	}
-
-	if len(errors) > 0 {
-		ctx.JSON(util.Success(gin.H{
-			"ok":     false,
-			"errors": errors,
-		}))
-
-		return
-	}
-
-	ctx.JSON(util.Success(gin.H{
-		"ok": true,
-	}))
-}
-
-func (s *TagService) setValueByNamesForce(ctx *gin.Context) {
-	var params struct {
-		DeviceId  string            `json:"device_id"`
-		NameValue map[string]string `json:"name_value"`
-	}
-	if err := ctx.Bind(&params); err != nil {
-		ctx.JSON(util.Error(400, err.Error()))
-		return
-	}
-
-	errors := make(map[string]string)
-
-	for name, value := range params.NameValue {
-		_, err := s.as.Core().GetTag().SetValueByNameForce(ctx,
 			&cores.TagNameValue{DeviceId: params.DeviceId, Name: name, Value: value})
 		if err != nil {
 			errors[name] = err.Error()

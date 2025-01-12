@@ -87,7 +87,6 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 		Params:   in.GetParams(),
 		Config:   in.GetConfig(),
 		Status:   in.GetStatus(),
-		Save:     in.GetSave(),
 		Created:  time.Now(),
 		Updated:  time.Now(),
 	}
@@ -161,7 +160,6 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 	item.Params = in.GetParams()
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
-	item.Save = in.GetSave()
 	item.Updated = time.Now()
 
 	_, err = s.cs.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
@@ -521,7 +519,6 @@ func (s *SourceService) copyModelToOutput(output *pb.Source, item *model.Source)
 	output.Config = item.Config
 	output.Link = s.cs.GetStatus().GetLink(item.ID)
 	output.Status = item.Status
-	output.Save = item.Save
 	output.Created = item.Created.UnixMicro()
 	output.Updated = item.Updated.UnixMicro()
 	output.Deleted = item.Deleted.UnixMicro()
@@ -728,7 +725,6 @@ SKIP:
 			Params:   in.GetParams(),
 			Config:   in.GetConfig(),
 			Status:   in.GetStatus(),
-			Save:     in.GetSave(),
 			Created:  time.UnixMicro(in.GetCreated()),
 			Updated:  time.UnixMicro(in.GetUpdated()),
 			Deleted:  time.UnixMicro(in.GetDeleted()),
@@ -777,7 +773,6 @@ SKIP:
 		item.Params = in.GetParams()
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
-		item.Save = in.GetSave()
 		item.Updated = time.UnixMicro(in.GetUpdated())
 		item.Deleted = time.UnixMicro(in.GetDeleted())
 

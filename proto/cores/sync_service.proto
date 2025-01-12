@@ -14,9 +14,14 @@ service SyncService {
     rpc SetDeviceUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetDeviceUpdated(pb.Id) returns (SyncUpdated) {}
     rpc WaitDeviceUpdated(pb.Id) returns (stream pb.MyBool) {}
+
     rpc SetTagValueUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetTagValueUpdated(pb.Id) returns (SyncUpdated) {}
     rpc WaitTagValueUpdated(pb.Id) returns (stream pb.MyBool) {}
+
+    rpc SetTagWriteUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetTagWriteUpdated(pb.Id) returns (SyncUpdated) {}
+    rpc WaitTagWriteUpdated(pb.Id) returns (stream pb.MyBool) {}
 }
 
 message SyncGlobalUpdated {

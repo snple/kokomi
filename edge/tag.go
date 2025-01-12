@@ -95,7 +95,6 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		Config:   in.GetConfig(),
 		Status:   in.GetStatus(),
 		Access:   in.GetAccess(),
-		Save:     in.GetSave(),
 		Created:  time.Now(),
 		Updated:  time.Now(),
 	}
@@ -177,7 +176,6 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
 	item.Access = in.GetAccess()
-	item.Save = in.GetSave()
 	item.Updated = time.Now()
 
 	_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
@@ -504,7 +502,6 @@ func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
 	output.Config = item.Config
 	output.Status = item.Status
 	output.Access = item.Access
-	output.Save = item.Save
 	output.Created = item.Created.UnixMicro()
 	output.Updated = item.Updated.UnixMicro()
 	output.Deleted = item.Deleted.UnixMicro()
@@ -702,7 +699,6 @@ SKIP:
 			Config:   in.GetConfig(),
 			Status:   in.GetStatus(),
 			Access:   in.GetAccess(),
-			Save:     in.GetSave(),
 			Created:  time.UnixMicro(in.GetCreated()),
 			Updated:  time.UnixMicro(in.GetUpdated()),
 			Deleted:  time.UnixMicro(in.GetDeleted()),
@@ -758,7 +754,6 @@ SKIP:
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
 		item.Access = in.GetAccess()
-		item.Save = in.GetSave()
 		item.Updated = time.UnixMicro(in.GetUpdated())
 		item.Deleted = time.UnixMicro(in.GetDeleted())
 
@@ -900,14 +895,6 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 }
 
 func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
-	return s.setValue(ctx, in, true)
-}
-
-func (s *TagService) SetValueForce(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
-	return s.setValue(ctx, in, false)
-}
-
-func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -934,12 +921,6 @@ func (s *TagService) setValue(ctx context.Context, in *pb.TagValue, check bool) 
 
 	if item.Status != consts.ON {
 		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
-	}
-
-	if check {
-		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
-		}
 	}
 
 	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
@@ -1016,14 +997,6 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 }
 
 func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
-	return s.setValueByName(ctx, in, true)
-}
-
-func (s *TagService) SetValueByNameForce(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
-	return s.setValueByName(ctx, in, false)
-}
-
-func (s *TagService) setValueByName(ctx context.Context, in *pb.TagNameValue, check bool) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -1074,12 +1047,6 @@ func (s *TagService) setValueByName(ctx context.Context, in *pb.TagNameValue, ch
 
 	if item.Status != consts.ON {
 		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
-	}
-
-	if check {
-		if item.Access != consts.ON {
-			return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
-		}
 	}
 
 	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
@@ -1251,7 +1218,7 @@ func (s *TagService) PullValue(ctx context.Context, in *edges.TagPullValueReques
 			items = append(items, item)
 		}
 
-		sort.Sort(sortTagValue(items))
+		sort.Sort(model.SortTagValue(items))
 
 		if len(items) > int(in.GetLimit()) {
 			items = items[0:in.GetLimit()]
@@ -1332,12 +1299,6 @@ UPDATED:
 	return &output, nil
 }
 
-type sortTagValue []model.TagValue
-
-func (a sortTagValue) Len() int           { return len(a) }
-func (a sortTagValue) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a sortTagValue) Less(i, j int) bool { return a[i].Updated.Before(a[j].Updated) }
-
 func (s *TagService) setTagValueUpdated(_ context.Context, item *model.Tag, value string, updated time.Time) error {
 	item2 := model.TagValue{
 		ID:       item.ID,
@@ -1412,4 +1373,522 @@ func (s *TagService) copyModelToOutputTagValue(output *pb.TagValueUpdated, item 
 	output.SourceId = item.SourceID
 	output.Value = item.Value
 	output.Updated = item.Updated.UnixMicro()
+}
+
+// write
+
+func (s *TagService) GetWrite(ctx context.Context, in *pb.Id) (*pb.TagValue, error) {
+	var err error
+	var output pb.TagValue
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+		}
+	}
+
+	output.Id = in.GetId()
+
+	item2, err := s.getTagWriteUpdated(ctx, in.GetId())
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return &output, nil
+			}
+		}
+
+		return &output, err
+	}
+
+	output.Value = item2.Value
+	output.Updated = item2.Updated.UnixMicro()
+
+	return &output, nil
+}
+
+func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+		}
+
+		if len(in.GetValue()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
+		}
+	}
+
+	// tag
+	item, err := s.ViewFromCacheByID(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	if item.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
+	}
+
+	if item.Access != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
+	}
+
+	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
+	if err != nil {
+		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	}
+
+	// validation device and source
+	{
+		// source
+		{
+			source, err := s.es.GetSource().ViewFromCacheByID(ctx, item.SourceID)
+			if err != nil {
+				return &output, err
+			}
+
+			if source.Status != consts.ON {
+				return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
+			}
+		}
+	}
+
+	if err = s.setTagWriteUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
+		return &output, err
+	}
+
+	if err = s.afterUpdateWrite(ctx, &item, in.GetValue()); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *TagService) GetWriteByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
+	var err error
+	var output pb.TagNameValue
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetName() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+		}
+	}
+
+	item, err := s.ViewFromCacheByName(ctx, in.GetName())
+	if err != nil {
+		return &output, err
+	}
+
+	output.Id = item.ID
+	output.Name = in.GetName()
+
+	item2, err := s.getTagWriteUpdated(ctx, item.ID)
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return &output, nil
+			}
+		}
+
+		return &output, err
+	}
+
+	output.Value = item2.Value
+	output.Updated = item2.Updated.UnixMicro()
+
+	return &output, nil
+}
+
+func (s *TagService) SetWriteByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetName() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+		}
+
+		if len(in.GetValue()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
+		}
+	}
+
+	// name
+	sourceName := consts.DEFAULT_SOURCE
+	itemName := in.GetName()
+
+	if strings.Contains(itemName, ".") {
+		splits := strings.Split(itemName, ".")
+		if len(splits) != 2 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+		}
+
+		sourceName = splits[0]
+		itemName = splits[1]
+	}
+
+	// source
+	source, err := s.es.GetSource().ViewFromCacheByName(ctx, sourceName)
+	if err != nil {
+		return &output, err
+	}
+
+	if source.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
+	}
+
+	// tag
+	item, err := s.ViewFromCacheBySourceIDAndName(ctx, source.ID, itemName)
+	if err != nil {
+		return &output, err
+	}
+
+	if item.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
+	}
+
+	if item.Access != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
+	}
+
+	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
+	if err != nil {
+		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	}
+
+	if err = s.setTagWriteUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
+		return &output, err
+	}
+
+	if err = s.afterUpdateWrite(ctx, &item, in.GetValue()); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *TagService) getTagWrite(ctx context.Context, id string) (string, error) {
+	item2, err := s.getTagWriteUpdated(ctx, id)
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				return "", nil
+			}
+		}
+
+		return "", err
+	}
+
+	return item2.Value, nil
+}
+
+func (s *TagService) afterUpdateWrite(ctx context.Context, _ *model.Tag, _ string) error {
+	var err error
+
+	err = s.es.GetSync().setTagWriteUpdated(ctx, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "Sync.setTagWriteUpdated: %v", err)
+	}
+
+	return nil
+}
+
+// sync value
+
+func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
+	var output pb.TagValueUpdated
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+		}
+	}
+
+	item, err := s.getTagWriteUpdated(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	s.copyModelToOutputTagValue(&output, &item)
+
+	return &output, nil
+}
+
+func (s *TagService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+		}
+	}
+
+	item, err := s.getTagWriteUpdated(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	idb, err := nson.IdFromHex(item.ID)
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "IdFromHex: %v", err)
+	}
+
+	ts := uint64(time.Now().UnixMicro())
+
+	txn := s.es.GetBadgerDB().NewTransactionAt(ts, true)
+	defer txn.Discard()
+
+	err = txn.Delete(append([]byte(model.TAG_VALUE_PREFIX), idb...))
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "BadgerDB Delete: %v", err)
+	}
+
+	err = txn.CommitAt(ts, nil)
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "BadgerDB CommitAt: %v", err)
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *TagService) PullWrite(ctx context.Context, in *edges.TagPullValueRequest) (*edges.TagPullValueResponse, error) {
+	var err error
+	var output edges.TagPullValueResponse
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	output.After = in.GetAfter()
+	output.Limit = in.GetLimit()
+
+	items := make([]model.TagValue, 0, 10)
+
+	{
+		after := time.UnixMicro(in.GetAfter())
+
+		txn := s.es.GetBadgerDB().NewTransactionAt(uint64(time.Now().UnixMicro()), false)
+		defer txn.Discard()
+
+		opts := badger.DefaultIteratorOptions
+		opts.PrefetchSize = 10
+		opts.SinceTs = uint64(in.GetAfter())
+
+		it := txn.NewIterator(opts)
+		defer it.Close()
+
+		prefix := []byte(model.TAG_WRITE_PREFIX)
+
+		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
+			dbitem := it.Item()
+
+			item := model.TagValue{}
+			err = dbitem.Value(func(val []byte) error {
+				return json.Unmarshal(val, &item)
+			})
+			if err != nil {
+				return &output, status.Errorf(codes.Internal, "BadgerDB view value: %v", err)
+			}
+
+			if !item.Updated.After(after) {
+				continue
+			}
+
+			if in.GetSourceId() != "" && in.GetSourceId() != item.SourceID {
+				continue
+			}
+
+			items = append(items, item)
+		}
+
+		sort.Sort(model.SortTagValue(items))
+
+		if len(items) > int(in.GetLimit()) {
+			items = items[0:in.GetLimit()]
+		}
+	}
+
+	for i := 0; i < len(items); i++ {
+		item := pb.TagValueUpdated{}
+
+		s.copyModelToOutputTagValue(&item, &items[i])
+
+		output.Tag = append(output.Tag, &item)
+	}
+
+	return &output, nil
+}
+
+func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+		}
+
+		if len(in.GetValue()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
+		}
+	}
+
+	// tag
+	item, err := s.ViewByID(ctx, in.GetId())
+	if err != nil {
+		return &output, err
+	}
+
+	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
+	if err != nil {
+		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	}
+
+	value, err := s.getTagWriteUpdated(ctx, in.GetId())
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				goto UPDATED
+			}
+		}
+
+		return &output, err
+	}
+
+	if in.GetUpdated() <= value.Updated.UnixMicro() {
+		return &output, nil
+	}
+
+UPDATED:
+	if err = s.setTagWriteUpdated(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
+		return &output, err
+	}
+
+	if err = s.afterUpdateWrite(ctx, &item, in.GetValue()); err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *TagService) setTagWriteUpdated(_ context.Context, item *model.Tag, value string, updated time.Time) error {
+	item2 := model.TagValue{
+		ID:       item.ID,
+		SourceID: item.SourceID,
+		Value:    value,
+		Updated:  updated,
+	}
+
+	idb, err := nson.IdFromHex(item.ID)
+	if err != nil {
+		return status.Errorf(codes.Internal, "IdFromHex: %v", err)
+	}
+
+	data, err := json.Marshal(item2)
+	if err != nil {
+		return status.Errorf(codes.Internal, "json.Marshal: %v", err)
+	}
+
+	{
+		ts := uint64(updated.UnixMicro())
+
+		txn := s.es.GetBadgerDB().NewTransactionAt(ts, true)
+		defer txn.Discard()
+
+		err = txn.Set(append([]byte(model.TAG_WRITE_PREFIX), idb...), data)
+		if err != nil {
+			return status.Errorf(codes.Internal, "BadgerDB Set: %v", err)
+		}
+
+		err = txn.CommitAt(ts, nil)
+		if err != nil {
+			return status.Errorf(codes.Internal, "BadgerDB CommitAt: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (s *TagService) getTagWriteUpdated(_ context.Context, id string) (model.TagValue, error) {
+	item := model.TagValue{
+		ID: id,
+	}
+
+	idb, err := nson.IdFromHex(item.ID)
+	if err != nil {
+		return item, status.Errorf(codes.Internal, "IdFromHex: %v", err)
+	}
+
+	txn := s.es.GetBadgerDB().NewTransactionAt(uint64(time.Now().UnixMicro()), false)
+	defer txn.Discard()
+
+	dbitem, err := txn.Get(append([]byte(model.TAG_WRITE_PREFIX), idb...))
+	if err != nil {
+		if err == badger.ErrKeyNotFound {
+			return item, status.Errorf(codes.NotFound, "Tag.ID: %v", item.ID)
+		}
+		return item, status.Errorf(codes.Internal, "BadgerDB Get: %v", err)
+	}
+
+	err = dbitem.Value(func(val []byte) error {
+		return json.Unmarshal(val, &item)
+	})
+	if err != nil {
+		return item, status.Errorf(codes.Internal, "BadgerDB Get Value: %v", err)
+	}
+
+	return item, nil
 }

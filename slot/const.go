@@ -188,25 +188,6 @@ func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyB
 	return s.ss.Edge().GetConst().SetValue(ctx, in)
 }
 
-func (s *ConstService) SetValueForce(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	_, err = validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	return s.ss.Edge().GetConst().SetValueForce(ctx, in)
-}
-
 func (s *ConstService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.ConstNameValue, error) {
 	var err error
 	var output pb.ConstNameValue
@@ -243,25 +224,6 @@ func (s *ConstService) SetValueByName(ctx context.Context, in *pb.ConstNameValue
 	}
 
 	return s.ss.Edge().GetConst().SetValueByName(ctx, in)
-}
-
-func (s *ConstService) SetValueByNameForce(ctx context.Context, in *pb.ConstNameValue) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	_, err = validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	return s.ss.Edge().GetConst().SetValueByNameForce(ctx, in)
 }
 
 func (s *ConstService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Const, error) {

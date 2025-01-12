@@ -254,36 +254,6 @@ func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyB
 	return s.ns.Core().GetConst().SetValue(ctx, in)
 }
 
-func (s *ConstService) SetValueForce(ctx context.Context, in *pb.ConstValue) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	deviceID, err := validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	request := &pb.Id{Id: in.GetId()}
-
-	reply, err := s.ns.Core().GetConst().View(ctx, request)
-	if err != nil {
-		return &output, err
-	}
-
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
-	}
-
-	return s.ns.Core().GetConst().SetValueForce(ctx, in)
-}
-
 func (s *ConstService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.ConstNameValue, error) {
 	var err error
 	var output pb.ConstNameValue
@@ -331,26 +301,6 @@ func (s *ConstService) SetValueByName(ctx context.Context, in *pb.ConstNameValue
 	}
 
 	return s.ns.Core().GetConst().SetValueByName(ctx,
-		&cores.ConstNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
-}
-
-func (s *ConstService) SetValueByNameForce(ctx context.Context, in *pb.ConstNameValue) (*pb.MyBool, error) {
-	var err error
-	var output pb.MyBool
-
-	// basic validation
-	{
-		if in == nil {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-	}
-
-	deviceID, err := validateToken(ctx)
-	if err != nil {
-		return &output, err
-	}
-
-	return s.ns.Core().GetConst().SetValueByNameForce(ctx,
 		&cores.ConstNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
 }
 

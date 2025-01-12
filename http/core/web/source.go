@@ -149,7 +149,6 @@ func (s *SourceService) patch(ctx *gin.Context) {
 	reply.Params = params.Params
 	reply.Config = params.Config
 	reply.Status = params.Status
-	reply.Save = params.Save
 
 	reply2, err := s.ws.Core().GetSource().Update(ctx, reply)
 	if err != nil {

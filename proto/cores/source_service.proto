@@ -142,14 +142,22 @@ service TagService {
     rpc ViewWithDeleted(pb.Id) returns (pb.Tag) {}
     rpc Pull(TagPullRequest) returns (TagPullResponse) {}
     rpc Sync(pb.Tag) returns (pb.MyBool) {}
+
     rpc GetValue(pb.Id) returns (pb.TagValue) {}
     rpc SetValue(pb.TagValue) returns (pb.MyBool) {}
-    rpc SetValueForce(pb.TagValue) returns (pb.MyBool) {}
     rpc GetValueByName(TagGetValueByNameRequest) returns (TagNameValue) {}
     rpc SetValueByName(TagNameValue) returns (pb.MyBool) {}
-    rpc SetValueByNameForce(TagNameValue) returns (pb.MyBool) {}
     rpc ViewValue(pb.Id) returns (pb.TagValueUpdated) {}
     rpc DeleteValue(pb.Id) returns (pb.MyBool) {}
     rpc PullValue(TagPullValueRequest) returns (TagPullValueResponse) {}
     rpc SyncValue(pb.TagValue) returns (pb.MyBool) {}
+
+    rpc GetWrite(pb.Id) returns (pb.TagValue) {}
+    rpc SetWrite(pb.TagValue) returns (pb.MyBool) {}
+    rpc GetWriteByName(TagGetValueByNameRequest) returns (TagNameValue) {}
+    rpc SetWriteByName(TagNameValue) returns (pb.MyBool) {}
+    rpc ViewWrite(pb.Id) returns (pb.TagValueUpdated) {}
+    rpc DeleteWrite(pb.Id) returns (pb.MyBool) {}
+    rpc PullWrite(TagPullValueRequest) returns (TagPullValueResponse) {}
+    rpc SyncWrite(pb.TagValue) returns (pb.MyBool) {}
 }

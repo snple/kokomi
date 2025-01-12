@@ -26,6 +26,9 @@ const (
 	SyncService_SetTagValueUpdated_FullMethodName  = "/nodes.SyncService/SetTagValueUpdated"
 	SyncService_GetTagValueUpdated_FullMethodName  = "/nodes.SyncService/GetTagValueUpdated"
 	SyncService_WaitTagValueUpdated_FullMethodName = "/nodes.SyncService/WaitTagValueUpdated"
+	SyncService_SetTagWriteUpdated_FullMethodName  = "/nodes.SyncService/SetTagWriteUpdated"
+	SyncService_GetTagWriteUpdated_FullMethodName  = "/nodes.SyncService/GetTagWriteUpdated"
+	SyncService_WaitTagWriteUpdated_FullMethodName = "/nodes.SyncService/WaitTagWriteUpdated"
 )
 
 // SyncServiceClient is the client API for SyncService service.
@@ -38,6 +41,9 @@ type SyncServiceClient interface {
 	SetTagValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	WaitTagValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
+	SetTagWriteUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
+	WaitTagWriteUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
 }
 
 type syncServiceClient struct {
@@ -126,6 +132,45 @@ func (c *syncServiceClient) WaitTagValueUpdated(ctx context.Context, in *pb.MyEm
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type SyncService_WaitTagValueUpdatedClient = grpc.ServerStreamingClient[pb.MyBool]
 
+func (c *syncServiceClient) SetTagWriteUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, SyncService_SetTagWriteUpdated_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *syncServiceClient) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SyncUpdated)
+	err := c.cc.Invoke(ctx, SyncService_GetTagWriteUpdated_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *syncServiceClient) WaitTagWriteUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &SyncService_ServiceDesc.Streams[2], SyncService_WaitTagWriteUpdated_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[pb.MyEmpty, pb.MyBool]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type SyncService_WaitTagWriteUpdatedClient = grpc.ServerStreamingClient[pb.MyBool]
+
 // SyncServiceServer is the server API for SyncService service.
 // All implementations must embed UnimplementedSyncServiceServer
 // for forward compatibility.
@@ -136,6 +181,9 @@ type SyncServiceServer interface {
 	SetTagValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetTagValueUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	WaitTagValueUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
+	SetTagWriteUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
+	GetTagWriteUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
+	WaitTagWriteUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
 	mustEmbedUnimplementedSyncServiceServer()
 }
 
@@ -163,6 +211,15 @@ func (UnimplementedSyncServiceServer) GetTagValueUpdated(context.Context, *pb.My
 }
 func (UnimplementedSyncServiceServer) WaitTagValueUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error {
 	return status.Errorf(codes.Unimplemented, "method WaitTagValueUpdated not implemented")
+}
+func (UnimplementedSyncServiceServer) SetTagWriteUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetTagWriteUpdated not implemented")
+}
+func (UnimplementedSyncServiceServer) GetTagWriteUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTagWriteUpdated not implemented")
+}
+func (UnimplementedSyncServiceServer) WaitTagWriteUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error {
+	return status.Errorf(codes.Unimplemented, "method WaitTagWriteUpdated not implemented")
 }
 func (UnimplementedSyncServiceServer) mustEmbedUnimplementedSyncServiceServer() {}
 func (UnimplementedSyncServiceServer) testEmbeddedByValue()                     {}
@@ -279,6 +336,53 @@ func _SyncService_WaitTagValueUpdated_Handler(srv interface{}, stream grpc.Serve
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type SyncService_WaitTagValueUpdatedServer = grpc.ServerStreamingServer[pb.MyBool]
 
+func _SyncService_SetTagWriteUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SyncUpdated)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SyncServiceServer).SetTagWriteUpdated(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SyncService_SetTagWriteUpdated_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SyncServiceServer).SetTagWriteUpdated(ctx, req.(*SyncUpdated))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SyncService_GetTagWriteUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.MyEmpty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SyncServiceServer).GetTagWriteUpdated(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SyncService_GetTagWriteUpdated_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SyncServiceServer).GetTagWriteUpdated(ctx, req.(*pb.MyEmpty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SyncService_WaitTagWriteUpdated_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(pb.MyEmpty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(SyncServiceServer).WaitTagWriteUpdated(m, &grpc.GenericServerStream[pb.MyEmpty, pb.MyBool]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type SyncService_WaitTagWriteUpdatedServer = grpc.ServerStreamingServer[pb.MyBool]
+
 // SyncService_ServiceDesc is the grpc.ServiceDesc for SyncService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -302,6 +406,14 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "GetTagValueUpdated",
 			Handler:    _SyncService_GetTagValueUpdated_Handler,
 		},
+		{
+			MethodName: "SetTagWriteUpdated",
+			Handler:    _SyncService_SetTagWriteUpdated_Handler,
+		},
+		{
+			MethodName: "GetTagWriteUpdated",
+			Handler:    _SyncService_GetTagWriteUpdated_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
@@ -312,6 +424,11 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "WaitTagValueUpdated",
 			Handler:       _SyncService_WaitTagValueUpdated_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "WaitTagWriteUpdated",
+			Handler:       _SyncService_WaitTagWriteUpdated_Handler,
 			ServerStreams: true,
 		},
 	},
