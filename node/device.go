@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"time"
 
 	"github.com/snple/kokomi/consts"
 	"github.com/snple/kokomi/pb"
@@ -38,7 +39,7 @@ func (s *DeviceService) Login(ctx context.Context, in *nodes.DeviceLoginRequest)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
 		}
 
-		if len(in.GetSecret()) == 0 {
+		if in.GetSecret() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Secret")
 		}
 	}
@@ -250,7 +251,12 @@ func (s *DeviceService) KeepAlive(in *pb.MyEmpty, stream nodes.DeviceService_Kee
 		return err
 	}
 
-	<-stream.Context().Done()
+	for {
+		err := stream.Send(&nodes.DeviceKeepAliveReply{Time: int32(time.Now().Unix())})
+		if err != nil {
+			return err
+		}
 
-	return stream.Context().Err()
+		time.Sleep(time.Second * 10)
+	}
 }

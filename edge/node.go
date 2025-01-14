@@ -58,23 +58,12 @@ func (s *NodeService) start() {
 
 	s.es.Logger().Sugar().Info("node service started")
 
-	go s.ticker()
-
-	if s.es.dopts.SyncOptions.Realtime {
-		go s.waitRemoteDeviceUpdated()
-		go s.waitLocalDeviceUpdated()
-		go s.waitRemoteTagValueUpdated()
-		go s.waitLocalTagValueUpdated()
-		go s.waitRemoteTagWriteUpdated()
-		go s.waitLocalTagWriteUpdated()
-	}
-
 	for {
 		select {
 		case <-s.ctx.Done():
 			return
 		default:
-			s.loop()
+			s.try()
 		}
 	}
 }
@@ -152,7 +141,7 @@ func (s *NodeService) pull() error {
 	return nil
 }
 
-func (s *NodeService) loop() {
+func (s *NodeService) try() {
 	// login
 	operation := func() error {
 		err := s.login(s.ctx)
@@ -181,30 +170,54 @@ func (s *NodeService) loop() {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(s.ctx, 10*time.Second)
+	ctx, cancel := context.WithCancel(s.ctx)
 	defer cancel()
 
-	stream, err := s.DeviceServiceClient().KeepAlive(ctx, &pb.MyEmpty{})
-	if err != nil {
-		s.es.Logger().Sugar().Errorf("KeepAlive: %v", err)
-		return
+	// start ticker
+	go s.ticker(ctx)
+
+	// start realtime sync
+	if s.es.dopts.SyncOptions.Realtime {
+		go s.waitRemoteDeviceUpdated(ctx)
+		go s.waitLocalDeviceUpdated(ctx)
+		go s.waitRemoteTagValueUpdated(ctx)
+		go s.waitLocalTagValueUpdated(ctx)
+		go s.waitRemoteTagWriteUpdated(ctx)
+		go s.waitLocalTagWriteUpdated(ctx)
 	}
 
-	for {
-		_, err := stream.Recv()
+	// keep alive
+	{
+
+		ctx, cancel := context.WithTimeout(s.ctx, 20*time.Second)
+		defer cancel()
+
+		ctx = metadata.SetToken(ctx, s.GetToken())
+
+		stream, err := s.DeviceServiceClient().KeepAlive(ctx, &pb.MyEmpty{})
 		if err != nil {
-			if err == io.EOF {
-				break
-			}
-
-			if code, ok := status.FromError(err); ok {
-				if code.Code() == codes.Canceled {
-					return
-				}
-			}
-
-			s.es.Logger().Sugar().Errorf("KeepAlive.Recv(): %v", err)
+			s.es.Logger().Sugar().Errorf("KeepAlive: %v", err)
 			return
+		}
+
+		for {
+			reply, err := stream.Recv()
+			if err != nil {
+				if err == io.EOF {
+					break
+				}
+
+				if code, ok := status.FromError(err); ok {
+					if code.Code() == codes.Canceled {
+						return
+					}
+				}
+
+				s.es.Logger().Sugar().Errorf("KeepAlive.Recv(): %v", err)
+				return
+			}
+
+			s.es.Logger().Sugar().Infof("keep alive reply: %+v", reply)
 		}
 	}
 }
@@ -221,7 +234,7 @@ func (s *NodeService) link(value bool) {
 	}
 }
 
-func (s *NodeService) ticker() {
+func (s *NodeService) ticker(ctx context.Context) {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
@@ -236,29 +249,25 @@ func (s *NodeService) ticker() {
 
 	for {
 		select {
-		case <-s.ctx.Done():
+		case <-ctx.Done():
+			s.es.Logger().Sugar().Info("ticker: ctx.Done()")
 			return
 		case <-tokenRefreshTicker.C:
-			if s.IsLinked() {
-				err := s.login(s.ctx)
-				if err != nil {
-					s.es.Logger().Sugar().Errorf("device login: %v", err)
-				}
+			err := s.login(ctx)
+			if err != nil {
+				s.es.Logger().Sugar().Errorf("device login: %v", err)
 			}
 		case <-linkStatusTicker.C:
-			if s.IsLinked() {
-				err := s.DeviceLink(s.ctx)
-				if err != nil {
-					s.es.Logger().Sugar().Errorf("link device : %v", err)
-				} else {
-					s.es.Logger().Sugar().Info("link device ticker success")
-				}
+			err := s.DeviceLink(ctx)
+			if err != nil {
+				s.es.Logger().Sugar().Errorf("link device : %v", err)
+			} else {
+				s.es.Logger().Sugar().Info("link device ticker success")
 			}
+
 		case <-syncTicker.C:
-			if s.IsLinked() {
-				if err := s.sync(s.ctx); err != nil {
-					s.es.Logger().Sugar().Errorf("sync: %v", err)
-				}
+			if err := s.sync(ctx); err != nil {
+				s.es.Logger().Sugar().Errorf("sync: %v", err)
 			}
 		}
 	}
@@ -341,12 +350,12 @@ func (s *NodeService) login(ctx context.Context) error {
 	return nil
 }
 
-func (s *NodeService) waitRemoteDeviceUpdated() {
+func (s *NodeService) waitRemoteDeviceUpdated(ctx context.Context) {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
 	for {
-		ctx := metadata.SetToken(s.ctx, s.GetToken())
+		ctx := metadata.SetToken(ctx, s.GetToken())
 
 		stream, err := s.SyncServiceClient().WaitDeviceUpdated(ctx, &pb.MyEmpty{})
 		if err != nil {
@@ -357,7 +366,10 @@ func (s *NodeService) waitRemoteDeviceUpdated() {
 			}
 
 			s.es.Logger().Sugar().Errorf("WaitDeviceUpdated: %v", err)
-			return
+
+			// retry
+			time.Sleep(s.es.dopts.SyncOptions.Retry)
+			continue
 		}
 
 		for {
@@ -377,7 +389,9 @@ func (s *NodeService) waitRemoteDeviceUpdated() {
 				return
 			}
 
-			err = s.sync1(s.ctx)
+			ctx = metadata.SetToken(ctx, s.GetToken())
+
+			err = s.sync1(ctx)
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("sync1: %v", err)
 			}
@@ -385,7 +399,7 @@ func (s *NodeService) waitRemoteDeviceUpdated() {
 	}
 }
 
-func (s *NodeService) waitLocalDeviceUpdated() {
+func (s *NodeService) waitLocalDeviceUpdated(ctx context.Context) {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
@@ -394,10 +408,12 @@ func (s *NodeService) waitLocalDeviceUpdated() {
 
 	for {
 		select {
-		case <-s.ctx.Done():
+		case <-ctx.Done():
 			return
 		case <-notify.Wait():
-			err := s.sync2(s.ctx)
+			ctx = metadata.SetToken(ctx, s.GetToken())
+
+			err := s.sync2(ctx)
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("sync2: %v", err)
 			}
@@ -405,12 +421,12 @@ func (s *NodeService) waitLocalDeviceUpdated() {
 	}
 }
 
-func (s *NodeService) waitRemoteTagValueUpdated() {
+func (s *NodeService) waitRemoteTagValueUpdated(ctx context.Context) {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
 	for {
-		ctx := metadata.SetToken(s.ctx, s.GetToken())
+		ctx := metadata.SetToken(ctx, s.GetToken())
 
 		stream, err := s.SyncServiceClient().WaitTagValueUpdated(ctx, &pb.MyEmpty{})
 		if err != nil {
@@ -421,7 +437,10 @@ func (s *NodeService) waitRemoteTagValueUpdated() {
 			}
 
 			s.es.Logger().Sugar().Errorf("WaitTagValueUpdated: %v", err)
-			return
+
+			// retry
+			time.Sleep(s.es.dopts.SyncOptions.Retry)
+			continue
 		}
 
 		for {
@@ -440,7 +459,9 @@ func (s *NodeService) waitRemoteTagValueUpdated() {
 				return
 			}
 
-			err = s.syncTagValue1(s.ctx)
+			ctx = metadata.SetToken(ctx, s.GetToken())
+
+			err = s.syncTagValue1(ctx)
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("syncTagValue1: %v", err)
 			}
@@ -448,7 +469,7 @@ func (s *NodeService) waitRemoteTagValueUpdated() {
 	}
 }
 
-func (s *NodeService) waitLocalTagValueUpdated() {
+func (s *NodeService) waitLocalTagValueUpdated(ctx context.Context) {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
@@ -457,10 +478,12 @@ func (s *NodeService) waitLocalTagValueUpdated() {
 
 	for {
 		select {
-		case <-s.ctx.Done():
+		case <-ctx.Done():
 			return
 		case <-notify.Wait():
-			err := s.syncTagValue2(s.ctx)
+			ctx = metadata.SetToken(ctx, s.GetToken())
+
+			err := s.syncTagValue2(ctx)
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("syncTagValue2: %v", err)
 			}
@@ -468,12 +491,12 @@ func (s *NodeService) waitLocalTagValueUpdated() {
 	}
 }
 
-func (s *NodeService) waitRemoteTagWriteUpdated() {
+func (s *NodeService) waitRemoteTagWriteUpdated(ctx context.Context) {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
 	for {
-		ctx := metadata.SetToken(s.ctx, s.GetToken())
+		ctx := metadata.SetToken(ctx, s.GetToken())
 
 		stream, err := s.SyncServiceClient().WaitTagWriteUpdated(ctx, &pb.MyEmpty{})
 		if err != nil {
@@ -484,7 +507,10 @@ func (s *NodeService) waitRemoteTagWriteUpdated() {
 			}
 
 			s.es.Logger().Sugar().Errorf("WaitTagWriteUpdated: %v", err)
-			return
+
+			// retry
+			time.Sleep(s.es.dopts.SyncOptions.Retry)
+			continue
 		}
 
 		for {
@@ -503,7 +529,9 @@ func (s *NodeService) waitRemoteTagWriteUpdated() {
 				return
 			}
 
-			err = s.syncTagWrite1(s.ctx)
+			ctx = metadata.SetToken(ctx, s.GetToken())
+
+			err = s.syncTagWrite1(ctx)
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("syncTagWrite1: %v", err)
 			}
@@ -511,7 +539,7 @@ func (s *NodeService) waitRemoteTagWriteUpdated() {
 	}
 }
 
-func (s *NodeService) waitLocalTagWriteUpdated() {
+func (s *NodeService) waitLocalTagWriteUpdated(ctx context.Context) {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
@@ -520,10 +548,12 @@ func (s *NodeService) waitLocalTagWriteUpdated() {
 
 	for {
 		select {
-		case <-s.ctx.Done():
+		case <-ctx.Done():
 			return
 		case <-notify.Wait():
-			err := s.syncTagWrite2(s.ctx)
+			ctx = metadata.SetToken(ctx, s.GetToken())
+
+			err := s.syncTagWrite2(ctx)
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("syncTagWrite2: %v", err)
 			}
@@ -532,6 +562,8 @@ func (s *NodeService) waitLocalTagWriteUpdated() {
 }
 
 func (s *NodeService) sync(ctx context.Context) error {
+	ctx = metadata.SetToken(ctx, s.GetToken())
+
 	if err := s.sync1(ctx); err != nil {
 		return err
 	}
@@ -556,37 +588,25 @@ func (s *NodeService) sync(ctx context.Context) error {
 }
 
 func (s *NodeService) sync1(ctx context.Context) error {
-	ctx = metadata.SetToken(ctx, s.GetToken())
-
 	return s.syncRemoteToLocal(ctx)
 }
 
 func (s *NodeService) sync2(ctx context.Context) error {
-	ctx = metadata.SetToken(ctx, s.GetToken())
-
 	return s.syncLocalToRemote(ctx)
 }
 
 func (s *NodeService) syncTagValue1(ctx context.Context) error {
-	ctx = metadata.SetToken(ctx, s.GetToken())
-
 	return s.syncTagValueRemoteToLocal(ctx)
 }
 
 func (s *NodeService) syncTagValue2(ctx context.Context) error {
-	ctx = metadata.SetToken(ctx, s.GetToken())
-
 	return s.syncTagValueLocalToRemote(ctx)
 }
 
 func (s *NodeService) syncTagWrite1(ctx context.Context) error {
-	ctx = metadata.SetToken(ctx, s.GetToken())
-
 	return s.syncTagWriteRemoteToLocal(ctx)
 }
 
 func (s *NodeService) syncTagWrite2(ctx context.Context) error {
-	ctx = metadata.SetToken(ctx, s.GetToken())
-
 	return s.syncTagWriteLocalToRemote(ctx)
 }

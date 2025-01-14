@@ -22,6 +22,10 @@ message DeviceLinkRequest {
     sint32 status = 2;
 }
 
+message DeviceKeepAliveReply {
+    int32 time = 1;
+}
+
 service DeviceService {
     rpc Login(DeviceLoginRequest) returns (DeviceLoginReply) {}
     rpc Update(pb.Device) returns (pb.Device) {}
@@ -29,5 +33,5 @@ service DeviceService {
     rpc Link(DeviceLinkRequest) returns (pb.MyBool) {}
     rpc ViewWithDeleted(pb.MyEmpty) returns (pb.Device) {}
     rpc Sync(pb.Device) returns (pb.MyBool) {}
-    rpc KeepAlive(pb.MyEmpty) returns (stream pb.MyBool) {}
+    rpc KeepAlive(pb.MyEmpty) returns (stream DeviceKeepAliveReply) {}
 }

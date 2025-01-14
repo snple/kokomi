@@ -1,6 +1,7 @@
 package zstd
 
 import (
+	"fmt"
 	"io"
 	"sync"
 
@@ -11,12 +12,16 @@ import (
 // Name is the name registered for the zstd compressor.
 const Name = "zstd"
 
-var eopts []zstd.EOption
-
-func Register(opts ...zstd.EOption) {
-	eopts = opts
-
-	encoding.RegisterCompressor(&compressor{})
+func init() {
+	c := &compressor{}
+	c.poolCompressor.New = func() any {
+		enc, err := zstd.NewWriter(io.Discard)
+		if err != nil {
+			panic(err)
+		}
+		return &writer{Encoder: enc, pool: &c.poolCompressor}
+	}
+	encoding.RegisterCompressor(c)
 }
 
 type writer struct {
@@ -24,23 +29,30 @@ type writer struct {
 	pool *sync.Pool
 }
 
-func (c *compressor) Compress(w io.Writer) (io.WriteCloser, error) {
-	z, inPool := c.poolCompressor.Get().(*writer)
-	if !inPool {
-		enc, err := zstd.NewWriter(io.Discard, eopts...)
-		if err != nil {
-			return nil, err
-		}
-		return &writer{Encoder: enc, pool: &c.poolCompressor}, nil
+func SetLevel(level zstd.EncoderLevel) error {
+	if level < zstd.SpeedFastest || level > zstd.SpeedBestCompression {
+		return fmt.Errorf("grpc: invalid zstd compression level: %d", level)
 	}
+	c := encoding.GetCompressor(Name).(*compressor)
+	c.poolCompressor.New = func() any {
+		enc, err := zstd.NewWriter(io.Discard, zstd.WithEncoderLevel(level))
+		if err != nil {
+			panic(err)
+		}
+		return &writer{Encoder: enc, pool: &c.poolCompressor}
+	}
+	return nil
+}
 
+func (c *compressor) Compress(w io.Writer) (io.WriteCloser, error) {
+	z := c.poolCompressor.Get().(*writer)
 	z.Encoder.Reset(w)
 	return z, nil
 }
 
-func (z *writer) Close() error {
-	defer z.pool.Put(z)
-	return z.Encoder.Close()
+func (w *writer) Close() error {
+	defer w.pool.Put(w)
+	return w.Encoder.Close()
 }
 
 type reader struct {

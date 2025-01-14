@@ -39,7 +39,7 @@ type DeviceServiceClient interface {
 	Link(ctx context.Context, in *DeviceLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
 	ViewWithDeleted(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*pb.Device, error)
 	Sync(ctx context.Context, in *pb.Device, opts ...grpc.CallOption) (*pb.MyBool, error)
-	KeepAlive(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
+	KeepAlive(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DeviceKeepAliveReply], error)
 }
 
 type deviceServiceClient struct {
@@ -110,13 +110,13 @@ func (c *deviceServiceClient) Sync(ctx context.Context, in *pb.Device, opts ...g
 	return out, nil
 }
 
-func (c *deviceServiceClient) KeepAlive(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error) {
+func (c *deviceServiceClient) KeepAlive(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DeviceKeepAliveReply], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &DeviceService_ServiceDesc.Streams[0], DeviceService_KeepAlive_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[pb.MyEmpty, pb.MyBool]{ClientStream: stream}
+	x := &grpc.GenericClientStream[pb.MyEmpty, DeviceKeepAliveReply]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (c *deviceServiceClient) KeepAlive(ctx context.Context, in *pb.MyEmpty, opt
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type DeviceService_KeepAliveClient = grpc.ServerStreamingClient[pb.MyBool]
+type DeviceService_KeepAliveClient = grpc.ServerStreamingClient[DeviceKeepAliveReply]
 
 // DeviceServiceServer is the server API for DeviceService service.
 // All implementations must embed UnimplementedDeviceServiceServer
@@ -139,7 +139,7 @@ type DeviceServiceServer interface {
 	Link(context.Context, *DeviceLinkRequest) (*pb.MyBool, error)
 	ViewWithDeleted(context.Context, *pb.MyEmpty) (*pb.Device, error)
 	Sync(context.Context, *pb.Device) (*pb.MyBool, error)
-	KeepAlive(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
+	KeepAlive(*pb.MyEmpty, grpc.ServerStreamingServer[DeviceKeepAliveReply]) error
 	mustEmbedUnimplementedDeviceServiceServer()
 }
 
@@ -168,7 +168,7 @@ func (UnimplementedDeviceServiceServer) ViewWithDeleted(context.Context, *pb.MyE
 func (UnimplementedDeviceServiceServer) Sync(context.Context, *pb.Device) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
-func (UnimplementedDeviceServiceServer) KeepAlive(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error {
+func (UnimplementedDeviceServiceServer) KeepAlive(*pb.MyEmpty, grpc.ServerStreamingServer[DeviceKeepAliveReply]) error {
 	return status.Errorf(codes.Unimplemented, "method KeepAlive not implemented")
 }
 func (UnimplementedDeviceServiceServer) mustEmbedUnimplementedDeviceServiceServer() {}
@@ -305,11 +305,11 @@ func _DeviceService_KeepAlive_Handler(srv interface{}, stream grpc.ServerStream)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(DeviceServiceServer).KeepAlive(m, &grpc.GenericServerStream[pb.MyEmpty, pb.MyBool]{ServerStream: stream})
+	return srv.(DeviceServiceServer).KeepAlive(m, &grpc.GenericServerStream[pb.MyEmpty, DeviceKeepAliveReply]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type DeviceService_KeepAliveServer = grpc.ServerStreamingServer[pb.MyBool]
+type DeviceService_KeepAliveServer = grpc.ServerStreamingServer[DeviceKeepAliveReply]
 
 // DeviceService_ServiceDesc is the grpc.ServiceDesc for DeviceService service.
 // It's only intended for direct use with grpc.RegisterService,

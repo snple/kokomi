@@ -197,6 +197,7 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Tag)(nil),
 		(*model.Const)(nil),
 		(*model.TagValue)(nil),
+		(*model.TagWrite)(nil),
 		(*model.User)(nil),
 	}
 

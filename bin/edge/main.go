@@ -32,6 +32,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+	_ "google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/keepalive"
 )
 
@@ -112,8 +113,6 @@ func main() {
 			grpc.WithKeepaliveParams(kacp),
 			grpc.WithDefaultCallOptions(grpc.UseCompressor(zstd.Name)),
 		}
-
-		zstd.Register()
 
 		if config.Config.NodeClient.TLS {
 			tlsConfig, err := util.LoadClientCert(
@@ -331,10 +330,8 @@ func cli(command string, bundb *bun.DB) error {
 
 		grpcOpts := []grpc.DialOption{
 			grpc.WithKeepaliveParams(kacp),
-			grpc.WithDefaultCallOptions(grpc.UseCompressor(zstd.Name)),
+			// grpc.WithDefaultCallOptions(grpc.UseCompressor(zstd.Name)),
 		}
-
-		zstd.Register()
 
 		if config.Config.NodeClient.TLS {
 			tlsConfig, err := util.LoadClientCert(
@@ -350,7 +347,7 @@ func cli(command string, bundb *bun.DB) error {
 
 			grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 		} else {
-			grpcOpts = append(grpcOpts, grpc.WithInsecure())
+			grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		}
 
 		edgeOpts = append(edgeOpts, edge.WithNode(edge.NodeOptions{

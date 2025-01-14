@@ -391,6 +391,7 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.Id) (*pb.MyBool, err
 			(*model.Tag)(nil),
 			(*model.Const)(nil),
 			(*model.TagValue)(nil),
+			(*model.TagWrite)(nil),
 		}
 
 		tx, err := s.cs.GetDB().BeginTx(ctx, nil)

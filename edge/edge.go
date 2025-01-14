@@ -97,16 +97,16 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 }
 
 func (es *EdgeService) Start() {
+	es.closeWG.Add(1)
 	go func() {
-		es.closeWG.Add(1)
 		defer es.closeWG.Done()
 
 		es.badger.start()
 	}()
 
 	if es.node.IsSome() {
+		es.closeWG.Add(1)
 		go func() {
-			es.closeWG.Add(1)
 			defer es.closeWG.Done()
 
 			es.node.Unwrap().start()
@@ -114,8 +114,8 @@ func (es *EdgeService) Start() {
 	}
 
 	if es.dopts.cache {
+		es.closeWG.Add(1)
 		go func() {
-			es.closeWG.Add(1)
 			defer es.closeWG.Done()
 
 			es.cacheGC()
@@ -260,12 +260,10 @@ type edgeOptions struct {
 	BadgerOptions   badger.Options
 	BadgerGCOptions BadgerGCOptions
 
-	linkTTL      time.Duration
-	cache        bool
-	cacheTTL     time.Duration
-	cacheGCTTL   time.Duration
-	save         bool
-	saveInterval time.Duration
+	linkTTL    time.Duration
+	cache      bool
+	cacheTTL   time.Duration
+	cacheGCTTL time.Duration
 }
 
 type NodeOptions struct {
@@ -279,6 +277,7 @@ type SyncOptions struct {
 	Link         time.Duration
 	Interval     time.Duration
 	Realtime     bool
+	Retry        time.Duration
 }
 
 type BadgerGCOptions struct {
@@ -300,18 +299,17 @@ func defaultEdgeOptions() edgeOptions {
 			Link:         time.Minute,
 			Interval:     time.Minute,
 			Realtime:     false,
+			Retry:        time.Second * 3,
 		},
 		BadgerOptions: badger.DefaultOptions("").WithInMemory(true),
 		BadgerGCOptions: BadgerGCOptions{
 			GC:             time.Hour,
 			GCDiscardRatio: 0.7,
 		},
-		linkTTL:      3 * time.Minute,
-		cache:        true,
-		cacheTTL:     3 * time.Second,
-		cacheGCTTL:   3 * time.Hour,
-		save:         false,
-		saveInterval: time.Minute,
+		linkTTL:    3 * time.Minute,
+		cache:      true,
+		cacheTTL:   3 * time.Second,
+		cacheGCTTL: 3 * time.Hour,
 	}
 }
 
@@ -415,17 +413,5 @@ func WithCacheTTL(d time.Duration) EdgeOption {
 func WithCacheGCTTL(d time.Duration) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
 		o.cacheGCTTL = d
-	})
-}
-
-func WithSave(enable bool) EdgeOption {
-	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.save = enable
-	})
-}
-
-func WithSaveInterval(d time.Duration) EdgeOption {
-	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.saveInterval = d
 	})
 }
