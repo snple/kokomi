@@ -188,10 +188,6 @@ func (s *NodeService) try() {
 
 	// keep alive
 	{
-
-		ctx, cancel := context.WithTimeout(s.ctx, 20*time.Second)
-		defer cancel()
-
 		ctx = metadata.SetToken(ctx, s.GetToken())
 
 		stream, err := s.DeviceServiceClient().KeepAlive(ctx, &pb.MyEmpty{})
@@ -473,7 +469,7 @@ func (s *NodeService) waitLocalTagValueUpdated(ctx context.Context) {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
-	notify := s.es.GetSync().Notify(NOTIFY_TW)
+	notify := s.es.GetSync().Notify(NOTIFY_TV)
 	defer notify.Close()
 
 	for {

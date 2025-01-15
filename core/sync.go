@@ -178,7 +178,7 @@ func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *cores.SyncUpda
 		}
 	}
 
-	err = s.setTagValueUpdated(ctx, s.cs.GetDB(), in.GetId(), time.UnixMicro(in.GetUpdated()))
+	err = s.setTagWriteUpdated(ctx, s.cs.GetDB(), in.GetId(), time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -205,7 +205,7 @@ func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.Id) (*cores
 
 	output.Id = in.GetId()
 
-	t, err := s.getTagValueUpdated(ctx, s.cs.GetDB(), in.GetId())
+	t, err := s.getTagWriteUpdated(ctx, s.cs.GetDB(), in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -218,7 +218,7 @@ func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.Id) (*cores
 func (s *SyncService) WaitTagWriteUpdated(in *pb.Id,
 	stream cores.SyncService_WaitTagWriteUpdatedServer) error {
 
-	return s.waitUpdated(in, stream, NOTIFY_TV)
+	return s.waitUpdated(in, stream, NOTIFY_TW)
 }
 
 func (s *SyncService) getDeviceUpdated(ctx context.Context, db bun.IDB, id string) (time.Time, error) {

@@ -143,8 +143,9 @@ func (s *DeviceService) patch(ctx *gin.Context) {
 	reply.Desc = params.Desc
 	reply.Tags = params.Tags
 	reply.Type = params.Type
+	reply.Arch = params.Arch
+	reply.Access = params.Access
 	reply.Secret = params.Secret
-	reply.Location = params.Location
 	reply.Config = params.Config
 	reply.Status = params.Status
 

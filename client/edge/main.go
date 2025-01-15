@@ -68,8 +68,8 @@ func main() {
 	// service.SlotUpdate(ctx, slot)
 	// service.SlotDelete(ctx, slot)
 
-	source := edges.NewSourceServiceClient(conn)
-	service.SourceList(ctx, source)
+	// source := edges.NewSourceServiceClient(conn)
+	// service.SourceList(ctx, source)
 	// service.SourceView(ctx, source)
 	// service.SourceName(ctx, source)
 	// service.SourceCreate(ctx, source)
@@ -78,7 +78,7 @@ func main() {
 	// service.SourceLink(ctx, source)
 
 	tag := edges.NewTagServiceClient(conn)
-	service.TagList(ctx, tag)
+	// service.TagList(ctx, tag)
 	// service.TagView(ctx, tag)
 	// service.TagName(ctx, tag)
 	// service.TagCreate(ctx, tag)
@@ -86,8 +86,10 @@ func main() {
 	// service.TagDelete(ctx, tag)
 	// t1 := time.Now()
 	// for i := 0; i < 10000; i++ {
-	service.TagSetValue(ctx, tag)
-	// 	service.TagGetValue(ctx, tag)
+	// service.TagSetValue(ctx, tag)
+	// service.TagGetValue(ctx, tag)
+	service.TagSetWrite(ctx, tag)
+	service.TagGetWrite(ctx, tag)
 	// }
 	// t2 := time.Now()
 	// fmt.Println("t2-t1", t2.Sub(t1))

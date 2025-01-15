@@ -1499,8 +1499,8 @@ func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
 	}
 
-	if item.Access != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
+	if item.Access != consts.WRITE {
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != WRITE")
 	}
 
 	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
@@ -1660,8 +1660,8 @@ func (s *TagService) SetWriteByName(ctx context.Context, in *cores.TagNameValue)
 		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
 	}
 
-	if item.Access != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != ON")
+	if item.Access != consts.WRITE {
+		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != WRITE")
 	}
 
 	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())

@@ -57,7 +57,15 @@ func (s *DeviceService) Login(ctx context.Context, in *nodes.DeviceLoginRequest)
 		return &output, status.Error(codes.FailedPrecondition, "The device is not enable")
 	}
 
-	if reply.GetSecret() != string(in.GetSecret()) {
+	if reply.GetAccess() != "" {
+		if reply.GetAccess() != in.GetAccess() {
+			s.ns.Logger().Sugar().Errorf("device connect error: device access is not valid, id: %v, ip: %v",
+				in.GetId(), metadata.GetPeerAddr(ctx))
+			return &output, status.Error(codes.Unauthenticated, "Please supply valid access")
+		}
+	}
+
+	if reply.GetSecret() != in.GetSecret() {
 		s.ns.Logger().Sugar().Errorf("device connect error: device secret is not valid, id: %v, ip: %v",
 			in.GetId(), metadata.GetPeerAddr(ctx))
 		return &output, status.Error(codes.Unauthenticated, "Please supply valid secret")

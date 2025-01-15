@@ -122,7 +122,7 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 	item.Desc = in.GetDesc()
 	item.Tags = in.GetTags()
 	item.Type = in.GetType()
-	item.Location = in.GetLocation()
+	item.Arch = in.GetArch()
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
 	item.Updated = time.Now()
@@ -239,7 +239,7 @@ func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device)
 	output.Desc = item.Desc
 	output.Tags = item.Tags
 	output.Type = item.Type
-	output.Location = item.Location
+	output.Arch = item.Arch
 	output.Config = item.Config
 	output.Status = item.Status
 	output.Link = s.es.GetStatus().GetDeviceLink()
@@ -356,17 +356,17 @@ SKIP:
 		}
 
 		item := model.Device{
-			ID:       in.GetId(),
-			Name:     in.GetName(),
-			Desc:     in.GetDesc(),
-			Tags:     in.GetTags(),
-			Type:     in.GetType(),
-			Location: in.GetLocation(),
-			Config:   in.GetConfig(),
-			Status:   in.GetStatus(),
-			Created:  time.UnixMicro(in.GetCreated()),
-			Updated:  time.UnixMicro(in.GetUpdated()),
-			Deleted:  time.UnixMicro(in.GetDeleted()),
+			ID:      in.GetId(),
+			Name:    in.GetName(),
+			Desc:    in.GetDesc(),
+			Tags:    in.GetTags(),
+			Type:    in.GetType(),
+			Arch:    in.GetArch(),
+			Config:  in.GetConfig(),
+			Status:  in.GetStatus(),
+			Created: time.UnixMicro(in.GetCreated()),
+			Updated: time.UnixMicro(in.GetUpdated()),
+			Deleted: time.UnixMicro(in.GetDeleted()),
 		}
 
 		_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -404,7 +404,7 @@ SKIP:
 		item.Desc = in.GetDesc()
 		item.Tags = in.GetTags()
 		item.Type = in.GetType()
-		item.Location = in.GetLocation()
+		item.Arch = in.GetArch()
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
 		item.Updated = time.UnixMicro(in.GetUpdated())

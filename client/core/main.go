@@ -41,7 +41,7 @@ func main() {
 	}
 
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(
+	conn, err := grpc.NewClient(
 		address,
 		grpc.WithTransportCredentials(credentials.NewTLS(cfg)),
 		// grpc.WithInsecure(),
@@ -66,19 +66,21 @@ func main() {
 	// service.DeviceDestory(ctx, device)
 	// service.DeviceClone(ctx, device)
 
-	// port := cores.NewPortServiceClient(conn)
-	// service.PortList(ctx, port)
-	// service.PortView(ctx, port)
-	// service.PortCreate(ctx, port)
-	// service.PortUpdate(ctx, port)
-	// service.PortDelete(ctx, port)
+	source := cores.NewSourceServiceClient(conn)
+	service.SourceList(ctx, source)
+	// service.SourceView(ctx, source)
+	// service.SourceName(ctx, source)
+	// service.SourceCreate(ctx, source)
+	// service.SourceUpdate(ctx, source)
+	// service.SourceDelete(ctx, source)
 
-	// proxy := cores.NewProxyServiceClient(conn)
-	// service.ProxyList(ctx, proxy)
-	// service.ProxyView(ctx, proxy)
-	// service.ProxyCreate(ctx, proxy)
-	// service.ProxyUpdate(ctx, proxy)
-	// service.ProxyDelete(ctx, proxy)
+	tag := cores.NewTagServiceClient(conn)
+	service.TagList(ctx, tag)
+	// service.TagView(ctx, tag)
+	// service.TagCreate(ctx, tag)
+	// service.TagUpdate(ctx, tag)
+	// service.TagDelete(ctx, tag)
+	// service.TagName(ctx, tag)
 
 	// tag := cores.NewTagServiceClient(conn)
 	// service.TagGetValue(ctx, tag)

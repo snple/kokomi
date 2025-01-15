@@ -443,7 +443,7 @@ func (s *NodeService) syncTagWriteLocalToRemote(ctx context.Context) error {
 
 PULL:
 	for {
-		locals, err := s.es.GetTag().PullValue(ctx, &edges.TagPullValueRequest{After: after, Limit: limit})
+		locals, err := s.es.GetTag().PullWrite(ctx, &edges.TagPullValueRequest{After: after, Limit: limit})
 		if err != nil {
 			return err
 		}
@@ -453,10 +453,10 @@ PULL:
 				break PULL
 			}
 
-			_, err = s.TagServiceClient().SyncValue(ctx,
+			_, err = s.TagServiceClient().SyncWrite(ctx,
 				&pb.TagValue{Id: local.GetId(), Value: local.GetValue(), Updated: local.GetUpdated()})
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("SyncValue: %v", err)
+				s.es.Logger().Sugar().Errorf("SyncWrite: %v", err)
 				return err
 			}
 

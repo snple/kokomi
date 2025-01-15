@@ -66,17 +66,18 @@ func (s *DeviceService) Create(ctx context.Context, in *pb.Device) (*pb.Device, 
 	}
 
 	item := model.Device{
-		ID:       in.GetId(),
-		Name:     in.GetName(),
-		Desc:     in.GetDesc(),
-		Tags:     in.GetTags(),
-		Type:     in.GetType(),
-		Secret:   in.GetSecret(),
-		Location: in.GetLocation(),
-		Config:   in.GetConfig(),
-		Status:   in.GetStatus(),
-		Created:  time.Now(),
-		Updated:  time.Now(),
+		ID:      in.GetId(),
+		Name:    in.GetName(),
+		Desc:    in.GetDesc(),
+		Tags:    in.GetTags(),
+		Type:    in.GetType(),
+		Arch:    in.GetArch(),
+		Access:  in.GetAccess(),
+		Secret:  in.GetSecret(),
+		Config:  in.GetConfig(),
+		Status:  in.GetStatus(),
+		Created: time.Now(),
+		Updated: time.Now(),
 	}
 
 	if item.ID == "" {
@@ -144,8 +145,9 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 	item.Desc = in.GetDesc()
 	item.Tags = in.GetTags()
 	item.Type = in.GetType()
+	item.Arch = in.GetArch()
+	item.Access = in.GetAccess()
 	item.Secret = in.GetSecret()
-	item.Location = in.GetLocation()
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
 	item.Updated = time.Now()
@@ -515,8 +517,9 @@ func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device)
 	output.Desc = item.Desc
 	output.Tags = item.Tags
 	output.Type = item.Type
+	output.Arch = item.Arch
+	output.Access = item.Access
 	output.Secret = item.Secret
-	output.Location = item.Location
 	output.Config = item.Config
 	output.Link = s.cs.GetStatus().GetLink(item.ID)
 	output.Status = item.Status
@@ -704,18 +707,19 @@ SKIP:
 		}
 
 		item := model.Device{
-			ID:       in.GetId(),
-			Name:     in.GetName(),
-			Desc:     in.GetDesc(),
-			Tags:     in.GetTags(),
-			Type:     in.GetType(),
-			Secret:   in.GetSecret(),
-			Location: in.GetLocation(),
-			Config:   in.GetConfig(),
-			Status:   in.GetStatus(),
-			Created:  time.UnixMicro(in.GetCreated()),
-			Updated:  time.UnixMicro(in.GetUpdated()),
-			Deleted:  time.UnixMicro(in.GetDeleted()),
+			ID:      in.GetId(),
+			Name:    in.GetName(),
+			Desc:    in.GetDesc(),
+			Tags:    in.GetTags(),
+			Type:    in.GetType(),
+			Arch:    in.GetArch(),
+			Access:  in.GetAccess(),
+			Secret:  in.GetSecret(),
+			Config:  in.GetConfig(),
+			Status:  in.GetStatus(),
+			Created: time.UnixMicro(in.GetCreated()),
+			Updated: time.UnixMicro(in.GetUpdated()),
+			Deleted: time.UnixMicro(in.GetDeleted()),
 		}
 
 		_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -753,8 +757,9 @@ SKIP:
 		item.Desc = in.GetDesc()
 		item.Tags = in.GetTags()
 		item.Type = in.GetType()
+		item.Arch = in.GetArch()
+		item.Access = in.GetAccess()
 		item.Secret = in.GetSecret()
-		item.Location = in.GetLocation()
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
 		item.Updated = time.UnixMicro(in.GetUpdated())

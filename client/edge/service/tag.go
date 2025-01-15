@@ -103,7 +103,7 @@ func TagDelete(ctx context.Context, client edges.TagServiceClient) {
 }
 
 func TagGetValue(ctx context.Context, client edges.TagServiceClient) {
-	request := &pb.Id{Id: "0187712fc889445a03177964"}
+	request := &pb.Id{Id: "01946a5aae65c0ceeaa257db"}
 
 	reply, err := client.GetValue(ctx, request)
 
@@ -115,12 +115,37 @@ func TagGetValue(ctx context.Context, client edges.TagServiceClient) {
 
 func TagSetValue(ctx context.Context, client edges.TagServiceClient) {
 	request := &pb.TagValue{
-		Id:    "0187aeaf3d1ae89be122a3cc",
+		Id:    "01946a5aae65c0ceeaa257db",
 		Value: fmt.Sprintf("%v", rand.Float64()*100),
 		// Value: "1",
 	}
 
 	reply, err := client.SetValue(ctx, request)
+
+	if err != nil {
+		log.Fatalf("Error when calling grpc service: %s", err)
+	}
+	log.Printf("Resp received: %v", reply)
+}
+
+func TagSetWrite(ctx context.Context, client edges.TagServiceClient) {
+	request := &pb.TagValue{
+		Id:    "01946a5aae65c0ceeaa257db",
+		Value: fmt.Sprintf("%v", rand.Float64()*100),
+	}
+
+	reply, err := client.SetWrite(ctx, request)
+
+	if err != nil {
+		log.Fatalf("Error when calling grpc service: %s", err)
+	}
+	log.Printf("Resp received: %v", reply)
+}
+
+func TagGetWrite(ctx context.Context, client edges.TagServiceClient) {
+	request := &pb.Id{Id: "01946a5aae65c0ceeaa257db"}
+
+	reply, err := client.GetWrite(ctx, request)
 
 	if err != nil {
 		log.Fatalf("Error when calling grpc service: %s", err)

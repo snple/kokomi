@@ -2,7 +2,10 @@ package consts
 
 const (
 	ON  = 1
-	OFF = -1
+	OFF = 0
+
+	READ  = 0
+	WRITE = 1
 )
 
 const (
