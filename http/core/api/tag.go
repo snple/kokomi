@@ -34,6 +34,9 @@ func (s *TagService) register(router gin.IRouter) {
 
 	group.POST("/get_value", s.getValueByNames)
 	group.PATCH("/set_value", s.setValueByNames)
+
+	group.POST("/get_write", s.getWriteByNames)
+	group.PATCH("/set_write", s.setWriteByNames)
 }
 
 func (s *TagService) list(ctx *gin.Context) {
@@ -139,7 +142,7 @@ func (s *TagService) getValueById(ctx *gin.Context) {
 		return
 	}
 
-	shiftTimeForTagValue(reply)
+	shiftime.TagValue(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
@@ -310,10 +313,72 @@ func (s *TagService) setValueByNames(ctx *gin.Context) {
 	}))
 }
 
-func shiftTimeForTagValue(item *pb.TagValue) {
-	if item != nil {
-		item.Updated = item.Updated / 1000
+func (s *TagService) getWriteByNames(ctx *gin.Context) {
+	var params struct {
+		DeviceId string   `json:"device_id"`
+		Name     []string `json:"name"`
 	}
+	if err := ctx.Bind(&params); err != nil {
+		ctx.JSON(util.Error(400, err.Error()))
+		return
+	}
+
+	ret := make([]*cores.TagNameValue, 0, len(params.Name))
+
+	for _, name := range params.Name {
+		reply, err := s.as.Core().GetTag().GetWriteByName(ctx,
+			&cores.TagGetValueByNameRequest{DeviceId: params.DeviceId, Name: name})
+		if err != nil {
+			if code, ok := status.FromError(err); ok {
+				if code.Code() == codes.NotFound {
+					continue
+				}
+			}
+
+			ctx.JSON(util.Error(400, err.Error()))
+			return
+		}
+
+		shiftTimeForTagNameValue(reply)
+
+		ret = append(ret, reply)
+	}
+
+	ctx.JSON(util.Success(ret))
+}
+
+func (s *TagService) setWriteByNames(ctx *gin.Context) {
+	var params struct {
+		DeviceId  string            `json:"device_id"`
+		NameValue map[string]string `json:"name_value"`
+	}
+	if err := ctx.Bind(&params); err != nil {
+		ctx.JSON(util.Error(400, err.Error()))
+		return
+	}
+
+	errors := make(map[string]string)
+
+	for name, value := range params.NameValue {
+		_, err := s.as.Core().GetTag().SetWriteByName(ctx,
+			&cores.TagNameValue{DeviceId: params.DeviceId, Name: name, Value: value})
+		if err != nil {
+			errors[name] = err.Error()
+		}
+	}
+
+	if len(errors) > 0 {
+		ctx.JSON(util.Success(gin.H{
+			"ok":     false,
+			"errors": errors,
+		}))
+
+		return
+	}
+
+	ctx.JSON(util.Success(gin.H{
+		"ok": true,
+	}))
 }
 
 func shiftTimeForTagNameValue(item *cores.TagNameValue) {

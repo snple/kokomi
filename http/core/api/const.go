@@ -125,7 +125,7 @@ func (s *ConstService) getValueById(ctx *gin.Context) {
 		return
 	}
 
-	shiftTimeForConstValue(reply)
+	shiftime.ConstValue(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
@@ -295,12 +295,6 @@ func (s *ConstService) setValueByNames(ctx *gin.Context) {
 	ctx.JSON(util.Success(gin.H{
 		"ok": true,
 	}))
-}
-
-func shiftTimeForConstValue(item *pb.ConstValue) {
-	if item != nil {
-		item.Updated = item.Updated / 1000
-	}
 }
 
 func shiftTimeForConstNameValue(item *cores.ConstNameValue) {

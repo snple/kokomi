@@ -34,6 +34,9 @@ func (s *TagService) register(router gin.IRouter) {
 
 	group.POST("/get_value", s.getValueByNames)
 	group.PATCH("/set_value", s.setValueByNames)
+
+	group.POST("/get_write", s.getWriteByNames)
+	group.PATCH("/set_write", s.setWriteByNames)
 }
 
 func (s *TagService) list(ctx *gin.Context) {
@@ -278,6 +281,67 @@ func (s *TagService) setValueByNames(ctx *gin.Context) {
 	for name, value := range params.NameValue {
 		_, err := s.as.Edge().GetTag().SetValueByName(ctx,
 			&pb.TagNameValue{Name: name, Value: value})
+		if err != nil {
+			errors[name] = err.Error()
+		}
+	}
+
+	if len(errors) > 0 {
+		ctx.JSON(util.Success(gin.H{
+			"ok":     false,
+			"errors": errors,
+		}))
+
+		return
+	}
+
+	ctx.JSON(util.Success(gin.H{
+		"ok": true,
+	}))
+}
+
+func (s *TagService) getWriteByNames(ctx *gin.Context) {
+	var params struct {
+		Name []string `json:"name"`
+	}
+	if err := ctx.Bind(&params); err != nil {
+		ctx.JSON(util.Error(400, err.Error()))
+		return
+	}
+
+	ret := make([]*pb.TagNameValue, 0, len(params.Name))
+
+	for _, name := range params.Name {
+		reply, err := s.as.Edge().GetTag().GetWriteByName(ctx, &pb.Name{Name: name})
+		if err != nil {
+			if code, ok := status.FromError(err); ok {
+				if code.Code() == codes.NotFound {
+					continue
+				}
+			}
+		}
+
+		shiftime.TagNameValue(reply)
+
+		ret = append(ret, reply)
+	}
+
+	ctx.JSON(util.Success(ret))
+}
+
+func (s *TagService) setWriteByNames(ctx *gin.Context) {
+	var params struct {
+		NameValue map[string]string `json:"name_value"`
+	}
+	if err := ctx.Bind(&params); err != nil {
+		ctx.JSON(util.Error(400, err.Error()))
+		return
+	}
+
+	errors := make(map[string]string)
+
+	for name, value := range params.NameValue {
+		_, err := s.as.Edge().GetTag().SetWriteByName(ctx, &pb.TagNameValue{Name: name, Value: value})
 		if err != nil {
 			errors[name] = err.Error()
 		}

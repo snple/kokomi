@@ -1,3 +1,3 @@
 package kokomi
 
-const Version = "0.6.3-250115"
+const Version = "0.6.4-250213"
