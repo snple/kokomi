@@ -42,23 +42,29 @@ func EncodeNsonValue(value nson.Value) (string, error) {
 
 	switch value.Tag() {
 	case nson.TAG_I32:
-		v = fmt.Sprintf("%v", int32(value.(nson.I32)))
+		v = fmt.Sprintf("%d", int32(value.(nson.I32)))
 	case nson.TAG_I64:
-		v = fmt.Sprintf("%v", int64(value.(nson.I64)))
+		v = fmt.Sprintf("%d", int64(value.(nson.I64)))
 	case nson.TAG_U32:
-		v = fmt.Sprintf("%v", uint32(value.(nson.U32)))
+		v = fmt.Sprintf("%d", uint32(value.(nson.U32)))
 	case nson.TAG_U64:
-		v = fmt.Sprintf("%v", uint64(value.(nson.U64)))
+		v = fmt.Sprintf("%d", uint64(value.(nson.U64)))
 	case nson.TAG_F32:
-		v = fmt.Sprintf("%v", float32(value.(nson.F32)))
+		v = fmt.Sprintf("%f", float32(value.(nson.F32)))
 	case nson.TAG_F64:
-		v = fmt.Sprintf("%v", float64(value.(nson.F64)))
+		v = fmt.Sprintf("%f", float64(value.(nson.F64)))
 	case nson.TAG_BOOL:
-		v = fmt.Sprintf("%v", bool(value.(nson.Bool)))
+		v = fmt.Sprintf("%t", bool(value.(nson.Bool)))
 	case nson.TAG_STRING:
 		v = string(value.(nson.String))
 	case nson.TAG_NULL:
 		v = ""
+	case nson.TAG_BINARY:
+		v = value.(nson.Binary).Hex()
+	case nson.TAG_TIMESTAMP:
+		v = fmt.Sprintf("%d", value.(nson.Timestamp))
+	case nson.TAG_ID:
+		v = value.(nson.Id).Hex()
 	default:
 		return v, fmt.Errorf("unsupported value type: %v", value.Tag())
 	}
@@ -120,6 +126,26 @@ func DecodeNsonValue(value string, tag uint8) (nson.Value, error) {
 		}
 	case nson.TAG_STRING:
 		nsonValue = nson.String(value)
+	case nson.TAG_NULL:
+		nsonValue = nson.Null{}
+	case nson.TAG_BINARY:
+		binary, err := nson.BinaryFromHex(value)
+		if err != nil {
+			return nsonValue, err
+		}
+		nsonValue = nson.Binary(binary)
+	case nson.TAG_TIMESTAMP:
+		value, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return nsonValue, err
+		}
+		nsonValue = nson.Timestamp(value)
+	case nson.TAG_ID:
+		id, err := nson.IdFromHex(value)
+		if err != nil {
+			return nsonValue, err
+		}
+		nsonValue = nson.Id(id)
 	default:
 		return nsonValue, fmt.Errorf("unsupported value type: %v", tag)
 	}
