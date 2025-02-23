@@ -1,7 +1,7 @@
 syntax = "proto3";
 package cores;
 
-option go_package = "github.com/snple/kokomi/pb/cores;cores";
+option go_package = "github.com/snple/beacon/pb/cores;cores";
 
 import "slot_message.proto";
 import "generic_message.proto";

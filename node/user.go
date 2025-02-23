@@ -3,8 +3,8 @@ package node
 import (
 	"context"
 
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/nodes"
+	"github.com/snple/beacon/pb"
+	"github.com/snple/beacon/pb/nodes"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

@@ -1,6 +1,6 @@
-# kokomi
+# beacon
 
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/snple/kokomi)](https://pkg.go.dev/github.com/snple/kokomi)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/snple/beacon)](https://pkg.go.dev/github.com/snple/beacon)
 
 An IoT development framework
 

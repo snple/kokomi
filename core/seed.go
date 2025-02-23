@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/snple/kokomi/consts"
-	"github.com/snple/kokomi/core/model"
-	"github.com/snple/kokomi/util"
+	"github.com/snple/beacon/consts"
+	"github.com/snple/beacon/core/model"
+	"github.com/snple/beacon/util"
 	"github.com/uptrace/bun"
 	"golang.org/x/crypto/bcrypt"
 )

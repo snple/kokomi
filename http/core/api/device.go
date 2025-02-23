@@ -2,10 +2,10 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/snple/kokomi/http/util"
-	"github.com/snple/kokomi/http/util/shiftime"
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/cores"
+	"github.com/snple/beacon/http/util"
+	"github.com/snple/beacon/http/util/shiftime"
+	"github.com/snple/beacon/pb"
+	"github.com/snple/beacon/pb/cores"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

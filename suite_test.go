@@ -1,4 +1,4 @@
-package kokomi
+package beacon
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"github.com/onsi/gomega"
 )
 
-func TestKokomi(t *testing.T) {
+func TestBeacon(t *testing.T) {
 	gomega.RegisterFailHandler(ginkgo.Fail)
-	ginkgo.RunSpecs(t, "Kokomi Suite")
+	ginkgo.RunSpecs(t, "Beacon Suite")
 }

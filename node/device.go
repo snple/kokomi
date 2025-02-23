@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/snple/kokomi/consts"
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/cores"
-	"github.com/snple/kokomi/pb/nodes"
-	"github.com/snple/kokomi/util/metadata"
-	"github.com/snple/kokomi/util/token"
+	"github.com/snple/beacon/consts"
+	"github.com/snple/beacon/pb"
+	"github.com/snple/beacon/pb/cores"
+	"github.com/snple/beacon/pb/nodes"
+	"github.com/snple/beacon/util/metadata"
+	"github.com/snple/beacon/util/token"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

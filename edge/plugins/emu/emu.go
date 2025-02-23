@@ -8,12 +8,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/snple/kokomi/consts"
-	"github.com/snple/kokomi/edge"
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/edges"
-	"github.com/snple/kokomi/util"
-	"github.com/snple/kokomi/util/datatype"
+	"github.com/snple/beacon/consts"
+	"github.com/snple/beacon/edge"
+	"github.com/snple/beacon/pb"
+	"github.com/snple/beacon/pb/edges"
+	"github.com/snple/beacon/util"
+	"github.com/snple/beacon/util/datatype"
 	"go.uber.org/zap"
 )
 

@@ -1,7 +1,7 @@
 package edge
 
 import (
-	"github.com/snple/kokomi/consts"
+	"github.com/snple/beacon/consts"
 	"github.com/snple/types"
 	"github.com/snple/types/cache"
 )

@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/snple/kokomi/consts"
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/cores"
+	"github.com/snple/beacon/consts"
+	"github.com/snple/beacon/pb"
+	"github.com/snple/beacon/pb/cores"
 )
 
 func SourceList(ctx context.Context, client cores.SourceServiceClient) {

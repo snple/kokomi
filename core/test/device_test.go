@@ -5,9 +5,9 @@ import (
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	"github.com/snple/kokomi/consts"
-	"github.com/snple/kokomi/core"
-	"github.com/snple/kokomi/pb"
+	"github.com/snple/beacon/consts"
+	"github.com/snple/beacon/core"
+	"github.com/snple/beacon/pb"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/sqlitedialect"
 )

@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/danclive/nson-go"
-	"github.com/snple/kokomi/util/datatype"
+	"github.com/snple/beacon/util/datatype"
 	"github.com/uptrace/bun"
 )
 

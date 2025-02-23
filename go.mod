@@ -1,4 +1,4 @@
-module github.com/snple/kokomi
+module github.com/snple/beacon
 
 go 1.23
 
@@ -7,7 +7,7 @@ toolchain go1.23.1
 require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/cenkalti/backoff/v4 v4.3.0
-	github.com/danclive/nson-go v0.8.3
+	github.com/danclive/nson-go v0.9.0
 	github.com/dgraph-io/badger/v4 v4.5.0
 	github.com/gin-contrib/cors v1.7.3
 	github.com/gin-gonic/gin v1.10.0
@@ -84,5 +84,3 @@ require (
 	modernc.org/strutil v1.2.1 // indirect
 	modernc.org/token v1.1.0 // indirect
 )
-
-replace github.com/danclive/nson-go => ../../github.com/danclive/nson-go

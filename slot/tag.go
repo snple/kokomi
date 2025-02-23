@@ -3,9 +3,9 @@ package slot
 import (
 	"context"
 
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/edges"
-	"github.com/snple/kokomi/pb/slots"
+	"github.com/snple/beacon/pb"
+	"github.com/snple/beacon/pb/edges"
+	"github.com/snple/beacon/pb/slots"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

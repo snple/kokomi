@@ -13,17 +13,17 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/snple/kokomi"
-	"github.com/snple/kokomi/bin/core/config"
-	"github.com/snple/kokomi/bin/core/log"
-	"github.com/snple/kokomi/core"
-	"github.com/snple/kokomi/db"
-	"github.com/snple/kokomi/http"
-	"github.com/snple/kokomi/http/core/api"
-	"github.com/snple/kokomi/http/core/web"
-	"github.com/snple/kokomi/node"
-	"github.com/snple/kokomi/util"
-	_ "github.com/snple/kokomi/util/compress/zstd"
+	"github.com/snple/beacon"
+	"github.com/snple/beacon/bin/core/config"
+	"github.com/snple/beacon/bin/core/log"
+	"github.com/snple/beacon/core"
+	"github.com/snple/beacon/db"
+	"github.com/snple/beacon/http"
+	"github.com/snple/beacon/http/core/api"
+	"github.com/snple/beacon/http/core/web"
+	"github.com/snple/beacon/node"
+	"github.com/snple/beacon/util"
+	_ "github.com/snple/beacon/util/compress/zstd"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	_ "google.golang.org/grpc/encoding/gzip"
@@ -34,7 +34,7 @@ func main() {
 	if len(os.Args) >= 2 {
 		switch os.Args[1] {
 		case "version", "-V":
-			fmt.Printf("kokomi core version: %v\n", kokomi.Version)
+			fmt.Printf("beacon core version: %v\n", beacon.Version)
 			return
 		}
 	}

@@ -17,17 +17,17 @@ import (
 
 	"github.com/dgraph-io/badger/v4"
 	"github.com/gin-gonic/gin"
-	"github.com/snple/kokomi"
-	"github.com/snple/kokomi/bin/edge/config"
-	"github.com/snple/kokomi/bin/edge/log"
-	"github.com/snple/kokomi/db"
-	"github.com/snple/kokomi/edge"
-	"github.com/snple/kokomi/edge/plugins/emu"
-	"github.com/snple/kokomi/http"
-	"github.com/snple/kokomi/http/edge/api"
-	"github.com/snple/kokomi/slot"
-	"github.com/snple/kokomi/util"
-	"github.com/snple/kokomi/util/compress/zstd"
+	"github.com/snple/beacon"
+	"github.com/snple/beacon/bin/edge/config"
+	"github.com/snple/beacon/bin/edge/log"
+	"github.com/snple/beacon/db"
+	"github.com/snple/beacon/edge"
+	"github.com/snple/beacon/edge/plugins/emu"
+	"github.com/snple/beacon/http"
+	"github.com/snple/beacon/http/edge/api"
+	"github.com/snple/beacon/slot"
+	"github.com/snple/beacon/util"
+	"github.com/snple/beacon/util/compress/zstd"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -40,7 +40,7 @@ func main() {
 	if len(os.Args) >= 2 {
 		switch os.Args[1] {
 		case "version", "-V":
-			fmt.Printf("kokomi edge version: %v\n", kokomi.Version)
+			fmt.Printf("beacon edge version: %v\n", beacon.Version)
 			return
 		}
 	}

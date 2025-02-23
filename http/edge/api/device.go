@@ -2,8 +2,8 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/snple/kokomi/http/util"
-	"github.com/snple/kokomi/pb"
+	"github.com/snple/beacon/http/util"
+	"github.com/snple/beacon/pb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

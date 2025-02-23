@@ -1,7 +1,7 @@
 syntax = "proto3";
 package slots;
 
-option go_package = "github.com/snple/kokomi/pb/slots;slots";
+option go_package = "github.com/snple/beacon/pb/slots;slots";
 
 import "source_message.proto";
 import "generic_message.proto";

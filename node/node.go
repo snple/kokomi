@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/snple/kokomi/core"
-	"github.com/snple/kokomi/pb/nodes"
+	"github.com/snple/beacon/core"
+	"github.com/snple/beacon/pb/nodes"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )

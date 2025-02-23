@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/snple/kokomi/pb/cores"
+	"github.com/snple/beacon/pb/cores"
 )
 
 func SetDeviceUpdated(ctx context.Context, client cores.SyncServiceClient) {

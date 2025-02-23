@@ -9,8 +9,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/snple/kokomi/client/core/service"
-	"github.com/snple/kokomi/pb/cores"
+	"github.com/snple/beacon/client/core/service"
+	"github.com/snple/beacon/pb/cores"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

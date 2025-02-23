@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/edges"
-	"github.com/snple/kokomi/pb/nodes"
+	"github.com/snple/beacon/pb"
+	"github.com/snple/beacon/pb/edges"
+	"github.com/snple/beacon/pb/nodes"
 )
 
 func (s *NodeService) syncRemoteToLocal(ctx context.Context) error {

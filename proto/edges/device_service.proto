@@ -1,7 +1,7 @@
 syntax = "proto3";
 package edges;
 
-option go_package = "github.com/snple/kokomi/pb/edges;edges";
+option go_package = "github.com/snple/beacon/pb/edges;edges";
 
 import "device_message.proto";
 import "generic_message.proto";

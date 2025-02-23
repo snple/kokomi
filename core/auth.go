@@ -3,8 +3,8 @@ package core
 import (
 	"context"
 
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/cores"
+	"github.com/snple/beacon/pb"
+	"github.com/snple/beacon/pb/cores"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

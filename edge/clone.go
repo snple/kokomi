@@ -10,8 +10,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/snple/kokomi/edge/model"
-	"github.com/snple/kokomi/util"
+	"github.com/snple/beacon/edge/model"
+	"github.com/snple/beacon/util"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

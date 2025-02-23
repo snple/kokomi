@@ -1,7 +1,7 @@
 syntax = "proto3";
 package pb;
 
-option go_package = "github.com/snple/kokomi/pb;pb";
+option go_package = "github.com/snple/beacon/pb;pb";
 
 message Slot {
     string id = 1;

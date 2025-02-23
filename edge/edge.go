@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/dgraph-io/badger/v4"
-	"github.com/snple/kokomi/edge/model"
-	"github.com/snple/kokomi/pb/edges"
+	"github.com/snple/beacon/edge/model"
+	"github.com/snple/beacon/pb/edges"
 	"github.com/snple/types"
 	"github.com/uptrace/bun"
 	"go.uber.org/zap"

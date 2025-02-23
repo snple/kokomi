@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
-	"github.com/snple/kokomi/core"
+	"github.com/snple/beacon/core"
 	"go.uber.org/zap"
 )
 

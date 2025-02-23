@@ -1,7 +1,7 @@
 package shiftime
 
 import (
-	"github.com/snple/kokomi/pb"
+	"github.com/snple/beacon/pb"
 )
 
 func Device(item *pb.Device) {

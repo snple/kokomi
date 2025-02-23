@@ -8,7 +8,7 @@ package slots
 
 import (
 	context "context"
-	pb "github.com/snple/kokomi/pb"
+	pb "github.com/snple/beacon/pb"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"

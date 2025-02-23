@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/danclive/nson-go"
-	"github.com/snple/kokomi/consts"
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/cores"
-	"github.com/snple/kokomi/util/datatype"
+	"github.com/snple/beacon/consts"
+	"github.com/snple/beacon/pb"
+	"github.com/snple/beacon/pb/cores"
+	"github.com/snple/beacon/util/datatype"
 )
 
 type Conn struct {

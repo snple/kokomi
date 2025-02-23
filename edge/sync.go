@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/dgraph-io/badger/v4"
-	"github.com/snple/kokomi/edge/model"
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/edges"
+	"github.com/snple/beacon/edge/model"
+	"github.com/snple/beacon/pb"
+	"github.com/snple/beacon/pb/edges"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -6,9 +6,9 @@ import (
 	"log"
 	"math/rand"
 
-	"github.com/snple/kokomi/consts"
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/edges"
+	"github.com/snple/beacon/consts"
+	"github.com/snple/beacon/pb"
+	"github.com/snple/beacon/pb/edges"
 )
 
 func TagList(ctx context.Context, client edges.TagServiceClient) {

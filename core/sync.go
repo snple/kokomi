@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/snple/kokomi/core/model"
-	"github.com/snple/kokomi/pb"
-	"github.com/snple/kokomi/pb/cores"
+	"github.com/snple/beacon/core/model"
+	"github.com/snple/beacon/pb"
+	"github.com/snple/beacon/pb/cores"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
