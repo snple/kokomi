@@ -12,7 +12,6 @@ type Device struct {
 	Name          string    `bun:"name,type:TEXT" json:"name"`
 	Desc          string    `bun:"desc,type:TEXT" json:"desc"`
 	Tags          string    `bun:"tags,type:TEXT" json:"tags"`
-	Arch          string    `bun:"arch,type:TEXT" json:"arch"`
 	Secret        string    `bun:"secret,type:TEXT" json:"secret"`
 	Config        string    `bun:"config,type:TEXT" json:"config"`
 	Status        int32     `bun:"status" json:"status"`
