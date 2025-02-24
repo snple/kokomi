@@ -22,6 +22,7 @@ import (
 	"github.com/snple/beacon/http/core/api"
 	"github.com/snple/beacon/http/core/web"
 	"github.com/snple/beacon/node"
+	tcp_node "github.com/snple/beacon/tcp/node"
 	"github.com/snple/beacon/util"
 	_ "github.com/snple/beacon/util/compress/zstd"
 	"google.golang.org/grpc"
@@ -140,6 +141,18 @@ func main() {
 				log.Logger.Sugar().Fatalf("failed to serve: %v", err)
 			}
 		}()
+	}
+
+	if true {
+		nodeOpts := make([]tcp_node.NodeOption, 0)
+
+		ns, err := tcp_node.Node(cs, nodeOpts...)
+		if err != nil {
+			log.Logger.Sugar().Fatalf("NewNodeService: %v", err)
+		}
+
+		ns.Start()
+		defer ns.Stop()
 	}
 
 	if !config.Config.Gin.Debug {

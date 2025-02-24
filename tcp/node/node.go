@@ -27,11 +27,14 @@ type NodeService struct {
 	dopts nodeOptions
 }
 
-func NewNodeService(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
+func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 	ctx, cancel := context.WithCancel(cs.Context())
 
 	ns := &NodeService{
-		cs:     cs,
+		cs: cs,
+
+		connMap: make(map[string]*Conn),
+
 		ctx:    ctx,
 		cancel: cancel,
 		dopts:  defaultNodeOptions(),
@@ -108,6 +111,7 @@ func (ns *NodeService) handleConn(conn net.Conn) {
 	nc, err := NewConn(ns, conn)
 	if err != nil {
 		ns.Logger().Error("failed to create conn", zap.Error(err))
+		conn.Close()
 		return
 	}
 
