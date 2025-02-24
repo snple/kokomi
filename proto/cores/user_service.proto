@@ -10,7 +10,6 @@ import "generic_message.proto";
 message UserListRequest {
     pb.Page page = 1;
     string tags = 2;
-    string type = 3;
 }
 
 message UserListResponse {
@@ -22,7 +21,6 @@ message UserListResponse {
 message UserPullRequest {
     int64 after = 1;
     uint32 limit = 2;
-    string type = 3;
 }
 
 message UserPullResponse {

@@ -121,21 +121,6 @@ func (c *Conn) auth() error {
 		return errors.New("invalid request")
 	}
 
-	if reply.GetAccess() != "" {
-		access, err := req.GetString("access")
-		if err != nil {
-			writeError(c.Conn, err)
-
-			return err
-		}
-
-		if reply.GetAccess() != access {
-			writeError(c.Conn, errors.New("invalid request, access is not valid"))
-
-			return errors.New("invalid request")
-		}
-	}
-
 	if reply.GetSecret() != secret {
 		writeError(c.Conn, errors.New("invalid request, secret is not valid"))
 

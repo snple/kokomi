@@ -53,7 +53,6 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 		Name:    in.GetName(),
 		Desc:    in.GetDesc(),
 		Tags:    in.GetTags(),
-		Type:    in.GetType(),
 		Source:  in.GetSource(),
 		Params:  in.GetParams(),
 		Config:  in.GetConfig(),
@@ -142,7 +141,6 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 	item.Name = in.GetName()
 	item.Desc = in.GetDesc()
 	item.Tags = in.GetTags()
-	item.Type = in.GetType()
 	item.Source = in.GetSource()
 	item.Params = in.GetParams()
 	item.Config = in.GetConfig()
@@ -307,10 +305,6 @@ func (s *SourceService) List(ctx context.Context, in *edges.SourceListRequest) (
 		}
 	}
 
-	if in.GetType() != "" {
-		query = query.Where(`type = ?`, in.GetType())
-	}
-
 	if len(in.GetSource()) > 0 {
 		query = query.Where(`source = ?`, in.GetSource())
 	}
@@ -457,7 +451,6 @@ func (s *SourceService) copyModelToOutput(output *pb.Source, item *model.Source)
 	output.Name = item.Name
 	output.Desc = item.Desc
 	output.Tags = item.Tags
-	output.Type = item.Type
 	output.Source = item.Source
 	output.Params = item.Params
 	output.Config = item.Config
@@ -562,10 +555,6 @@ func (s *SourceService) Pull(ctx context.Context, in *edges.SourcePullRequest) (
 
 	query := s.es.GetDB().NewSelect().Model(&items)
 
-	if in.GetType() != "" {
-		query = query.Where(`type = ?`, in.GetType())
-	}
-
 	if in.GetSource() != "" {
 		query = query.Where(`source = ?`, in.GetSource())
 	}
@@ -651,7 +640,6 @@ SKIP:
 			Name:    in.GetName(),
 			Desc:    in.GetDesc(),
 			Tags:    in.GetTags(),
-			Type:    in.GetType(),
 			Source:  in.GetSource(),
 			Params:  in.GetParams(),
 			Config:  in.GetConfig(),
@@ -695,7 +683,6 @@ SKIP:
 		item.Name = in.GetName()
 		item.Desc = in.GetDesc()
 		item.Tags = in.GetTags()
-		item.Type = in.GetType()
 		item.Source = in.GetSource()
 		item.Params = in.GetParams()
 		item.Config = in.GetConfig()

@@ -70,9 +70,6 @@ func (s *DeviceService) Create(ctx context.Context, in *pb.Device) (*pb.Device, 
 		Name:    in.GetName(),
 		Desc:    in.GetDesc(),
 		Tags:    in.GetTags(),
-		Type:    in.GetType(),
-		Arch:    in.GetArch(),
-		Access:  in.GetAccess(),
 		Secret:  in.GetSecret(),
 		Config:  in.GetConfig(),
 		Status:  in.GetStatus(),
@@ -144,9 +141,6 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 	item.Name = in.GetName()
 	item.Desc = in.GetDesc()
 	item.Tags = in.GetTags()
-	item.Type = in.GetType()
-	item.Arch = in.GetArch()
-	item.Access = in.GetAccess()
 	item.Secret = in.GetSecret()
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
@@ -308,14 +302,6 @@ func (s *DeviceService) List(ctx context.Context, in *cores.DeviceListRequest) (
 				return q
 			})
 		}
-	}
-
-	if in.GetType() != "" {
-		query = query.Where(`type = ?`, in.GetType())
-	}
-
-	if in.GetArch() != "" {
-		query = query.Where(`arch = ?`, in.GetArch())
 	}
 
 	if in.GetPage().GetOrderBy() != "" && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
@@ -516,9 +502,6 @@ func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device)
 	output.Name = item.Name
 	output.Desc = item.Desc
 	output.Tags = item.Tags
-	output.Type = item.Type
-	output.Arch = item.Arch
-	output.Access = item.Access
 	output.Secret = item.Secret
 	output.Config = item.Config
 	output.Link = s.cs.GetStatus().GetLink(item.ID)
@@ -622,14 +605,6 @@ func (s *DeviceService) Pull(ctx context.Context, in *cores.DevicePullRequest) (
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if in.GetType() != "" {
-		query.Where(`type = ?`, in.GetType())
-	}
-
-	if in.GetArch() != "" {
-		query = query.Where(`arch = ?`, in.GetArch())
-	}
-
 	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
@@ -711,9 +686,6 @@ SKIP:
 			Name:    in.GetName(),
 			Desc:    in.GetDesc(),
 			Tags:    in.GetTags(),
-			Type:    in.GetType(),
-			Arch:    in.GetArch(),
-			Access:  in.GetAccess(),
 			Secret:  in.GetSecret(),
 			Config:  in.GetConfig(),
 			Status:  in.GetStatus(),
@@ -756,9 +728,6 @@ SKIP:
 		item.Name = in.GetName()
 		item.Desc = in.GetDesc()
 		item.Tags = in.GetTags()
-		item.Type = in.GetType()
-		item.Arch = in.GetArch()
-		item.Access = in.GetAccess()
 		item.Secret = in.GetSecret()
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()

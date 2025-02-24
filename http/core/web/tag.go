@@ -39,7 +39,6 @@ func (s *TagService) list(ctx *gin.Context) {
 		DeviceId  string `form:"device_id"`
 		SourceId  string `form:"source_id"`
 		Tags      string `form:"tags"`
-		Type      string `form:"type"`
 	}
 
 	if err := ctx.Bind(&params); err != nil {
@@ -64,7 +63,6 @@ func (s *TagService) list(ctx *gin.Context) {
 		DeviceId: params.DeviceId,
 		SourceId: params.SourceId,
 		Tags:     params.Tags,
-		Type:     params.Type,
 	}
 
 	reply, err := s.ws.Core().GetTag().List(ctx, request)
@@ -155,11 +153,8 @@ func (s *TagService) patch(ctx *gin.Context) {
 	reply.Name = params.Name
 	reply.Desc = params.Desc
 	reply.Tags = params.Tags
-	reply.Type = params.Type
 	reply.DataType = params.DataType
 	reply.Address = params.Address
-	reply.HValue = params.HValue
-	reply.LValue = params.LValue
 	reply.Config = params.Config
 	reply.Status = params.Status
 	reply.Access = params.Access

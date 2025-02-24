@@ -191,7 +191,6 @@ func (s *TagService) List(ctx context.Context, in *nodes.TagListRequest) (*nodes
 		DeviceId: deviceID,
 		SourceId: in.GetSourceId(),
 		Tags:     in.GetTags(),
-		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.Core().GetTag().List(ctx, request)
@@ -258,7 +257,6 @@ func (s *TagService) Pull(ctx context.Context, in *nodes.TagPullRequest) (*nodes
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
 		SourceId: in.GetSourceId(),
-		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.Core().GetTag().Pull(ctx, request)

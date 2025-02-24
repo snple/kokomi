@@ -12,7 +12,6 @@ type User struct {
 	Name          string    `bun:"name,type:TEXT" json:"name"`
 	Desc          string    `bun:"desc,type:TEXT" json:"desc"`
 	Tags          string    `bun:"tags,type:TEXT" json:"tags"`
-	Type          string    `bun:"type,type:TEXT" json:"type"`
 	Pass          string    `bun:"pass,type:TEXT" json:"pass"`
 	Role          string    `bun:"role,type:TEXT" json:"role"`
 	Status        int32     `bun:"status" json:"status"`

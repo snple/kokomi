@@ -37,7 +37,6 @@ func (s *DeviceService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
 		Tags      string `form:"tags"`
-		Type      string `form:"type"`
 	}
 
 	if err := ctx.Bind(&params); err != nil {
@@ -60,7 +59,6 @@ func (s *DeviceService) list(ctx *gin.Context) {
 	request := &cores.DeviceListRequest{
 		Page: page,
 		Tags: params.Tags,
-		Type: params.Type,
 	}
 
 	reply, err := s.as.Core().GetDevice().List(ctx, request)

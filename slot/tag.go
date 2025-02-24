@@ -137,7 +137,6 @@ func (s *TagService) List(ctx context.Context, in *slots.TagListRequest) (*slots
 		Page:     in.GetPage(),
 		SourceId: in.GetSourceId(),
 		Tags:     in.GetTags(),
-		Type:     in.GetType(),
 	}
 
 	reply, err := s.ss.Edge().GetTag().List(ctx, request)
@@ -199,7 +198,6 @@ func (s *TagService) Pull(ctx context.Context, in *slots.TagPullRequest) (*slots
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		SourceId: in.GetSourceId(),
-		Type:     in.GetType(),
 	}
 
 	reply, err := s.ss.Edge().GetTag().Pull(ctx, request)

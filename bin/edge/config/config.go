@@ -196,14 +196,10 @@ func (c *ConfigStruct) Validate() error {
 	return nil
 }
 
-var EnableEmu = false
-
 func Parse() {
 	var err error
 
 	configFile := flag.String("c", "config.toml", "config file")
-	flag.BoolVar(&EnableEmu, "emu", false, "-emu")
-
 	flag.Parse()
 
 	if _, err = toml.DecodeFile(*configFile, &Config); err != nil {

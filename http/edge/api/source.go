@@ -37,7 +37,6 @@ func (s *SourceService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
 		Tags      string `form:"tags"`
-		Type      string `form:"type"`
 		Source    string `form:"source"`
 	}
 
@@ -61,7 +60,6 @@ func (s *SourceService) list(ctx *gin.Context) {
 	request := &edges.SourceListRequest{
 		Page:   page,
 		Tags:   params.Tags,
-		Type:   params.Type,
 		Source: params.Source,
 	}
 

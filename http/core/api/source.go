@@ -38,7 +38,6 @@ func (s *SourceService) list(ctx *gin.Context) {
 		util.Page `form:",inline"`
 		DeviceId  string `form:"device_id"`
 		Tags      string `form:"tags"`
-		Type      string `form:"type"`
 		Source    string `form:"source"`
 	}
 
@@ -63,7 +62,6 @@ func (s *SourceService) list(ctx *gin.Context) {
 		Page:     page,
 		DeviceId: params.DeviceId,
 		Tags:     params.Tags,
-		Type:     params.Type,
 		Source:   params.Source,
 	}
 

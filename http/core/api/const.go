@@ -43,7 +43,6 @@ func (s *ConstService) list(ctx *gin.Context) {
 		util.Page `form:",inline"`
 		DeviceId  string `form:"device_id"`
 		Tags      string `form:"tags"`
-		Type      string `form:"type"`
 	}
 
 	if err := ctx.Bind(&params); err != nil {
@@ -67,7 +66,6 @@ func (s *ConstService) list(ctx *gin.Context) {
 		Page:     page,
 		DeviceId: params.DeviceId,
 		Tags:     params.Tags,
-		Type:     params.Type,
 	}
 
 	reply, err := s.as.Core().GetConst().List(ctx, request)

@@ -10,7 +10,6 @@ message SlotListRequest {
     pb.Page page = 1;
     string device_id = 2;
     string tags = 3;
-    string type = 4;
 }
 
 message SlotListResponse {
@@ -38,7 +37,6 @@ message SlotPullRequest {
     int64 after = 1;
     uint32 limit = 2;
     string device_id = 3;
-    string type = 4;
 }
 
 message SlotPullResponse {

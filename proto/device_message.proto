@@ -8,14 +8,11 @@ message Device {
     string name = 2;
     string desc = 3;
     string tags = 4;
-    string type = 5;
-    string arch = 6;
-    string access = 7;
-    string secret = 8;
-    string config = 9;
-    sint32 link = 10;
-    sint32 status = 11;
-    int64 created = 12;
-    int64 updated = 13;
-    int64 deleted = 14;
+    string secret = 5;
+    string config = 6;
+    sint32 link = 7;
+    sint32 status = 8;
+    int64 created = 9;
+    int64 updated = 10;
+    int64 deleted = 11;
 }

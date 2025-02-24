@@ -121,8 +121,6 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 	item.Name = in.GetName()
 	item.Desc = in.GetDesc()
 	item.Tags = in.GetTags()
-	item.Type = in.GetType()
-	item.Arch = in.GetArch()
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
 	item.Updated = time.Now()
@@ -238,8 +236,6 @@ func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device)
 	output.Name = item.Name
 	output.Desc = item.Desc
 	output.Tags = item.Tags
-	output.Type = item.Type
-	output.Arch = item.Arch
 	output.Config = item.Config
 	output.Status = item.Status
 	output.Link = s.es.GetStatus().GetDeviceLink()
@@ -360,8 +356,6 @@ SKIP:
 			Name:    in.GetName(),
 			Desc:    in.GetDesc(),
 			Tags:    in.GetTags(),
-			Type:    in.GetType(),
-			Arch:    in.GetArch(),
 			Config:  in.GetConfig(),
 			Status:  in.GetStatus(),
 			Created: time.UnixMicro(in.GetCreated()),
@@ -403,8 +397,6 @@ SKIP:
 		item.Name = in.GetName()
 		item.Desc = in.GetDesc()
 		item.Tags = in.GetTags()
-		item.Type = in.GetType()
-		item.Arch = in.GetArch()
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
 		item.Updated = time.UnixMicro(in.GetUpdated())

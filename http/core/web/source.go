@@ -38,7 +38,6 @@ func (s *SourceService) list(ctx *gin.Context) {
 		util.Page `form:",inline"`
 		DeviceId  string `form:"device_id"`
 		Tags      string `form:"tags"`
-		Type      string `form:"type"`
 	}
 
 	if err := ctx.Bind(&params); err != nil {
@@ -62,7 +61,6 @@ func (s *SourceService) list(ctx *gin.Context) {
 		Page:     page,
 		DeviceId: params.DeviceId,
 		Tags:     params.Tags,
-		Type:     params.Type,
 	}
 
 	reply, err := s.ws.Core().GetSource().List(ctx, request)
@@ -144,7 +142,6 @@ func (s *SourceService) patch(ctx *gin.Context) {
 	reply.Name = params.Name
 	reply.Desc = params.Desc
 	reply.Tags = params.Tags
-	reply.Type = params.Type
 	reply.Source = params.Source
 	reply.Params = params.Params
 	reply.Config = params.Config

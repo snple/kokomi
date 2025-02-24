@@ -54,7 +54,6 @@ func SourceCreate(ctx context.Context, client edges.SourceServiceClient) {
 	request := &pb.Source{
 		Name:   "source1",
 		Desc:   "source1",
-		Type:   "type",
 		Source: "source",
 		Params: "params",
 		Config: "config",

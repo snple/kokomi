@@ -179,7 +179,6 @@ func (s *SlotService) List(ctx context.Context, in *nodes.SlotListRequest) (*nod
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		Tags:     in.GetTags(),
-		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.Core().GetSlot().List(ctx, request)
@@ -282,7 +281,6 @@ func (s *SlotService) Pull(ctx context.Context, in *nodes.SlotPullRequest) (*nod
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
-		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.Core().GetSlot().Pull(ctx, request)

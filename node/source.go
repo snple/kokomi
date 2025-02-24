@@ -179,7 +179,6 @@ func (s *SourceService) List(ctx context.Context, in *nodes.SourceListRequest) (
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		Tags:     in.GetTags(),
-		Type:     in.GetType(),
 		Source:   in.GetSource(),
 	}
 
@@ -278,7 +277,6 @@ func (s *SourceService) Pull(ctx context.Context, in *nodes.SourcePullRequest) (
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
-		Type:     in.GetType(),
 		Source:   in.GetSource(),
 	}
 

@@ -11,8 +11,7 @@ message SourceListRequest {
     pb.Page page = 1;
     string device_id = 2;
     string tags = 3;
-    string type = 4;
-    string source = 5;
+    string source = 4;
 }
 
 message SourceListResponse {
@@ -40,8 +39,7 @@ message SourcePullRequest {
     int64 after = 1;
     uint32 limit = 2;
     string device_id = 3;
-    string type = 4;
-    string source = 5;
+    string source = 4;
 }
 
 message SourcePullResponse {
@@ -71,7 +69,6 @@ message TagListRequest {
     string device_id = 2;
     string source_id = 3;
     string tags = 4;
-    string type = 5;
 }
 
 message TagListResponse {
@@ -108,7 +105,6 @@ message TagPullRequest {
     uint32 limit = 2;
     string device_id = 3;
     string source_id = 4;
-    string type = 5;
 }
 
 message TagPullResponse {

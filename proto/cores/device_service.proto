@@ -9,8 +9,6 @@ import "generic_message.proto";
 message DeviceListRequest {
     pb.Page page = 1;
     string tags = 2;
-    string type = 3;
-    string arch = 4;
 }
 
 message DeviceListResponse {
@@ -27,8 +25,6 @@ message DeviceLinkRequest {
 message DevicePullRequest {
     int64 after = 1;
     uint32 limit = 2;
-    string type = 3;
-    string arch = 4;
 }
 
 message DevicePullResponse {

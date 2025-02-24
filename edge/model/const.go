@@ -14,11 +14,8 @@ type Const struct {
 	Name          string    `bun:"name,type:TEXT" json:"name"`
 	Desc          string    `bun:"desc,type:TEXT" json:"desc"`
 	Tags          string    `bun:"tags,type:TEXT" json:"tags"`
-	Type          string    `bun:"type,type:TEXT" json:"type"`
 	DataType      string    `bun:"data_type,type:TEXT" json:"data_type"`
 	Value         string    `bun:"value,type:TEXT" json:"value"`
-	HValue        string    `bun:"h_value,type:TEXT" json:"h_value"`
-	LValue        string    `bun:"l_value,type:TEXT" json:"l_value"`
 	Config        string    `bun:"config,type:TEXT" json:"config"`
 	Status        int32     `bun:"status" json:"status"`
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`

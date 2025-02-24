@@ -179,7 +179,6 @@ func (s *ConstService) List(ctx context.Context, in *nodes.ConstListRequest) (*n
 		Page:     in.GetPage(),
 		DeviceId: deviceID,
 		Tags:     in.GetTags(),
-		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.Core().GetConst().List(ctx, request)
@@ -355,7 +354,6 @@ func (s *ConstService) Pull(ctx context.Context, in *nodes.ConstPullRequest) (*n
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		DeviceId: deviceID,
-		Type:     in.GetType(),
 	}
 
 	reply, err := s.ns.Core().GetConst().Pull(ctx, request)

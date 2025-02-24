@@ -78,9 +78,7 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 		Name:     in.GetName(),
 		Desc:     in.GetDesc(),
 		Tags:     in.GetTags(),
-		Type:     in.GetType(),
 		Secret:   in.GetSecret(),
-		Location: in.GetLocation(),
 		Config:   in.GetConfig(),
 		Status:   in.GetStatus(),
 		Created:  time.Now(),
@@ -151,9 +149,7 @@ func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 	item.Name = in.GetName()
 	item.Desc = in.GetDesc()
 	item.Tags = in.GetTags()
-	item.Type = in.GetType()
 	item.Secret = in.GetSecret()
-	item.Location = in.GetLocation()
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
 	item.Updated = time.Now()
@@ -369,10 +365,6 @@ func (s *SlotService) List(ctx context.Context, in *cores.SlotListRequest) (*cor
 		}
 	}
 
-	if in.GetType() != "" {
-		query = query.Where(`type = ?`, in.GetType())
-	}
-
 	if in.GetPage().GetOrderBy() != "" && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
 		in.GetPage().GetOrderBy() == "created" || in.GetPage().GetOrderBy() == "updated") {
 		query.Order(in.GetPage().GetOrderBy() + " " + in.GetPage().GetSort().String())
@@ -488,9 +480,7 @@ func (s *SlotService) copyModelToOutput(output *pb.Slot, item *model.Slot) {
 	output.Name = item.Name
 	output.Desc = item.Desc
 	output.Tags = item.Tags
-	output.Type = item.Type
 	output.Secret = item.Secret
-	output.Location = item.Location
 	output.Config = item.Config
 	output.Link = s.cs.GetStatus().GetLink(item.ID)
 	output.Status = item.Status
@@ -595,10 +585,6 @@ func (s *SlotService) Pull(ctx context.Context, in *cores.SlotPullRequest) (*cor
 		query.Where("device_id = ?", in.GetDeviceId())
 	}
 
-	if in.GetType() != "" {
-		query.Where(`type = ?`, in.GetType())
-	}
-
 	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
@@ -689,9 +675,7 @@ SKIP:
 			Name:     in.GetName(),
 			Desc:     in.GetDesc(),
 			Tags:     in.GetTags(),
-			Type:     in.GetType(),
 			Secret:   in.GetSecret(),
-			Location: in.GetLocation(),
 			Config:   in.GetConfig(),
 			Status:   in.GetStatus(),
 			Created:  time.UnixMicro(in.GetCreated()),
@@ -737,9 +721,7 @@ SKIP:
 		item.Name = in.GetName()
 		item.Desc = in.GetDesc()
 		item.Tags = in.GetTags()
-		item.Type = in.GetType()
 		item.Secret = in.GetSecret()
-		item.Location = in.GetLocation()
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
 		item.Updated = time.UnixMicro(in.GetUpdated())

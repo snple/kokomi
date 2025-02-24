@@ -74,12 +74,9 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		SourceID: in.GetSourceId(),
 		Name:     in.GetName(),
 		Desc:     in.GetDesc(),
-		Type:     in.GetType(),
 		Tags:     in.GetTags(),
 		DataType: in.GetDataType(),
 		Address:  in.GetAddress(),
-		HValue:   in.GetHValue(),
-		LValue:   in.GetLValue(),
 		Config:   in.GetConfig(),
 		Status:   in.GetStatus(),
 		Access:   in.GetAccess(),
@@ -166,11 +163,8 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 	item.Name = in.GetName()
 	item.Desc = in.GetDesc()
 	item.Tags = in.GetTags()
-	item.Type = in.GetType()
 	item.DataType = in.GetDataType()
 	item.Address = in.GetAddress()
-	item.HValue = in.GetHValue()
-	item.LValue = in.GetLValue()
 	item.Config = in.GetConfig()
 	item.Status = in.GetStatus()
 	item.Access = in.GetAccess()
@@ -426,10 +420,6 @@ func (s *TagService) List(ctx context.Context, in *cores.TagListRequest) (*cores
 		}
 	}
 
-	if in.GetType() != "" {
-		query = query.Where(`type = ?`, in.GetType())
-	}
-
 	if in.GetPage().GetOrderBy() != "" && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
 		in.GetPage().GetOrderBy() == "created" || in.GetPage().GetOrderBy() == "updated") {
 		query.Order(in.GetPage().GetOrderBy() + " " + in.GetPage().GetSort().String())
@@ -563,11 +553,8 @@ func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
 	output.Name = item.Name
 	output.Desc = item.Desc
 	output.Tags = item.Tags
-	output.Type = item.Type
 	output.DataType = item.DataType
 	output.Address = item.Address
-	output.HValue = item.HValue
-	output.LValue = item.LValue
 	output.Config = item.Config
 	output.Status = item.Status
 	output.Access = item.Access
@@ -678,10 +665,6 @@ func (s *TagService) Pull(ctx context.Context, in *cores.TagPullRequest) (*cores
 		query.Where("source_id = ?", in.GetSourceId())
 	}
 
-	if in.GetType() != "" {
-		query.Where(`type = ?`, in.GetType())
-	}
-
 	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
 	if err != nil {
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
@@ -784,12 +767,9 @@ SKIP:
 			SourceID: in.GetSourceId(),
 			Name:     in.GetName(),
 			Desc:     in.GetDesc(),
-			Type:     in.GetType(),
 			Tags:     in.GetTags(),
 			DataType: in.GetDataType(),
 			Address:  in.GetAddress(),
-			HValue:   in.GetHValue(),
-			LValue:   in.GetLValue(),
 			Config:   in.GetConfig(),
 			Status:   in.GetStatus(),
 			Access:   in.GetAccess(),
@@ -836,11 +816,8 @@ SKIP:
 		item.Name = in.GetName()
 		item.Desc = in.GetDesc()
 		item.Tags = in.GetTags()
-		item.Type = in.GetType()
 		item.DataType = in.GetDataType()
 		item.Address = in.GetAddress()
-		item.HValue = in.GetHValue()
-		item.LValue = in.GetLValue()
 		item.Config = in.GetConfig()
 		item.Status = in.GetStatus()
 		item.Access = in.GetAccess()

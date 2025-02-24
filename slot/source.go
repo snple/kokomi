@@ -136,7 +136,6 @@ func (s *SourceService) List(ctx context.Context, in *slots.SourceListRequest) (
 	request := &edges.SourceListRequest{
 		Page:   in.GetPage(),
 		Tags:   in.GetTags(),
-		Type:   in.GetType(),
 		Source: in.GetSource(),
 	}
 
@@ -224,7 +223,6 @@ func (s *SourceService) Pull(ctx context.Context, in *slots.SourcePullRequest) (
 	request := &edges.SourcePullRequest{
 		After:  in.GetAfter(),
 		Limit:  in.GetLimit(),
-		Type:   in.GetType(),
 		Source: in.GetSource(),
 	}
 

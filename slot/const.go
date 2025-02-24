@@ -135,7 +135,6 @@ func (s *ConstService) List(ctx context.Context, in *slots.ConstListRequest) (*s
 	request := &edges.ConstListRequest{
 		Page: in.GetPage(),
 		Tags: in.GetTags(),
-		Type: in.GetType(),
 	}
 
 	reply, err := s.ss.Edge().GetConst().List(ctx, request)
@@ -272,7 +271,6 @@ func (s *ConstService) Pull(ctx context.Context, in *slots.ConstPullRequest) (*s
 	request := &edges.ConstPullRequest{
 		After: in.GetAfter(),
 		Limit: in.GetLimit(),
-		Type:  in.GetType(),
 	}
 
 	reply, err := s.ss.Edge().GetConst().Pull(ctx, request)

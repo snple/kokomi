@@ -44,7 +44,6 @@ func (s *TagService) list(ctx *gin.Context) {
 		util.Page `form:",inline"`
 		Name      string `form:"name"`
 		Tags      string `form:"tags"`
-		Type      string `form:"type"`
 	}
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -81,7 +80,6 @@ func (s *TagService) list(ctx *gin.Context) {
 		Page:     page,
 		SourceId: source.Id,
 		Tags:     params.Tags,
-		Type:     params.Type,
 	}
 
 	reply, err := s.as.Edge().GetTag().List(ctx, request)

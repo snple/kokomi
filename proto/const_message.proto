@@ -9,16 +9,13 @@ message Const {
     string name = 3;
     string desc = 4;
     string tags = 5;
-    string type = 6;
-    string data_type = 7;
-    string value = 8;
-    string h_value = 9;
-    string l_value = 10;
-    string config = 11;
-    sint32 status = 12;
-    int64 created = 13;
-    int64 updated = 14;
-    int64 deleted = 15;
+    string data_type = 6;
+    string value = 7;
+    string config = 8;
+    sint32 status = 9;
+    int64 created = 10;
+    int64 updated = 11;
+    int64 deleted = 12;
 }
 
 message ConstValue {

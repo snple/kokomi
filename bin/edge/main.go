@@ -22,7 +22,6 @@ import (
 	"github.com/snple/beacon/bin/edge/log"
 	"github.com/snple/beacon/db"
 	"github.com/snple/beacon/edge"
-	"github.com/snple/beacon/edge/plugins/emu"
 	"github.com/snple/beacon/http"
 	"github.com/snple/beacon/http/edge/api"
 	"github.com/snple/beacon/slot"
@@ -293,16 +292,6 @@ func main() {
 		} else {
 			go engine.Run(static.Addr)
 		}
-	}
-
-	if config.EnableEmu {
-		plugin, err := emu.Emu(es, emu.WithTickerInterval(time.Second*10))
-		if err != nil {
-			log.Logger.Sugar().Fatalf("Emu: %v", err)
-		}
-
-		go plugin.Start()
-		defer plugin.Stop()
 	}
 
 	go func() {

@@ -70,7 +70,6 @@ func (s *UserService) Create(ctx context.Context, in *pb.User) (*pb.User, error)
 		Name:    in.GetName(),
 		Desc:    in.GetDesc(),
 		Tags:    in.GetTags(),
-		Type:    in.GetTags(),
 		Role:    in.GetRole(),
 		Status:  in.GetStatus(),
 		Created: time.Now(),
@@ -141,7 +140,6 @@ func (s *UserService) Update(ctx context.Context, in *pb.User) (*pb.User, error)
 	item.Name = in.GetName()
 	item.Desc = in.GetDesc()
 	item.Tags = in.GetTags()
-	item.Type = in.GetType()
 	item.Role = in.GetRole()
 	item.Status = in.GetStatus()
 	item.Updated = time.Now()
@@ -301,10 +299,6 @@ func (s *UserService) List(ctx context.Context, in *cores.UserListRequest) (*cor
 		}
 	}
 
-	if in.GetType() != "" {
-		query = query.Where(`type = ?`, in.GetType())
-	}
-
 	if in.GetPage().GetOrderBy() != "" && (in.GetPage().GetOrderBy() == "id" || in.GetPage().GetOrderBy() == "name" ||
 		in.GetPage().GetOrderBy() == "created" || in.GetPage().GetOrderBy() == "updated") {
 		query.Order(in.GetPage().GetOrderBy() + " " + in.GetPage().GetSort().String())
@@ -367,7 +361,6 @@ func (s *UserService) copyModelToOutput(output *pb.User, item *model.User) {
 	output.Name = item.Name
 	output.Desc = item.Desc
 	output.Tags = item.Tags
-	output.Type = item.Type
 	output.Role = item.Role
 	output.Status = item.Status
 	output.Created = item.Created.UnixMicro()
@@ -456,10 +449,6 @@ func (s *UserService) Pull(ctx context.Context, in *cores.UserPullRequest) (*cor
 	var items []model.User
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
-
-	if in.GetType() != "" {
-		query = query.Where(`type = ?`, in.GetType())
-	}
 
 	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
 	if err != nil {
