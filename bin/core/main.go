@@ -27,6 +27,7 @@ import (
 	_ "github.com/snple/beacon/util/compress/zstd"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	_ "google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/keepalive"
 )
@@ -82,22 +83,30 @@ func main() {
 	defer cs.Stop()
 
 	if config.Config.CoreService.Enable {
-		tlsConfig, err := util.LoadServerCert(config.Config.CoreService.CA, config.Config.CoreService.Cert, config.Config.CoreService.Key)
-		if err != nil {
-			log.Logger.Sugar().Fatal(err)
+		grpcOpts := make([]grpc.ServerOption, 0)
+
+		if config.Config.CoreService.TLS {
+			tlsConfig, err := util.LoadServerCert(config.Config.CoreService.CA, config.Config.CoreService.Cert, config.Config.CoreService.Key)
+			if err != nil {
+				log.Logger.Sugar().Fatal(err)
+			}
+
+			grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(tlsConfig)))
+		} else {
+			grpcOpts = append(grpcOpts, grpc.Creds(insecure.NewCredentials()))
 		}
+
+		grpcOpts = append(grpcOpts, grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{PermitWithoutStream: true}))
+
+		s := grpc.NewServer(grpcOpts...)
+		defer s.Stop()
+
+		cs.Register(s)
 
 		lis, err := net.Listen("tcp", config.Config.CoreService.Addr)
 		if err != nil {
 			log.Logger.Sugar().Fatalf("failed to listen: %v", err)
 		}
-
-		s := grpc.NewServer(
-			grpc.Creds(credentials.NewTLS(tlsConfig)),
-			grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{PermitWithoutStream: true}),
-		)
-
-		cs.Register(s)
 
 		go func() {
 			log.Logger.Sugar().Infof("core grpc start: %v", config.Config.CoreService.Addr)
@@ -118,22 +127,30 @@ func main() {
 		ns.Start()
 		defer ns.Stop()
 
-		tlsConfig, err := util.LoadServerCert(config.Config.NodeService.CA, config.Config.NodeService.Cert, config.Config.NodeService.Key)
-		if err != nil {
-			log.Logger.Sugar().Fatal(err)
+		grpcOpts := []grpc.ServerOption{
+			grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{PermitWithoutStream: true}),
 		}
+
+		if config.Config.NodeService.TLS {
+			tlsConfig, err := util.LoadServerCert(config.Config.NodeService.CA, config.Config.NodeService.Cert, config.Config.NodeService.Key)
+			if err != nil {
+				log.Logger.Sugar().Fatal(err)
+			}
+
+			grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(tlsConfig)))
+		} else {
+			grpcOpts = append(grpcOpts, grpc.Creds(insecure.NewCredentials()))
+		}
+
+		s := grpc.NewServer(grpcOpts...)
+		defer s.Stop()
+
+		ns.RegisterGrpc(s)
 
 		lis, err := net.Listen("tcp", config.Config.NodeService.Addr)
 		if err != nil {
 			log.Logger.Sugar().Fatalf("failed to listen: %v", err)
 		}
-
-		s := grpc.NewServer(
-			grpc.Creds(credentials.NewTLS(tlsConfig)),
-			grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{PermitWithoutStream: true}),
-		)
-
-		ns.RegisterGrpc(s)
 
 		go func() {
 			log.Logger.Sugar().Infof("node grpc start: %v", config.Config.NodeService.Addr)
@@ -143,13 +160,27 @@ func main() {
 		}()
 	}
 
-	if true {
+	if config.Config.TcpNodeService.Enable {
 		nodeOpts := make([]tcp_node.NodeOption, 0)
+
+		nodeOpts = append(nodeOpts, tcp_node.WithAddr(config.Config.TcpNodeService.Addr))
+
+		if config.Config.TcpNodeService.TLS {
+			tlsConfig, err := util.LoadServerCert(config.Config.TcpNodeService.CA,
+				config.Config.TcpNodeService.Cert, config.Config.TcpNodeService.Key)
+			if err != nil {
+				log.Logger.Sugar().Fatal(err)
+			}
+
+			nodeOpts = append(nodeOpts, tcp_node.WithTLSConfig(tlsConfig))
+		}
 
 		ns, err := tcp_node.Node(cs, nodeOpts...)
 		if err != nil {
 			log.Logger.Sugar().Fatalf("NewNodeService: %v", err)
 		}
+
+		log.Logger.Sugar().Infof("tcp node service start: %v", config.Config.TcpNodeService.Addr)
 
 		ns.Start()
 		defer ns.Stop()

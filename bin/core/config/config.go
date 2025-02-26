@@ -10,15 +10,16 @@ import (
 )
 
 type ConfigStruct struct {
-	Debug       bool        `toml:"debug"`
-	DB          DB          `toml:"db"`
-	CoreService GRPCService `toml:"core"`
-	NodeService GRPCService `toml:"node"`
-	Status      Status      `toml:"status"`
-	Gin         Gin         `toml:"gin"`
-	WebService  HttpService `toml:"web"`
-	ApiService  HttpService `toml:"api"`
-	Statics     []Static    `toml:"static"`
+	Debug          bool        `toml:"debug"`
+	DB             DB          `toml:"db"`
+	CoreService    TCPService  `toml:"core"`
+	NodeService    TCPService  `toml:"node"`
+	TcpNodeService TCPService  `toml:"tcp_node"`
+	Status         Status      `toml:"status"`
+	Gin            Gin         `toml:"gin"`
+	WebService     HttpService `toml:"web"`
+	ApiService     HttpService `toml:"api"`
+	Statics        []Static    `toml:"static"`
 }
 
 type DB struct {
@@ -26,7 +27,7 @@ type DB struct {
 	File  string `toml:"file"`
 }
 
-type GRPCService struct {
+type TCPService struct {
 	Enable bool   `toml:"enable"`
 	Addr   string `toml:"addr"`
 	TLS    bool   `toml:"tls"`
@@ -68,7 +69,7 @@ func DefaultConfig() ConfigStruct {
 		DB: DB{
 			File: "store.db",
 		},
-		CoreService: GRPCService{
+		CoreService: TCPService{
 			Enable: true,
 			Addr:   ":6006",
 			TLS:    true,
@@ -76,13 +77,18 @@ func DefaultConfig() ConfigStruct {
 			Cert:   "certs/server.crt",
 			Key:    "certs/server.key",
 		},
-		NodeService: GRPCService{
+		NodeService: TCPService{
 			Enable: true,
 			Addr:   ":6007",
 			TLS:    true,
 			CA:     "certs/ca.crt",
 			Cert:   "certs/server.crt",
 			Key:    "certs/server.key",
+		},
+		TcpNodeService: TCPService{
+			Enable: true,
+			Addr:   ":6008",
+			TLS:    false,
 		},
 		Status: Status{
 			LinkTTL: 3 * 60,

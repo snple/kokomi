@@ -4,13 +4,13 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
-	"io/ioutil"
+	"os"
 )
 
 func LoadClientCert(caFile, certFile, keyFile, serverName string, insecureSkipVerify bool) (*tls.Config, error) {
 	pool := x509.NewCertPool()
 
-	ca, err := ioutil.ReadFile(caFile)
+	ca, err := os.ReadFile(caFile)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func LoadClientCert(caFile, certFile, keyFile, serverName string, insecureSkipVe
 func LoadServerCert(caFile, certFile, keyFile string) (*tls.Config, error) {
 	pool := x509.NewCertPool()
 
-	ca, err := ioutil.ReadFile(caFile)
+	ca, err := os.ReadFile(caFile)
 	if err != nil {
 		return nil, err
 	}

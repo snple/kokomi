@@ -15,9 +15,9 @@ type ConfigStruct struct {
 	Secret      string      `toml:"secret"`
 	DB          DB          `toml:"db"`
 	BadgerDB    BadgerDB    `toml:"badger"`
-	NodeClient  GRPCClient  `toml:"node"`
-	EdgeService GRPCService `toml:"edge"`
-	SlotService GRPCService `toml:"slot"`
+	NodeClient  TCPClient   `toml:"node"`
+	EdgeService TCPService  `toml:"edge"`
+	SlotService TCPService  `toml:"slot"`
 	Sync        Sync        `toml:"sync"`
 	Status      Status      `toml:"status"`
 	Gin         Gin         `toml:"gin"`
@@ -35,7 +35,7 @@ type BadgerDB struct {
 	InMemory bool   `toml:"in_memory"`
 }
 
-type GRPCClient struct {
+type TCPClient struct {
 	Enable             bool   `toml:"enable"`
 	Addr               string `toml:"addr"`
 	TLS                bool   `toml:"tls"`
@@ -46,7 +46,7 @@ type GRPCClient struct {
 	InsecureSkipVerify bool   `toml:"insecure_skip_verify"`
 }
 
-type GRPCService struct {
+type TCPService struct {
 	Enable bool   `toml:"enable"`
 	Addr   string `toml:"addr"`
 	TLS    bool   `toml:"tls"`
@@ -106,21 +106,21 @@ func DefaultConfig() ConfigStruct {
 			Path:     "badger",
 			InMemory: true,
 		},
-		NodeClient: GRPCClient{
+		NodeClient: TCPClient{
 			Addr: "127.0.0.1:6007",
 			TLS:  true,
 			CA:   "certs/ca.crt",
 			Cert: "certs/client.crt",
 			Key:  "certs/client.key",
 		},
-		EdgeService: GRPCService{
+		EdgeService: TCPService{
 			Addr: "127.0.0.1:6010",
 			TLS:  true,
 			CA:   "certs/ca.crt",
 			Cert: "certs/server.crt",
 			Key:  "certs/server.key",
 		},
-		SlotService: GRPCService{
+		SlotService: TCPService{
 			Addr: "127.0.0.1:6011",
 			TLS:  true,
 			CA:   "certs/ca.crt",

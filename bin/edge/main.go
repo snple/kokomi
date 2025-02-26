@@ -146,7 +146,7 @@ func main() {
 	defer es.Stop()
 
 	if config.Config.EdgeService.Enable {
-		edgeGrpcOpts := []grpc.ServerOption{
+		grpcOpts := []grpc.ServerOption{
 			grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{PermitWithoutStream: true}),
 		}
 
@@ -156,17 +156,19 @@ func main() {
 				log.Logger.Sugar().Fatal(err)
 			}
 
-			edgeGrpcOpts = append(edgeGrpcOpts, grpc.Creds(credentials.NewTLS(tlsConfig)))
+			grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(tlsConfig)))
+		} else {
+			grpcOpts = append(grpcOpts, grpc.Creds(insecure.NewCredentials()))
 		}
+
+		s := grpc.NewServer(grpcOpts...)
+		defer s.Stop()
+		es.Register(s)
 
 		lis, err := net.Listen("tcp", config.Config.EdgeService.Addr)
 		if err != nil {
 			log.Logger.Sugar().Fatalf("failed to listen: %v", err)
 		}
-
-		s := grpc.NewServer(edgeGrpcOpts...)
-
-		es.Register(s)
 
 		go func() {
 			log.Logger.Sugar().Infof("edge grpc start: %v, tls: %v", config.Config.EdgeService.Addr, config.Config.EdgeService.TLS)
@@ -187,7 +189,7 @@ func main() {
 		ns.Start()
 		defer ns.Stop()
 
-		slotGrpcOpts := []grpc.ServerOption{
+		grpcOpts := []grpc.ServerOption{
 			grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{PermitWithoutStream: true}),
 		}
 
@@ -197,17 +199,20 @@ func main() {
 				log.Logger.Sugar().Fatal(err)
 			}
 
-			slotGrpcOpts = append(slotGrpcOpts, grpc.Creds(credentials.NewTLS(tlsConfig)))
+			grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(tlsConfig)))
+		} else {
+			grpcOpts = append(grpcOpts, grpc.Creds(insecure.NewCredentials()))
 		}
+
+		s := grpc.NewServer(grpcOpts...)
+		defer s.Stop()
+
+		ns.RegisterGrpc(s)
 
 		lis, err := net.Listen("tcp", config.Config.SlotService.Addr)
 		if err != nil {
 			log.Logger.Sugar().Fatalf("failed to listen: %v", err)
 		}
-
-		s := grpc.NewServer(slotGrpcOpts...)
-
-		ns.RegisterGrpc(s)
 
 		go func() {
 			log.Logger.Sugar().Infof("slot grpc start: %v", config.Config.SlotService.Addr)

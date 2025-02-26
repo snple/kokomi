@@ -136,7 +136,7 @@ type nodeOptions struct {
 
 func defaultNodeOptions() nodeOptions {
 	return nodeOptions{
-		addr: ":8008",
+		addr: ":6008",
 	}
 }
 
