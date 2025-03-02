@@ -67,7 +67,20 @@ func main() {
 	command := flag.Arg(0)
 	switch command {
 	case "seed":
+		if flag.NArg() < 2 {
+			log.Logger.Sugar().Fatalf("seed: device name is required")
+		}
+
+		deviceName := flag.Arg(1)
+
+		// the seed of edge need to be executed manually
+		// must provide the device name
+		if err := edge.Seed(bundb, deviceName); err != nil {
+			log.Logger.Sugar().Fatalf("seed: %v", err)
+		}
+
 		log.Logger.Sugar().Infof("seed: Completed")
+
 		return
 	case "pull", "push":
 		if err := cli(command, bundb); err != nil {

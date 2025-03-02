@@ -46,6 +46,8 @@ func seed(db bun.Tx) error {
 				return err
 			}
 
+			fmt.Printf("seed: the initial device created: %v\n", device.ID)
+
 			return nil
 		}
 
