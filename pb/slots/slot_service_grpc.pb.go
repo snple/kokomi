@@ -20,10 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SlotService_Login_FullMethodName  = "/slots.SlotService/Login"
-	SlotService_Update_FullMethodName = "/slots.SlotService/Update"
-	SlotService_View_FullMethodName   = "/slots.SlotService/View"
-	SlotService_Link_FullMethodName   = "/slots.SlotService/Link"
+	SlotService_Login_FullMethodName     = "/slots.SlotService/Login"
+	SlotService_Update_FullMethodName    = "/slots.SlotService/Update"
+	SlotService_View_FullMethodName      = "/slots.SlotService/View"
+	SlotService_Link_FullMethodName      = "/slots.SlotService/Link"
+	SlotService_KeepAlive_FullMethodName = "/slots.SlotService/KeepAlive"
 )
 
 // SlotServiceClient is the client API for SlotService service.
@@ -34,6 +35,7 @@ type SlotServiceClient interface {
 	Update(ctx context.Context, in *pb.Slot, opts ...grpc.CallOption) (*pb.Slot, error)
 	View(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*pb.Slot, error)
 	Link(ctx context.Context, in *SlotLinkRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	KeepAlive(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[SlotKeepAliveReply], error)
 }
 
 type slotServiceClient struct {
@@ -84,6 +86,25 @@ func (c *slotServiceClient) Link(ctx context.Context, in *SlotLinkRequest, opts 
 	return out, nil
 }
 
+func (c *slotServiceClient) KeepAlive(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[SlotKeepAliveReply], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &SlotService_ServiceDesc.Streams[0], SlotService_KeepAlive_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[pb.MyEmpty, SlotKeepAliveReply]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type SlotService_KeepAliveClient = grpc.ServerStreamingClient[SlotKeepAliveReply]
+
 // SlotServiceServer is the server API for SlotService service.
 // All implementations must embed UnimplementedSlotServiceServer
 // for forward compatibility.
@@ -92,6 +113,7 @@ type SlotServiceServer interface {
 	Update(context.Context, *pb.Slot) (*pb.Slot, error)
 	View(context.Context, *pb.MyEmpty) (*pb.Slot, error)
 	Link(context.Context, *SlotLinkRequest) (*pb.MyBool, error)
+	KeepAlive(*pb.MyEmpty, grpc.ServerStreamingServer[SlotKeepAliveReply]) error
 	mustEmbedUnimplementedSlotServiceServer()
 }
 
@@ -113,6 +135,9 @@ func (UnimplementedSlotServiceServer) View(context.Context, *pb.MyEmpty) (*pb.Sl
 }
 func (UnimplementedSlotServiceServer) Link(context.Context, *SlotLinkRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Link not implemented")
+}
+func (UnimplementedSlotServiceServer) KeepAlive(*pb.MyEmpty, grpc.ServerStreamingServer[SlotKeepAliveReply]) error {
+	return status.Errorf(codes.Unimplemented, "method KeepAlive not implemented")
 }
 func (UnimplementedSlotServiceServer) mustEmbedUnimplementedSlotServiceServer() {}
 func (UnimplementedSlotServiceServer) testEmbeddedByValue()                     {}
@@ -207,6 +232,17 @@ func _SlotService_Link_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SlotService_KeepAlive_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(pb.MyEmpty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(SlotServiceServer).KeepAlive(m, &grpc.GenericServerStream[pb.MyEmpty, SlotKeepAliveReply]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type SlotService_KeepAliveServer = grpc.ServerStreamingServer[SlotKeepAliveReply]
+
 // SlotService_ServiceDesc is the grpc.ServiceDesc for SlotService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -231,6 +267,12 @@ var SlotService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SlotService_Link_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "KeepAlive",
+			Handler:       _SlotService_KeepAlive_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "slots/slot_service.proto",
 }

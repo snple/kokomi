@@ -67,7 +67,6 @@ func (ns *NodeService) Start() {
 }
 
 func (ns *NodeService) Stop() {
-
 	ns.cancel()
 	ns.closeWG.Wait()
 }
@@ -97,12 +96,12 @@ func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 }
 
 type nodeOptions struct {
-	Ping time.Duration
+	keepAlive time.Duration
 }
 
 func defaultNodeOptions() nodeOptions {
 	return nodeOptions{
-		Ping: 60 * time.Second,
+		keepAlive: 10 * time.Second,
 	}
 }
 
@@ -126,8 +125,8 @@ func newFuncNodeOption(f func(*nodeOptions)) *funcNodeOption {
 	}
 }
 
-func WithPing(d time.Duration) NodeOption {
+func WithKeepAlive(d time.Duration) NodeOption {
 	return newFuncNodeOption(func(o *nodeOptions) {
-		o.Ping = d
+		o.keepAlive = d
 	})
 }

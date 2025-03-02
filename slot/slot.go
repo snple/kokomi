@@ -3,6 +3,7 @@ package slot
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/snple/beacon/consts"
 	"github.com/snple/beacon/edge"
@@ -93,10 +94,13 @@ func (ss *SlotService) RegisterGrpc(server *grpc.Server) {
 }
 
 type slotOptions struct {
+	keepAlive time.Duration
 }
 
 func defaultSlotOptions() slotOptions {
-	return slotOptions{}
+	return slotOptions{
+		keepAlive: 10 * time.Second,
+	}
 }
 
 type SlotOption interface {
@@ -117,6 +121,12 @@ func newFuncSlotOption(f func(*slotOptions)) *funcSlotOption {
 	return &funcSlotOption{
 		f: f,
 	}
+}
+
+func WithKeepAlive(d time.Duration) SlotOption {
+	return newFuncSlotOption(func(o *slotOptions) {
+		o.keepAlive = d
+	})
 }
 
 func (s *SlotService) Login(ctx context.Context, in *slots.LoginSlotRequest) (*slots.LoginSlotReply, error) {
@@ -250,4 +260,29 @@ func (s *SlotService) Link(ctx context.Context, in *slots.SlotLinkRequest) (*pb.
 	request2 := &edges.SlotLinkRequest{Id: slotID, Status: in.GetStatus()}
 
 	return s.es.GetSlot().Link(ctx, request2)
+}
+
+func (s *SlotService) KeepAlive(in *pb.MyEmpty, stream slots.SlotService_KeepAliveServer) error {
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	_, err = validateToken(stream.Context())
+	if err != nil {
+		return err
+	}
+
+	for {
+		err := stream.Send(&slots.SlotKeepAliveReply{Time: int32(time.Now().Unix())})
+		if err != nil {
+			return err
+		}
+
+		time.Sleep(s.dopts.keepAlive)
+	}
 }

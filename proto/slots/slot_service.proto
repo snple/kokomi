@@ -21,9 +21,14 @@ message SlotLinkRequest {
     sint32 status = 2;
 }
 
+message SlotKeepAliveReply {
+    int32 time = 1;
+}
+
 service SlotService {
     rpc Login(LoginSlotRequest) returns (LoginSlotReply) {}
     rpc Update(pb.Slot) returns (pb.Slot) {}
     rpc View(pb.MyEmpty) returns (pb.Slot) {}
     rpc Link(SlotLinkRequest) returns (pb.MyBool) {}
+    rpc KeepAlive(pb.MyEmpty) returns (stream SlotKeepAliveReply) {}
 }

@@ -257,6 +257,6 @@ func (s *DeviceService) KeepAlive(in *pb.MyEmpty, stream nodes.DeviceService_Kee
 			return err
 		}
 
-		time.Sleep(time.Second * 10)
+		time.Sleep(s.ns.dopts.keepAlive)
 	}
 }
