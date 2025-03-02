@@ -11,13 +11,13 @@ import (
 	"github.com/uptrace/bun"
 )
 
-func Seed(db *bun.DB, deviceName string) error {
+func Seed(db *bun.DB, nodeName string) error {
 	tx, err := db.Begin()
 	if err != nil {
 		return err
 	}
 
-	if err = seed(tx, deviceName); err != nil {
+	if err = seed(tx, nodeName); err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -25,35 +25,35 @@ func Seed(db *bun.DB, deviceName string) error {
 	return tx.Commit()
 }
 
-func seed(db bun.Tx, deviceName string) error {
+func seed(db bun.Tx, nodeName string) error {
 	var err error
 	ctx := context.Background()
 
 	{
-		seedDevice := func() error {
-			device := model.Device{
+		seedNode := func() error {
+			node := model.Node{
 				ID:      util.RandomID(),
-				Name:    deviceName,
+				Name:    nodeName,
 				Created: time.Now(),
 				Updated: time.Now(),
 			}
 
-			_, err = db.NewInsert().Model(&device).Exec(ctx)
+			_, err = db.NewInsert().Model(&node).Exec(ctx)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("seed: the initial device created: %v\n", device.ID)
+			fmt.Printf("seed: the initial node created: %v\n", node.ID)
 
 			return nil
 		}
 
-		// check if device already exists
+		// check if node already exists
 		// if not, create it
-		err = db.NewSelect().Model(&model.Device{}).Scan(ctx)
+		err = db.NewSelect().Model(&model.Node{}).Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				if err = seedDevice(); err != nil {
+				if err = seedNode(); err != nil {
 					return err
 				}
 			} else {

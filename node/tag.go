@@ -34,7 +34,7 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 
 	// source validation
 	{
-		deviceID, err := validateToken(ctx)
+		nodeID, err := validateToken(ctx)
 		if err != nil {
 			return &output, err
 		}
@@ -46,8 +46,8 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 			return &output, err
 		}
 
-		if reply.GetDeviceId() != deviceID {
-			return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+		if reply.GetNodeId() != nodeID {
+			return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 		}
 	}
 
@@ -65,7 +65,7 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -77,8 +77,8 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetTag().Update(ctx, in)
@@ -95,7 +95,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -105,8 +105,8 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return reply, nil
@@ -123,20 +123,20 @@ func (s *TagService) Name(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
-	request := &cores.TagNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.TagNameRequest{NodeId: nodeID, Name: in.GetName()}
 
 	reply, err := s.ns.Core().GetTag().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return reply, nil
@@ -153,7 +153,7 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -163,8 +163,8 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetTag().Delete(ctx, in)
@@ -181,14 +181,14 @@ func (s *TagService) List(ctx context.Context, in *nodes.TagListRequest) (*nodes
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	request := &cores.TagListRequest{
 		Page:     in.GetPage(),
-		DeviceId: deviceID,
+		NodeId:   nodeID,
 		SourceId: in.GetSourceId(),
 		Tags:     in.GetTags(),
 	}
@@ -216,7 +216,7 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -226,8 +226,8 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return reply, nil
@@ -247,7 +247,7 @@ func (s *TagService) Pull(ctx context.Context, in *nodes.TagPullRequest) (*nodes
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -255,7 +255,7 @@ func (s *TagService) Pull(ctx context.Context, in *nodes.TagPullRequest) (*nodes
 	request := &cores.TagPullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
-		DeviceId: deviceID,
+		NodeId:   nodeID,
 		SourceId: in.GetSourceId(),
 	}
 
@@ -280,12 +280,12 @@ func (s *TagService) Sync(ctx context.Context, in *pb.Tag) (*pb.MyBool, error) {
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
-	in.DeviceId = deviceID
+	in.NodeId = nodeID
 
 	return s.ns.Core().GetTag().Sync(ctx, in)
 }
@@ -303,7 +303,7 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -313,8 +313,8 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetTag().GetValue(ctx, in)
@@ -331,7 +331,7 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -343,8 +343,8 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetTag().SetValue(ctx, in)
@@ -361,13 +361,13 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	reply, err := s.ns.Core().GetTag().GetValueByName(ctx,
-		&cores.TagGetValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
+		&cores.TagGetValueByNameRequest{NodeId: nodeID, Name: in.GetName()})
 	if err != nil {
 		return &output, err
 	}
@@ -391,13 +391,13 @@ func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	return s.ns.Core().GetTag().SetValueByName(ctx,
-		&cores.TagNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
+		&cores.TagNameValue{NodeId: nodeID, Name: in.GetName(), Value: in.GetValue()})
 }
 
 func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
@@ -411,7 +411,7 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -421,8 +421,8 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return reply, nil
@@ -439,7 +439,7 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -449,8 +449,8 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetTag().DeleteValue(ctx, in)
@@ -470,7 +470,7 @@ func (s *TagService) PullValue(ctx context.Context, in *nodes.TagPullValueReques
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -478,7 +478,7 @@ func (s *TagService) PullValue(ctx context.Context, in *nodes.TagPullValueReques
 	request := &cores.TagPullValueRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
-		DeviceId: deviceID,
+		NodeId:   nodeID,
 		SourceId: in.GetSourceId(),
 	}
 
@@ -503,7 +503,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -515,8 +515,8 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetTag().SyncValue(ctx, in)
@@ -535,7 +535,7 @@ func (s *TagService) GetWrite(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -545,8 +545,8 @@ func (s *TagService) GetWrite(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetTag().GetWrite(ctx, in)
@@ -563,7 +563,7 @@ func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -575,8 +575,8 @@ func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetTag().SetWrite(ctx, in)
@@ -593,13 +593,13 @@ func (s *TagService) GetWriteByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	reply, err := s.ns.Core().GetTag().GetWriteByName(ctx,
-		&cores.TagGetValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
+		&cores.TagGetValueByNameRequest{NodeId: nodeID, Name: in.GetName()})
 	if err != nil {
 		return &output, err
 	}
@@ -623,13 +623,13 @@ func (s *TagService) SetWriteByName(ctx context.Context, in *pb.TagNameValue) (*
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	return s.ns.Core().GetTag().SetValueByName(ctx,
-		&cores.TagNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
+		&cores.TagNameValue{NodeId: nodeID, Name: in.GetName(), Value: in.GetValue()})
 }
 
 func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
@@ -643,7 +643,7 @@ func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -653,8 +653,8 @@ func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return reply, nil
@@ -671,7 +671,7 @@ func (s *TagService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -681,8 +681,8 @@ func (s *TagService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetTag().DeleteWrite(ctx, in)
@@ -702,7 +702,7 @@ func (s *TagService) PullWrite(ctx context.Context, in *nodes.TagPullValueReques
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -710,7 +710,7 @@ func (s *TagService) PullWrite(ctx context.Context, in *nodes.TagPullValueReques
 	request := &cores.TagPullValueRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
-		DeviceId: deviceID,
+		NodeId:   nodeID,
 		SourceId: in.GetSourceId(),
 	}
 
@@ -735,7 +735,7 @@ func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -747,8 +747,8 @@ func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetTag().SyncWrite(ctx, in)

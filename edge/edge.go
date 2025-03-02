@@ -21,13 +21,13 @@ type EdgeService struct {
 	badger   *BadgerService
 	status   *StatusService
 	sync     *SyncService
-	device   *DeviceService
+	node     *NodeService
 	slot     *SlotService
 	source   *SourceService
 	tag      *TagService
 	constant *ConstService
 
-	node types.Option[*NodeService]
+	nodeUp types.Option[*NodeUpService]
 
 	clone *cloneService
 
@@ -77,18 +77,18 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 
 	es.status = newStatusService(es)
 	es.sync = newSyncService(es)
-	es.device = newDeviceService(es)
+	es.node = newNodeService(es)
 	es.slot = newSlotService(es)
 	es.source = newSourceService(es)
 	es.tag = newTagService(es)
 	es.constant = newConstService(es)
 
 	if es.dopts.NodeOptions.Enable {
-		node, err := newNodeService(es)
+		nodeUp, err := newNodeUpService(es)
 		if err != nil {
 			return nil, err
 		}
-		es.node = types.Some(node)
+		es.nodeUp = types.Some(nodeUp)
 	}
 
 	es.clone = newCloneService(es)
@@ -104,12 +104,12 @@ func (es *EdgeService) Start() {
 		es.badger.start()
 	}()
 
-	if es.node.IsSome() {
+	if es.nodeUp.IsSome() {
 		es.closeWG.Add(1)
 		go func() {
 			defer es.closeWG.Done()
 
-			es.node.Unwrap().start()
+			es.nodeUp.Unwrap().start()
 		}()
 	}
 
@@ -124,8 +124,8 @@ func (es *EdgeService) Start() {
 }
 
 func (es *EdgeService) Stop() {
-	if es.node.IsSome() {
-		es.node.Unwrap().stop()
+	if es.nodeUp.IsSome() {
+		es.nodeUp.Unwrap().stop()
 	}
 
 	es.badger.stop()
@@ -136,16 +136,16 @@ func (es *EdgeService) Stop() {
 }
 
 func (es *EdgeService) Push() error {
-	if es.node.IsSome() {
-		return es.node.Unwrap().push()
+	if es.nodeUp.IsSome() {
+		return es.nodeUp.Unwrap().push()
 	}
 
 	return errors.New("node not enable")
 }
 
 func (es *EdgeService) Pull() error {
-	if es.node.IsSome() {
-		return es.node.Unwrap().pull()
+	if es.nodeUp.IsSome() {
+		return es.nodeUp.Unwrap().pull()
 	}
 
 	return errors.New("node not enable")
@@ -167,8 +167,8 @@ func (es *EdgeService) GetSync() *SyncService {
 	return es.sync
 }
 
-func (es *EdgeService) GetDevice() *DeviceService {
-	return es.device
+func (es *EdgeService) GetNode() *NodeService {
+	return es.node
 }
 
 func (es *EdgeService) GetSlot() *SlotService {
@@ -187,8 +187,8 @@ func (es *EdgeService) GetConst() *ConstService {
 	return es.constant
 }
 
-func (es *EdgeService) GetNode() types.Option[*NodeService] {
-	return es.node
+func (es *EdgeService) GetNodeUp() types.Option[*NodeUpService] {
+	return es.nodeUp
 }
 
 func (es *EdgeService) getClone() *cloneService {
@@ -225,7 +225,7 @@ func (es *EdgeService) cacheGC() {
 
 func (es *EdgeService) Register(server *grpc.Server) {
 	edges.RegisterSyncServiceServer(server, es.sync)
-	edges.RegisterDeviceServiceServer(server, es.device)
+	edges.RegisterNodeServiceServer(server, es.node)
 	edges.RegisterSlotServiceServer(server, es.slot)
 	edges.RegisterSourceServiceServer(server, es.source)
 	edges.RegisterTagServiceServer(server, es.tag)
@@ -234,7 +234,7 @@ func (es *EdgeService) Register(server *grpc.Server) {
 
 func CreateSchema(db bun.IDB) error {
 	models := []any{
-		(*model.Device)(nil),
+		(*model.Node)(nil),
 		(*model.Slot)(nil),
 		(*model.Source)(nil),
 		(*model.Tag)(nil),
@@ -251,9 +251,9 @@ func CreateSchema(db bun.IDB) error {
 }
 
 type edgeOptions struct {
-	logger   *zap.Logger
-	deviceID string
-	secret   string
+	logger *zap.Logger
+	nodeID string
+	secret string
 
 	NodeOptions     NodeOptions
 	SyncOptions     SyncOptions
@@ -343,9 +343,9 @@ func WithLogger(logger *zap.Logger) EdgeOption {
 	})
 }
 
-func WithDeviceID(id, secret string) EdgeOption {
+func WithNodeID(id, secret string) EdgeOption {
 	return newFuncEdgeOption(func(o *edgeOptions) {
-		o.deviceID = id
+		o.nodeID = id
 		o.secret = secret
 	})
 }

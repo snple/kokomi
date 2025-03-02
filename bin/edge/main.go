@@ -68,14 +68,14 @@ func main() {
 	switch command {
 	case "seed":
 		if flag.NArg() < 2 {
-			log.Logger.Sugar().Fatalf("seed: device name is required")
+			log.Logger.Sugar().Fatalf("seed: node name is required")
 		}
 
-		deviceName := flag.Arg(1)
+		nodeName := flag.Arg(1)
 
 		// the seed of edge need to be executed manually
-		// must provide the device name
-		if err := edge.Seed(bundb, deviceName); err != nil {
+		// must provide the node name
+		if err := edge.Seed(bundb, nodeName); err != nil {
 			log.Logger.Sugar().Fatalf("seed: %v", err)
 		}
 
@@ -93,7 +93,7 @@ func main() {
 	edgeOpts := make([]edge.EdgeOption, 0)
 
 	{
-		edgeOpts = append(edgeOpts, edge.WithDeviceID(config.Config.DeviceID, config.Config.Secret))
+		edgeOpts = append(edgeOpts, edge.WithNodeID(config.Config.NodeID, config.Config.Secret))
 		edgeOpts = append(edgeOpts, edge.WithLinkTTL(time.Second*time.Duration(config.Config.Status.LinkTTL)))
 
 		edgeOpts = append(edgeOpts, edge.WithSync(edge.SyncOptions{
@@ -326,7 +326,7 @@ func cli(command string, bundb *bun.DB) error {
 	defer log.Logger.Sugar().Infof("cli %v : Completed", command)
 
 	edgeOpts := make([]edge.EdgeOption, 0)
-	edgeOpts = append(edgeOpts, edge.WithDeviceID(config.Config.DeviceID, config.Config.Secret))
+	edgeOpts = append(edgeOpts, edge.WithNodeID(config.Config.NodeID, config.Config.Secret))
 
 	{
 		kacp := keepalive.ClientParameters{

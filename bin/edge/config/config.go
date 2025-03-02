@@ -11,7 +11,7 @@ import (
 
 type ConfigStruct struct {
 	Debug       bool        `toml:"debug"`
-	DeviceID    string      `toml:"device_id"`
+	NodeID      string      `toml:"node_id"`
 	Secret      string      `toml:"secret"`
 	DB          DB          `toml:"db"`
 	BadgerDB    BadgerDB    `toml:"badger"`
@@ -145,8 +145,8 @@ func DefaultConfig() ConfigStruct {
 var Config = DefaultConfig()
 
 func (c *ConfigStruct) Validate() error {
-	if len(c.DeviceID) == 0 {
-		return errors.New("DeviceID must be specified")
+	if len(c.NodeID) == 0 {
+		return errors.New("NodeID must be specified")
 	}
 
 	if len(c.Secret) == 0 {

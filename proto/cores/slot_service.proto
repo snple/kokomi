@@ -8,7 +8,7 @@ import "generic_message.proto";
 
 message SlotListRequest {
     pb.Page page = 1;
-    string device_id = 2;
+    string node_id = 2;
     string tags = 3;
 }
 
@@ -19,7 +19,7 @@ message SlotListResponse {
 }
 
 message SlotNameRequest {
-    string device_id = 1;
+    string node_id = 1;
     string name = 2;
 }
 
@@ -30,13 +30,13 @@ message SlotLinkRequest {
 
 message SlotCloneRequest {
     string id = 1;
-    string device_id = 2;
+    string node_id = 2;
 }
 
 message SlotPullRequest {
     int64 after = 1;
     uint32 limit = 2;
-    string device_id = 3;
+    string node_id = 3;
 }
 
 message SlotPullResponse {

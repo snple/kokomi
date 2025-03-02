@@ -4,7 +4,7 @@ import (
 	"github.com/snple/beacon/pb"
 )
 
-func Device(item *pb.Device) {
+func Node(item *pb.Node) {
 	if item != nil {
 		item.Created = item.Created / 1000
 		item.Updated = item.Updated / 1000
@@ -12,9 +12,9 @@ func Device(item *pb.Device) {
 	}
 }
 
-func Devices(items []*pb.Device) {
+func Nodes(items []*pb.Node) {
 	for _, item := range items {
-		Device(item)
+		Node(item)
 	}
 }
 

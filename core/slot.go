@@ -39,8 +39,8 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if in.GetDeviceId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.DeviceID")
+		if in.GetNodeId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.NodeID")
 		}
 
 		if in.GetName() == "" {
@@ -48,9 +48,9 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 		}
 	}
 
-	// device validation
+	// node validation
 	{
-		_, err = s.cs.GetDevice().ViewByID(ctx, in.GetDeviceId())
+		_, err = s.cs.GetNode().ViewByID(ctx, in.GetNodeId())
 		if err != nil {
 			return &output, err
 		}
@@ -62,7 +62,7 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 			return &output, status.Error(codes.InvalidArgument, "Slot.Name min 2 character")
 		}
 
-		err = s.cs.GetDB().NewSelect().Model(&model.Slot{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
+		err = s.cs.GetDB().NewSelect().Model(&model.Slot{}).Where("node_id = ?", in.GetNodeId()).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
@@ -73,16 +73,16 @@ func (s *SlotService) Create(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 	}
 
 	item := model.Slot{
-		ID:       in.GetId(),
-		DeviceID: in.GetDeviceId(),
-		Name:     in.GetName(),
-		Desc:     in.GetDesc(),
-		Tags:     in.GetTags(),
-		Secret:   in.GetSecret(),
-		Config:   in.GetConfig(),
-		Status:   in.GetStatus(),
-		Created:  time.Now(),
-		Updated:  time.Now(),
+		ID:      in.GetId(),
+		NodeID:  in.GetNodeId(),
+		Name:    in.GetName(),
+		Desc:    in.GetDesc(),
+		Tags:    in.GetTags(),
+		Secret:  in.GetSecret(),
+		Config:  in.GetConfig(),
+		Status:  in.GetStatus(),
+		Created: time.Now(),
+		Updated: time.Now(),
 	}
 
 	if item.ID == "" {
@@ -134,7 +134,7 @@ func (s *SlotService) Update(ctx context.Context, in *pb.Slot) (*pb.Slot, error)
 		}
 
 		modelItem := model.Slot{}
-		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
+		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("node_id = ?", item.NodeID).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
@@ -203,8 +203,8 @@ func (s *SlotService) Name(ctx context.Context, in *cores.SlotNameRequest) (*pb.
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if in.GetDeviceId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+		if in.GetNodeId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid NodeID")
 		}
 
 		if in.GetName() == "" {
@@ -212,7 +212,7 @@ func (s *SlotService) Name(ctx context.Context, in *cores.SlotNameRequest) (*pb.
 		}
 	}
 
-	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewByNodeIDAndName(ctx, in.GetNodeId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -237,7 +237,7 @@ func (s *SlotService) NameFull(ctx context.Context, in *pb.Name) (*pb.Slot, erro
 		}
 	}
 
-	deviceName := consts.DEFAULT_DEVICE
+	nodeName := consts.DEFAULT_NODE
 	itemName := in.GetName()
 
 	if strings.Contains(itemName, ".") {
@@ -246,16 +246,16 @@ func (s *SlotService) NameFull(ctx context.Context, in *pb.Name) (*pb.Slot, erro
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Slot.Name")
 		}
 
-		deviceName = splits[0]
+		nodeName = splits[0]
 		itemName = splits[1]
 	}
 
-	device, err := s.cs.GetDevice().ViewByName(ctx, deviceName)
+	node, err := s.cs.GetNode().ViewByName(ctx, nodeName)
 	if err != nil {
 		return &output, err
 	}
 
-	item, err := s.ViewByDeviceIDAndName(ctx, device.ID, itemName)
+	item, err := s.ViewByNodeIDAndName(ctx, node.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -330,8 +330,8 @@ func (s *SlotService) List(ctx context.Context, in *cores.SlotListRequest) (*cor
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if in.GetDeviceId() != "" {
-		query.Where("device_id = ?", in.GetDeviceId())
+	if in.GetNodeId() != "" {
+		query.Where("node_id = ?", in.GetNodeId())
 	}
 
 	if in.GetPage().GetSearch() != "" {
@@ -432,7 +432,7 @@ func (s *SlotService) Clone(ctx context.Context, in *cores.SlotCloneRequest) (*p
 		}
 	}
 
-	err = s.cs.getClone().slot(ctx, s.cs.GetDB(), in.GetId(), in.GetDeviceId())
+	err = s.cs.getClone().slot(ctx, s.cs.GetDB(), in.GetId(), in.GetNodeId())
 	if err != nil {
 		return &output, err
 	}
@@ -459,13 +459,13 @@ func (s *SlotService) ViewByID(ctx context.Context, id string) (model.Slot, erro
 	return item, nil
 }
 
-func (s *SlotService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Slot, error) {
+func (s *SlotService) ViewByNodeIDAndName(ctx context.Context, nodeID, name string) (model.Slot, error) {
 	item := model.Slot{}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).Where("device_id = ?", deviceID).Where("name = ?", name).Scan(ctx)
+	err := s.cs.GetDB().NewSelect().Model(&item).Where("node_id = ?", nodeID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, DeviceID: %v, Slot.Name: %v", err, deviceID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, NodeID: %v, Slot.Name: %v", err, nodeID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -476,7 +476,7 @@ func (s *SlotService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name 
 
 func (s *SlotService) copyModelToOutput(output *pb.Slot, item *model.Slot) {
 	output.Id = item.ID
-	output.DeviceId = item.DeviceID
+	output.NodeId = item.NodeID
 	output.Name = item.Name
 	output.Desc = item.Desc
 	output.Tags = item.Tags
@@ -492,9 +492,9 @@ func (s *SlotService) copyModelToOutput(output *pb.Slot, item *model.Slot) {
 func (s *SlotService) afterUpdate(ctx context.Context, item *model.Slot) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
+	err = s.cs.GetSync().setNodeUpdated(ctx, s.cs.GetDB(), item.NodeID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
 	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_SLOT, time.Now())
@@ -508,9 +508,9 @@ func (s *SlotService) afterUpdate(ctx context.Context, item *model.Slot) error {
 func (s *SlotService) afterDelete(ctx context.Context, item *model.Slot) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
+	err = s.cs.GetSync().setNodeUpdated(ctx, s.cs.GetDB(), item.NodeID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
 	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_SLOT, time.Now())
@@ -581,8 +581,8 @@ func (s *SlotService) Pull(ctx context.Context, in *cores.SlotPullRequest) (*cor
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if in.GetDeviceId() != "" {
-		query.Where("device_id = ?", in.GetDeviceId())
+	if in.GetNodeId() != "" {
+		query.Where("node_id = ?", in.GetNodeId())
 	}
 
 	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
@@ -645,9 +645,9 @@ SKIP:
 
 	// insert
 	if insert {
-		// device validation
+		// node validation
 		{
-			_, err = s.cs.GetDevice().viewWithDeleted(ctx, in.GetDeviceId())
+			_, err = s.cs.GetNode().viewWithDeleted(ctx, in.GetNodeId())
 			if err != nil {
 				return &output, err
 			}
@@ -659,7 +659,7 @@ SKIP:
 				return &output, status.Error(codes.InvalidArgument, "Slot.Name min 2 character")
 			}
 
-			err = s.cs.GetDB().NewSelect().Model(&model.Slot{}).Where("device_id = ?", in.GetDeviceId()).Where("name = ?", in.GetName()).Scan(ctx)
+			err = s.cs.GetDB().NewSelect().Model(&model.Slot{}).Where("node_id = ?", in.GetNodeId()).Where("name = ?", in.GetName()).Scan(ctx)
 			if err != nil {
 				if err != sql.ErrNoRows {
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
@@ -670,17 +670,17 @@ SKIP:
 		}
 
 		item := model.Slot{
-			ID:       in.GetId(),
-			DeviceID: in.GetDeviceId(),
-			Name:     in.GetName(),
-			Desc:     in.GetDesc(),
-			Tags:     in.GetTags(),
-			Secret:   in.GetSecret(),
-			Config:   in.GetConfig(),
-			Status:   in.GetStatus(),
-			Created:  time.UnixMicro(in.GetCreated()),
-			Updated:  time.UnixMicro(in.GetUpdated()),
-			Deleted:  time.UnixMicro(in.GetDeleted()),
+			ID:      in.GetId(),
+			NodeID:  in.GetNodeId(),
+			Name:    in.GetName(),
+			Desc:    in.GetDesc(),
+			Tags:    in.GetTags(),
+			Secret:  in.GetSecret(),
+			Config:  in.GetConfig(),
+			Status:  in.GetStatus(),
+			Created: time.UnixMicro(in.GetCreated()),
+			Updated: time.UnixMicro(in.GetUpdated()),
+			Deleted: time.UnixMicro(in.GetDeleted()),
 		}
 
 		_, err = s.cs.GetDB().NewInsert().Model(&item).Exec(ctx)
@@ -691,8 +691,8 @@ SKIP:
 
 	// update
 	if update {
-		if in.GetDeviceId() != item.DeviceID {
-			return &output, status.Error(codes.NotFound, "Query: in.GetDeviceId() != item.DeviceID")
+		if in.GetNodeId() != item.NodeID {
+			return &output, status.Error(codes.NotFound, "Query: in.GetNodeId() != item.NodeID")
 		}
 
 		if in.GetUpdated() <= item.Updated.UnixMicro() {
@@ -706,7 +706,7 @@ SKIP:
 			}
 
 			modelItem := model.Slot{}
-			err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("device_id = ?", item.DeviceID).Where("name = ?", in.GetName()).Scan(ctx)
+			err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("node_id = ?", item.NodeID).Where("name = ?", in.GetName()).Scan(ctx)
 			if err != nil {
 				if err != sql.ErrNoRows {
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)

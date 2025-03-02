@@ -41,7 +41,7 @@ func (s *ConstService) register(router gin.IRouter) {
 func (s *ConstService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
-		DeviceId  string `form:"device_id"`
+		NodeId    string `form:"node_id"`
 		Tags      string `form:"tags"`
 	}
 
@@ -63,9 +63,9 @@ func (s *ConstService) list(ctx *gin.Context) {
 	}
 
 	request := &cores.ConstListRequest{
-		Page:     page,
-		DeviceId: params.DeviceId,
-		Tags:     params.Tags,
+		Page:   page,
+		NodeId: params.NodeId,
+		Tags:   params.Tags,
 	}
 
 	reply, err := s.as.Core().GetConst().List(ctx, request)
@@ -164,7 +164,7 @@ func (s *ConstService) getByName(ctx *gin.Context) {
 	name := ctx.Param("name")
 
 	var params struct {
-		DeviceId string `form:"device_id"`
+		NodeId string `form:"node_id"`
 	}
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -172,7 +172,7 @@ func (s *ConstService) getByName(ctx *gin.Context) {
 	}
 
 	reply, err := s.as.Core().GetConst().Name(ctx,
-		&cores.ConstNameRequest{DeviceId: params.DeviceId, Name: name})
+		&cores.ConstNameRequest{NodeId: params.NodeId, Name: name})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -194,8 +194,8 @@ func (s *ConstService) getByName(ctx *gin.Context) {
 
 func (s *ConstService) getByNames(ctx *gin.Context) {
 	var params struct {
-		DeviceId string   `json:"device_id"`
-		Name     []string `json:"name"`
+		NodeId string   `json:"node_id"`
+		Name   []string `json:"name"`
 	}
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -206,7 +206,7 @@ func (s *ConstService) getByNames(ctx *gin.Context) {
 
 	for _, name := range params.Name {
 		reply, err := s.as.Core().GetConst().Name(ctx,
-			&cores.ConstNameRequest{DeviceId: params.DeviceId, Name: name})
+			&cores.ConstNameRequest{NodeId: params.NodeId, Name: name})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.NotFound {
@@ -228,8 +228,8 @@ func (s *ConstService) getByNames(ctx *gin.Context) {
 
 func (s *ConstService) getValueByNames(ctx *gin.Context) {
 	var params struct {
-		DeviceId string   `json:"device_id"`
-		Name     []string `json:"name"`
+		NodeId string   `json:"node_id"`
+		Name   []string `json:"name"`
 	}
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -240,7 +240,7 @@ func (s *ConstService) getValueByNames(ctx *gin.Context) {
 
 	for _, name := range params.Name {
 		reply, err := s.as.Core().GetConst().GetValueByName(ctx,
-			&cores.ConstGetValueByNameRequest{DeviceId: params.DeviceId, Name: name})
+			&cores.ConstGetValueByNameRequest{NodeId: params.NodeId, Name: name})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.NotFound {
@@ -262,7 +262,7 @@ func (s *ConstService) getValueByNames(ctx *gin.Context) {
 
 func (s *ConstService) setValueByNames(ctx *gin.Context) {
 	var params struct {
-		DeviceId  string            `json:"device_id"`
+		NodeId    string            `json:"node_id"`
 		NameValue map[string]string `json:"name_value"`
 	}
 	if err := ctx.Bind(&params); err != nil {
@@ -274,7 +274,7 @@ func (s *ConstService) setValueByNames(ctx *gin.Context) {
 
 	for name, value := range params.NameValue {
 		_, err := s.as.Core().GetConst().SetValueByName(ctx,
-			&cores.ConstNameValue{DeviceId: params.DeviceId, Name: name, Value: value})
+			&cores.ConstNameValue{NodeId: params.NodeId, Name: name, Value: value})
 		if err != nil {
 			errors[name] = err.Error()
 		}

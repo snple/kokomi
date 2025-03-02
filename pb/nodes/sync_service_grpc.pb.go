@@ -20,9 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SyncService_SetDeviceUpdated_FullMethodName    = "/nodes.SyncService/SetDeviceUpdated"
-	SyncService_GetDeviceUpdated_FullMethodName    = "/nodes.SyncService/GetDeviceUpdated"
-	SyncService_WaitDeviceUpdated_FullMethodName   = "/nodes.SyncService/WaitDeviceUpdated"
+	SyncService_SetNodeUpdated_FullMethodName      = "/nodes.SyncService/SetNodeUpdated"
+	SyncService_GetNodeUpdated_FullMethodName      = "/nodes.SyncService/GetNodeUpdated"
+	SyncService_WaitNodeUpdated_FullMethodName     = "/nodes.SyncService/WaitNodeUpdated"
 	SyncService_SetTagValueUpdated_FullMethodName  = "/nodes.SyncService/SetTagValueUpdated"
 	SyncService_GetTagValueUpdated_FullMethodName  = "/nodes.SyncService/GetTagValueUpdated"
 	SyncService_WaitTagValueUpdated_FullMethodName = "/nodes.SyncService/WaitTagValueUpdated"
@@ -35,9 +35,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SyncServiceClient interface {
-	SetDeviceUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	WaitDeviceUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
+	SetNodeUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetNodeUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
+	WaitNodeUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
 	SetTagValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	WaitTagValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
@@ -54,29 +54,29 @@ func NewSyncServiceClient(cc grpc.ClientConnInterface) SyncServiceClient {
 	return &syncServiceClient{cc}
 }
 
-func (c *syncServiceClient) SetDeviceUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *syncServiceClient) SetNodeUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetDeviceUpdated_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, SyncService_SetNodeUpdated_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *syncServiceClient) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
+func (c *syncServiceClient) GetNodeUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetDeviceUpdated_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, SyncService_GetNodeUpdated_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *syncServiceClient) WaitDeviceUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error) {
+func (c *syncServiceClient) WaitNodeUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &SyncService_ServiceDesc.Streams[0], SyncService_WaitDeviceUpdated_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &SyncService_ServiceDesc.Streams[0], SyncService_WaitNodeUpdated_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (c *syncServiceClient) WaitDeviceUpdated(ctx context.Context, in *pb.MyEmpt
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type SyncService_WaitDeviceUpdatedClient = grpc.ServerStreamingClient[pb.MyBool]
+type SyncService_WaitNodeUpdatedClient = grpc.ServerStreamingClient[pb.MyBool]
 
 func (c *syncServiceClient) SetTagValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -175,9 +175,9 @@ type SyncService_WaitTagWriteUpdatedClient = grpc.ServerStreamingClient[pb.MyBoo
 // All implementations must embed UnimplementedSyncServiceServer
 // for forward compatibility.
 type SyncServiceServer interface {
-	SetDeviceUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetDeviceUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	WaitDeviceUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
+	SetNodeUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
+	GetNodeUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
+	WaitNodeUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
 	SetTagValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetTagValueUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	WaitTagValueUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
@@ -194,14 +194,14 @@ type SyncServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSyncServiceServer struct{}
 
-func (UnimplementedSyncServiceServer) SetDeviceUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetDeviceUpdated not implemented")
+func (UnimplementedSyncServiceServer) SetNodeUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetNodeUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) GetDeviceUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDeviceUpdated not implemented")
+func (UnimplementedSyncServiceServer) GetNodeUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNodeUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) WaitDeviceUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error {
-	return status.Errorf(codes.Unimplemented, "method WaitDeviceUpdated not implemented")
+func (UnimplementedSyncServiceServer) WaitNodeUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error {
+	return status.Errorf(codes.Unimplemented, "method WaitNodeUpdated not implemented")
 }
 func (UnimplementedSyncServiceServer) SetTagValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetTagValueUpdated not implemented")
@@ -242,52 +242,52 @@ func RegisterSyncServiceServer(s grpc.ServiceRegistrar, srv SyncServiceServer) {
 	s.RegisterService(&SyncService_ServiceDesc, srv)
 }
 
-func _SyncService_SetDeviceUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SyncService_SetNodeUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncUpdated)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SyncServiceServer).SetDeviceUpdated(ctx, in)
+		return srv.(SyncServiceServer).SetNodeUpdated(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SyncService_SetDeviceUpdated_FullMethodName,
+		FullMethod: SyncService_SetNodeUpdated_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetDeviceUpdated(ctx, req.(*SyncUpdated))
+		return srv.(SyncServiceServer).SetNodeUpdated(ctx, req.(*SyncUpdated))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_GetDeviceUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SyncService_GetNodeUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.MyEmpty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SyncServiceServer).GetDeviceUpdated(ctx, in)
+		return srv.(SyncServiceServer).GetNodeUpdated(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SyncService_GetDeviceUpdated_FullMethodName,
+		FullMethod: SyncService_GetNodeUpdated_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetDeviceUpdated(ctx, req.(*pb.MyEmpty))
+		return srv.(SyncServiceServer).GetNodeUpdated(ctx, req.(*pb.MyEmpty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_WaitDeviceUpdated_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _SyncService_WaitNodeUpdated_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(pb.MyEmpty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(SyncServiceServer).WaitDeviceUpdated(m, &grpc.GenericServerStream[pb.MyEmpty, pb.MyBool]{ServerStream: stream})
+	return srv.(SyncServiceServer).WaitNodeUpdated(m, &grpc.GenericServerStream[pb.MyEmpty, pb.MyBool]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type SyncService_WaitDeviceUpdatedServer = grpc.ServerStreamingServer[pb.MyBool]
+type SyncService_WaitNodeUpdatedServer = grpc.ServerStreamingServer[pb.MyBool]
 
 func _SyncService_SetTagValueUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncUpdated)
@@ -391,12 +391,12 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SyncServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SetDeviceUpdated",
-			Handler:    _SyncService_SetDeviceUpdated_Handler,
+			MethodName: "SetNodeUpdated",
+			Handler:    _SyncService_SetNodeUpdated_Handler,
 		},
 		{
-			MethodName: "GetDeviceUpdated",
-			Handler:    _SyncService_GetDeviceUpdated_Handler,
+			MethodName: "GetNodeUpdated",
+			Handler:    _SyncService_GetNodeUpdated_Handler,
 		},
 		{
 			MethodName: "SetTagValueUpdated",
@@ -417,8 +417,8 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "WaitDeviceUpdated",
-			Handler:       _SyncService_WaitDeviceUpdated_Handler,
+			StreamName:    "WaitNodeUpdated",
+			Handler:       _SyncService_WaitNodeUpdated_Handler,
 			ServerStreams: true,
 		},
 		{

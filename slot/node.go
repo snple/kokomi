@@ -9,20 +9,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type DeviceService struct {
+type NodeService struct {
 	ss *SlotService
 
-	slots.UnimplementedDeviceServiceServer
+	slots.UnimplementedNodeServiceServer
 }
 
-func newDeviceService(ss *SlotService) *DeviceService {
-	return &DeviceService{
+func newNodeService(ss *SlotService) *NodeService {
+	return &NodeService{
 		ss: ss,
 	}
 }
 
-func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, error) {
-	var output pb.Device
+func (s *NodeService) Update(ctx context.Context, in *pb.Node) (*pb.Node, error) {
+	var output pb.Node
 	var err error
 
 	// basic validation
@@ -37,18 +37,18 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 		return &output, err
 	}
 
-	reply, err := s.ss.Edge().GetDevice().View(ctx, &pb.MyEmpty{})
+	reply, err := s.ss.Edge().GetNode().View(ctx, &pb.MyEmpty{})
 	if err != nil {
 		return &output, err
 	}
 
 	in.Status = reply.GetStatus()
 
-	return s.ss.Edge().GetDevice().Update(ctx, in)
+	return s.ss.Edge().GetNode().Update(ctx, in)
 }
 
-func (s *DeviceService) View(ctx context.Context, in *pb.MyEmpty) (*pb.Device, error) {
-	var output pb.Device
+func (s *NodeService) View(ctx context.Context, in *pb.MyEmpty) (*pb.Node, error) {
+	var output pb.Node
 	var err error
 
 	// basic validation
@@ -63,5 +63,5 @@ func (s *DeviceService) View(ctx context.Context, in *pb.MyEmpty) (*pb.Device, e
 		return &output, err
 	}
 
-	return s.ss.Edge().GetDevice().View(ctx, in)
+	return s.ss.Edge().GetNode().View(ctx, in)
 }

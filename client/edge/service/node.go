@@ -9,7 +9,7 @@ import (
 	"github.com/snple/beacon/pb/edges"
 )
 
-func DeviceView(ctx context.Context, client edges.DeviceServiceClient) {
+func NodeView(ctx context.Context, client edges.NodeServiceClient) {
 	request := &pb.MyEmpty{}
 
 	reply, err := client.View(ctx, request)
@@ -20,10 +20,10 @@ func DeviceView(ctx context.Context, client edges.DeviceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func DeviceUpdate(ctx context.Context, client edges.DeviceServiceClient) {
-	request := &pb.Device{
+func NodeUpdate(ctx context.Context, client edges.NodeServiceClient) {
+	request := &pb.Node{
 		Id:     "0187f0bb5e6cfdd553884496",
-		Name:   "device1",
+		Name:   "node1",
 		Desc:   "hahaha",
 		Secret: "123456.",
 		Status: consts.ON,

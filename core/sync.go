@@ -35,7 +35,7 @@ func newSyncService(cs *CoreService) *SyncService {
 	}
 }
 
-func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *cores.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetNodeUpdated(ctx context.Context, in *cores.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -46,15 +46,15 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *cores.SyncUpdate
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.ID")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Updated")
 		}
 	}
 
-	err = s.setDeviceUpdated(ctx, s.cs.GetDB(), in.GetId(), time.UnixMicro(in.GetUpdated()))
+	err = s.setNodeUpdated(ctx, s.cs.GetDB(), in.GetId(), time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -64,7 +64,7 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *cores.SyncUpdate
 	return &output, nil
 }
 
-func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.Id) (*cores.SyncUpdated, error) {
+func (s *SyncService) GetNodeUpdated(ctx context.Context, in *pb.Id) (*cores.SyncUpdated, error) {
 	var output cores.SyncUpdated
 	var err error
 
@@ -75,13 +75,13 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.Id) (*cores.S
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.ID")
 		}
 	}
 
 	output.Id = in.GetId()
 
-	t, err := s.getDeviceUpdated(ctx, s.cs.GetDB(), in.GetId())
+	t, err := s.getNodeUpdated(ctx, s.cs.GetDB(), in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -91,8 +91,8 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.Id) (*cores.S
 	return &output, nil
 }
 
-func (s *SyncService) WaitDeviceUpdated(in *pb.Id,
-	stream cores.SyncService_WaitDeviceUpdatedServer) error {
+func (s *SyncService) WaitNodeUpdated(in *pb.Id,
+	stream cores.SyncService_WaitNodeUpdatedServer) error {
 
 	return s.waitUpdated(in, stream, NOTIFY)
 }
@@ -221,12 +221,12 @@ func (s *SyncService) WaitTagWriteUpdated(in *pb.Id,
 	return s.waitUpdated(in, stream, NOTIFY_TW)
 }
 
-func (s *SyncService) getDeviceUpdated(ctx context.Context, db bun.IDB, id string) (time.Time, error) {
-	return s.getUpdated(ctx, db, id+model.SYNC_DEVICE_SUFFIX)
+func (s *SyncService) getNodeUpdated(ctx context.Context, db bun.IDB, id string) (time.Time, error) {
+	return s.getUpdated(ctx, db, id+model.SYNC_NODE_SUFFIX)
 }
 
-func (s *SyncService) setDeviceUpdated(ctx context.Context, db bun.IDB, id string, updated time.Time) error {
-	err := s.setUpdated(ctx, db, id+model.SYNC_DEVICE_SUFFIX, updated)
+func (s *SyncService) setNodeUpdated(ctx context.Context, db bun.IDB, id string, updated time.Time) error {
+	err := s.setUpdated(ctx, db, id+model.SYNC_NODE_SUFFIX, updated)
 	if err != nil {
 		return err
 	}
@@ -475,7 +475,7 @@ func (s *SyncService) waitUpdated(in *pb.Id, stream waitUpdatedStream, nt Notify
 		}
 
 		if in.GetId() == "" {
-			return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+			return status.Error(codes.InvalidArgument, "Please supply valid NodeID")
 		}
 	}
 
@@ -493,63 +493,6 @@ func (s *SyncService) waitUpdated(in *pb.Id, stream waitUpdatedStream, nt Notify
 			return nil
 		}
 	}
-}
-
-func (s *SyncService) waitUpdated2(in *pb.Id,
-	stream waitUpdatedStream,
-	waits map[string]map[chan struct{}]struct{}) error {
-	var err error
-
-	// basic validation
-	{
-		if in == nil {
-			return status.Error(codes.InvalidArgument, "Please supply valid argument")
-		}
-
-		if in.GetId() == "" {
-			return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
-		}
-	}
-
-	id := in.GetId()
-
-	wait := make(chan struct{}, 1)
-
-	s.lock.Lock()
-	if chans, ok := waits[id]; ok {
-		chans[wait] = struct{}{}
-	} else {
-		chans := map[chan struct{}]struct{}{
-			wait: {},
-		}
-		waits[id] = chans
-	}
-	s.lock.Unlock()
-
-	defer func() {
-		s.lock.Lock()
-		if chans, ok := waits[id]; ok {
-			delete(chans, wait)
-
-			if len(chans) == 0 {
-				delete(waits, id)
-			}
-		}
-		s.lock.Unlock()
-	}()
-
-	err = stream.Send(&pb.MyBool{Bool: true})
-	if err != nil {
-		return err
-	}
-
-	select {
-	case <-wait:
-	case <-stream.Context().Done():
-		return nil
-	}
-
-	return stream.Send(&pb.MyBool{Bool: true})
 }
 
 func (s *SyncService) destory(ctx context.Context, db bun.IDB, id string) error {

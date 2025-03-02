@@ -33,12 +33,12 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
-	in.DeviceId = deviceID
+	in.NodeId = nodeID
 
 	return s.ns.Core().GetSource().Create(ctx, in)
 }
@@ -54,7 +54,7 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -66,8 +66,8 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetSource().Update(ctx, in)
@@ -84,7 +84,7 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -94,8 +94,8 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return reply, nil
@@ -112,20 +112,20 @@ func (s *SourceService) Name(ctx context.Context, in *pb.Name) (*pb.Source, erro
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
-	request := &cores.SourceNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.SourceNameRequest{NodeId: nodeID, Name: in.GetName()}
 
 	reply, err := s.ns.Core().GetSource().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return reply, nil
@@ -142,7 +142,7 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -152,8 +152,8 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetSource().Delete(ctx, in)
@@ -170,16 +170,16 @@ func (s *SourceService) List(ctx context.Context, in *nodes.SourceListRequest) (
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	request := &cores.SourceListRequest{
-		Page:     in.GetPage(),
-		DeviceId: deviceID,
-		Tags:     in.GetTags(),
-		Source:   in.GetSource(),
+		Page:   in.GetPage(),
+		NodeId: nodeID,
+		Tags:   in.GetTags(),
+		Source: in.GetSource(),
 	}
 
 	reply, err := s.ns.Core().GetSource().List(ctx, request)
@@ -205,7 +205,7 @@ func (s *SourceService) Link(ctx context.Context, in *nodes.SourceLinkRequest) (
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -217,8 +217,8 @@ func (s *SourceService) Link(ctx context.Context, in *nodes.SourceLinkRequest) (
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	request2 := &cores.SourceLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
@@ -237,7 +237,7 @@ func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Sou
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -247,8 +247,8 @@ func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Sou
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return reply, nil
@@ -268,16 +268,16 @@ func (s *SourceService) Pull(ctx context.Context, in *nodes.SourcePullRequest) (
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	request := &cores.SourcePullRequest{
-		After:    in.GetAfter(),
-		Limit:    in.GetLimit(),
-		DeviceId: deviceID,
-		Source:   in.GetSource(),
+		After:  in.GetAfter(),
+		Limit:  in.GetLimit(),
+		NodeId: nodeID,
+		Source: in.GetSource(),
 	}
 
 	reply, err := s.ns.Core().GetSource().Pull(ctx, request)
@@ -301,12 +301,12 @@ func (s *SourceService) Sync(ctx context.Context, in *pb.Source) (*pb.MyBool, er
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
-	in.DeviceId = deviceID
+	in.NodeId = nodeID
 
 	return s.ns.Core().GetSource().Sync(ctx, in)
 }

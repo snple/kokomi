@@ -9,7 +9,7 @@ import (
 	"github.com/snple/beacon/pb/cores"
 )
 
-func DeviceList(ctx context.Context, client cores.DeviceServiceClient) {
+func NodeList(ctx context.Context, client cores.NodeServiceClient) {
 	page := pb.Page{
 		Limit:   10,
 		Offset:  0,
@@ -17,7 +17,7 @@ func DeviceList(ctx context.Context, client cores.DeviceServiceClient) {
 		Search:  "",
 	}
 
-	request := &cores.DeviceListRequest{
+	request := &cores.NodeListRequest{
 		Page: &page,
 		Tags: "",
 	}
@@ -30,7 +30,7 @@ func DeviceList(ctx context.Context, client cores.DeviceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func DeviceView(ctx context.Context, client cores.DeviceServiceClient) {
+func NodeView(ctx context.Context, client cores.NodeServiceClient) {
 	request := &pb.Id{Id: "017a053b3f7be81caa209b8e"}
 
 	reply, err := client.View(ctx, request)
@@ -41,8 +41,8 @@ func DeviceView(ctx context.Context, client cores.DeviceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func DeviceName(ctx context.Context, client cores.DeviceServiceClient) {
-	request := &pb.Name{Name: "device"}
+func NodeName(ctx context.Context, client cores.NodeServiceClient) {
+	request := &pb.Name{Name: "node"}
 
 	reply, err := client.Name(ctx, request)
 
@@ -52,9 +52,9 @@ func DeviceName(ctx context.Context, client cores.DeviceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func DeviceCreate(ctx context.Context, client cores.DeviceServiceClient) {
-	request := &pb.Device{
-		Name:   "test_device2",
+func NodeCreate(ctx context.Context, client cores.NodeServiceClient) {
+	request := &pb.Node{
+		Name:   "test_node2",
 		Desc:   "test",
 		Secret: "123456",
 		Status: consts.ON,
@@ -68,10 +68,10 @@ func DeviceCreate(ctx context.Context, client cores.DeviceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func DeviceUpdate(ctx context.Context, client cores.DeviceServiceClient) {
-	request := &pb.Device{
+func NodeUpdate(ctx context.Context, client cores.NodeServiceClient) {
+	request := &pb.Node{
 		Id:     "01946a0cabdabc925941e98a",
-		Name:   "device",
+		Name:   "node",
 		Desc:   "hahaha",
 		Secret: "123456.",
 		Status: consts.ON,
@@ -86,7 +86,7 @@ func DeviceUpdate(ctx context.Context, client cores.DeviceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func DeviceDelete(ctx context.Context, client cores.DeviceServiceClient) {
+func NodeDelete(ctx context.Context, client cores.NodeServiceClient) {
 	request := &pb.Id{Id: "017a0980738df69c17287eab"}
 
 	reply, err := client.Delete(ctx, request)
@@ -97,7 +97,7 @@ func DeviceDelete(ctx context.Context, client cores.DeviceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func DeviceDestory(ctx context.Context, client cores.DeviceServiceClient) {
+func NodeDestory(ctx context.Context, client cores.NodeServiceClient) {
 	request := &pb.Id{Id: "0189f3d94f0d1579c4e2a817"}
 
 	reply, err := client.Destory(ctx, request)
@@ -108,7 +108,7 @@ func DeviceDestory(ctx context.Context, client cores.DeviceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func DeviceClone(ctx context.Context, client cores.DeviceServiceClient) {
+func NodeClone(ctx context.Context, client cores.NodeServiceClient) {
 	request := &pb.Id{Id: "0187f0bb5e6cfdd553884496"}
 
 	reply, err := client.Clone(ctx, request)

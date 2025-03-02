@@ -7,10 +7,10 @@ import (
 	"github.com/snple/beacon/pb/cores"
 )
 
-func SetDeviceUpdated(ctx context.Context, client cores.SyncServiceClient) {
+func SetNodeUpdated(ctx context.Context, client cores.SyncServiceClient) {
 	request := &cores.SyncUpdated{Id: "0189f3d94f0d1579c4e2a817", Updated: 1}
 
-	reply, err := client.SetDeviceUpdated(ctx, request)
+	reply, err := client.SetNodeUpdated(ctx, request)
 
 	if err != nil {
 		log.Fatalf("Error when calling grpc service: %s", err)

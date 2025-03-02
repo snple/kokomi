@@ -405,7 +405,7 @@ func (s *ConstService) copyModelToOutput(output *pb.Const, item *model.Const) {
 func (s *ConstService) afterUpdate(ctx context.Context, _ *model.Const) error {
 	var err error
 
-	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+	err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -421,7 +421,7 @@ func (s *ConstService) afterUpdate(ctx context.Context, _ *model.Const) error {
 func (s *ConstService) afterDelete(ctx context.Context, _ *model.Const) error {
 	var err error
 
-	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+	err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}

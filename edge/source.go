@@ -353,12 +353,10 @@ func (s *SourceService) Link(ctx context.Context, in *edges.SourceLinkRequest) (
 	s.es.GetStatus().SetLink(item.ID, in.GetStatus())
 
 	{
-		if option := s.es.GetNode(); option.IsSome() {
-			node := option.Unwrap()
-
-			ctx := node.SetToken(context.Background())
+		if nodeUp := s.es.GetNodeUp(); nodeUp.IsSome() {
+			ctx := nodeUp.Unwrap().SetToken(context.Background())
 			request := &nodes.SourceLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
-			_, err := node.SourceServiceClient().Link(ctx, request)
+			_, err := nodeUp.Unwrap().SourceServiceClient().Link(ctx, request)
 			if err != nil {
 				return &output, err
 			}
@@ -464,9 +462,9 @@ func (s *SourceService) copyModelToOutput(output *pb.Source, item *model.Source)
 func (s *SourceService) afterUpdate(ctx context.Context, _ *model.Source) error {
 	var err error
 
-	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+	err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
 	err = s.es.GetSync().setSourceUpdated(ctx, time.Now())
@@ -480,9 +478,9 @@ func (s *SourceService) afterUpdate(ctx context.Context, _ *model.Source) error 
 func (s *SourceService) afterDelete(ctx context.Context, _ *model.Source) error {
 	var err error
 
-	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+	err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
 	err = s.es.GetSync().setSourceUpdated(ctx, time.Now())

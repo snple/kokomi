@@ -3,7 +3,7 @@ package pb;
 
 option go_package = "github.com/snple/beacon/pb;pb";
 
-message Device {
+message Node {
     string id = 1;
     string name = 2;
     string desc = 3;

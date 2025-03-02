@@ -86,7 +86,7 @@ func (c *Conn) auth() error {
 		return errors.New("invalid request")
 	}
 
-	deviceId, err := req.GetString("id")
+	nodeId, err := req.GetString("id")
 	if err != nil {
 		writeError(c.Conn, err)
 
@@ -100,15 +100,15 @@ func (c *Conn) auth() error {
 		return err
 	}
 
-	if deviceId == "" {
-		writeError(c.Conn, errors.New("invalid request, deviceId is empty"))
+	if nodeId == "" {
+		writeError(c.Conn, errors.New("invalid request, nodeId is empty"))
 
 		return errors.New("invalid request")
 	}
 
-	request := &pb.Id{Id: deviceId}
+	request := &pb.Id{Id: nodeId}
 
-	reply, err := c.ns.Core().GetDevice().View(c.ns.Context(), request)
+	reply, err := c.ns.Core().GetNode().View(c.ns.Context(), request)
 	if err != nil {
 		writeError(c.Conn, err)
 
@@ -116,7 +116,7 @@ func (c *Conn) auth() error {
 	}
 
 	if reply.GetStatus() != consts.ON {
-		writeError(c.Conn, errors.New("invalid request, device is not enable"))
+		writeError(c.Conn, errors.New("invalid request, node is not enable"))
 
 		return errors.New("invalid request")
 	}
@@ -127,7 +127,7 @@ func (c *Conn) auth() error {
 		return errors.New("invalid request")
 	}
 
-	c.id = deviceId
+	c.id = nodeId
 
 	resp := nson.Map{
 		"fn": nson.String("auth"),
@@ -187,7 +187,7 @@ func (c *Conn) handleSetValue(req nson.Map) error {
 		}
 
 		_, err = c.ns.Core().GetTag().SetValueByName(c.ctx,
-			&cores.TagNameValue{DeviceId: c.id, Name: name, Value: valueStr})
+			&cores.TagNameValue{NodeId: c.id, Name: name, Value: valueStr})
 		if err != nil {
 			errors[name] = nson.String(err.Error())
 		}

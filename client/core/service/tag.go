@@ -20,8 +20,8 @@ func TagList(ctx context.Context, client cores.TagServiceClient) {
 	}
 
 	request := &cores.TagListRequest{
-		DeviceId: "01946a0cabdabc925941e98a",
-		Page:     &page,
+		NodeId: "01946a0cabdabc925941e98a",
+		Page:   &page,
 	}
 
 	reply, err := client.List(ctx, request)
@@ -45,8 +45,8 @@ func TagView(ctx context.Context, client cores.TagServiceClient) {
 
 func TagName(ctx context.Context, client cores.TagServiceClient) {
 	request := &cores.TagNameRequest{
-		DeviceId: "01946a0cabdabc925941e98a",
-		Name:     "tag",
+		NodeId: "01946a0cabdabc925941e98a",
+		Name:   "tag",
 	}
 
 	reply, err := client.Name(ctx, request)

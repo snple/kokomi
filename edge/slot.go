@@ -347,12 +347,10 @@ func (s *SlotService) Link(ctx context.Context, in *edges.SlotLinkRequest) (*pb.
 	s.es.GetStatus().SetLink(item.ID, in.GetStatus())
 
 	{
-		if option := s.es.GetNode(); option.IsSome() {
-			node := option.Unwrap()
-
-			ctx := node.SetToken(context.Background())
+		if nodeUp := s.es.GetNodeUp(); nodeUp.IsSome() {
+			ctx := nodeUp.Unwrap().SetToken(context.Background())
 			request := &nodes.SlotLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
-			_, err := node.SlotServiceClient().Link(ctx, request)
+			_, err := nodeUp.Unwrap().SlotServiceClient().Link(ctx, request)
 			if err != nil {
 				return &output, err
 			}
@@ -438,9 +436,9 @@ func (s *SlotService) copyModelToOutput(output *pb.Slot, item *model.Slot) {
 func (s *SlotService) afterUpdate(ctx context.Context, _ *model.Slot) error {
 	var err error
 
-	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+	err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
 	err = s.es.GetSync().setSlotUpdated(ctx, time.Now())
@@ -454,9 +452,9 @@ func (s *SlotService) afterUpdate(ctx context.Context, _ *model.Slot) error {
 func (s *SlotService) afterDelete(ctx context.Context, _ *model.Slot) error {
 	var err error
 
-	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+	err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
 	err = s.es.GetSync().setSlotUpdated(ctx, time.Now())

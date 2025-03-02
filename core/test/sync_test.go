@@ -84,24 +84,24 @@ var _ = ginkgo.Describe("Test core sync API", ginkgo.Label("library"), func() {
 			gomega.Expect(n3 == 1).To(gomega.Equal(true))
 
 			{
-				request := &pb.Device{
+				request := &pb.Node{
 					Id:     id,
-					Name:   "test_device1",
+					Name:   "test_node1",
 					Desc:   "test",
 					Secret: "123456",
 					Status: consts.ON,
 				}
 
-				reply, err := cs.GetDevice().Create(ctx, request)
+				reply, err := cs.GetNode().Create(ctx, request)
 
 				gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				_ = reply
 			}
 
 			{
-				request := &pb.Name{Name: "test_device1"}
+				request := &pb.Name{Name: "test_node1"}
 
-				reply, err := cs.GetDevice().Name(ctx, request)
+				reply, err := cs.GetNode().Name(ctx, request)
 
 				gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				_ = reply

@@ -497,9 +497,9 @@ func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
 func (s *TagService) afterUpdate(ctx context.Context, _ *model.Tag) error {
 	var err error
 
-	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+	err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
 	err = s.es.GetSync().setTagUpdated(ctx, time.Now())
@@ -513,9 +513,9 @@ func (s *TagService) afterUpdate(ctx context.Context, _ *model.Tag) error {
 func (s *TagService) afterDelete(ctx context.Context, _ *model.Tag) error {
 	var err error
 
-	err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+	err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
 	err = s.es.GetSync().setTagUpdated(ctx, time.Now())
@@ -905,7 +905,7 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	// validation device and source
+	// validation node and source
 	{
 		// source
 		{
@@ -1426,7 +1426,7 @@ func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	// validation device and source
+	// validation node and source
 	{
 		// source
 		{

@@ -25,7 +25,7 @@ const (
 type SourceListRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *pb.Page               `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
-	// string device_id = 2;
+	// string node_id = 2;
 	Tags          string `protobuf:"bytes,3,opt,name=tags,proto3" json:"tags,omitempty"`
 	Source        string `protobuf:"bytes,4,opt,name=source,proto3" json:"source,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -197,7 +197,7 @@ func (x *SourceLinkRequest) GetStatus() int32 {
 
 type SourceCloneRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // string device_id = 2;
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // string node_id = 2;
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -243,7 +243,7 @@ type SourcePullRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	After int64                  `protobuf:"varint,1,opt,name=after,proto3" json:"after,omitempty"`
 	Limit uint32                 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
-	// string device_id = 3;
+	// string node_id = 3;
 	Source        string `protobuf:"bytes,4,opt,name=source,proto3" json:"source,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -364,7 +364,7 @@ func (x *SourcePullResponse) GetSource() []*pb.Source {
 type TagListRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *pb.Page               `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
-	// string device_id = 2;
+	// string node_id = 2;
 	SourceId      string `protobuf:"bytes,3,opt,name=source_id,json=sourceId,proto3" json:"source_id,omitempty"`
 	Tags          string `protobuf:"bytes,4,opt,name=tags,proto3" json:"tags,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -538,7 +538,7 @@ type TagPullRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	After int64                  `protobuf:"varint,1,opt,name=after,proto3" json:"after,omitempty"`
 	Limit uint32                 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
-	// string device_id = 3;
+	// string node_id = 3;
 	SourceId      string `protobuf:"bytes,4,opt,name=source_id,json=sourceId,proto3" json:"source_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -659,7 +659,7 @@ type TagPullValueRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	After int64                  `protobuf:"varint,1,opt,name=after,proto3" json:"after,omitempty"`
 	Limit uint32                 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
-	// string device_id = 3;
+	// string node_id = 3;
 	SourceId      string `protobuf:"bytes,4,opt,name=source_id,json=sourceId,proto3" json:"source_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

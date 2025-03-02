@@ -5,7 +5,7 @@ option go_package = "github.com/snple/beacon/pb;pb";
 
 message Slot {
     string id = 1;
-    string device_id = 2;
+    string node_id = 2;
     string name = 3;
     string desc = 4;
     string tags = 5;

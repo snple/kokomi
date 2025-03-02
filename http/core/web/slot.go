@@ -36,7 +36,7 @@ func (s *SlotService) register(router gin.IRouter) {
 func (s *SlotService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
-		DeviceId  string `form:"device_id"`
+		NodeId    string `form:"node_id"`
 		Tags      string `form:"tags"`
 	}
 
@@ -58,9 +58,9 @@ func (s *SlotService) list(ctx *gin.Context) {
 	}
 
 	request := &cores.SlotListRequest{
-		Page:     page,
-		DeviceId: params.DeviceId,
-		Tags:     params.Tags,
+		Page:   page,
+		NodeId: params.NodeId,
+		Tags:   params.Tags,
 	}
 
 	reply, err := s.ws.Core().GetSlot().List(ctx, request)

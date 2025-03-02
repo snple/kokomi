@@ -1,0 +1,37 @@
+syntax = "proto3";
+package nodes;
+
+option go_package = "github.com/snple/beacon/pb/nodes;nodes";
+
+import "node_message.proto";
+import "generic_message.proto";
+
+message NodeLoginRequest {
+    string id = 1;
+    string access = 2;
+    string secret = 3;
+}
+
+message NodeLoginReply {
+    pb.Node node = 1;
+    string token = 2;
+}
+
+message NodeLinkRequest {
+    // string id = 1;
+    sint32 status = 2;
+}
+
+message NodeKeepAliveReply {
+    int32 time = 1;
+}
+
+service NodeService {
+    rpc Login(NodeLoginRequest) returns (NodeLoginReply) {}
+    rpc Update(pb.Node) returns (pb.Node) {}
+    rpc View(pb.MyEmpty) returns (pb.Node) {}
+    rpc Link(NodeLinkRequest) returns (pb.MyBool) {}
+    rpc ViewWithDeleted(pb.MyEmpty) returns (pb.Node) {}
+    rpc Sync(pb.Node) returns (pb.MyBool) {}
+    rpc KeepAlive(pb.MyEmpty) returns (stream NodeKeepAliveReply) {}
+}

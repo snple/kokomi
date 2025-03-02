@@ -13,7 +13,7 @@ type Sync struct {
 }
 
 const (
-	SYNC_DEVICE_SUFFIX    = ""
+	SYNC_NODE_SUFFIX      = ""
 	SYNC_TAG_VALUE_SUFFIX = "_tv"
 	SYNC_TAG_WRITE_SUFFIX = "_tw"
 )
@@ -25,7 +25,7 @@ type SyncGlobal struct {
 }
 
 const (
-	SYNC_GLOBAL_DEVICE = "device"
+	SYNC_GLOBAL_NODE   = "node"
 	SYNC_GLOBAL_SLOT   = "slot"
 	SYNC_GLOBAL_SOURCE = "source"
 	SYNC_GLOBAL_TAG    = "tag"

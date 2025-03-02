@@ -5,7 +5,7 @@ option go_package = "github.com/snple/beacon/pb;pb";
 
 message Source {
     string id = 1;
-    string device_id = 2;
+    string node_id = 2;
     string name = 3;
     string desc = 4;
     string tags = 5;
@@ -21,7 +21,7 @@ message Source {
 
 message Tag {
     string id = 1;
-    string device_id = 2;
+    string node_id = 2;
     string source_id = 3;
     string name = 4;
     string desc = 5;
@@ -52,7 +52,7 @@ message TagNameValue {
 
 message TagValueUpdated {
     string id = 1;
-    string device_id = 2;
+    string node_id = 2;
     string source_id = 3;
     string value = 4;
     int64 updated = 5;

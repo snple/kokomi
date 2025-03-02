@@ -35,18 +35,18 @@ func (s *StatusService) SetLink(key string, status int32) {
 	s.link.Set(key, status, s.es.dopts.linkTTL)
 }
 
-func (s *StatusService) GetDeviceLink() int32 {
-	if v := s.link.Get("device.ID"); v.IsSome() {
+func (s *StatusService) GetNodeLink() int32 {
+	if v := s.link.Get("node.ID"); v.IsSome() {
 		return v.Unwrap()
 	}
 
 	return consts.OFF
 }
 
-func (s *StatusService) GetDeviceLinkValue() types.Option[cache.Value[int32]] {
-	return s.link.GetValue("device.ID")
+func (s *StatusService) GetNodeLinkValue() types.Option[cache.Value[int32]] {
+	return s.link.GetValue("node.ID")
 }
 
-func (s *StatusService) SetDeviceLink(status int32) {
-	s.link.Set("device.ID", status, 0)
+func (s *StatusService) SetNodeLink(status int32) {
+	s.link.Set("node.ID", status, 0)
 }

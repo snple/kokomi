@@ -22,7 +22,7 @@ func newSyncService(ns *NodeService) *SyncService {
 	}
 }
 
-func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *nodes.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetNodeUpdated(ctx context.Context, in *nodes.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -33,20 +33,20 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *nodes.SyncUpdate
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Updated")
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
-	return s.ns.Core().GetSync().SetDeviceUpdated(ctx,
-		&cores.SyncUpdated{Id: deviceID, Updated: in.GetUpdated()})
+	return s.ns.Core().GetSync().SetNodeUpdated(ctx,
+		&cores.SyncUpdated{Id: nodeID, Updated: in.GetUpdated()})
 }
 
-func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*nodes.SyncUpdated, error) {
+func (s *SyncService) GetNodeUpdated(ctx context.Context, in *pb.MyEmpty) (*nodes.SyncUpdated, error) {
 	var output nodes.SyncUpdated
 	var err error
 
@@ -57,12 +57,12 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*no
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetSync().GetDeviceUpdated(ctx, &pb.Id{Id: deviceID})
+	reply, err := s.ns.Core().GetSync().GetNodeUpdated(ctx, &pb.Id{Id: nodeID})
 	if err != nil {
 		return &output, err
 	}
@@ -72,7 +72,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*no
 	return &output, nil
 }
 
-func (s *SyncService) WaitDeviceUpdated(in *pb.MyEmpty, stream nodes.SyncService_WaitDeviceUpdatedServer) error {
+func (s *SyncService) WaitNodeUpdated(in *pb.MyEmpty, stream nodes.SyncService_WaitNodeUpdatedServer) error {
 	var err error
 
 	// basic validation
@@ -82,12 +82,12 @@ func (s *SyncService) WaitDeviceUpdated(in *pb.MyEmpty, stream nodes.SyncService
 		}
 	}
 
-	deviceID, err := validateToken(stream.Context())
+	nodeID, err := validateToken(stream.Context())
 	if err != nil {
 		return err
 	}
 
-	return s.ns.Core().GetSync().WaitDeviceUpdated(&pb.Id{Id: deviceID}, stream)
+	return s.ns.Core().GetSync().WaitNodeUpdated(&pb.Id{Id: nodeID}, stream)
 }
 
 func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *nodes.SyncUpdated) (*pb.MyBool, error) {
@@ -105,13 +105,13 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *nodes.SyncUpda
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	return s.ns.Core().GetSync().SetTagValueUpdated(ctx,
-		&cores.SyncUpdated{Id: deviceID, Updated: in.GetUpdated()})
+		&cores.SyncUpdated{Id: nodeID, Updated: in.GetUpdated()})
 }
 
 func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*nodes.SyncUpdated, error) {
@@ -125,12 +125,12 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetSync().GetTagValueUpdated(ctx, &pb.Id{Id: deviceID})
+	reply, err := s.ns.Core().GetSync().GetTagValueUpdated(ctx, &pb.Id{Id: nodeID})
 	if err != nil {
 		return &output, err
 	}
@@ -150,12 +150,12 @@ func (s *SyncService) WaitTagValueUpdated(in *pb.MyEmpty, stream nodes.SyncServi
 		}
 	}
 
-	deviceID, err := validateToken(stream.Context())
+	nodeID, err := validateToken(stream.Context())
 	if err != nil {
 		return err
 	}
 
-	return s.ns.Core().GetSync().WaitTagValueUpdated(&pb.Id{Id: deviceID}, stream)
+	return s.ns.Core().GetSync().WaitTagValueUpdated(&pb.Id{Id: nodeID}, stream)
 }
 
 func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *nodes.SyncUpdated) (*pb.MyBool, error) {
@@ -173,13 +173,13 @@ func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *nodes.SyncUpda
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	return s.ns.Core().GetSync().SetTagWriteUpdated(ctx,
-		&cores.SyncUpdated{Id: deviceID, Updated: in.GetUpdated()})
+		&cores.SyncUpdated{Id: nodeID, Updated: in.GetUpdated()})
 }
 
 func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*nodes.SyncUpdated, error) {
@@ -193,12 +193,12 @@ func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetSync().GetTagWriteUpdated(ctx, &pb.Id{Id: deviceID})
+	reply, err := s.ns.Core().GetSync().GetTagWriteUpdated(ctx, &pb.Id{Id: nodeID})
 	if err != nil {
 		return &output, err
 	}
@@ -218,10 +218,10 @@ func (s *SyncService) WaitTagWriteUpdated(in *pb.MyEmpty, stream nodes.SyncServi
 		}
 	}
 
-	deviceID, err := validateToken(stream.Context())
+	nodeID, err := validateToken(stream.Context())
 	if err != nil {
 		return err
 	}
 
-	return s.ns.Core().GetSync().WaitTagWriteUpdated(&pb.Id{Id: deviceID}, stream)
+	return s.ns.Core().GetSync().WaitTagWriteUpdated(&pb.Id{Id: nodeID}, stream)
 }

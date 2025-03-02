@@ -9,7 +9,7 @@ import "generic_message.proto";
 // source
 message SourceListRequest {
     pb.Page page = 1;
-    string device_id = 2;
+    string node_id = 2;
     string tags = 3;
     string source = 4;
 }
@@ -21,7 +21,7 @@ message SourceListResponse {
 }
 
 message SourceNameRequest {
-    string device_id = 1;
+    string node_id = 1;
     string name = 2;
 }
 
@@ -32,13 +32,13 @@ message SourceLinkRequest {
 
 message SourceCloneRequest {
     string id = 1;
-    string device_id = 2;
+    string node_id = 2;
 }
 
 message SourcePullRequest {
     int64 after = 1;
     uint32 limit = 2;
-    string device_id = 3;
+    string node_id = 3;
     string source = 4;
 }
 
@@ -66,7 +66,7 @@ service SourceService {
 // tag
 message TagListRequest {
     pb.Page page = 1;
-    string device_id = 2;
+    string node_id = 2;
     string source_id = 3;
     string tags = 4;
 }
@@ -78,7 +78,7 @@ message TagListResponse {
 }
 
 message TagNameRequest {
-    string device_id = 1;
+    string node_id = 1;
     string name = 2;
 }
 
@@ -88,12 +88,12 @@ message TagCloneRequest {
 }
 
 message TagGetValueByNameRequest {
-    string device_id = 1;
+    string node_id = 1;
     string name = 2;
 }
 
 message TagNameValue {
-    string device_id = 1;
+    string node_id = 1;
     string id = 2;
     string name = 3;
     string value = 4;
@@ -103,7 +103,7 @@ message TagNameValue {
 message TagPullRequest {
     int64 after = 1;
     uint32 limit = 2;
-    string device_id = 3;
+    string node_id = 3;
     string source_id = 4;
 }
 
@@ -116,7 +116,7 @@ message TagPullResponse {
 message TagPullValueRequest {
     int64 after = 1;
     uint32 limit = 2;
-    string device_id = 3;
+    string node_id = 3;
     string source_id = 4;
 }
 

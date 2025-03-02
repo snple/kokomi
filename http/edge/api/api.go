@@ -14,7 +14,7 @@ import (
 type ApiService struct {
 	es *edge.EdgeService
 
-	device   *DeviceService
+	node     *NodeService
 	source   *SourceService
 	tag      *TagService
 	constant *ConstService
@@ -44,7 +44,7 @@ func NewApiService(es *edge.EdgeService, opts ...ApiOption) (*ApiService, error)
 		opt.apply(&s.dopts)
 	}
 
-	s.device = newDeviceService(s)
+	s.node = newNodeService(s)
 	s.source = newSourceService(s)
 	s.tag = newTagService(s)
 	s.constant = newConstService(s)
@@ -53,7 +53,7 @@ func NewApiService(es *edge.EdgeService, opts ...ApiOption) (*ApiService, error)
 }
 
 func (s *ApiService) Register(router gin.IRouter) {
-	s.device.register(router)
+	s.node.register(router)
 	s.source.register(router)
 	s.tag.register(router)
 	s.constant.register(router)

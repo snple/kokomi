@@ -11,9 +11,9 @@ message SyncUpdated {
 }
 
 service SyncService {
-    rpc SetDeviceUpdated(SyncUpdated) returns (pb.MyBool) {}
-    rpc GetDeviceUpdated(pb.Id) returns (SyncUpdated) {}
-    rpc WaitDeviceUpdated(pb.Id) returns (stream pb.MyBool) {}
+    rpc SetNodeUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetNodeUpdated(pb.Id) returns (SyncUpdated) {}
+    rpc WaitNodeUpdated(pb.Id) returns (stream pb.MyBool) {}
 
     rpc SetTagValueUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetTagValueUpdated(pb.Id) returns (SyncUpdated) {}

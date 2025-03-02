@@ -22,7 +22,7 @@ func newSyncService(ss *SlotService) *SyncService {
 	}
 }
 
-func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetNodeUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -33,7 +33,7 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *slots.SyncUpdate
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Updated")
 		}
 	}
 
@@ -42,11 +42,11 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *slots.SyncUpdate
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSync().SetDeviceUpdated(ctx,
+	return s.ss.Edge().GetSync().SetNodeUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
-func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
+func (s *SyncService) GetNodeUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
 	var output slots.SyncUpdated
 	var err error
 
@@ -62,7 +62,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*sl
 		return &output, err
 	}
 
-	reply, err := s.ss.Edge().GetSync().GetDeviceUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetNodeUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -72,7 +72,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*sl
 	return &output, nil
 }
 
-func (s *SyncService) WaitDeviceUpdated(in *pb.MyEmpty, stream slots.SyncService_WaitDeviceUpdatedServer) error {
+func (s *SyncService) WaitNodeUpdated(in *pb.MyEmpty, stream slots.SyncService_WaitNodeUpdatedServer) error {
 	var err error
 
 	// basic validation
@@ -87,7 +87,7 @@ func (s *SyncService) WaitDeviceUpdated(in *pb.MyEmpty, stream slots.SyncService
 		return err
 	}
 
-	return s.ss.Edge().GetSync().WaitDeviceUpdated(in, stream)
+	return s.ss.Edge().GetSync().WaitNodeUpdated(in, stream)
 }
 
 func (s *SyncService) SetSlotUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {

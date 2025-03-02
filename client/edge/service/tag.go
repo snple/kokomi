@@ -21,7 +21,7 @@ func TagList(ctx context.Context, client edges.TagServiceClient) {
 
 	request := &edges.TagListRequest{
 		Page: &page,
-		// DeviceId: "017a053b3f7be81caa209b8e",
+		// NodeId: "017a053b3f7be81caa209b8e",
 		// SourceId: "017a9b416ef270dbd799c1f5",
 		// Tags: "aaa,bbb",
 	}

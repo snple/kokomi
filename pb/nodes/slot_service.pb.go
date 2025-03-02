@@ -24,7 +24,7 @@ const (
 type SlotListRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *pb.Page               `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
-	// string device_id = 2;
+	// string node_id = 2;
 	Tags          string `protobuf:"bytes,3,opt,name=tags,proto3" json:"tags,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -189,7 +189,7 @@ func (x *SlotLinkRequest) GetStatus() int32 {
 type SlotPullRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	After         int64                  `protobuf:"varint,1,opt,name=after,proto3" json:"after,omitempty"`
-	Limit         uint32                 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"` // string device_id = 3;
+	Limit         uint32                 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"` // string node_id = 3;
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

@@ -10,18 +10,18 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type DeviceService struct {
+type NodeService struct {
 	ws *WebService
 }
 
-func newDeviceService(ws *WebService) *DeviceService {
-	return &DeviceService{
+func newNodeService(ws *WebService) *NodeService {
+	return &NodeService{
 		ws: ws,
 	}
 }
 
-func (s *DeviceService) register(router gin.IRouter) {
-	group := router.Group("/device")
+func (s *NodeService) register(router gin.IRouter) {
+	group := router.Group("/node")
 
 	group.Use(s.ws.GetAuth().MiddlewareFunc())
 
@@ -33,7 +33,7 @@ func (s *DeviceService) register(router gin.IRouter) {
 	group.DELETE("/:id", s.delete)
 }
 
-func (s *DeviceService) list(ctx *gin.Context) {
+func (s *NodeService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
 		Tags      string `form:"tags"`
@@ -56,20 +56,20 @@ func (s *DeviceService) list(ctx *gin.Context) {
 		page.Sort = pb.Page_DESC
 	}
 
-	request := &cores.DeviceListRequest{
+	request := &cores.NodeListRequest{
 		Page: page,
 		Tags: params.Tags,
 	}
 
-	reply, err := s.ws.Core().GetDevice().List(ctx, request)
+	reply, err := s.ws.Core().GetNode().List(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	items := reply.GetDevice()
+	items := reply.GetNode()
 
-	shiftime.Devices(items)
+	shiftime.Nodes(items)
 
 	ctx.JSON(util.Success(gin.H{
 		"items": items,
@@ -77,10 +77,10 @@ func (s *DeviceService) list(ctx *gin.Context) {
 	}))
 }
 
-func (s *DeviceService) get(ctx *gin.Context) {
+func (s *NodeService) get(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	reply, err := s.ws.Core().GetDevice().View(ctx, request)
+	reply, err := s.ws.Core().GetNode().View(ctx, request)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -93,44 +93,44 @@ func (s *DeviceService) get(ctx *gin.Context) {
 		return
 	}
 
-	shiftime.Device(reply)
+	shiftime.Node(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
 	}))
 }
 
-func (s *DeviceService) post(ctx *gin.Context) {
-	var params pb.Device
+func (s *NodeService) post(ctx *gin.Context) {
+	var params pb.Node
 
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	reply, err := s.ws.Core().GetDevice().Create(ctx, &params)
+	reply, err := s.ws.Core().GetNode().Create(ctx, &params)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	shiftime.Device(reply)
+	shiftime.Node(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
 	}))
 }
 
-func (s *DeviceService) patch(ctx *gin.Context) {
+func (s *NodeService) patch(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	reply, err := s.ws.Core().GetDevice().View(ctx, request)
+	reply, err := s.ws.Core().GetNode().View(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	var params pb.Device
+	var params pb.Node
 
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -144,7 +144,7 @@ func (s *DeviceService) patch(ctx *gin.Context) {
 	reply.Config = params.Config
 	reply.Status = params.Status
 
-	reply2, err := s.ws.Core().GetDevice().Update(ctx, reply)
+	reply2, err := s.ws.Core().GetNode().Update(ctx, reply)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
@@ -153,10 +153,10 @@ func (s *DeviceService) patch(ctx *gin.Context) {
 	ctx.JSON(util.Success(gin.H{"id": reply2.GetId()}))
 }
 
-func (s *DeviceService) delete(ctx *gin.Context) {
+func (s *NodeService) delete(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	_, err := s.ws.Core().GetDevice().Delete(ctx, request)
+	_, err := s.ws.Core().GetNode().Delete(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
@@ -165,10 +165,10 @@ func (s *DeviceService) delete(ctx *gin.Context) {
 	ctx.JSON(util.Success(gin.H{"id": ctx.Param("id")}))
 }
 
-func (s *DeviceService) status(ctx *gin.Context) {
+func (s *NodeService) status(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	reply, err := s.ws.Core().GetDevice().View(ctx, request)
+	reply, err := s.ws.Core().GetNode().View(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
@@ -185,7 +185,7 @@ func (s *DeviceService) status(ctx *gin.Context) {
 
 	reply.Status = params.Status
 
-	reply2, err := s.ws.Core().GetDevice().Update(ctx, reply)
+	reply2, err := s.ws.Core().GetNode().Update(ctx, reply)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return

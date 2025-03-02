@@ -32,29 +32,29 @@ func seed(db bun.Tx) error {
 	ctx := context.Background()
 
 	{
-		seedDevice := func() error {
-			device := model.Device{
+		seedNode := func() error {
+			node := model.Node{
 				ID:      util.RandomID(),
-				Name:    consts.DEFAULT_DEVICE,
+				Name:    consts.DEFAULT_NODE,
 				Status:  consts.ON,
 				Created: time.Now(),
 				Updated: time.Now(),
 			}
 
-			_, err = db.NewInsert().Model(&device).Exec(ctx)
+			_, err = db.NewInsert().Model(&node).Exec(ctx)
 			if err != nil {
 				return err
 			}
 
-			fmt.Printf("seed: the initial device created: %v\n", device.ID)
+			fmt.Printf("seed: the initial node created: %v\n", node.ID)
 
 			return nil
 		}
 
-		err = db.NewSelect().Model(&model.Device{}).Scan(ctx)
+		err = db.NewSelect().Model(&model.Node{}).Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				if err = seedDevice(); err != nil {
+				if err = seedNode(); err != nil {
 					return err
 				}
 			} else {

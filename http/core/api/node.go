@@ -10,18 +10,18 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type DeviceService struct {
+type NodeService struct {
 	as *ApiService
 }
 
-func newDeviceService(as *ApiService) *DeviceService {
-	return &DeviceService{
+func newNodeService(as *ApiService) *NodeService {
+	return &NodeService{
 		as: as,
 	}
 }
 
-func (s *DeviceService) register(router gin.IRouter) {
-	group := router.Group("/device")
+func (s *NodeService) register(router gin.IRouter) {
+	group := router.Group("/node")
 
 	group.GET("/", s.list)
 
@@ -33,7 +33,7 @@ func (s *DeviceService) register(router gin.IRouter) {
 	group.PATCH("/link", s.link)
 }
 
-func (s *DeviceService) list(ctx *gin.Context) {
+func (s *NodeService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
 		Tags      string `form:"tags"`
@@ -56,27 +56,27 @@ func (s *DeviceService) list(ctx *gin.Context) {
 		page.Sort = pb.Page_DESC
 	}
 
-	request := &cores.DeviceListRequest{
+	request := &cores.NodeListRequest{
 		Page: page,
 		Tags: params.Tags,
 	}
 
-	reply, err := s.as.Core().GetDevice().List(ctx, request)
+	reply, err := s.as.Core().GetNode().List(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
 	ctx.JSON(util.Success(gin.H{
-		"items": reply.GetDevice(),
+		"items": reply.GetNode(),
 		"total": reply.GetCount(),
 	}))
 }
 
-func (s *DeviceService) getById(ctx *gin.Context) {
+func (s *NodeService) getById(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	reply, err := s.as.Core().GetDevice().View(ctx, request)
+	reply, err := s.as.Core().GetNode().View(ctx, request)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -94,10 +94,10 @@ func (s *DeviceService) getById(ctx *gin.Context) {
 	}))
 }
 
-func (s *DeviceService) getByName(ctx *gin.Context) {
+func (s *NodeService) getByName(ctx *gin.Context) {
 	name := ctx.Param("name")
 
-	reply, err := s.as.Core().GetDevice().Name(ctx, &pb.Name{Name: name})
+	reply, err := s.as.Core().GetNode().Name(ctx, &pb.Name{Name: name})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -110,14 +110,14 @@ func (s *DeviceService) getByName(ctx *gin.Context) {
 		return
 	}
 
-	shiftime.Device(reply)
+	shiftime.Node(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
 	}))
 }
 
-func (s *DeviceService) getByNames(ctx *gin.Context) {
+func (s *NodeService) getByNames(ctx *gin.Context) {
 	var params struct {
 		Name []string `json:"name"`
 	}
@@ -126,10 +126,10 @@ func (s *DeviceService) getByNames(ctx *gin.Context) {
 		return
 	}
 
-	ret := make([]*pb.Device, 0, len(params.Name))
+	ret := make([]*pb.Node, 0, len(params.Name))
 
 	for _, name := range params.Name {
-		reply, err := s.as.Core().GetDevice().Name(ctx,
+		reply, err := s.as.Core().GetNode().Name(ctx,
 			&pb.Name{Name: name})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
@@ -148,7 +148,7 @@ func (s *DeviceService) getByNames(ctx *gin.Context) {
 	ctx.JSON(util.Success(ret))
 }
 
-func (s *DeviceService) link(ctx *gin.Context) {
+func (s *NodeService) link(ctx *gin.Context) {
 	var params struct {
 		Id     string `json:"id"`
 		Status int    `json:"status"`
@@ -159,8 +159,8 @@ func (s *DeviceService) link(ctx *gin.Context) {
 		return
 	}
 
-	reply, err := s.as.Core().GetDevice().Link(ctx,
-		&cores.DeviceLinkRequest{Id: params.Id, Status: int32(params.Status)})
+	reply, err := s.as.Core().GetNode().Link(ctx,
+		&cores.NodeLinkRequest{Id: params.Id, Status: int32(params.Status)})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {

@@ -5,8 +5,8 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
-	"io/ioutil"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/snple/beacon/client/core/service"
@@ -56,15 +56,15 @@ func main() {
 	ctx := context.Background()
 	_ = ctx
 
-	device := cores.NewDeviceServiceClient(conn)
-	service.DeviceList(ctx, device)
-	// service.DeviceView(ctx, device)
-	// service.DeviceName(ctx, device)
-	// service.DeviceCreate(ctx, device)
-	// service.DeviceUpdate(ctx, device)
-	// service.DeviceDelete(ctx, device)
-	// service.DeviceDestory(ctx, device)
-	// service.DeviceClone(ctx, device)
+	node := cores.NewNodeServiceClient(conn)
+	service.NodeList(ctx, node)
+	// service.NodeView(ctx, node)
+	// service.NodeName(ctx, node)
+	// service.NodeCreate(ctx, node)
+	// service.NodeUpdate(ctx, node)
+	// service.NodeDelete(ctx, node)
+	// service.NodeDestory(ctx, node)
+	// service.NodeClone(ctx, node)
 
 	source := cores.NewSourceServiceClient(conn)
 	service.SourceList(ctx, source)
@@ -87,13 +87,13 @@ func main() {
 	// service.TagSetValue(ctx, tag)
 
 	// sync := cores.NewSyncServiceClient(conn)
-	// service.SetDeviceUpdated(ctx, sync)
+	// service.SetNodeUpdated(ctx, sync)
 }
 
 func loadCert() (*tls.Config, error) {
 	pool := x509.NewCertPool()
 
-	ca, err := ioutil.ReadFile("certs/ca.crt")
+	ca, err := os.ReadFile("certs/ca.crt")
 	if err != nil {
 		return nil, err
 	}

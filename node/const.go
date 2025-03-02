@@ -33,12 +33,12 @@ func (s *ConstService) Create(ctx context.Context, in *pb.Const) (*pb.Const, err
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
-	in.DeviceId = deviceID
+	in.NodeId = nodeID
 
 	return s.ns.Core().GetConst().Create(ctx, in)
 }
@@ -54,7 +54,7 @@ func (s *ConstService) Update(ctx context.Context, in *pb.Const) (*pb.Const, err
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -66,8 +66,8 @@ func (s *ConstService) Update(ctx context.Context, in *pb.Const) (*pb.Const, err
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetConst().Update(ctx, in)
@@ -84,7 +84,7 @@ func (s *ConstService) View(ctx context.Context, in *pb.Id) (*pb.Const, error) {
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -94,8 +94,8 @@ func (s *ConstService) View(ctx context.Context, in *pb.Id) (*pb.Const, error) {
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return reply, nil
@@ -112,20 +112,20 @@ func (s *ConstService) Name(ctx context.Context, in *pb.Name) (*pb.Const, error)
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
-	request := &cores.ConstNameRequest{DeviceId: deviceID, Name: in.GetName()}
+	request := &cores.ConstNameRequest{NodeId: nodeID, Name: in.GetName()}
 
 	reply, err := s.ns.Core().GetConst().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return reply, nil
@@ -142,7 +142,7 @@ func (s *ConstService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -152,8 +152,8 @@ func (s *ConstService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetConst().Delete(ctx, in)
@@ -170,15 +170,15 @@ func (s *ConstService) List(ctx context.Context, in *nodes.ConstListRequest) (*n
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	request := &cores.ConstListRequest{
-		Page:     in.GetPage(),
-		DeviceId: deviceID,
-		Tags:     in.GetTags(),
+		Page:   in.GetPage(),
+		NodeId: nodeID,
+		Tags:   in.GetTags(),
 	}
 
 	reply, err := s.ns.Core().GetConst().List(ctx, request)
@@ -204,7 +204,7 @@ func (s *ConstService) GetValue(ctx context.Context, in *pb.Id) (*pb.ConstValue,
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -216,8 +216,8 @@ func (s *ConstService) GetValue(ctx context.Context, in *pb.Id) (*pb.ConstValue,
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetConst().GetValue(ctx, in)
@@ -234,7 +234,7 @@ func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyB
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -246,8 +246,8 @@ func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyB
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return s.ns.Core().GetConst().SetValue(ctx, in)
@@ -264,13 +264,13 @@ func (s *ConstService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.Con
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	reply, err := s.ns.Core().GetConst().GetValueByName(ctx,
-		&cores.ConstGetValueByNameRequest{DeviceId: deviceID, Name: in.GetName()})
+		&cores.ConstGetValueByNameRequest{NodeId: nodeID, Name: in.GetName()})
 	if err != nil {
 		return &output, err
 	}
@@ -294,13 +294,13 @@ func (s *ConstService) SetValueByName(ctx context.Context, in *pb.ConstNameValue
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	return s.ns.Core().GetConst().SetValueByName(ctx,
-		&cores.ConstNameValue{DeviceId: deviceID, Name: in.GetName(), Value: in.GetValue()})
+		&cores.ConstNameValue{NodeId: nodeID, Name: in.GetName(), Value: in.GetValue()})
 }
 
 func (s *ConstService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Const, error) {
@@ -314,7 +314,7 @@ func (s *ConstService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Cons
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -324,8 +324,8 @@ func (s *ConstService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Cons
 		return &output, err
 	}
 
-	if reply.GetDeviceId() != deviceID {
-		return &output, status.Error(codes.NotFound, "Query: reply.GetDeviceId() != deviceID")
+	if reply.GetNodeId() != nodeID {
+		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
 	return reply, nil
@@ -345,15 +345,15 @@ func (s *ConstService) Pull(ctx context.Context, in *nodes.ConstPullRequest) (*n
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
 	request := &cores.ConstPullRequest{
-		After:    in.GetAfter(),
-		Limit:    in.GetLimit(),
-		DeviceId: deviceID,
+		After:  in.GetAfter(),
+		Limit:  in.GetLimit(),
+		NodeId: nodeID,
 	}
 
 	reply, err := s.ns.Core().GetConst().Pull(ctx, request)
@@ -377,12 +377,12 @@ func (s *ConstService) Sync(ctx context.Context, in *pb.Const) (*pb.MyBool, erro
 		}
 	}
 
-	deviceID, err := validateToken(ctx)
+	nodeID, err := validateToken(ctx)
 	if err != nil {
 		return &output, err
 	}
 
-	in.DeviceId = deviceID
+	in.NodeId = nodeID
 
 	return s.ns.Core().GetConst().Sync(ctx, in)
 }

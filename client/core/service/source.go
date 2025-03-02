@@ -41,8 +41,8 @@ func SourceView(ctx context.Context, client cores.SourceServiceClient) {
 
 func SourceName(ctx context.Context, client cores.SourceServiceClient) {
 	request := &cores.SourceNameRequest{
-		DeviceId: "01946a0cabdabc925941e98a",
-		Name:     "source",
+		NodeId: "01946a0cabdabc925941e98a",
+		Name:   "source",
 	}
 
 	reply, err := client.Name(ctx, request)
@@ -55,14 +55,14 @@ func SourceName(ctx context.Context, client cores.SourceServiceClient) {
 
 func SourceCreate(ctx context.Context, client cores.SourceServiceClient) {
 	request := &pb.Source{
-		DeviceId: "01946a0cabdabc925941e98a",
-		Name:     "source",
-		Desc:     "source",
-		Source:   "source",
-		Params:   "params",
-		Config:   "config",
-		Status:   consts.ON,
-		Tags:     "tag1,tag2",
+		NodeId: "01946a0cabdabc925941e98a",
+		Name:   "source",
+		Desc:   "source",
+		Source: "source",
+		Params: "params",
+		Config: "config",
+		Status: consts.ON,
+		Tags:   "tag1,tag2",
 	}
 
 	reply, err := client.Create(ctx, request)

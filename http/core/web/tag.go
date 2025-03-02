@@ -36,7 +36,7 @@ func (s *TagService) register(router gin.IRouter) {
 func (s *TagService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
-		DeviceId  string `form:"device_id"`
+		NodeId    string `form:"node_id"`
 		SourceId  string `form:"source_id"`
 		Tags      string `form:"tags"`
 	}
@@ -60,7 +60,7 @@ func (s *TagService) list(ctx *gin.Context) {
 
 	request := &cores.TagListRequest{
 		Page:     page,
-		DeviceId: params.DeviceId,
+		NodeId:   params.NodeId,
 		SourceId: params.SourceId,
 		Tags:     params.Tags,
 	}

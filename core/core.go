@@ -19,7 +19,7 @@ type CoreService struct {
 	status      *StatusService
 	sync        *SyncService
 	sync_global *SyncGlobalService
-	device      *DeviceService
+	node        *NodeService
 	slot        *SlotService
 	source      *SourceService
 	tag         *TagService
@@ -66,7 +66,7 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.status = newStatusService(cs)
 	cs.sync = newSyncService(cs)
 	cs.sync_global = newSyncGlobalService(cs)
-	cs.device = newDeviceService(cs)
+	cs.node = newNodeService(cs)
 	cs.slot = newSlotService(cs)
 	cs.source = newSourceService(cs)
 	cs.tag = newTagService(cs)
@@ -109,8 +109,8 @@ func (cs *CoreService) GetSyncGlobal() *SyncGlobalService {
 	return cs.sync_global
 }
 
-func (cs *CoreService) GetDevice() *DeviceService {
-	return cs.device
+func (cs *CoreService) GetNode() *NodeService {
+	return cs.node
 }
 
 func (cs *CoreService) GetSlot() *SlotService {
@@ -164,7 +164,7 @@ func (cs *CoreService) cacheGC() {
 			return
 		case <-ticker.C:
 			{
-				cs.GetDevice().GC()
+				cs.GetNode().GC()
 				cs.GetSource().GC()
 				cs.GetTag().GC()
 				cs.GetConst().GC()
@@ -177,7 +177,7 @@ func (cs *CoreService) cacheGC() {
 func (cs *CoreService) Register(server *grpc.Server) {
 	cores.RegisterSyncServiceServer(server, cs.sync)
 	cores.RegisterSyncGlobalServiceServer(server, cs.sync_global)
-	cores.RegisterDeviceServiceServer(server, cs.device)
+	cores.RegisterNodeServiceServer(server, cs.node)
 	cores.RegisterSlotServiceServer(server, cs.slot)
 	cores.RegisterSourceServiceServer(server, cs.source)
 	cores.RegisterTagServiceServer(server, cs.tag)
@@ -191,7 +191,7 @@ func CreateSchema(db bun.IDB) error {
 	models := []any{
 		(*model.Sync)(nil),
 		(*model.SyncGlobal)(nil),
-		(*model.Device)(nil),
+		(*model.Node)(nil),
 		(*model.Slot)(nil),
 		(*model.Source)(nil),
 		(*model.Tag)(nil),

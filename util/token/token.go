@@ -7,32 +7,32 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-// DeviceClaims struct
-type DeviceClaims struct {
-	DeviceID string `json:"device_id"`
+// NodeClaims struct
+type NodeClaims struct {
+	NodeID string `json:"node_id"`
 	jwt.StandardClaims
 }
 
-var DeviceTokenSigningKey = []byte(os.Getenv("TOKEN_SALT"))
+var NodeTokenSigningKey = []byte(os.Getenv("TOKEN_SALT"))
 
 // ValidateToken func
-func ValidateDeviceToken(myToken string) (bool, string) {
-	token, err := jwt.ParseWithClaims(myToken, &DeviceClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(DeviceTokenSigningKey), nil
+func ValidateNodeToken(myToken string) (bool, string) {
+	token, err := jwt.ParseWithClaims(myToken, &NodeClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(NodeTokenSigningKey), nil
 	})
 
 	if err != nil {
 		return false, ""
 	}
 
-	claims := token.Claims.(*DeviceClaims)
-	return token.Valid, claims.DeviceID
+	claims := token.Claims.(*NodeClaims)
+	return token.Valid, claims.NodeID
 }
 
 // ClaimToken func
-func ClaimDeviceToken(deviceID string) (string, error) {
-	claims := DeviceClaims{
-		deviceID,
+func ClaimNodeToken(nodeID string) (string, error) {
+	claims := NodeClaims{
+		nodeID,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 5).Unix(),
 		},
@@ -41,7 +41,7 @@ func ClaimDeviceToken(deviceID string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Sign the token with our secret
-	return token.SignedString(DeviceTokenSigningKey)
+	return token.SignedString(NodeTokenSigningKey)
 }
 
 type SlotClaims struct {

@@ -41,7 +41,7 @@ func main() {
 	}
 
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(
+	conn, err := grpc.NewClient(
 		address,
 		grpc.WithTransportCredentials(credentials.NewTLS(cfg)),
 		// grpc.WithInsecure(),
@@ -56,9 +56,9 @@ func main() {
 	ctx := context.Background()
 	_ = ctx
 
-	device := edges.NewDeviceServiceClient(conn)
-	service.DeviceView(ctx, device)
-	// service.DeviceUpdate(ctx, device)
+	node := edges.NewNodeServiceClient(conn)
+	service.NodeView(ctx, node)
+	// service.NodeUpdate(ctx, node)
 
 	// slot := edges.NewSlotServiceClient(conn)
 	// service.SlotList(ctx, slot)

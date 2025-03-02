@@ -8,24 +8,24 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type DeviceService struct {
+type NodeService struct {
 	as *ApiService
 }
 
-func newDeviceService(as *ApiService) *DeviceService {
-	return &DeviceService{
+func newNodeService(as *ApiService) *NodeService {
+	return &NodeService{
 		as: as,
 	}
 }
 
-func (s *DeviceService) register(router gin.IRouter) {
-	group := router.Group("/device")
+func (s *NodeService) register(router gin.IRouter) {
+	group := router.Group("/node")
 
 	group.GET("/", s.view)
 }
 
-func (s *DeviceService) view(ctx *gin.Context) {
-	reply, err := s.as.Edge().GetDevice().View(ctx, &pb.MyEmpty{})
+func (s *NodeService) view(ctx *gin.Context) {
+	reply, err := s.as.Edge().GetNode().View(ctx, &pb.MyEmpty{})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {

@@ -12,7 +12,7 @@ import (
 	"github.com/uptrace/bun/dialect/sqlitedialect"
 )
 
-var _ = ginkgo.Describe("Test core device API", ginkgo.Label("library"), func() {
+var _ = ginkgo.Describe("Test core node API", ginkgo.Label("library"), func() {
 	var db *bun.DB
 	var cs *core.CoreService
 
@@ -42,26 +42,26 @@ var _ = ginkgo.Describe("Test core device API", ginkgo.Label("library"), func() 
 		gomega.Eventually(c, "1s").Should(gomega.BeClosed())
 	})
 
-	ginkgo.Context("device CRUD", func() {
+	ginkgo.Context("node CRUD", func() {
 		ginkgo.It("create", func(ctx ginkgo.SpecContext) {
 			{
-				request := &pb.Device{
-					Name:   "test_device1",
+				request := &pb.Node{
+					Name:   "test_node1",
 					Desc:   "test",
 					Secret: "123456",
 					Status: consts.ON,
 				}
 
-				reply, err := cs.GetDevice().Create(ctx, request)
+				reply, err := cs.GetNode().Create(ctx, request)
 
 				gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				_ = reply
 			}
 
 			{
-				request := &pb.Name{Name: "test_device1"}
+				request := &pb.Name{Name: "test_node1"}
 
-				reply, err := cs.GetDevice().Name(ctx, request)
+				reply, err := cs.GetNode().Name(ctx, request)
 
 				gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				_ = reply
@@ -70,40 +70,40 @@ var _ = ginkgo.Describe("Test core device API", ginkgo.Label("library"), func() 
 
 		ginkgo.It("destory", func(ctx ginkgo.SpecContext) {
 			{
-				request := &pb.Device{
-					Name:   "test_device1",
+				request := &pb.Node{
+					Name:   "test_node1",
 					Desc:   "test",
 					Secret: "123456",
 					Status: consts.ON,
 				}
 
-				reply, err := cs.GetDevice().Create(ctx, request)
+				reply, err := cs.GetNode().Create(ctx, request)
 
 				gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				_ = reply
 			}
 
 			{
-				request := &pb.Name{Name: "test_device1"}
+				request := &pb.Name{Name: "test_node1"}
 
-				reply, err := cs.GetDevice().Name(ctx, request)
+				reply, err := cs.GetNode().Name(ctx, request)
 
 				gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				_ = reply
 
 				{
-					reply, err := cs.GetSync().GetDeviceUpdated(ctx, &pb.Id{Id: reply.GetId()})
+					reply, err := cs.GetSync().GetNodeUpdated(ctx, &pb.Id{Id: reply.GetId()})
 					gomega.Expect(err).ToNot(gomega.HaveOccurred())
 					gomega.Expect(reply.Updated > 0).To(gomega.Equal(true))
 				}
 
 				{
-					_, err = cs.GetDevice().Destory(ctx, &pb.Id{Id: reply.GetId()})
+					_, err = cs.GetNode().Destory(ctx, &pb.Id{Id: reply.GetId()})
 					gomega.Expect(err).ToNot(gomega.HaveOccurred())
 				}
 
 				{
-					reply, err := cs.GetSync().GetDeviceUpdated(ctx, &pb.Id{Id: reply.GetId()})
+					reply, err := cs.GetSync().GetNodeUpdated(ctx, &pb.Id{Id: reply.GetId()})
 					gomega.Expect(err).ToNot(gomega.HaveOccurred())
 					gomega.Expect(reply.Updated < 0).To(gomega.Equal(true))
 				}

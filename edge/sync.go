@@ -34,7 +34,7 @@ func newSyncService(es *EdgeService) *SyncService {
 	}
 }
 
-func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetNodeUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -45,11 +45,11 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *edges.SyncUpdate
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Updated")
 		}
 	}
 
-	err = s.setDeviceUpdated(ctx, time.UnixMicro(in.GetUpdated()))
+	err = s.setNodeUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -59,7 +59,7 @@ func (s *SyncService) SetDeviceUpdated(ctx context.Context, in *edges.SyncUpdate
 	return &output, nil
 }
 
-func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
+func (s *SyncService) GetNodeUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
 	var output edges.SyncUpdated
 	var err error
 
@@ -70,7 +70,7 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*ed
 		}
 	}
 
-	t, err := s.getDeviceUpdated(ctx)
+	t, err := s.getNodeUpdated(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -80,8 +80,8 @@ func (s *SyncService) GetDeviceUpdated(ctx context.Context, in *pb.MyEmpty) (*ed
 	return &output, nil
 }
 
-func (s *SyncService) WaitDeviceUpdated(in *pb.MyEmpty,
-	stream edges.SyncService_WaitDeviceUpdatedServer) error {
+func (s *SyncService) WaitNodeUpdated(in *pb.MyEmpty,
+	stream edges.SyncService_WaitNodeUpdatedServer) error {
 
 	return s.waitUpdated(in, stream, NOTIFY)
 }
@@ -374,12 +374,12 @@ func (s *SyncService) WaitTagWriteUpdated(in *pb.MyEmpty,
 	return s.waitUpdated(in, stream, NOTIFY_TW)
 }
 
-func (s *SyncService) getDeviceUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_DEVICE)
+func (s *SyncService) getNodeUpdated(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_NODE)
 }
 
-func (s *SyncService) setDeviceUpdated(ctx context.Context, updated time.Time) error {
-	err := s.setUpdated(ctx, model.SYNC_DEVICE, updated)
+func (s *SyncService) setNodeUpdated(ctx context.Context, updated time.Time) error {
+	err := s.setUpdated(ctx, model.SYNC_NODE, updated)
 	if err != nil {
 		return err
 	}
@@ -451,22 +451,22 @@ func (s *SyncService) setTagWriteUpdated(ctx context.Context, updated time.Time)
 	return nil
 }
 
-// device
+// node
 
-func (s *SyncService) getDeviceUpdatedRemoteToLocal(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_DEVICE_REMOTE_TO_LOCAL)
+func (s *SyncService) getNodeUpdatedRemoteToLocal(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_NODE_REMOTE_TO_LOCAL)
 }
 
-func (s *SyncService) setDeviceUpdatedRemoteToLocal(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_DEVICE_REMOTE_TO_LOCAL, updated)
+func (s *SyncService) setNodeUpdatedRemoteToLocal(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_NODE_REMOTE_TO_LOCAL, updated)
 }
 
-func (s *SyncService) getDeviceUpdatedLocalToRemote(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_DEVICE_LOCAL_TO_REMOTE)
+func (s *SyncService) getNodeUpdatedLocalToRemote(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_NODE_LOCAL_TO_REMOTE)
 }
 
-func (s *SyncService) setDeviceUpdatedLocalToRemote(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_DEVICE_LOCAL_TO_REMOTE, updated)
+func (s *SyncService) setNodeUpdatedLocalToRemote(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_NODE_LOCAL_TO_REMOTE, updated)
 }
 
 // value

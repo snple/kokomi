@@ -36,7 +36,7 @@ func (s *SourceService) register(router gin.IRouter) {
 func (s *SourceService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
-		DeviceId  string `form:"device_id"`
+		NodeId    string `form:"node_id"`
 		Tags      string `form:"tags"`
 	}
 
@@ -58,9 +58,9 @@ func (s *SourceService) list(ctx *gin.Context) {
 	}
 
 	request := &cores.SourceListRequest{
-		Page:     page,
-		DeviceId: params.DeviceId,
-		Tags:     params.Tags,
+		Page:   page,
+		NodeId: params.NodeId,
+		Tags:   params.Tags,
 	}
 
 	reply, err := s.ws.Core().GetSource().List(ctx, request)

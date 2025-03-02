@@ -27,14 +27,14 @@ func newCloneService(cs *CoreService) *cloneService {
 	}
 }
 
-func (s *cloneService) device(ctx context.Context, db bun.IDB, deviceID string) error {
+func (s *cloneService) node(ctx context.Context, db bun.IDB, nodeID string) error {
 	var err error
 
-	device := model.Device{
-		ID: deviceID,
+	node := model.Node{
+		ID: nodeID,
 	}
 
-	err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
+	err = db.NewSelect().Model(&node).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return status.Errorf(codes.NotFound, "Query: %v", err)
@@ -43,13 +43,13 @@ func (s *cloneService) device(ctx context.Context, db bun.IDB, deviceID string) 
 		return status.Errorf(codes.Internal, "Query: %v", err)
 	}
 
-	device.ID = util.RandomID()
-	device.Name = fmt.Sprintf("%v_clone_%v", device.Name, randNameSuffix())
+	node.ID = util.RandomID()
+	node.Name = fmt.Sprintf("%v_clone_%v", node.Name, randNameSuffix())
 
-	device.Created = time.Now()
-	device.Updated = time.Now()
+	node.Created = time.Now()
+	node.Updated = time.Now()
 
-	_, err = db.NewInsert().Model(&device).Exec(ctx)
+	_, err = db.NewInsert().Model(&node).Exec(ctx)
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -58,14 +58,14 @@ func (s *cloneService) device(ctx context.Context, db bun.IDB, deviceID string) 
 	{
 		var slots []model.Slot
 
-		err = db.NewSelect().Model(&slots).Where("device_id = ?", deviceID).Order("id ASC").Scan(ctx)
+		err = db.NewSelect().Model(&slots).Where("node_id = ?", nodeID).Order("id ASC").Scan(ctx)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Query: %v", err)
 		}
 
 		for _, slot := range slots {
 			slot.ID = util.RandomID()
-			slot.DeviceID = device.ID
+			slot.NodeID = node.ID
 
 			slot.Created = time.Now()
 			slot.Updated = time.Now()
@@ -83,7 +83,7 @@ func (s *cloneService) device(ctx context.Context, db bun.IDB, deviceID string) 
 	{
 		var sources []model.Source
 
-		err = db.NewSelect().Model(&sources).Where("device_id = ?", deviceID).Order("id ASC").Scan(ctx)
+		err = db.NewSelect().Model(&sources).Where("node_id = ?", nodeID).Order("id ASC").Scan(ctx)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Query: %v", err)
 		}
@@ -92,7 +92,7 @@ func (s *cloneService) device(ctx context.Context, db bun.IDB, deviceID string) 
 			oldSourceId := source.ID
 
 			source.ID = util.RandomID()
-			source.DeviceID = device.ID
+			source.NodeID = node.ID
 
 			source.Created = time.Now()
 			source.Updated = time.Now()
@@ -117,7 +117,7 @@ func (s *cloneService) device(ctx context.Context, db bun.IDB, deviceID string) 
 
 					tag.ID = newId
 					tag.SourceID = source.ID
-					tag.DeviceID = source.DeviceID
+					tag.NodeID = source.NodeID
 
 					tag.Created = time.Now()
 					tag.Updated = time.Now()
@@ -135,14 +135,14 @@ func (s *cloneService) device(ctx context.Context, db bun.IDB, deviceID string) 
 	{
 		var constants []model.Const
 
-		err = db.NewSelect().Model(&constants).Where("device_id = ?", deviceID).Order("id ASC").Scan(ctx)
+		err = db.NewSelect().Model(&constants).Where("node_id = ?", nodeID).Order("id ASC").Scan(ctx)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Query: %v", err)
 		}
 
 		for _, constant := range constants {
 			constant.ID = util.RandomID()
-			constant.DeviceID = device.ID
+			constant.NodeID = node.ID
 
 			constant.Created = time.Now()
 			constant.Updated = time.Now()
@@ -154,7 +154,7 @@ func (s *cloneService) device(ctx context.Context, db bun.IDB, deviceID string) 
 		}
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, db, device.ID, time.Now())
+	err = s.cs.GetSync().setNodeUpdated(ctx, db, node.ID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -162,7 +162,7 @@ func (s *cloneService) device(ctx context.Context, db bun.IDB, deviceID string) 
 	return nil
 }
 
-func (s *cloneService) slot(ctx context.Context, db bun.IDB, slotID, deviceID string) error {
+func (s *cloneService) slot(ctx context.Context, db bun.IDB, slotID, nodeID string) error {
 	var err error
 
 	item := model.Slot{
@@ -178,22 +178,22 @@ func (s *cloneService) slot(ctx context.Context, db bun.IDB, slotID, deviceID st
 		return status.Errorf(codes.Internal, "Query: %v", err)
 	}
 
-	// device validation
-	if deviceID != "" {
-		device := model.Device{
-			ID: deviceID,
+	// node validation
+	if nodeID != "" {
+		node := model.Node{
+			ID: nodeID,
 		}
 
-		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
+		err = db.NewSelect().Model(&node).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+				return status.Error(codes.InvalidArgument, "Please supply valid NodeID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
 		}
 
-		item.DeviceID = device.ID
+		item.NodeID = node.ID
 	}
 
 	item.ID = util.RandomID()
@@ -207,7 +207,7 @@ func (s *cloneService) slot(ctx context.Context, db bun.IDB, slotID, deviceID st
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setNodeUpdated(ctx, db, item.NodeID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -215,7 +215,7 @@ func (s *cloneService) slot(ctx context.Context, db bun.IDB, slotID, deviceID st
 	return nil
 }
 
-func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID, deviceID string) error {
+func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID, nodeID string) error {
 	var err error
 
 	item := model.Source{
@@ -231,22 +231,22 @@ func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID, deviceI
 		return status.Errorf(codes.Internal, "Query: %v", err)
 	}
 
-	// device validation
-	if deviceID != "" {
-		device := model.Device{
-			ID: deviceID,
+	// node validation
+	if nodeID != "" {
+		node := model.Node{
+			ID: nodeID,
 		}
 
-		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
+		err = db.NewSelect().Model(&node).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+				return status.Error(codes.InvalidArgument, "Please supply valid NodeID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
 		}
 
-		item.DeviceID = device.ID
+		item.NodeID = node.ID
 	}
 
 	item.ID = util.RandomID()
@@ -272,7 +272,7 @@ func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID, deviceI
 		for _, tag := range tags {
 			tag.ID = util.RandomID()
 			tag.SourceID = item.ID
-			tag.DeviceID = item.DeviceID
+			tag.NodeID = item.NodeID
 
 			tag.Created = time.Now()
 			tag.Updated = time.Now()
@@ -284,7 +284,7 @@ func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID, deviceI
 		}
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setNodeUpdated(ctx, db, item.NodeID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -324,7 +324,7 @@ func (s *cloneService) tag(ctx context.Context, db bun.IDB, tagID, sourceID stri
 		}
 
 		item.SourceID = source.ID
-		item.DeviceID = source.DeviceID
+		item.NodeID = source.NodeID
 	}
 
 	item.ID = util.RandomID()
@@ -338,7 +338,7 @@ func (s *cloneService) tag(ctx context.Context, db bun.IDB, tagID, sourceID stri
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setNodeUpdated(ctx, db, item.NodeID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
@@ -346,7 +346,7 @@ func (s *cloneService) tag(ctx context.Context, db bun.IDB, tagID, sourceID stri
 	return nil
 }
 
-func (s *cloneService) const_(ctx context.Context, db bun.IDB, constID, deviceID string) error {
+func (s *cloneService) const_(ctx context.Context, db bun.IDB, constID, nodeID string) error {
 	var err error
 
 	item := model.Const{
@@ -362,22 +362,22 @@ func (s *cloneService) const_(ctx context.Context, db bun.IDB, constID, deviceID
 		return status.Errorf(codes.Internal, "Query: %v", err)
 	}
 
-	// device validation
-	if deviceID != "" {
-		device := model.Device{
-			ID: deviceID,
+	// node validation
+	if nodeID != "" {
+		node := model.Node{
+			ID: nodeID,
 		}
 
-		err = db.NewSelect().Model(&device).WherePK().Scan(ctx)
+		err = db.NewSelect().Model(&node).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+				return status.Error(codes.InvalidArgument, "Please supply valid NodeID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
 		}
 
-		item.DeviceID = device.ID
+		item.NodeID = node.ID
 	}
 
 	item.ID = util.RandomID()
@@ -391,7 +391,7 @@ func (s *cloneService) const_(ctx context.Context, db bun.IDB, constID, deviceID
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, db, item.DeviceID, time.Now())
+	err = s.cs.GetSync().setNodeUpdated(ctx, db, item.NodeID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}

@@ -55,7 +55,7 @@ func (s *cloneService) slot(ctx context.Context, db bun.IDB, slotID string) erro
 	}
 
 	{
-		err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+		err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}
@@ -120,7 +120,7 @@ func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID string) 
 	}
 
 	{
-		err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+		err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}
@@ -180,7 +180,7 @@ func (s *cloneService) tag(ctx context.Context, db bun.IDB, tagID, sourceID stri
 	}
 
 	{
-		err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+		err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}
@@ -222,7 +222,7 @@ func (s *cloneService) const_(ctx context.Context, db bun.IDB, constID string) e
 	}
 
 	{
-		err = s.es.GetSync().setDeviceUpdated(ctx, time.Now())
+		err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}

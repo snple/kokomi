@@ -8,7 +8,7 @@ import "generic_message.proto";
 
 message ConstListRequest {
     pb.Page page = 1;
-    string device_id = 2;
+    string node_id = 2;
     string tags = 3;
 }
 
@@ -19,22 +19,22 @@ message ConstListResponse {
 }
 
 message ConstNameRequest {
-    string device_id = 1;
+    string node_id = 1;
     string name = 2;
 }
 
 message ConstCloneRequest {
     string id = 1;
-    string device_id = 2;
+    string node_id = 2;
 }
 
 message ConstGetValueByNameRequest {
-    string device_id = 1;
+    string node_id = 1;
     string name = 2;
 }
 
 message ConstNameValue {
-    string device_id = 1;
+    string node_id = 1;
     string id = 2;
     string name = 3;
     string value = 4;
@@ -44,7 +44,7 @@ message ConstNameValue {
 message ConstPullRequest {
     int64 after = 1;
     uint32 limit = 2;
-    string device_id = 3;
+    string node_id = 3;
 }
 
 message ConstPullResponse {

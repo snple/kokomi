@@ -91,7 +91,7 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 			return &output, err
 		}
 
-		item.DeviceID = source.DeviceID
+		item.NodeID = source.NodeID
 	}
 
 	if item.ID == "" {
@@ -229,8 +229,8 @@ func (s *TagService) Name(ctx context.Context, in *cores.TagNameRequest) (*pb.Ta
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if in.GetDeviceId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+		if in.GetNodeId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid NodeID")
 		}
 
 		if in.GetName() == "" {
@@ -238,7 +238,7 @@ func (s *TagService) Name(ctx context.Context, in *cores.TagNameRequest) (*pb.Ta
 		}
 	}
 
-	item, err := s.ViewByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewByNodeIDAndName(ctx, in.GetNodeId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
@@ -270,7 +270,7 @@ func (s *TagService) NameFull(ctx context.Context, in *pb.Name) (*pb.Tag, error)
 		}
 	}
 
-	deviceName := consts.DEFAULT_DEVICE
+	nodeName := consts.DEFAULT_NODE
 	sourceName := consts.DEFAULT_SOURCE
 	itemName := in.GetName()
 
@@ -282,7 +282,7 @@ func (s *TagService) NameFull(ctx context.Context, in *pb.Name) (*pb.Tag, error)
 			sourceName = splits[0]
 			itemName = splits[1]
 		case 3:
-			deviceName = splits[0]
+			nodeName = splits[0]
 			sourceName = splits[1]
 			itemName = splits[2]
 		default:
@@ -290,12 +290,12 @@ func (s *TagService) NameFull(ctx context.Context, in *pb.Name) (*pb.Tag, error)
 		}
 	}
 
-	device, err := s.cs.GetDevice().ViewByName(ctx, deviceName)
+	node, err := s.cs.GetNode().ViewByName(ctx, nodeName)
 	if err != nil {
 		return &output, err
 	}
 
-	source, err := s.cs.GetSource().ViewByDeviceIDAndName(ctx, device.ID, sourceName)
+	source, err := s.cs.GetSource().ViewByNodeIDAndName(ctx, node.ID, sourceName)
 	if err != nil {
 		return &output, err
 	}
@@ -380,8 +380,8 @@ func (s *TagService) List(ctx context.Context, in *cores.TagListRequest) (*cores
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if in.GetDeviceId() != "" {
-		query.Where("device_id = ?", in.GetDeviceId())
+	if in.GetNodeId() != "" {
+		query.Where("node_id = ?", in.GetNodeId())
 	}
 
 	if len(in.GetSourceId()) > 0 {
@@ -492,7 +492,7 @@ func (s *TagService) ViewByID(ctx context.Context, id string) (model.Tag, error)
 	return item, nil
 }
 
-func (s *TagService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Tag, error) {
+func (s *TagService) ViewByNodeIDAndName(ctx context.Context, nodeID, name string) (model.Tag, error) {
 	item := model.Tag{}
 
 	sourceName := consts.DEFAULT_SOURCE
@@ -508,7 +508,7 @@ func (s *TagService) ViewByDeviceIDAndName(ctx context.Context, deviceID, name s
 		itemName = splits[1]
 	}
 
-	source, err := s.cs.GetSource().ViewByDeviceIDAndName(ctx, deviceID, sourceName)
+	source, err := s.cs.GetSource().ViewByNodeIDAndName(ctx, nodeID, sourceName)
 	if err != nil {
 		return item, err
 	}
@@ -548,7 +548,7 @@ func (s *TagService) ViewBySourceIDAndAddress(ctx context.Context, sourceID, add
 
 func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
 	output.Id = item.ID
-	output.DeviceId = item.DeviceID
+	output.NodeId = item.NodeID
 	output.SourceId = item.SourceID
 	output.Name = item.Name
 	output.Desc = item.Desc
@@ -566,9 +566,9 @@ func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
 func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
+	err = s.cs.GetSync().setNodeUpdated(ctx, s.cs.GetDB(), item.NodeID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
 	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_TAG, time.Now())
@@ -582,9 +582,9 @@ func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
 func (s *TagService) afterDelete(ctx context.Context, item *model.Tag) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
+	err = s.cs.GetSync().setNodeUpdated(ctx, s.cs.GetDB(), item.NodeID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
 	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_TAG, time.Now())
@@ -657,8 +657,8 @@ func (s *TagService) Pull(ctx context.Context, in *cores.TagPullRequest) (*cores
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if in.GetDeviceId() != "" {
-		query.Where("device_id = ?", in.GetDeviceId())
+	if in.GetNodeId() != "" {
+		query.Where("node_id = ?", in.GetNodeId())
 	}
 
 	if in.GetSourceId() != "" {
@@ -725,9 +725,9 @@ SKIP:
 
 	// insert
 	if insert {
-		// device validation
+		// node validation
 		{
-			_, err = s.cs.GetDevice().viewWithDeleted(ctx, in.GetDeviceId())
+			_, err = s.cs.GetNode().viewWithDeleted(ctx, in.GetNodeId())
 			if err != nil {
 				return &output, err
 			}
@@ -740,8 +740,8 @@ SKIP:
 				return &output, err
 			}
 
-			if source.DeviceID != in.GetDeviceId() {
-				return &output, status.Error(codes.NotFound, "Query: source.DeviceID != in.GetDeviceId()")
+			if source.NodeID != in.GetNodeId() {
+				return &output, status.Error(codes.NotFound, "Query: source.NodeID != in.GetNodeId()")
 			}
 		}
 
@@ -763,7 +763,7 @@ SKIP:
 
 		item := model.Tag{
 			ID:       in.GetId(),
-			DeviceID: in.GetDeviceId(),
+			NodeID:   in.GetNodeId(),
 			SourceID: in.GetSourceId(),
 			Name:     in.GetName(),
 			Desc:     in.GetDesc(),
@@ -786,8 +786,8 @@ SKIP:
 
 	// update
 	if update {
-		if in.GetDeviceId() != item.DeviceID {
-			return &output, status.Error(codes.NotFound, "Query: in.GetDeviceId() != item.DeviceID")
+		if in.GetNodeId() != item.NodeID {
+			return &output, status.Error(codes.NotFound, "Query: in.GetNodeId() != item.NodeID")
 		}
 
 		if in.GetUpdated() <= item.Updated.UnixMicro() {
@@ -864,18 +864,18 @@ func (s *TagService) ViewFromCacheByID(ctx context.Context, id string) (model.Ta
 	return item, nil
 }
 
-func (s *TagService) ViewFromCacheByDeviceIDAndName(ctx context.Context, deviceID, name string) (model.Tag, error) {
+func (s *TagService) ViewFromCacheByNodeIDAndName(ctx context.Context, nodeID, name string) (model.Tag, error) {
 	if !s.cs.dopts.cache {
-		return s.ViewByDeviceIDAndName(ctx, deviceID, name)
+		return s.ViewByNodeIDAndName(ctx, nodeID, name)
 	}
 
-	id := deviceID + name
+	id := nodeID + name
 
 	if option := s.cache.Get(id); option.IsSome() {
 		return option.Unwrap(), nil
 	}
 
-	item, err := s.ViewByDeviceIDAndName(ctx, deviceID, name)
+	item, err := s.ViewByNodeIDAndName(ctx, nodeID, name)
 	if err != nil {
 		return item, err
 	}
@@ -997,17 +997,17 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	// validation device and source
+	// validation node and source
 	{
-		// device
+		// node
 		{
-			device, err := s.cs.GetDevice().ViewFromCacheByID(ctx, item.DeviceID)
+			node, err := s.cs.GetNode().ViewFromCacheByID(ctx, item.NodeID)
 			if err != nil {
 				return &output, err
 			}
 
-			if device.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Device.Status != ON")
+			if node.Status != consts.ON {
+				return &output, status.Errorf(codes.FailedPrecondition, "Node.Status != ON")
 			}
 		}
 
@@ -1047,8 +1047,8 @@ func (s *TagService) GetValueByName(ctx context.Context, in *cores.TagGetValueBy
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if in.GetDeviceId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+		if in.GetNodeId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid NodeID")
 		}
 
 		if in.GetName() == "" {
@@ -1056,12 +1056,12 @@ func (s *TagService) GetValueByName(ctx context.Context, in *cores.TagGetValueBy
 		}
 	}
 
-	item, err := s.ViewFromCacheByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewFromCacheByNodeIDAndName(ctx, in.GetNodeId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
 
-	output.DeviceId = in.GetDeviceId()
+	output.NodeId = in.GetNodeId()
 	output.Id = item.ID
 	output.Name = in.GetName()
 
@@ -1092,8 +1092,8 @@ func (s *TagService) SetValueByName(ctx context.Context, in *cores.TagNameValue)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if in.GetDeviceId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+		if in.GetNodeId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid NodeID")
 		}
 
 		if in.GetName() == "" {
@@ -1105,18 +1105,18 @@ func (s *TagService) SetValueByName(ctx context.Context, in *cores.TagNameValue)
 		}
 	}
 
-	// device
-	device, err := s.cs.GetDevice().ViewFromCacheByID(ctx, in.GetDeviceId())
+	// node
+	node, err := s.cs.GetNode().ViewFromCacheByID(ctx, in.GetNodeId())
 	if err != nil {
 		return &output, err
 	}
 
-	if device.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Device.Status != ON")
+	if node.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Node.Status != ON")
 	}
 
 	// name
-	sourceName := consts.DEFAULT_SOURCE
+	nodeName := consts.DEFAULT_NODE
 	itemName := in.GetName()
 
 	if strings.Contains(itemName, ".") {
@@ -1125,12 +1125,12 @@ func (s *TagService) SetValueByName(ctx context.Context, in *cores.TagNameValue)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 
-		sourceName = splits[0]
+		nodeName = splits[0]
 		itemName = splits[1]
 	}
 
 	// source
-	source, err := s.cs.GetSource().ViewFromCacheByDeviceIDAndName(ctx, device.ID, sourceName)
+	source, err := s.cs.GetSource().ViewFromCacheByNodeIDAndName(ctx, node.ID, nodeName)
 	if err != nil {
 		return &output, err
 	}
@@ -1185,7 +1185,7 @@ func (s *TagService) getTagValue(ctx context.Context, id string) (string, error)
 func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, _ string) error {
 	var err error
 
-	err = s.cs.GetSync().setTagValueUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
+	err = s.cs.GetSync().setTagValueUpdated(ctx, s.cs.GetDB(), item.NodeID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Sync.setTagValueUpdated: %v", err)
 	}
@@ -1268,8 +1268,8 @@ func (s *TagService) PullValue(ctx context.Context, in *cores.TagPullValueReques
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if in.GetDeviceId() != "" {
-		query.Where("device_id = ?", in.GetDeviceId())
+	if in.GetNodeId() != "" {
+		query.Where("node_id = ?", in.GetNodeId())
 	}
 
 	if len(in.GetSourceId()) > 0 {
@@ -1360,7 +1360,7 @@ func (s *TagService) setTagValueUpdated(ctx context.Context, item *model.Tag, va
 
 	item2 := model.TagValue{
 		ID:       item.ID,
-		DeviceID: item.DeviceID,
+		NodeID:   item.NodeID,
 		SourceID: item.SourceID,
 		Value:    value,
 		Updated:  updated,
@@ -1405,7 +1405,7 @@ func (s *TagService) getTagValueUpdated(ctx context.Context, id string) (model.T
 
 func (s *TagService) copyModelToOutputTagValue(output *pb.TagValueUpdated, item *model.TagValue) {
 	output.Id = item.ID
-	output.DeviceId = item.DeviceID
+	output.NodeId = item.NodeID
 	output.SourceId = item.SourceID
 	output.Value = item.Value
 	output.Updated = item.Updated.UnixMicro()
@@ -1485,17 +1485,17 @@ func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	// validation device and source
+	// validation node and source
 	{
-		// device
+		// node
 		{
-			device, err := s.cs.GetDevice().ViewFromCacheByID(ctx, item.DeviceID)
+			node, err := s.cs.GetNode().ViewFromCacheByID(ctx, item.NodeID)
 			if err != nil {
 				return &output, err
 			}
 
-			if device.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Device.Status != ON")
+			if node.Status != consts.ON {
+				return &output, status.Errorf(codes.FailedPrecondition, "Node.Status != ON")
 			}
 		}
 
@@ -1535,8 +1535,8 @@ func (s *TagService) GetWriteByName(ctx context.Context, in *cores.TagGetValueBy
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if in.GetDeviceId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+		if in.GetNodeId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid NodeID")
 		}
 
 		if in.GetName() == "" {
@@ -1544,12 +1544,12 @@ func (s *TagService) GetWriteByName(ctx context.Context, in *cores.TagGetValueBy
 		}
 	}
 
-	item, err := s.ViewFromCacheByDeviceIDAndName(ctx, in.GetDeviceId(), in.GetName())
+	item, err := s.ViewFromCacheByNodeIDAndName(ctx, in.GetNodeId(), in.GetName())
 	if err != nil {
 		return &output, err
 	}
 
-	output.DeviceId = in.GetDeviceId()
+	output.NodeId = in.GetNodeId()
 	output.Id = item.ID
 	output.Name = in.GetName()
 
@@ -1580,8 +1580,8 @@ func (s *TagService) SetWriteByName(ctx context.Context, in *cores.TagNameValue)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if in.GetDeviceId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid DeviceID")
+		if in.GetNodeId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid NodeID")
 		}
 
 		if in.GetName() == "" {
@@ -1593,18 +1593,18 @@ func (s *TagService) SetWriteByName(ctx context.Context, in *cores.TagNameValue)
 		}
 	}
 
-	// device
-	device, err := s.cs.GetDevice().ViewFromCacheByID(ctx, in.GetDeviceId())
+	// node
+	node, err := s.cs.GetNode().ViewFromCacheByID(ctx, in.GetNodeId())
 	if err != nil {
 		return &output, err
 	}
 
-	if device.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Device.Status != ON")
+	if node.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Node.Status != ON")
 	}
 
 	// name
-	sourceName := consts.DEFAULT_SOURCE
+	nodeName := consts.DEFAULT_NODE
 	itemName := in.GetName()
 
 	if strings.Contains(itemName, ".") {
@@ -1613,12 +1613,12 @@ func (s *TagService) SetWriteByName(ctx context.Context, in *cores.TagNameValue)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
 		}
 
-		sourceName = splits[0]
+		nodeName = splits[0]
 		itemName = splits[1]
 	}
 
 	// source
-	source, err := s.cs.GetSource().ViewFromCacheByDeviceIDAndName(ctx, device.ID, sourceName)
+	source, err := s.cs.GetSource().ViewFromCacheByNodeIDAndName(ctx, node.ID, nodeName)
 	if err != nil {
 		return &output, err
 	}
@@ -1677,7 +1677,7 @@ func (s *TagService) getTagWrite(ctx context.Context, id string) (string, error)
 func (s *TagService) afterUpdateWrite(ctx context.Context, item *model.Tag, _ string) error {
 	var err error
 
-	err = s.cs.GetSync().setTagWriteUpdated(ctx, s.cs.GetDB(), item.DeviceID, time.Now())
+	err = s.cs.GetSync().setTagWriteUpdated(ctx, s.cs.GetDB(), item.NodeID, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "Sync.setTagWriteUpdated: %v", err)
 	}
@@ -1760,8 +1760,8 @@ func (s *TagService) PullWrite(ctx context.Context, in *cores.TagPullValueReques
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
-	if in.GetDeviceId() != "" {
-		query.Where("device_id = ?", in.GetDeviceId())
+	if in.GetNodeId() != "" {
+		query.Where("node_id = ?", in.GetNodeId())
 	}
 
 	if len(in.GetSourceId()) > 0 {
@@ -1852,7 +1852,7 @@ func (s *TagService) setTagWriteUpdated(ctx context.Context, item *model.Tag, va
 
 	item2 := model.TagWrite{
 		ID:       item.ID,
-		DeviceID: item.DeviceID,
+		NodeID:   item.NodeID,
 		SourceID: item.SourceID,
 		Value:    value,
 		Updated:  updated,
@@ -1897,7 +1897,7 @@ func (s *TagService) getTagWriteUpdated(ctx context.Context, id string) (model.T
 
 func (s *TagService) copyModelToOutputTagWrite(output *pb.TagValueUpdated, item *model.TagWrite) {
 	output.Id = item.ID
-	output.DeviceId = item.DeviceID
+	output.NodeId = item.NodeID
 	output.SourceId = item.SourceID
 	output.Value = item.Value
 	output.Updated = item.Updated.UnixMicro()

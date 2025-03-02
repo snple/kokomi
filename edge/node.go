@@ -2,17 +2,14 @@ package edge
 
 import (
 	"context"
-	"errors"
-	"io"
+	"database/sql"
 	"sync"
 	"time"
 
-	"github.com/cenkalti/backoff/v4"
-	"github.com/snple/beacon/consts"
+	"github.com/snple/beacon/edge/model"
 	"github.com/snple/beacon/pb"
-	"github.com/snple/beacon/pb/nodes"
-	"github.com/snple/beacon/util/metadata"
-	"google.golang.org/grpc"
+	"github.com/snple/beacon/pb/edges"
+	"github.com/snple/types/cache"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -20,589 +17,432 @@ import (
 type NodeService struct {
 	es *EdgeService
 
-	NodeConn *grpc.ClientConn
-
-	token string
+	cache *cache.Value[model.Node]
 	lock  sync.RWMutex
 
-	ctx     context.Context
-	cancel  func()
-	closeWG sync.WaitGroup
+	edges.UnimplementedNodeServiceServer
 }
 
-func newNodeService(es *EdgeService) (*NodeService, error) {
-	var err error
-
-	es.Logger().Sugar().Infof("link node service: %v", es.dopts.NodeOptions.Addr)
-
-	nodeConn, err := grpc.NewClient(es.dopts.NodeOptions.Addr, es.dopts.NodeOptions.GRPCOptions...)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx, cancel := context.WithCancel(es.Context())
-
-	s := &NodeService{
-		es:       es,
-		NodeConn: nodeConn,
-		ctx:      ctx,
-		cancel:   cancel,
-	}
-
-	return s, nil
-}
-
-func (s *NodeService) start() {
-	s.closeWG.Add(1)
-	defer s.closeWG.Done()
-
-	s.es.Logger().Sugar().Info("node service started")
-
-	for {
-		select {
-		case <-s.ctx.Done():
-			return
-		default:
-			s.try()
-		}
+func newNodeService(es *EdgeService) *NodeService {
+	return &NodeService{
+		es: es,
 	}
 }
 
-func (s *NodeService) stop() {
-	s.cancel()
-	s.closeWG.Wait()
-}
+/*
+	func (s *NodeService) Create(ctx context.Context, in *pb.Node) (*pb.Node, error) {
+		var output pb.Node
+		var err error
 
-func (s *NodeService) push() error {
-	// login
-	operation := func() error {
-		err := s.login(s.ctx)
-		if err != nil {
-			s.es.Logger().Sugar().Errorf("device login: %v", err)
-		}
-
-		return err
-	}
-
-	err := backoff.Retry(operation, backoff.WithContext(backoff.NewExponentialBackOff(), s.ctx))
-	if err != nil {
-		s.es.Logger().Sugar().Errorf("backoff.Retry: %v", err)
-		return err
-	}
-
-	s.es.Logger().Sugar().Info("device login success")
-
-	s.es.GetSync().setDeviceUpdatedLocalToRemote(s.ctx, time.Time{})
-
-	if err := s.sync2(s.ctx); err != nil {
-		return err
-	}
-
-	if err := s.syncTagValue2(s.ctx); err != nil {
-		return err
-	}
-
-	s.es.Logger().Sugar().Info("push success")
-
-	return nil
-}
-
-func (s *NodeService) pull() error {
-	// login
-	operation := func() error {
-		err := s.login(s.ctx)
-		if err != nil {
-			s.es.Logger().Sugar().Errorf("device login: %v", err)
-		}
-
-		return err
-	}
-
-	err := backoff.Retry(operation, backoff.WithContext(backoff.NewExponentialBackOff(), s.ctx))
-	if err != nil {
-		s.es.Logger().Sugar().Errorf("backoff.Retry: %v", err)
-		return err
-	}
-
-	s.es.Logger().Sugar().Info("device login success")
-
-	s.es.GetSync().setDeviceUpdatedRemoteToLocal(s.ctx, time.Time{})
-
-	if err := s.sync1(s.ctx); err != nil {
-		return err
-	}
-
-	if err := s.syncTagValue1(s.ctx); err != nil {
-		return err
-	}
-
-	s.es.Logger().Sugar().Info("pull success")
-
-	return nil
-}
-
-func (s *NodeService) try() {
-	// login
-	operation := func() error {
-		err := s.login(s.ctx)
-		if err != nil {
-			s.es.Logger().Sugar().Infof("device login: %v", err)
-		}
-
-		return err
-	}
-
-	err := backoff.Retry(operation, backoff.WithContext(backoff.NewExponentialBackOff(), s.ctx))
-	if err != nil {
-		s.es.Logger().Sugar().Errorf("backoff.Retry: %v", err)
-		return
-	}
-
-	s.es.Logger().Sugar().Info("device login success")
-
-	s.DeviceLink(s.ctx)
-	s.link(true)
-	defer s.link(false)
-
-	if err := s.sync(s.ctx); err != nil {
-		s.es.Logger().Sugar().Errorf("sync: %v", err)
-		time.Sleep(time.Second * 3)
-		return
-	}
-
-	ctx, cancel := context.WithCancel(s.ctx)
-	defer cancel()
-
-	// start ticker
-	go s.ticker(ctx)
-
-	// start realtime sync
-	if s.es.dopts.SyncOptions.Realtime {
-		go s.waitRemoteDeviceUpdated(ctx)
-		go s.waitLocalDeviceUpdated(ctx)
-		go s.waitRemoteTagValueUpdated(ctx)
-		go s.waitLocalTagValueUpdated(ctx)
-		go s.waitRemoteTagWriteUpdated(ctx)
-		go s.waitLocalTagWriteUpdated(ctx)
-	}
-
-	// keep alive
-	{
-		ctx = metadata.SetToken(ctx, s.GetToken())
-
-		stream, err := s.DeviceServiceClient().KeepAlive(ctx, &pb.MyEmpty{})
-		if err != nil {
-			s.es.Logger().Sugar().Errorf("KeepAlive: %v", err)
-			return
-		}
-
-		for {
-			reply, err := stream.Recv()
-			if err != nil {
-				if err == io.EOF {
-					break
-				}
-
-				if code, ok := status.FromError(err); ok {
-					if code.Code() == codes.Canceled {
-						return
-					}
-				}
-
-				s.es.Logger().Sugar().Errorf("KeepAlive.Recv(): %v", err)
-				return
+		// basic validation
+		{
+			if in == nil {
+				return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 			}
 
-			s.es.Logger().Sugar().Infof("keep alive reply: %+v", reply)
-		}
-	}
-}
-
-func (s *NodeService) IsLinked() bool {
-	return s.es.GetStatus().GetDeviceLink() == consts.ON
-}
-
-func (s *NodeService) link(value bool) {
-	if value {
-		s.es.GetStatus().SetDeviceLink(consts.ON)
-	} else {
-		s.es.GetStatus().SetDeviceLink(consts.OFF)
-	}
-}
-
-func (s *NodeService) ticker(ctx context.Context) {
-	s.closeWG.Add(1)
-	defer s.closeWG.Done()
-
-	tokenRefreshTicker := time.NewTicker(s.es.dopts.SyncOptions.TokenRefresh)
-	defer tokenRefreshTicker.Stop()
-
-	linkStatusTicker := time.NewTicker(s.es.dopts.SyncOptions.Link)
-	defer linkStatusTicker.Stop()
-
-	syncTicker := time.NewTicker(s.es.dopts.SyncOptions.Interval)
-	defer syncTicker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			s.es.Logger().Sugar().Info("ticker: ctx.Done()")
-			return
-		case <-tokenRefreshTicker.C:
-			err := s.login(ctx)
-			if err != nil {
-				s.es.Logger().Sugar().Errorf("device login: %v", err)
+			if in.GetName() == "" {
+				return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Name")
 			}
-		case <-linkStatusTicker.C:
-			err := s.DeviceLink(ctx)
+		}
+
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "Node.Name min 2 character")
+			}
+
+			err = s.es.GetDB().NewSelect().Model(&model.Node{}).Where("name = ?", in.GetName()).Scan(ctx)
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("link device : %v", err)
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
 			} else {
-				s.es.Logger().Sugar().Info("link device ticker success")
-			}
-
-		case <-syncTicker.C:
-			if err := s.sync(ctx); err != nil {
-				s.es.Logger().Sugar().Errorf("sync: %v", err)
+				return &output, status.Error(codes.AlreadyExists, "Node.Name must be unique")
 			}
 		}
+
+		item := model.Node{
+			ID:      in.GetId(),
+			Name:    in.GetName(),
+			Desc:    in.GetDesc(),
+			Tags:    in.GetTags(),
+			Config:  in.GetConfig(),
+			Created: time.Now(),
+			Updated: time.Now(),
+		}
+
+		if item.ID == "" {
+			item.ID = util.RandomID()
+		}
+
+		_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
+		if err != nil {
+			return &output, status.Errorf(codes.Internal, "Insert: %v", err)
+		}
+
+		if err = s.afterUpdate(ctx, &item); err != nil {
+			return &output, err
+		}
+
+		s.copyModelToOutput(&output, &item)
+
+		return &output, nil
 	}
-}
+*/
 
-func (s *NodeService) SyncServiceClient() nodes.SyncServiceClient {
-	return nodes.NewSyncServiceClient(s.NodeConn)
-}
-
-func (s *NodeService) DeviceServiceClient() nodes.DeviceServiceClient {
-	return nodes.NewDeviceServiceClient(s.NodeConn)
-}
-
-func (s *NodeService) SlotServiceClient() nodes.SlotServiceClient {
-	return nodes.NewSlotServiceClient(s.NodeConn)
-}
-
-func (s *NodeService) SourceServiceClient() nodes.SourceServiceClient {
-	return nodes.NewSourceServiceClient(s.NodeConn)
-}
-
-func (s *NodeService) TagServiceClient() nodes.TagServiceClient {
-	return nodes.NewTagServiceClient(s.NodeConn)
-}
-
-func (s *NodeService) ConstServiceClient() nodes.ConstServiceClient {
-	return nodes.NewConstServiceClient(s.NodeConn)
-}
-
-func (s *NodeService) GetToken() string {
-	s.lock.RLock()
-	defer s.lock.RUnlock()
-	return s.token
-}
-
-func (s *NodeService) SetToken(ctx context.Context) context.Context {
-	s.lock.RLock()
-	defer s.lock.RUnlock()
-	return metadata.SetToken(ctx, s.token)
-}
-
-func (s *NodeService) DeviceLink(ctx context.Context) error {
-	ctx = metadata.SetToken(ctx, s.GetToken())
-
-	request := &nodes.DeviceLinkRequest{Status: consts.ON}
-	_, err := s.DeviceServiceClient().Link(ctx, request)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *NodeService) login(ctx context.Context) error {
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
+func (s *NodeService) Update(ctx context.Context, in *pb.Node) (*pb.Node, error) {
+	var output pb.Node
 	var err error
 
-	request := &nodes.DeviceLoginRequest{
-		Id:     s.es.dopts.deviceID,
-		Secret: s.es.dopts.secret,
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetName() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Name")
+		}
 	}
 
-	// try login
-	reply, err := s.DeviceServiceClient().Login(ctx, request)
+	// name validation
+	{
+		if len(in.GetName()) < 2 {
+			return &output, status.Error(codes.InvalidArgument, "Node.Name min 2 character")
+		}
+	}
+
+	item, err := s.ViewByID(ctx)
 	if err != nil {
-		return err
+		return &output, err
 	}
 
-	if len(reply.GetToken()) == 0 {
-		return errors.New("login: reply token is empty")
+	item.Name = in.GetName()
+	item.Desc = in.GetDesc()
+	item.Tags = in.GetTags()
+	item.Config = in.GetConfig()
+	item.Updated = time.Now()
+
+	_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
+	if err != nil {
+		return &output, status.Errorf(codes.Internal, "Update: %v", err)
 	}
 
-	// set token
-	s.lock.Lock()
-	s.token = reply.GetToken()
-	s.lock.Unlock()
+	// update node id
+	if len(in.GetId()) > 0 && in.GetId() != item.ID {
+		_, err = s.es.GetDB().NewUpdate().Model(&item).Set("id = ?", in.GetId()).WherePK().Exec(ctx)
+		if err != nil {
+			return &output, status.Errorf(codes.Internal, "Update: %v", err)
+		}
+	}
+
+	if err = s.afterUpdate(ctx, &item); err != nil {
+		return &output, err
+	}
+
+	s.copyModelToOutput(&output, &item)
+
+	return &output, nil
+}
+
+func (s *NodeService) View(ctx context.Context, in *pb.MyEmpty) (*pb.Node, error) {
+	var output pb.Node
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
+
+	item, err := s.ViewByID(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	s.copyModelToOutput(&output, &item)
+
+	return &output, nil
+}
+
+func (s *NodeService) Destory(ctx context.Context, in *pb.MyEmpty) (*pb.MyBool, error) {
+	var err error
+	var output pb.MyBool
+
+	err = func() error {
+		models := []any{
+			(*model.Slot)(nil),
+			(*model.Source)(nil),
+			(*model.Tag)(nil),
+			(*model.Const)(nil),
+		}
+
+		tx, err := s.es.GetDB().BeginTx(ctx, nil)
+		if err != nil {
+			return status.Errorf(codes.Internal, "BeginTx: %v", err)
+		}
+		var done bool
+		defer func() {
+			if !done {
+				_ = tx.Rollback()
+			}
+		}()
+
+		for _, model := range models {
+			_, err = tx.NewDelete().Model(model).Where("1 = 1").ForceDelete().Exec(ctx)
+			if err != nil {
+				return status.Errorf(codes.Internal, "Delete: %v", err)
+			}
+		}
+
+		done = true
+		err = tx.Commit()
+		if err != nil {
+			return status.Errorf(codes.Internal, "Commit: %v", err)
+		}
+
+		return nil
+	}()
+
+	if err != nil {
+		return &output, err
+	}
+
+	output.Bool = true
+
+	return &output, nil
+}
+
+func (s *NodeService) ViewByID(ctx context.Context) (model.Node, error) {
+	item := model.Node{}
+
+	err := s.es.GetDB().NewSelect().Model(&item).Scan(ctx)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return item, status.Errorf(codes.NotFound, "Query: %v", err)
+		}
+
+		return item, status.Errorf(codes.Internal, "Query: %v", err)
+	}
+
+	return item, nil
+}
+
+func (s *NodeService) copyModelToOutput(output *pb.Node, item *model.Node) {
+	output.Id = item.ID
+	output.Name = item.Name
+	output.Desc = item.Desc
+	output.Tags = item.Tags
+	output.Config = item.Config
+	output.Link = s.es.GetStatus().GetNodeLink()
+	output.Created = item.Created.UnixMicro()
+	output.Updated = item.Updated.UnixMicro()
+	output.Deleted = item.Updated.UnixMicro()
+}
+
+func (s *NodeService) afterUpdate(ctx context.Context, _ *model.Node) error {
+	var err error
+
+	err = s.es.GetSync().setNodeUpdated(ctx, time.Now())
+	if err != nil {
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
+	}
 
 	return nil
 }
 
-func (s *NodeService) waitRemoteDeviceUpdated(ctx context.Context) {
-	s.closeWG.Add(1)
-	defer s.closeWG.Done()
+func (s *NodeService) ViewWithDeleted(ctx context.Context, in *pb.MyEmpty) (*pb.Node, error) {
+	var output pb.Node
+	var err error
 
-	for {
-		ctx := metadata.SetToken(ctx, s.GetToken())
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+	}
 
-		stream, err := s.SyncServiceClient().WaitDeviceUpdated(ctx, &pb.MyEmpty{})
+	item, err := s.viewWithDeleted(ctx)
+	if err != nil {
+		return &output, err
+	}
+
+	s.copyModelToOutput(&output, &item)
+
+	return &output, nil
+}
+
+func (s *NodeService) viewWithDeleted(ctx context.Context) (model.Node, error) {
+	item := model.Node{}
+
+	err := s.es.GetDB().NewSelect().Model(&item).WhereAllWithDeleted().Scan(ctx)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return item, status.Errorf(codes.NotFound, "Query: %v, Node.ID: %v", err, item.ID)
+		}
+
+		return item, status.Errorf(codes.Internal, "Query: %v", err)
+	}
+
+	return item, nil
+}
+
+func (s *NodeService) Sync(ctx context.Context, in *pb.Node) (*pb.MyBool, error) {
+	var output pb.MyBool
+	var err error
+
+	// basic validation
+	{
+		if in == nil {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
+		}
+
+		if in.GetId() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid NodeID")
+		}
+
+		if in.GetName() == "" {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Name")
+		}
+
+		if in.GetUpdated() == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Updated")
+		}
+	}
+
+	insert := false
+	update := false
+
+	item, err := s.viewWithDeleted(ctx)
+	if err != nil {
+		if code, ok := status.FromError(err); ok {
+			if code.Code() == codes.NotFound {
+				insert = true
+				goto SKIP
+			}
+		}
+
+		return &output, err
+	}
+
+	update = true
+
+SKIP:
+
+	//	insert
+	if insert {
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "Node.Name min 2 character")
+			}
+
+			err = s.es.GetDB().NewSelect().Model(&model.Node{}).Where("name = ?", in.GetName()).Scan(ctx)
+			if err != nil {
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				return &output, status.Error(codes.AlreadyExists, "Node.Name must be unique")
+			}
+		}
+
+		item := model.Node{
+			ID:      in.GetId(),
+			Name:    in.GetName(),
+			Desc:    in.GetDesc(),
+			Tags:    in.GetTags(),
+			Config:  in.GetConfig(),
+			Created: time.UnixMicro(in.GetCreated()),
+			Updated: time.UnixMicro(in.GetUpdated()),
+			Deleted: time.UnixMicro(in.GetDeleted()),
+		}
+
+		_, err = s.es.GetDB().NewInsert().Model(&item).Exec(ctx)
 		if err != nil {
-			if code, ok := status.FromError(err); ok {
-				if code.Code() == codes.Canceled {
-					return
-				}
-			}
-
-			s.es.Logger().Sugar().Errorf("WaitDeviceUpdated: %v", err)
-
-			// retry
-			time.Sleep(s.es.dopts.SyncOptions.Retry)
-			continue
-		}
-
-		for {
-			_, err := stream.Recv()
-			if err != nil {
-				if err == io.EOF {
-					break
-				}
-
-				if code, ok := status.FromError(err); ok {
-					if code.Code() == codes.Canceled {
-						return
-					}
-				}
-
-				s.es.Logger().Sugar().Errorf("WaitDeviceUpdated.Recv(): %v", err)
-				return
-			}
-
-			ctx = metadata.SetToken(ctx, s.GetToken())
-
-			err = s.sync1(ctx)
-			if err != nil {
-				s.es.Logger().Sugar().Errorf("sync1: %v", err)
-			}
+			return &output, status.Errorf(codes.Internal, "Insert: %v", err)
 		}
 	}
-}
 
-func (s *NodeService) waitLocalDeviceUpdated(ctx context.Context) {
-	s.closeWG.Add(1)
-	defer s.closeWG.Done()
+	// update
+	if update {
+		if in.GetUpdated() <= item.Updated.UnixMicro() {
+			return &output, nil
+		}
 
-	notify := s.es.GetSync().Notify(NOTIFY)
-	defer notify.Close()
+		// name validation
+		{
+			if len(in.GetName()) < 2 {
+				return &output, status.Error(codes.InvalidArgument, "Node.Name min 2 character")
+			}
 
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-notify.Wait():
-			ctx = metadata.SetToken(ctx, s.GetToken())
-
-			err := s.sync2(ctx)
+			modelItem := model.Node{}
+			err = s.es.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("sync2: %v", err)
+				if err != sql.ErrNoRows {
+					return &output, status.Errorf(codes.Internal, "Query: %v", err)
+				}
+			} else {
+				if modelItem.ID != item.ID {
+					return &output, status.Error(codes.AlreadyExists, "Node.Name must be unique")
+				}
 			}
 		}
-	}
-}
 
-func (s *NodeService) waitRemoteTagValueUpdated(ctx context.Context) {
-	s.closeWG.Add(1)
-	defer s.closeWG.Done()
+		item.Name = in.GetName()
+		item.Desc = in.GetDesc()
+		item.Tags = in.GetTags()
+		item.Config = in.GetConfig()
+		item.Updated = time.UnixMicro(in.GetUpdated())
+		item.Deleted = time.UnixMicro(in.GetDeleted())
 
-	for {
-		ctx := metadata.SetToken(ctx, s.GetToken())
-
-		stream, err := s.SyncServiceClient().WaitTagValueUpdated(ctx, &pb.MyEmpty{})
+		_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().WhereAllWithDeleted().Exec(ctx)
 		if err != nil {
-			if code, ok := status.FromError(err); ok {
-				if code.Code() == codes.Canceled {
-					return
-				}
-			}
-
-			s.es.Logger().Sugar().Errorf("WaitTagValueUpdated: %v", err)
-
-			// retry
-			time.Sleep(s.es.dopts.SyncOptions.Retry)
-			continue
+			return &output, status.Errorf(codes.Internal, "Update: %v", err)
 		}
 
-		for {
-			_, err := stream.Recv()
+		// update node id
+		if len(in.GetId()) > 0 && in.GetId() != item.ID {
+			_, err = s.es.GetDB().NewUpdate().Model(&item).Set("id = ?", in.GetId()).WherePK().WhereAllWithDeleted().Exec(ctx)
 			if err != nil {
-				if err == io.EOF {
-					break
-				}
-				if code, ok := status.FromError(err); ok {
-					if code.Code() == codes.Canceled {
-						return
-					}
-				}
-
-				s.es.Logger().Sugar().Errorf("WaitTagValueUpdated.Recv(): %v", err)
-				return
-			}
-
-			ctx = metadata.SetToken(ctx, s.GetToken())
-
-			err = s.syncTagValue1(ctx)
-			if err != nil {
-				s.es.Logger().Sugar().Errorf("syncTagValue1: %v", err)
+				return &output, status.Errorf(codes.Internal, "Update: %v", err)
 			}
 		}
 	}
-}
 
-func (s *NodeService) waitLocalTagValueUpdated(ctx context.Context) {
-	s.closeWG.Add(1)
-	defer s.closeWG.Done()
-
-	notify := s.es.GetSync().Notify(NOTIFY_TV)
-	defer notify.Close()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-notify.Wait():
-			ctx = metadata.SetToken(ctx, s.GetToken())
-
-			err := s.syncTagValue2(ctx)
-			if err != nil {
-				s.es.Logger().Sugar().Errorf("syncTagValue2: %v", err)
-			}
-		}
-	}
-}
-
-func (s *NodeService) waitRemoteTagWriteUpdated(ctx context.Context) {
-	s.closeWG.Add(1)
-	defer s.closeWG.Done()
-
-	for {
-		ctx := metadata.SetToken(ctx, s.GetToken())
-
-		stream, err := s.SyncServiceClient().WaitTagWriteUpdated(ctx, &pb.MyEmpty{})
-		if err != nil {
-			if code, ok := status.FromError(err); ok {
-				if code.Code() == codes.Canceled {
-					return
-				}
-			}
-
-			s.es.Logger().Sugar().Errorf("WaitTagWriteUpdated: %v", err)
-
-			// retry
-			time.Sleep(s.es.dopts.SyncOptions.Retry)
-			continue
-		}
-
-		for {
-			_, err := stream.Recv()
-			if err != nil {
-				if err == io.EOF {
-					break
-				}
-				if code, ok := status.FromError(err); ok {
-					if code.Code() == codes.Canceled {
-						return
-					}
-				}
-
-				s.es.Logger().Sugar().Errorf("WaitTagWriteUpdated.Recv(): %v", err)
-				return
-			}
-
-			ctx = metadata.SetToken(ctx, s.GetToken())
-
-			err = s.syncTagWrite1(ctx)
-			if err != nil {
-				s.es.Logger().Sugar().Errorf("syncTagWrite1: %v", err)
-			}
-		}
-	}
-}
-
-func (s *NodeService) waitLocalTagWriteUpdated(ctx context.Context) {
-	s.closeWG.Add(1)
-	defer s.closeWG.Done()
-
-	notify := s.es.GetSync().Notify(NOTIFY_TW)
-	defer notify.Close()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-notify.Wait():
-			ctx = metadata.SetToken(ctx, s.GetToken())
-
-			err := s.syncTagWrite2(ctx)
-			if err != nil {
-				s.es.Logger().Sugar().Errorf("syncTagWrite2: %v", err)
-			}
-		}
-	}
-}
-
-func (s *NodeService) sync(ctx context.Context) error {
-	ctx = metadata.SetToken(ctx, s.GetToken())
-
-	if err := s.sync1(ctx); err != nil {
-		return err
+	if err = s.afterUpdate(ctx, &item); err != nil {
+		return &output, err
 	}
 
-	if err := s.sync2(ctx); err != nil {
-		return err
+	output.Bool = true
+
+	return &output, nil
+}
+
+// cache
+
+func (s *NodeService) ViewFromCacheByID(ctx context.Context) (model.Node, error) {
+	if !s.es.dopts.cache {
+		return s.ViewByID(ctx)
 	}
 
-	if err := s.syncTagValue1(ctx); err != nil {
-		return err
+	s.lock.RLock()
+	if s.cache.Alive() {
+		s.lock.RUnlock()
+		return s.cache.Data, nil
+	}
+	s.lock.RUnlock()
+
+	item, err := s.ViewByID(ctx)
+	if err != nil {
+		return item, err
 	}
 
-	if err := s.syncTagValue2(ctx); err != nil {
-		return err
-	}
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	value := cache.NewValue(item, s.es.dopts.cacheTTL)
+	s.cache = &value
 
-	if err := s.syncTagWrite1(ctx); err != nil {
-		return err
-	}
-
-	return s.syncTagWrite2(ctx)
-}
-
-func (s *NodeService) sync1(ctx context.Context) error {
-	return s.syncRemoteToLocal(ctx)
-}
-
-func (s *NodeService) sync2(ctx context.Context) error {
-	return s.syncLocalToRemote(ctx)
-}
-
-func (s *NodeService) syncTagValue1(ctx context.Context) error {
-	return s.syncTagValueRemoteToLocal(ctx)
-}
-
-func (s *NodeService) syncTagValue2(ctx context.Context) error {
-	return s.syncTagValueLocalToRemote(ctx)
-}
-
-func (s *NodeService) syncTagWrite1(ctx context.Context) error {
-	return s.syncTagWriteRemoteToLocal(ctx)
-}
-
-func (s *NodeService) syncTagWrite2(ctx context.Context) error {
-	return s.syncTagWriteLocalToRemote(ctx)
+	return item, nil
 }

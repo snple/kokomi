@@ -17,25 +17,25 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type DeviceService struct {
+type NodeService struct {
 	cs *CoreService
 
-	cache *cache.Cache[model.Device]
+	cache *cache.Cache[model.Node]
 
-	cores.UnimplementedDeviceServiceServer
+	cores.UnimplementedNodeServiceServer
 }
 
-func newDeviceService(cs *CoreService) *DeviceService {
-	s := &DeviceService{
+func newNodeService(cs *CoreService) *NodeService {
+	s := &NodeService{
 		cs:    cs,
-		cache: cache.NewCache[model.Device](nil),
+		cache: cache.NewCache[model.Node](nil),
 	}
 
 	return s
 }
 
-func (s *DeviceService) Create(ctx context.Context, in *pb.Device) (*pb.Device, error) {
-	var output pb.Device
+func (s *NodeService) Create(ctx context.Context, in *pb.Node) (*pb.Node, error) {
+	var output pb.Node
 	var err error
 
 	// basic validation
@@ -45,27 +45,27 @@ func (s *DeviceService) Create(ctx context.Context, in *pb.Device) (*pb.Device, 
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Name")
 		}
 	}
 
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "Device.Name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Node.Name min 2 character")
 		}
 
-		err = s.cs.GetDB().NewSelect().Model(&model.Device{}).Where("name = ?", in.GetName()).Scan(ctx)
+		err = s.cs.GetDB().NewSelect().Model(&model.Node{}).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "Device.Name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Node.Name must be unique")
 		}
 	}
 
-	item := model.Device{
+	item := model.Node{
 		ID:      in.GetId(),
 		Name:    in.GetName(),
 		Desc:    in.GetDesc(),
@@ -95,8 +95,8 @@ func (s *DeviceService) Create(ctx context.Context, in *pb.Device) (*pb.Device, 
 	return &output, nil
 }
 
-func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, error) {
-	var output pb.Device
+func (s *NodeService) Update(ctx context.Context, in *pb.Node) (*pb.Node, error) {
+	var output pb.Node
 	var err error
 
 	// basic validation
@@ -106,11 +106,11 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.ID")
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Name")
 		}
 	}
 
@@ -122,10 +122,10 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "Device.Name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Node.Name min 2 character")
 		}
 
-		modelItem := model.Device{}
+		modelItem := model.Node{}
 		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
@@ -133,7 +133,7 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "Device.Name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Node.Name must be unique")
 			}
 		}
 	}
@@ -160,8 +160,8 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 	return &output, nil
 }
 
-func (s *DeviceService) View(ctx context.Context, in *pb.Id) (*pb.Device, error) {
-	var output pb.Device
+func (s *NodeService) View(ctx context.Context, in *pb.Id) (*pb.Node, error) {
+	var output pb.Node
 	var err error
 
 	// basic validation
@@ -171,7 +171,7 @@ func (s *DeviceService) View(ctx context.Context, in *pb.Id) (*pb.Device, error)
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.ID")
 		}
 	}
 
@@ -185,8 +185,8 @@ func (s *DeviceService) View(ctx context.Context, in *pb.Id) (*pb.Device, error)
 	return &output, nil
 }
 
-func (s *DeviceService) Name(ctx context.Context, in *pb.Name) (*pb.Device, error) {
-	var output pb.Device
+func (s *NodeService) Name(ctx context.Context, in *pb.Name) (*pb.Node, error) {
+	var output pb.Node
 	var err error
 
 	// basic validation
@@ -196,7 +196,7 @@ func (s *DeviceService) Name(ctx context.Context, in *pb.Name) (*pb.Device, erro
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Name")
 		}
 	}
 
@@ -210,7 +210,7 @@ func (s *DeviceService) Name(ctx context.Context, in *pb.Name) (*pb.Device, erro
 	return &output, nil
 }
 
-func (s *DeviceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *NodeService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -221,7 +221,7 @@ func (s *DeviceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.ID")
 		}
 	}
 
@@ -247,9 +247,9 @@ func (s *DeviceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 	return &output, nil
 }
 
-func (s *DeviceService) List(ctx context.Context, in *cores.DeviceListRequest) (*cores.DeviceListResponse, error) {
+func (s *NodeService) List(ctx context.Context, in *cores.NodeListRequest) (*cores.NodeListResponse, error) {
 	var err error
-	var output cores.DeviceListResponse
+	var output cores.NodeListResponse
 
 	// basic validation
 	{
@@ -269,7 +269,7 @@ func (s *DeviceService) List(ctx context.Context, in *cores.DeviceListRequest) (
 
 	output.Page = in.GetPage()
 
-	var items []model.Device
+	var items []model.Node
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -319,17 +319,17 @@ func (s *DeviceService) List(ctx context.Context, in *cores.DeviceListRequest) (
 	output.Count = uint32(count)
 
 	for i := 0; i < len(items); i++ {
-		item := pb.Device{}
+		item := pb.Node{}
 
 		s.copyModelToOutput(&item, &items[i])
 
-		output.Device = append(output.Device, &item)
+		output.Node = append(output.Node, &item)
 	}
 
 	return &output, nil
 }
 
-func (s *DeviceService) Link(ctx context.Context, in *cores.DeviceLinkRequest) (*pb.MyBool, error) {
+func (s *NodeService) Link(ctx context.Context, in *cores.NodeLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -340,7 +340,7 @@ func (s *DeviceService) Link(ctx context.Context, in *cores.DeviceLinkRequest) (
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.ID")
 		}
 	}
 
@@ -356,7 +356,7 @@ func (s *DeviceService) Link(ctx context.Context, in *cores.DeviceLinkRequest) (
 	return &output, nil
 }
 
-func (s *DeviceService) Destory(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *NodeService) Destory(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -394,7 +394,7 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.Id) (*pb.MyBool, err
 		}()
 
 		for _, model := range models {
-			_, err = tx.NewDelete().Model(model).Where("device_id = ?", item.ID).ForceDelete().Exec(ctx)
+			_, err = tx.NewDelete().Model(model).Where("node_id = ?", item.ID).ForceDelete().Exec(ctx)
 			if err != nil {
 				return status.Errorf(codes.Internal, "Delete: %v", err)
 			}
@@ -423,7 +423,7 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.Id) (*pb.MyBool, err
 	return &output, nil
 }
 
-func (s *DeviceService) Clone(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *NodeService) Clone(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -434,7 +434,7 @@ func (s *DeviceService) Clone(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.ID")
 		}
 	}
 
@@ -449,7 +449,7 @@ func (s *DeviceService) Clone(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		}
 	}()
 
-	err = s.cs.getClone().device(ctx, tx, in.GetId())
+	err = s.cs.getClone().node(ctx, tx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -465,15 +465,15 @@ func (s *DeviceService) Clone(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 	return &output, nil
 }
 
-func (s *DeviceService) ViewByID(ctx context.Context, id string) (model.Device, error) {
-	item := model.Device{
+func (s *NodeService) ViewByID(ctx context.Context, id string) (model.Node, error) {
+	item := model.Node{
 		ID: id,
 	}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Device.ID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Node.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -482,13 +482,13 @@ func (s *DeviceService) ViewByID(ctx context.Context, id string) (model.Device, 
 	return item, nil
 }
 
-func (s *DeviceService) ViewByName(ctx context.Context, name string) (model.Device, error) {
-	item := model.Device{}
+func (s *NodeService) ViewByName(ctx context.Context, name string) (model.Node, error) {
+	item := model.Node{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Device.Name: %v", err, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Node.Name: %v", err, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -497,7 +497,7 @@ func (s *DeviceService) ViewByName(ctx context.Context, name string) (model.Devi
 	return item, nil
 }
 
-func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device) {
+func (s *NodeService) copyModelToOutput(output *pb.Node, item *model.Node) {
 	output.Id = item.ID
 	output.Name = item.Name
 	output.Desc = item.Desc
@@ -511,15 +511,15 @@ func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device)
 	output.Deleted = item.Deleted.UnixMicro()
 }
 
-func (s *DeviceService) afterUpdate(ctx context.Context, item *model.Device) error {
+func (s *NodeService) afterUpdate(ctx context.Context, item *model.Node) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.ID, time.Now())
+	err = s.cs.GetSync().setNodeUpdated(ctx, s.cs.GetDB(), item.ID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
-	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_DEVICE, time.Now())
+	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_NODE, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "SyncGlobal.setUpdated: %v", err)
 	}
@@ -527,15 +527,15 @@ func (s *DeviceService) afterUpdate(ctx context.Context, item *model.Device) err
 	return nil
 }
 
-func (s *DeviceService) afterDelete(ctx context.Context, item *model.Device) error {
+func (s *NodeService) afterDelete(ctx context.Context, item *model.Node) error {
 	var err error
 
-	err = s.cs.GetSync().setDeviceUpdated(ctx, s.cs.GetDB(), item.ID, time.Now())
+	err = s.cs.GetSync().setNodeUpdated(ctx, s.cs.GetDB(), item.ID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setDeviceUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
-	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_DEVICE, time.Now())
+	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_NODE, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "SyncGlobal.setUpdated: %v", err)
 	}
@@ -545,8 +545,8 @@ func (s *DeviceService) afterDelete(ctx context.Context, item *model.Device) err
 
 // sync
 
-func (s *DeviceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Device, error) {
-	var output pb.Device
+func (s *NodeService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Node, error) {
+	var output pb.Node
 	var err error
 
 	// basic validation
@@ -556,7 +556,7 @@ func (s *DeviceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Dev
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.ID")
 		}
 	}
 
@@ -570,15 +570,15 @@ func (s *DeviceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Dev
 	return &output, nil
 }
 
-func (s *DeviceService) viewWithDeleted(ctx context.Context, id string) (model.Device, error) {
-	item := model.Device{
+func (s *NodeService) viewWithDeleted(ctx context.Context, id string) (model.Node, error) {
+	item := model.Node{
 		ID: id,
 	}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Device.ID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Node.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -587,9 +587,9 @@ func (s *DeviceService) viewWithDeleted(ctx context.Context, id string) (model.D
 	return item, nil
 }
 
-func (s *DeviceService) Pull(ctx context.Context, in *cores.DevicePullRequest) (*cores.DevicePullResponse, error) {
+func (s *NodeService) Pull(ctx context.Context, in *cores.NodePullRequest) (*cores.NodePullResponse, error) {
 	var err error
-	var output cores.DevicePullResponse
+	var output cores.NodePullResponse
 
 	// basic validation
 	{
@@ -601,7 +601,7 @@ func (s *DeviceService) Pull(ctx context.Context, in *cores.DevicePullRequest) (
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	var items []model.Device
+	var items []model.Node
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -611,17 +611,17 @@ func (s *DeviceService) Pull(ctx context.Context, in *cores.DevicePullRequest) (
 	}
 
 	for i := 0; i < len(items); i++ {
-		item := pb.Device{}
+		item := pb.Node{}
 
 		s.copyModelToOutput(&item, &items[i])
 
-		output.Device = append(output.Device, &item)
+		output.Node = append(output.Node, &item)
 	}
 
 	return &output, nil
 }
 
-func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, error) {
+func (s *NodeService) Sync(ctx context.Context, in *pb.Node) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -632,15 +632,15 @@ func (s *DeviceService) Sync(ctx context.Context, in *pb.Device) (*pb.MyBool, er
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.ID")
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Device.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Node.Updated")
 		}
 	}
 
@@ -668,20 +668,20 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "Device.Name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Node.Name min 2 character")
 			}
 
-			err = s.cs.GetDB().NewSelect().Model(&model.Device{}).Where("name = ?", in.GetName()).Scan(ctx)
+			err = s.cs.GetDB().NewSelect().Model(&model.Node{}).Where("name = ?", in.GetName()).Scan(ctx)
 			if err != nil {
 				if err != sql.ErrNoRows {
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "Device.Name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Node.Name must be unique")
 			}
 		}
 
-		item := model.Device{
+		item := model.Node{
 			ID:      in.GetId(),
 			Name:    in.GetName(),
 			Desc:    in.GetDesc(),
@@ -709,10 +709,10 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "Device.Name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Node.Name min 2 character")
 			}
 
-			modelItem := model.Device{}
+			modelItem := model.Node{}
 			err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("name = ?", in.GetName()).Scan(ctx)
 			if err != nil {
 				if err != sql.ErrNoRows {
@@ -720,7 +720,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "Device.Name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Node.Name must be unique")
 				}
 			}
 		}
@@ -751,11 +751,11 @@ SKIP:
 
 // cache
 
-func (s *DeviceService) GC() {
+func (s *NodeService) GC() {
 	s.cache.GC()
 }
 
-func (s *DeviceService) ViewFromCacheByID(ctx context.Context, id string) (model.Device, error) {
+func (s *NodeService) ViewFromCacheByID(ctx context.Context, id string) (model.Node, error) {
 	if !s.cs.dopts.cache {
 		return s.ViewByID(ctx, id)
 	}
@@ -774,7 +774,7 @@ func (s *DeviceService) ViewFromCacheByID(ctx context.Context, id string) (model
 	return item, nil
 }
 
-func (s *DeviceService) ViewFromCacheByName(ctx context.Context, name string) (model.Device, error) {
+func (s *NodeService) ViewFromCacheByName(ctx context.Context, name string) (model.Node, error) {
 	if !s.cs.dopts.cache {
 		return s.ViewByName(ctx, name)
 	}

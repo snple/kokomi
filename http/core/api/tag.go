@@ -42,7 +42,7 @@ func (s *TagService) register(router gin.IRouter) {
 func (s *TagService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
-		DeviceId  string `form:"device_id"`
+		NodeId    string `form:"node_id"`
 		Name      string `form:"name"`
 		Tags      string `form:"tags"`
 	}
@@ -52,7 +52,7 @@ func (s *TagService) list(ctx *gin.Context) {
 	}
 
 	source, err := s.as.Core().GetSource().Name(ctx,
-		&cores.SourceNameRequest{DeviceId: params.DeviceId, Name: params.Name})
+		&cores.SourceNameRequest{NodeId: params.NodeId, Name: params.Name})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -79,7 +79,7 @@ func (s *TagService) list(ctx *gin.Context) {
 
 	request := &cores.TagListRequest{
 		Page:     page,
-		DeviceId: params.DeviceId,
+		NodeId:   params.NodeId,
 		SourceId: source.Id,
 		Tags:     params.Tags,
 	}
@@ -181,7 +181,7 @@ func (s *TagService) getByName(ctx *gin.Context) {
 	name := ctx.Param("name")
 
 	var params struct {
-		DeviceId string `form:"device_id"`
+		NodeId string `form:"node_id"`
 	}
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -189,7 +189,7 @@ func (s *TagService) getByName(ctx *gin.Context) {
 	}
 
 	reply, err := s.as.Core().GetTag().Name(ctx,
-		&cores.TagNameRequest{DeviceId: params.DeviceId, Name: name})
+		&cores.TagNameRequest{NodeId: params.NodeId, Name: name})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -211,8 +211,8 @@ func (s *TagService) getByName(ctx *gin.Context) {
 
 func (s *TagService) getByNames(ctx *gin.Context) {
 	var params struct {
-		DeviceId string   `json:"device_id"`
-		Name     []string `json:"name"`
+		NodeId string   `json:"node_id"`
+		Name   []string `json:"name"`
 	}
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -223,7 +223,7 @@ func (s *TagService) getByNames(ctx *gin.Context) {
 
 	for _, name := range params.Name {
 		reply, err := s.as.Core().GetTag().Name(ctx,
-			&cores.TagNameRequest{DeviceId: params.DeviceId, Name: name})
+			&cores.TagNameRequest{NodeId: params.NodeId, Name: name})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.NotFound {
@@ -245,8 +245,8 @@ func (s *TagService) getByNames(ctx *gin.Context) {
 
 func (s *TagService) getValueByNames(ctx *gin.Context) {
 	var params struct {
-		DeviceId string   `json:"device_id"`
-		Name     []string `json:"name"`
+		NodeId string   `json:"node_id"`
+		Name   []string `json:"name"`
 	}
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -257,7 +257,7 @@ func (s *TagService) getValueByNames(ctx *gin.Context) {
 
 	for _, name := range params.Name {
 		reply, err := s.as.Core().GetTag().GetValueByName(ctx,
-			&cores.TagGetValueByNameRequest{DeviceId: params.DeviceId, Name: name})
+			&cores.TagGetValueByNameRequest{NodeId: params.NodeId, Name: name})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.NotFound {
@@ -279,7 +279,7 @@ func (s *TagService) getValueByNames(ctx *gin.Context) {
 
 func (s *TagService) setValueByNames(ctx *gin.Context) {
 	var params struct {
-		DeviceId  string            `json:"device_id"`
+		NodeId    string            `json:"node_id"`
 		NameValue map[string]string `json:"name_value"`
 	}
 	if err := ctx.Bind(&params); err != nil {
@@ -291,7 +291,7 @@ func (s *TagService) setValueByNames(ctx *gin.Context) {
 
 	for name, value := range params.NameValue {
 		_, err := s.as.Core().GetTag().SetValueByName(ctx,
-			&cores.TagNameValue{DeviceId: params.DeviceId, Name: name, Value: value})
+			&cores.TagNameValue{NodeId: params.NodeId, Name: name, Value: value})
 		if err != nil {
 			errors[name] = err.Error()
 		}
@@ -313,8 +313,8 @@ func (s *TagService) setValueByNames(ctx *gin.Context) {
 
 func (s *TagService) getWriteByNames(ctx *gin.Context) {
 	var params struct {
-		DeviceId string   `json:"device_id"`
-		Name     []string `json:"name"`
+		NodeId string   `json:"node_id"`
+		Name   []string `json:"name"`
 	}
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -325,7 +325,7 @@ func (s *TagService) getWriteByNames(ctx *gin.Context) {
 
 	for _, name := range params.Name {
 		reply, err := s.as.Core().GetTag().GetWriteByName(ctx,
-			&cores.TagGetValueByNameRequest{DeviceId: params.DeviceId, Name: name})
+			&cores.TagGetValueByNameRequest{NodeId: params.NodeId, Name: name})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.NotFound {
@@ -347,7 +347,7 @@ func (s *TagService) getWriteByNames(ctx *gin.Context) {
 
 func (s *TagService) setWriteByNames(ctx *gin.Context) {
 	var params struct {
-		DeviceId  string            `json:"device_id"`
+		NodeId    string            `json:"node_id"`
 		NameValue map[string]string `json:"name_value"`
 	}
 	if err := ctx.Bind(&params); err != nil {
@@ -359,7 +359,7 @@ func (s *TagService) setWriteByNames(ctx *gin.Context) {
 
 	for name, value := range params.NameValue {
 		_, err := s.as.Core().GetTag().SetWriteByName(ctx,
-			&cores.TagNameValue{DeviceId: params.DeviceId, Name: name, Value: value})
+			&cores.TagNameValue{NodeId: params.NodeId, Name: name, Value: value})
 		if err != nil {
 			errors[name] = err.Error()
 		}

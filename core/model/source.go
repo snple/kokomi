@@ -11,7 +11,7 @@ import (
 type Source struct {
 	bun.BaseModel `bun:"source"`
 	ID            string    `bun:"type:TEXT,pk" json:"id"`
-	DeviceID      string    `bun:"device_id,type:TEXT" json:"device_id"`
+	NodeID        string    `bun:"node_id,type:TEXT" json:"node_id"`
 	Name          string    `bun:"name,type:TEXT" json:"name"`
 	Desc          string    `bun:"desc,type:TEXT" json:"desc"`
 	Tags          string    `bun:"tags,type:TEXT" json:"tags"`
@@ -27,7 +27,7 @@ type Source struct {
 type Tag struct {
 	bun.BaseModel `bun:"tag"`
 	ID            string    `bun:"type:TEXT,pk" json:"id"`
-	DeviceID      string    `bun:"device_id,type:TEXT" json:"device_id"`
+	NodeID        string    `bun:"node_id,type:TEXT" json:"node_id"`
 	SourceID      string    `bun:"source_id,type:TEXT" json:"source_id"`
 	Name          string    `bun:"name,type:TEXT" json:"name"`
 	Desc          string    `bun:"desc,type:TEXT" json:"desc"`
@@ -53,7 +53,7 @@ func (t *Tag) ValueTag() uint8 {
 type TagValue struct {
 	bun.BaseModel `bun:"tag_value"`
 	ID            string    `bun:"type:TEXT,pk" json:"id"`
-	DeviceID      string    `bun:"device_id,type:TEXT" json:"device_id"`
+	NodeID        string    `bun:"node_id,type:TEXT" json:"node_id"`
 	SourceID      string    `bun:"source_id,type:TEXT" json:"source_id"`
 	Value         string    `bun:"value,type:TEXT" json:"value"`
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
@@ -63,7 +63,7 @@ type TagValue struct {
 type TagWrite struct {
 	bun.BaseModel `bun:"tag_write"`
 	ID            string    `bun:"type:TEXT,pk" json:"id"`
-	DeviceID      string    `bun:"device_id,type:TEXT" json:"device_id"`
+	NodeID        string    `bun:"node_id,type:TEXT" json:"node_id"`
 	SourceID      string    `bun:"source_id,type:TEXT" json:"source_id"`
 	Value         string    `bun:"value,type:TEXT" json:"value"`
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`

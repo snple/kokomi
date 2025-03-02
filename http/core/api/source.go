@@ -36,7 +36,7 @@ func (s *SourceService) register(router gin.IRouter) {
 func (s *SourceService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
-		DeviceId  string `form:"device_id"`
+		NodeId    string `form:"node_id"`
 		Tags      string `form:"tags"`
 		Source    string `form:"source"`
 	}
@@ -59,10 +59,10 @@ func (s *SourceService) list(ctx *gin.Context) {
 	}
 
 	request := &cores.SourceListRequest{
-		Page:     page,
-		DeviceId: params.DeviceId,
-		Tags:     params.Tags,
-		Source:   params.Source,
+		Page:   page,
+		NodeId: params.NodeId,
+		Tags:   params.Tags,
+		Source: params.Source,
 	}
 
 	reply, err := s.as.Core().GetSource().List(ctx, request)
@@ -108,7 +108,7 @@ func (s *SourceService) getByName(ctx *gin.Context) {
 	name := ctx.Param("name")
 
 	var params struct {
-		DeviceId string `form:"device_id"`
+		NodeId string `form:"node_id"`
 	}
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -116,7 +116,7 @@ func (s *SourceService) getByName(ctx *gin.Context) {
 	}
 
 	reply, err := s.as.Core().GetSource().Name(ctx,
-		&cores.SourceNameRequest{DeviceId: params.DeviceId, Name: name})
+		&cores.SourceNameRequest{NodeId: params.NodeId, Name: name})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -138,8 +138,8 @@ func (s *SourceService) getByName(ctx *gin.Context) {
 
 func (s *SourceService) getByNames(ctx *gin.Context) {
 	var params struct {
-		DeviceId string   `json:"device_id"`
-		Name     []string `json:"name"`
+		NodeId string   `json:"node_id"`
+		Name   []string `json:"name"`
 	}
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -150,7 +150,7 @@ func (s *SourceService) getByNames(ctx *gin.Context) {
 
 	for _, name := range params.Name {
 		reply, err := s.as.Core().GetSource().Name(ctx,
-			&cores.SourceNameRequest{DeviceId: params.DeviceId, Name: name})
+			&cores.SourceNameRequest{NodeId: params.NodeId, Name: name})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.NotFound {

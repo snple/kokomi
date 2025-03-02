@@ -9,7 +9,7 @@ const (
 )
 
 const (
-	DEFAULT_DEVICE = "device"
+	DEFAULT_NODE   = "node"
 	DEFAULT_SOURCE = "source"
 	DEFAULT_TAG    = "tag"
 	DEFAULT_CONST  = "const"
