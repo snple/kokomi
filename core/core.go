@@ -21,7 +21,7 @@ type CoreService struct {
 	sync_global *SyncGlobalService
 	node        *NodeService
 	slot        *SlotService
-	source      *SourceService
+	wire        *WireService
 	pin         *PinService
 	constant    *ConstService
 
@@ -68,7 +68,7 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.sync_global = newSyncGlobalService(cs)
 	cs.node = newNodeService(cs)
 	cs.slot = newSlotService(cs)
-	cs.source = newSourceService(cs)
+	cs.wire = newWireService(cs)
 	cs.pin = newPinService(cs)
 	cs.constant = newConstService(cs)
 
@@ -117,8 +117,8 @@ func (cs *CoreService) GetSlot() *SlotService {
 	return cs.slot
 }
 
-func (cs *CoreService) GetSource() *SourceService {
-	return cs.source
+func (cs *CoreService) GetWire() *WireService {
+	return cs.wire
 }
 
 func (cs *CoreService) GetPin() *PinService {
@@ -165,7 +165,7 @@ func (cs *CoreService) cacheGC() {
 		case <-ticker.C:
 			{
 				cs.GetNode().GC()
-				cs.GetSource().GC()
+				cs.GetWire().GC()
 				cs.GetPin().GC()
 				cs.GetConst().GC()
 				cs.GetUser().GC()
@@ -179,7 +179,7 @@ func (cs *CoreService) Register(server *grpc.Server) {
 	cores.RegisterSyncGlobalServiceServer(server, cs.sync_global)
 	cores.RegisterNodeServiceServer(server, cs.node)
 	cores.RegisterSlotServiceServer(server, cs.slot)
-	cores.RegisterSourceServiceServer(server, cs.source)
+	cores.RegisterWireServiceServer(server, cs.wire)
 	cores.RegisterPinServiceServer(server, cs.pin)
 	cores.RegisterConstServiceServer(server, cs.constant)
 
@@ -193,7 +193,7 @@ func CreateSchema(db bun.IDB) error {
 		(*model.SyncGlobal)(nil),
 		(*model.Node)(nil),
 		(*model.Slot)(nil),
-		(*model.Source)(nil),
+		(*model.Wire)(nil),
 		(*model.Pin)(nil),
 		(*model.Const)(nil),
 		(*model.PinValue)(nil),

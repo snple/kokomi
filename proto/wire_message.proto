@@ -3,7 +3,7 @@ package pb;
 
 option go_package = "github.com/snple/beacon/pb;pb";
 
-message Source {
+message Wire {
     string id = 1;
     string node_id = 2;
     string name = 3;
@@ -22,7 +22,7 @@ message Source {
 message Pin {
     string id = 1;
     string node_id = 2;
-    string source_id = 3;
+    string wire_id = 3;
     string name = 4;
     string desc = 5;
     string tags = 6;
@@ -53,7 +53,7 @@ message PinNameValue {
 message PinValueUpdated {
     string id = 1;
     string node_id = 2;
-    string source_id = 3;
+    string wire_id = 3;
     string value = 4;
     int64 updated = 5;
 }

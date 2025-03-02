@@ -23,7 +23,7 @@ type SlotService struct {
 
 	sync     *SyncService
 	node     *NodeService
-	source   *SourceService
+	wire     *WireService
 	pin      *PinService
 	constant *ConstService
 
@@ -56,7 +56,7 @@ func Slot(es *edge.EdgeService, opts ...SlotOption) (*SlotService, error) {
 
 	ss.sync = newSyncService(ss)
 	ss.node = newNodeService(ss)
-	ss.source = newSourceService(ss)
+	ss.wire = newWireService(ss)
 	ss.pin = newPinService(ss)
 	ss.constant = newConstService(ss)
 
@@ -88,7 +88,7 @@ func (ss *SlotService) RegisterGrpc(server *grpc.Server) {
 	slots.RegisterSyncServiceServer(server, ss.sync)
 	slots.RegisterNodeServiceServer(server, ss.node)
 	slots.RegisterSlotServiceServer(server, ss)
-	slots.RegisterSourceServiceServer(server, ss.source)
+	slots.RegisterWireServiceServer(server, ss.wire)
 	slots.RegisterPinServiceServer(server, ss.pin)
 	slots.RegisterConstServiceServer(server, ss.constant)
 }

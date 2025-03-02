@@ -10,20 +10,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type SourceService struct {
+type WireService struct {
 	ns *NodeService
 
-	nodes.UnimplementedSourceServiceServer
+	nodes.UnimplementedWireServiceServer
 }
 
-func newSourceService(ns *NodeService) *SourceService {
-	return &SourceService{
+func newWireService(ns *NodeService) *WireService {
+	return &WireService{
 		ns: ns,
 	}
 }
 
-func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, error) {
-	var output pb.Source
+func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error) {
+	var output pb.Wire
 	var err error
 
 	// basic validation
@@ -40,11 +40,11 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 
 	in.NodeId = nodeID
 
-	return s.ns.Core().GetSource().Create(ctx, in)
+	return s.ns.Core().GetWire().Create(ctx, in)
 }
 
-func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, error) {
-	var output pb.Source
+func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error) {
+	var output pb.Wire
 	var err error
 
 	// basic validation
@@ -61,7 +61,7 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.Core().GetSource().View(ctx, request)
+	reply, err := s.ns.Core().GetWire().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -70,11 +70,11 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	return s.ns.Core().GetSource().Update(ctx, in)
+	return s.ns.Core().GetWire().Update(ctx, in)
 }
 
-func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error) {
-	var output pb.Source
+func (s *WireService) View(ctx context.Context, in *pb.Id) (*pb.Wire, error) {
+	var output pb.Wire
 	var err error
 
 	// basic validation
@@ -89,7 +89,7 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetSource().View(ctx, in)
+	reply, err := s.ns.Core().GetWire().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -101,8 +101,8 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 	return reply, nil
 }
 
-func (s *SourceService) Name(ctx context.Context, in *pb.Name) (*pb.Source, error) {
-	var output pb.Source
+func (s *WireService) Name(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
+	var output pb.Wire
 	var err error
 
 	// basic validation
@@ -117,9 +117,9 @@ func (s *SourceService) Name(ctx context.Context, in *pb.Name) (*pb.Source, erro
 		return &output, err
 	}
 
-	request := &cores.SourceNameRequest{NodeId: nodeID, Name: in.GetName()}
+	request := &cores.WireNameRequest{NodeId: nodeID, Name: in.GetName()}
 
-	reply, err := s.ns.Core().GetSource().Name(ctx, request)
+	reply, err := s.ns.Core().GetWire().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -131,7 +131,7 @@ func (s *SourceService) Name(ctx context.Context, in *pb.Name) (*pb.Source, erro
 	return reply, nil
 }
 
-func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *WireService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -147,7 +147,7 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetSource().View(ctx, in)
+	reply, err := s.ns.Core().GetWire().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -156,12 +156,12 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	return s.ns.Core().GetSource().Delete(ctx, in)
+	return s.ns.Core().GetWire().Delete(ctx, in)
 }
 
-func (s *SourceService) List(ctx context.Context, in *nodes.SourceListRequest) (*nodes.SourceListResponse, error) {
+func (s *WireService) List(ctx context.Context, in *nodes.WireListRequest) (*nodes.WireListResponse, error) {
 	var err error
-	var output nodes.SourceListResponse
+	var output nodes.WireListResponse
 
 	// basic validation
 	{
@@ -175,26 +175,26 @@ func (s *SourceService) List(ctx context.Context, in *nodes.SourceListRequest) (
 		return &output, err
 	}
 
-	request := &cores.SourceListRequest{
+	request := &cores.WireListRequest{
 		Page:   in.GetPage(),
 		NodeId: nodeID,
 		Tags:   in.GetTags(),
 		Source: in.GetSource(),
 	}
 
-	reply, err := s.ns.Core().GetSource().List(ctx, request)
+	reply, err := s.ns.Core().GetWire().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
 	output.Count = reply.Count
 	output.Page = reply.GetPage()
-	output.Source = reply.GetSource()
+	output.Wire = reply.GetWire()
 
 	return &output, nil
 }
 
-func (s *SourceService) Link(ctx context.Context, in *nodes.SourceLinkRequest) (*pb.MyBool, error) {
+func (s *WireService) Link(ctx context.Context, in *nodes.WireLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -212,7 +212,7 @@ func (s *SourceService) Link(ctx context.Context, in *nodes.SourceLinkRequest) (
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.Core().GetSource().View(ctx, request)
+	reply, err := s.ns.Core().GetWire().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -221,13 +221,13 @@ func (s *SourceService) Link(ctx context.Context, in *nodes.SourceLinkRequest) (
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	request2 := &cores.SourceLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
+	request2 := &cores.WireLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 
-	return s.ns.Core().GetSource().Link(ctx, request2)
+	return s.ns.Core().GetWire().Link(ctx, request2)
 }
 
-func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Source, error) {
-	var output pb.Source
+func (s *WireService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Wire, error) {
+	var output pb.Wire
 	var err error
 
 	// basic validation
@@ -242,7 +242,7 @@ func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Sou
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetSource().ViewWithDeleted(ctx, in)
+	reply, err := s.ns.Core().GetWire().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -254,9 +254,9 @@ func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Sou
 	return reply, nil
 }
 
-func (s *SourceService) Pull(ctx context.Context, in *nodes.SourcePullRequest) (*nodes.SourcePullResponse, error) {
+func (s *WireService) Pull(ctx context.Context, in *nodes.WirePullRequest) (*nodes.WirePullResponse, error) {
 	var err error
-	var output nodes.SourcePullResponse
+	var output nodes.WirePullResponse
 
 	// basic validation
 	{
@@ -273,24 +273,24 @@ func (s *SourceService) Pull(ctx context.Context, in *nodes.SourcePullRequest) (
 		return &output, err
 	}
 
-	request := &cores.SourcePullRequest{
+	request := &cores.WirePullRequest{
 		After:  in.GetAfter(),
 		Limit:  in.GetLimit(),
 		NodeId: nodeID,
 		Source: in.GetSource(),
 	}
 
-	reply, err := s.ns.Core().GetSource().Pull(ctx, request)
+	reply, err := s.ns.Core().GetWire().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
-	output.Source = reply.GetSource()
+	output.Wire = reply.GetWire()
 
 	return &output, nil
 }
 
-func (s *SourceService) Sync(ctx context.Context, in *pb.Source) (*pb.MyBool, error) {
+func (s *WireService) Sync(ctx context.Context, in *pb.Wire) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -308,5 +308,5 @@ func (s *SourceService) Sync(ctx context.Context, in *pb.Source) (*pb.MyBool, er
 
 	in.NodeId = nodeID
 
-	return s.ns.Core().GetSource().Sync(ctx, in)
+	return s.ns.Core().GetWire().Sync(ctx, in)
 }

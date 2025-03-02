@@ -32,16 +32,16 @@ func (s *PinService) Create(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
 		}
 	}
 
-	// source validation
+	// wire validation
 	{
 		nodeID, err := validateToken(ctx)
 		if err != nil {
 			return &output, err
 		}
 
-		request := &pb.Id{Id: in.GetSourceId()}
+		request := &pb.Id{Id: in.GetWireId()}
 
-		reply, err := s.ns.Core().GetSource().View(ctx, request)
+		reply, err := s.ns.Core().GetWire().View(ctx, request)
 		if err != nil {
 			return &output, err
 		}
@@ -187,10 +187,10 @@ func (s *PinService) List(ctx context.Context, in *nodes.PinListRequest) (*nodes
 	}
 
 	request := &cores.PinListRequest{
-		Page:     in.GetPage(),
-		NodeId:   nodeID,
-		SourceId: in.GetSourceId(),
-		Tags:     in.GetTags(),
+		Page:   in.GetPage(),
+		NodeId: nodeID,
+		WireId: in.GetWireId(),
+		Tags:   in.GetTags(),
 	}
 
 	reply, err := s.ns.Core().GetPin().List(ctx, request)
@@ -253,10 +253,10 @@ func (s *PinService) Pull(ctx context.Context, in *nodes.PinPullRequest) (*nodes
 	}
 
 	request := &cores.PinPullRequest{
-		After:    in.GetAfter(),
-		Limit:    in.GetLimit(),
-		NodeId:   nodeID,
-		SourceId: in.GetSourceId(),
+		After:  in.GetAfter(),
+		Limit:  in.GetLimit(),
+		NodeId: nodeID,
+		WireId: in.GetWireId(),
 	}
 
 	reply, err := s.ns.Core().GetPin().Pull(ctx, request)
@@ -476,10 +476,10 @@ func (s *PinService) PullValue(ctx context.Context, in *nodes.PinPullValueReques
 	}
 
 	request := &cores.PinPullValueRequest{
-		After:    in.GetAfter(),
-		Limit:    in.GetLimit(),
-		NodeId:   nodeID,
-		SourceId: in.GetSourceId(),
+		After:  in.GetAfter(),
+		Limit:  in.GetLimit(),
+		NodeId: nodeID,
+		WireId: in.GetWireId(),
 	}
 
 	reply, err := s.ns.Core().GetPin().PullValue(ctx, request)
@@ -708,10 +708,10 @@ func (s *PinService) PullWrite(ctx context.Context, in *nodes.PinPullValueReques
 	}
 
 	request := &cores.PinPullValueRequest{
-		After:    in.GetAfter(),
-		Limit:    in.GetLimit(),
-		NodeId:   nodeID,
-		SourceId: in.GetSourceId(),
+		After:  in.GetAfter(),
+		Limit:  in.GetLimit(),
+		NodeId: nodeID,
+		WireId: in.GetWireId(),
 	}
 
 	reply, err := s.ns.Core().GetPin().PullWrite(ctx, request)

@@ -10,18 +10,18 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type SourceService struct {
+type WireService struct {
 	ws *WebService
 }
 
-func newSourceService(ws *WebService) *SourceService {
-	return &SourceService{
+func newWireService(ws *WebService) *WireService {
+	return &WireService{
 		ws: ws,
 	}
 }
 
-func (s *SourceService) register(router gin.IRouter) {
-	group := router.Group("/source")
+func (s *WireService) register(router gin.IRouter) {
+	group := router.Group("/wire")
 
 	group.Use(s.ws.GetAuth().MiddlewareFunc())
 
@@ -33,7 +33,7 @@ func (s *SourceService) register(router gin.IRouter) {
 	group.DELETE("/:id", s.delete)
 }
 
-func (s *SourceService) list(ctx *gin.Context) {
+func (s *WireService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
 		NodeId    string `form:"node_id"`
@@ -57,21 +57,21 @@ func (s *SourceService) list(ctx *gin.Context) {
 		page.Sort = pb.Page_DESC
 	}
 
-	request := &cores.SourceListRequest{
+	request := &cores.WireListRequest{
 		Page:   page,
 		NodeId: params.NodeId,
 		Tags:   params.Tags,
 	}
 
-	reply, err := s.ws.Core().GetSource().List(ctx, request)
+	reply, err := s.ws.Core().GetWire().List(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	items := reply.GetSource()
+	items := reply.GetWire()
 
-	shiftime.Sources(items)
+	shiftime.Wires(items)
 
 	ctx.JSON(util.Success(gin.H{
 		"items": items,
@@ -79,10 +79,10 @@ func (s *SourceService) list(ctx *gin.Context) {
 	}))
 }
 
-func (s *SourceService) get(ctx *gin.Context) {
+func (s *WireService) get(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	reply, err := s.ws.Core().GetSource().View(ctx, request)
+	reply, err := s.ws.Core().GetWire().View(ctx, request)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -95,44 +95,44 @@ func (s *SourceService) get(ctx *gin.Context) {
 		return
 	}
 
-	shiftime.Source(reply)
+	shiftime.Wire(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
 	}))
 }
 
-func (s *SourceService) post(ctx *gin.Context) {
-	var params pb.Source
+func (s *WireService) post(ctx *gin.Context) {
+	var params pb.Wire
 
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	reply, err := s.ws.Core().GetSource().Create(ctx, &params)
+	reply, err := s.ws.Core().GetWire().Create(ctx, &params)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	shiftime.Source(reply)
+	shiftime.Wire(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
 	}))
 }
 
-func (s *SourceService) patch(ctx *gin.Context) {
+func (s *WireService) patch(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	reply, err := s.ws.Core().GetSource().View(ctx, request)
+	reply, err := s.ws.Core().GetWire().View(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	var params pb.Source
+	var params pb.Wire
 
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -147,7 +147,7 @@ func (s *SourceService) patch(ctx *gin.Context) {
 	reply.Config = params.Config
 	reply.Status = params.Status
 
-	reply2, err := s.ws.Core().GetSource().Update(ctx, reply)
+	reply2, err := s.ws.Core().GetWire().Update(ctx, reply)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
@@ -156,10 +156,10 @@ func (s *SourceService) patch(ctx *gin.Context) {
 	ctx.JSON(util.Success(gin.H{"id": reply2.GetId()}))
 }
 
-func (s *SourceService) delete(ctx *gin.Context) {
+func (s *WireService) delete(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	_, err := s.ws.Core().GetSource().Delete(ctx, request)
+	_, err := s.ws.Core().GetWire().Delete(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
@@ -168,10 +168,10 @@ func (s *SourceService) delete(ctx *gin.Context) {
 	ctx.JSON(util.Success(gin.H{"id": ctx.Param("id")}))
 }
 
-func (s *SourceService) status(ctx *gin.Context) {
+func (s *WireService) status(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	reply, err := s.ws.Core().GetSource().View(ctx, request)
+	reply, err := s.ws.Core().GetWire().View(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
@@ -188,7 +188,7 @@ func (s *SourceService) status(ctx *gin.Context) {
 
 	reply.Status = params.Status
 
-	reply2, err := s.ws.Core().GetSource().Update(ctx, reply)
+	reply2, err := s.ws.Core().GetWire().Update(ctx, reply)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return

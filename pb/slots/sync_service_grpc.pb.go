@@ -25,8 +25,8 @@ const (
 	SyncService_WaitNodeUpdated_FullMethodName     = "/slots.SyncService/WaitNodeUpdated"
 	SyncService_SetSlotUpdated_FullMethodName      = "/slots.SyncService/SetSlotUpdated"
 	SyncService_GetSlotUpdated_FullMethodName      = "/slots.SyncService/GetSlotUpdated"
-	SyncService_SetSourceUpdated_FullMethodName    = "/slots.SyncService/SetSourceUpdated"
-	SyncService_GetSourceUpdated_FullMethodName    = "/slots.SyncService/GetSourceUpdated"
+	SyncService_SetWireUpdated_FullMethodName      = "/slots.SyncService/SetWireUpdated"
+	SyncService_GetWireUpdated_FullMethodName      = "/slots.SyncService/GetWireUpdated"
 	SyncService_SetPinUpdated_FullMethodName       = "/slots.SyncService/SetPinUpdated"
 	SyncService_GetPinUpdated_FullMethodName       = "/slots.SyncService/GetPinUpdated"
 	SyncService_SetConstUpdated_FullMethodName     = "/slots.SyncService/SetConstUpdated"
@@ -48,8 +48,8 @@ type SyncServiceClient interface {
 	WaitNodeUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
 	SetSlotUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetSlotUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetSourceUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetSourceUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
+	SetWireUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetWireUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetPinUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetPinUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetConstUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
@@ -129,20 +129,20 @@ func (c *syncServiceClient) GetSlotUpdated(ctx context.Context, in *pb.MyEmpty, 
 	return out, nil
 }
 
-func (c *syncServiceClient) SetSourceUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *syncServiceClient) SetWireUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetSourceUpdated_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, SyncService_SetWireUpdated_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *syncServiceClient) GetSourceUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
+func (c *syncServiceClient) GetWireUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetSourceUpdated_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, SyncService_GetWireUpdated_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -276,8 +276,8 @@ type SyncServiceServer interface {
 	WaitNodeUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
 	SetSlotUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetSlotUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetSourceUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetSourceUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
+	SetWireUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
+	GetWireUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetPinUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetPinUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetConstUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
@@ -313,11 +313,11 @@ func (UnimplementedSyncServiceServer) SetSlotUpdated(context.Context, *SyncUpdat
 func (UnimplementedSyncServiceServer) GetSlotUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSlotUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) SetSourceUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetSourceUpdated not implemented")
+func (UnimplementedSyncServiceServer) SetWireUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetWireUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) GetSourceUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetSourceUpdated not implemented")
+func (UnimplementedSyncServiceServer) GetWireUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWireUpdated not implemented")
 }
 func (UnimplementedSyncServiceServer) SetPinUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetPinUpdated not implemented")
@@ -453,38 +453,38 @@ func _SyncService_GetSlotUpdated_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_SetSourceUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SyncService_SetWireUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncUpdated)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SyncServiceServer).SetSourceUpdated(ctx, in)
+		return srv.(SyncServiceServer).SetWireUpdated(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SyncService_SetSourceUpdated_FullMethodName,
+		FullMethod: SyncService_SetWireUpdated_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetSourceUpdated(ctx, req.(*SyncUpdated))
+		return srv.(SyncServiceServer).SetWireUpdated(ctx, req.(*SyncUpdated))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_GetSourceUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SyncService_GetWireUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.MyEmpty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SyncServiceServer).GetSourceUpdated(ctx, in)
+		return srv.(SyncServiceServer).GetWireUpdated(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SyncService_GetSourceUpdated_FullMethodName,
+		FullMethod: SyncService_GetWireUpdated_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetSourceUpdated(ctx, req.(*pb.MyEmpty))
+		return srv.(SyncServiceServer).GetWireUpdated(ctx, req.(*pb.MyEmpty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -679,12 +679,12 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SyncService_GetSlotUpdated_Handler,
 		},
 		{
-			MethodName: "SetSourceUpdated",
-			Handler:    _SyncService_SetSourceUpdated_Handler,
+			MethodName: "SetWireUpdated",
+			Handler:    _SyncService_SetWireUpdated_Handler,
 		},
 		{
-			MethodName: "GetSourceUpdated",
-			Handler:    _SyncService_GetSourceUpdated_Handler,
+			MethodName: "GetWireUpdated",
+			Handler:    _SyncService_GetWireUpdated_Handler,
 		},
 		{
 			MethodName: "SetPinUpdated",

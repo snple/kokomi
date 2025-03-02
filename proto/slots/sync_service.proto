@@ -18,8 +18,8 @@ service SyncService {
     rpc SetSlotUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetSlotUpdated(pb.MyEmpty) returns (SyncUpdated) {}
 
-    rpc SetSourceUpdated(SyncUpdated) returns (pb.MyBool) {}
-    rpc GetSourceUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc SetWireUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetWireUpdated(pb.MyEmpty) returns (SyncUpdated) {}
 
     rpc SetPinUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetPinUpdated(pb.MyEmpty) returns (SyncUpdated) {}

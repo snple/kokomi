@@ -51,8 +51,8 @@ func (s *PinService) list(ctx *gin.Context) {
 		return
 	}
 
-	source, err := s.as.Core().GetSource().Name(ctx,
-		&cores.SourceNameRequest{NodeId: params.NodeId, Name: params.Name})
+	wire, err := s.as.Core().GetWire().Name(ctx,
+		&cores.WireNameRequest{NodeId: params.NodeId, Name: params.Name})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -78,10 +78,10 @@ func (s *PinService) list(ctx *gin.Context) {
 	}
 
 	request := &cores.PinListRequest{
-		Page:     page,
-		NodeId:   params.NodeId,
-		SourceId: source.Id,
-		Tags:     params.Tags,
+		Page:   page,
+		NodeId: params.NodeId,
+		WireId: wire.Id,
+		Tags:   params.Tags,
 	}
 
 	reply, err := s.as.Core().GetPin().List(ctx, request)
@@ -95,9 +95,9 @@ func (s *PinService) list(ctx *gin.Context) {
 	shiftime.Pins(items)
 
 	ctx.JSON(util.Success(gin.H{
-		"source": source,
-		"items":  items,
-		"total":  reply.GetCount(),
+		"wire":  wire,
+		"items": items,
+		"total": reply.GetCount(),
 	}))
 }
 

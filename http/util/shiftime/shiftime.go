@@ -32,7 +32,7 @@ func Slots(items []*pb.Slot) {
 	}
 }
 
-func Source(item *pb.Source) {
+func Wire(item *pb.Wire) {
 	if item != nil {
 		item.Created = item.Created / 1000
 		item.Updated = item.Updated / 1000
@@ -40,9 +40,9 @@ func Source(item *pb.Source) {
 	}
 }
 
-func Sources(items []*pb.Source) {
+func Wires(items []*pb.Wire) {
 	for _, item := range items {
-		Source(item)
+		Wire(item)
 	}
 }
 

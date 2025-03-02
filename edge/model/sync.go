@@ -11,7 +11,7 @@ const (
 	SYNC_PREFIX    = "sync_"
 	SYNC_NODE      = "sync_node"
 	SYNC_SLOT      = "sync_slot"
-	SYNC_SOURCE    = "sync_source"
+	SYNC_WIRE      = "sync_wire"
 	SYNC_PIN       = "sync_pin"
 	SYNC_CONST     = "sync_const"
 	SYNC_PIN_VALUE = "sync_pin_v"

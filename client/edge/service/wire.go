@@ -9,14 +9,14 @@ import (
 	"github.com/snple/beacon/pb/edges"
 )
 
-func SourceList(ctx context.Context, client edges.SourceServiceClient) {
+func WireList(ctx context.Context, client edges.WireServiceClient) {
 	page := pb.Page{
 		Limit:   10,
 		Offset:  0,
 		OrderBy: "name",
 	}
 
-	request := &edges.SourceListRequest{
+	request := &edges.WireListRequest{
 		Page: &page,
 	}
 
@@ -28,7 +28,7 @@ func SourceList(ctx context.Context, client edges.SourceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func SourceView(ctx context.Context, client edges.SourceServiceClient) {
+func WireView(ctx context.Context, client edges.WireServiceClient) {
 	request := &pb.Id{Id: "017a053b3f7be81d700e0976"}
 
 	reply, err := client.View(ctx, request)
@@ -39,8 +39,8 @@ func SourceView(ctx context.Context, client edges.SourceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func SourceName(ctx context.Context, client edges.SourceServiceClient) {
-	request := &pb.Name{Name: "Source"}
+func WireName(ctx context.Context, client edges.WireServiceClient) {
+	request := &pb.Name{Name: "Wire"}
 
 	reply, err := client.Name(ctx, request)
 
@@ -50,11 +50,11 @@ func SourceName(ctx context.Context, client edges.SourceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func SourceCreate(ctx context.Context, client edges.SourceServiceClient) {
-	request := &pb.Source{
-		Name:   "source1",
-		Desc:   "source1",
-		Source: "source",
+func WireCreate(ctx context.Context, client edges.WireServiceClient) {
+	request := &pb.Wire{
+		Name:   "wire1",
+		Desc:   "wire1",
+		Source: "wire",
 		Params: "params",
 		Config: "config",
 		Status: consts.ON,
@@ -69,7 +69,7 @@ func SourceCreate(ctx context.Context, client edges.SourceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func SourceUpdate(ctx context.Context, client edges.SourceServiceClient) {
+func WireUpdate(ctx context.Context, client edges.WireServiceClient) {
 	request := &pb.Id{Id: "018849d40fdd9a6bfb3e5d54"}
 
 	reply, err := client.View(ctx, request)
@@ -89,7 +89,7 @@ func SourceUpdate(ctx context.Context, client edges.SourceServiceClient) {
 	log.Printf("Resp received: %v", reply2)
 }
 
-func SourceDelete(ctx context.Context, client edges.SourceServiceClient) {
+func WireDelete(ctx context.Context, client edges.WireServiceClient) {
 	request := &pb.Id{Id: "017a09b3af1f47a21d6b84c0"}
 
 	reply, err := client.Delete(ctx, request)
@@ -100,8 +100,8 @@ func SourceDelete(ctx context.Context, client edges.SourceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func SourceLink(ctx context.Context, client edges.SourceServiceClient) {
-	request := &edges.SourceLinkRequest{Id: "01800806d7aa2d9ea7486720", Status: consts.ON}
+func WireLink(ctx context.Context, client edges.WireServiceClient) {
+	request := &edges.WireLinkRequest{Id: "01800806d7aa2d9ea7486720", Status: consts.ON}
 
 	reply, err := client.Link(ctx, request)
 

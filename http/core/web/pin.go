@@ -37,7 +37,7 @@ func (s *PinService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
 		NodeId    string `form:"node_id"`
-		SourceId  string `form:"source_id"`
+		WireId    string `form:"wire_id"`
 		Tags      string `form:"tags"`
 	}
 
@@ -59,10 +59,10 @@ func (s *PinService) list(ctx *gin.Context) {
 	}
 
 	request := &cores.PinListRequest{
-		Page:     page,
-		NodeId:   params.NodeId,
-		SourceId: params.SourceId,
-		Tags:     params.Tags,
+		Page:   page,
+		NodeId: params.NodeId,
+		WireId: params.WireId,
+		Tags:   params.Tags,
 	}
 
 	reply, err := s.ws.Core().GetPin().List(ctx, request)

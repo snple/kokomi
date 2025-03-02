@@ -10,20 +10,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type SourceService struct {
+type WireService struct {
 	ss *SlotService
 
-	slots.UnimplementedSourceServiceServer
+	slots.UnimplementedWireServiceServer
 }
 
-func newSourceService(ss *SlotService) *SourceService {
-	return &SourceService{
+func newWireService(ss *SlotService) *WireService {
+	return &WireService{
 		ss: ss,
 	}
 }
 
-func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, error) {
-	var output pb.Source
+func (s *WireService) Create(ctx context.Context, in *pb.Wire) (*pb.Wire, error) {
+	var output pb.Wire
 	var err error
 
 	// basic validation
@@ -38,11 +38,11 @@ func (s *SourceService) Create(ctx context.Context, in *pb.Source) (*pb.Source, 
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSource().Create(ctx, in)
+	return s.ss.Edge().GetWire().Create(ctx, in)
 }
 
-func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, error) {
-	var output pb.Source
+func (s *WireService) Update(ctx context.Context, in *pb.Wire) (*pb.Wire, error) {
+	var output pb.Wire
 	var err error
 
 	// basic validation
@@ -57,11 +57,11 @@ func (s *SourceService) Update(ctx context.Context, in *pb.Source) (*pb.Source, 
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSource().Update(ctx, in)
+	return s.ss.Edge().GetWire().Update(ctx, in)
 }
 
-func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error) {
-	var output pb.Source
+func (s *WireService) View(ctx context.Context, in *pb.Id) (*pb.Wire, error) {
+	var output pb.Wire
 	var err error
 
 	// basic validation
@@ -76,11 +76,11 @@ func (s *SourceService) View(ctx context.Context, in *pb.Id) (*pb.Source, error)
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSource().View(ctx, in)
+	return s.ss.Edge().GetWire().View(ctx, in)
 }
 
-func (s *SourceService) Name(ctx context.Context, in *pb.Name) (*pb.Source, error) {
-	var output pb.Source
+func (s *WireService) Name(ctx context.Context, in *pb.Name) (*pb.Wire, error) {
+	var output pb.Wire
 	var err error
 
 	// basic validation
@@ -95,10 +95,10 @@ func (s *SourceService) Name(ctx context.Context, in *pb.Name) (*pb.Source, erro
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSource().Name(ctx, in)
+	return s.ss.Edge().GetWire().Name(ctx, in)
 }
 
-func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *WireService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -114,12 +114,12 @@ func (s *SourceService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, erro
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSource().Delete(ctx, in)
+	return s.ss.Edge().GetWire().Delete(ctx, in)
 }
 
-func (s *SourceService) List(ctx context.Context, in *slots.SourceListRequest) (*slots.SourceListResponse, error) {
+func (s *WireService) List(ctx context.Context, in *slots.WireListRequest) (*slots.WireListResponse, error) {
 	var err error
-	var output slots.SourceListResponse
+	var output slots.WireListResponse
 
 	// basic validation
 	{
@@ -133,25 +133,25 @@ func (s *SourceService) List(ctx context.Context, in *slots.SourceListRequest) (
 		return &output, err
 	}
 
-	request := &edges.SourceListRequest{
+	request := &edges.WireListRequest{
 		Page:   in.GetPage(),
 		Tags:   in.GetTags(),
 		Source: in.GetSource(),
 	}
 
-	reply, err := s.ss.Edge().GetSource().List(ctx, request)
+	reply, err := s.ss.Edge().GetWire().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
 	output.Count = reply.Count
 	output.Page = reply.GetPage()
-	output.Source = reply.GetSource()
+	output.Wire = reply.GetWire()
 
 	return &output, nil
 }
 
-func (s *SourceService) Link(ctx context.Context, in *slots.SourceLinkRequest) (*pb.MyBool, error) {
+func (s *WireService) Link(ctx context.Context, in *slots.WireLinkRequest) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -167,9 +167,9 @@ func (s *SourceService) Link(ctx context.Context, in *slots.SourceLinkRequest) (
 		return &output, err
 	}
 
-	request2 := &edges.SourceLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
+	request2 := &edges.WireLinkRequest{Id: in.GetId(), Status: in.GetStatus()}
 
-	reply, err := s.ss.Edge().GetSource().Link(ctx, request2)
+	reply, err := s.ss.Edge().GetWire().Link(ctx, request2)
 	if err != nil {
 		return &output, err
 	}
@@ -177,8 +177,8 @@ func (s *SourceService) Link(ctx context.Context, in *slots.SourceLinkRequest) (
 	return reply, nil
 }
 
-func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Source, error) {
-	var output pb.Source
+func (s *WireService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Wire, error) {
+	var output pb.Wire
 	var err error
 
 	// basic validation
@@ -193,7 +193,7 @@ func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Sou
 		return &output, err
 	}
 
-	reply, err := s.ss.Edge().GetSource().ViewWithDeleted(ctx, in)
+	reply, err := s.ss.Edge().GetWire().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -201,9 +201,9 @@ func (s *SourceService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Sou
 	return reply, nil
 }
 
-func (s *SourceService) Pull(ctx context.Context, in *slots.SourcePullRequest) (*slots.SourcePullResponse, error) {
+func (s *WireService) Pull(ctx context.Context, in *slots.WirePullRequest) (*slots.WirePullResponse, error) {
 	var err error
-	var output slots.SourcePullResponse
+	var output slots.WirePullResponse
 
 	// basic validation
 	{
@@ -220,23 +220,23 @@ func (s *SourceService) Pull(ctx context.Context, in *slots.SourcePullRequest) (
 		return &output, err
 	}
 
-	request := &edges.SourcePullRequest{
+	request := &edges.WirePullRequest{
 		After:  in.GetAfter(),
 		Limit:  in.GetLimit(),
 		Source: in.GetSource(),
 	}
 
-	reply, err := s.ss.Edge().GetSource().Pull(ctx, request)
+	reply, err := s.ss.Edge().GetWire().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
-	output.Source = reply.GetSource()
+	output.Wire = reply.GetWire()
 
 	return &output, nil
 }
 
-func (s *SourceService) Sync(ctx context.Context, in *pb.Source) (*pb.MyBool, error) {
+func (s *WireService) Sync(ctx context.Context, in *pb.Wire) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -252,5 +252,5 @@ func (s *SourceService) Sync(ctx context.Context, in *pb.Source) (*pb.MyBool, er
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSource().Sync(ctx, in)
+	return s.ss.Edge().GetWire().Sync(ctx, in)
 }

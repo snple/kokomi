@@ -69,11 +69,11 @@ func (s *cloneService) slot(ctx context.Context, db bun.IDB, slotID string) erro
 	return nil
 }
 
-func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID string) error {
+func (s *cloneService) wire(ctx context.Context, db bun.IDB, wireID string) error {
 	var err error
 
-	item := model.Source{
-		ID: sourceID,
+	item := model.Wire{
+		ID: wireID,
 	}
 
 	err = db.NewSelect().Model(&item).WherePK().Scan(ctx)
@@ -100,14 +100,14 @@ func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID string) 
 	{
 		var pins []model.Pin
 
-		err = db.NewSelect().Model(&pins).Where("source_id = ?", sourceID).Order("id ASC").Scan(ctx)
+		err = db.NewSelect().Model(&pins).Where("wire_id = ?", wireID).Order("id ASC").Scan(ctx)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Query: %v", err)
 		}
 
 		for _, pin := range pins {
 			pin.ID = util.RandomID()
-			pin.SourceID = item.ID
+			pin.WireID = item.ID
 
 			pin.Created = time.Now()
 			pin.Updated = time.Now()
@@ -125,7 +125,7 @@ func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID string) 
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}
 
-		err = s.es.GetSync().setSourceUpdated(ctx, time.Now())
+		err = s.es.GetSync().setWireUpdated(ctx, time.Now())
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}
@@ -134,7 +134,7 @@ func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID string) 
 	return nil
 }
 
-func (s *cloneService) pin(ctx context.Context, db bun.IDB, pinID, sourceID string) error {
+func (s *cloneService) pin(ctx context.Context, db bun.IDB, pinID, wireID string) error {
 	var err error
 
 	item := model.Pin{
@@ -150,22 +150,22 @@ func (s *cloneService) pin(ctx context.Context, db bun.IDB, pinID, sourceID stri
 		return status.Errorf(codes.Internal, "Query: %v", err)
 	}
 
-	// source validation
-	if sourceID != "" {
-		source := model.Source{
-			ID: sourceID,
+	// wire validation
+	if wireID != "" {
+		wire := model.Wire{
+			ID: wireID,
 		}
 
-		err = db.NewSelect().Model(&source).WherePK().Scan(ctx)
+		err = db.NewSelect().Model(&wire).WherePK().Scan(ctx)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return status.Error(codes.InvalidArgument, "Please supply valid Source.ID")
+				return status.Error(codes.InvalidArgument, "Please supply valid Wire.ID")
 			}
 
 			return status.Errorf(codes.Internal, "Query: %v", err)
 		}
 
-		item.SourceID = source.ID
+		item.WireID = wire.ID
 	}
 
 	item.ID = util.RandomID()

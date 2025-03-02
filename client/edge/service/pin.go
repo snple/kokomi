@@ -22,7 +22,7 @@ func PinList(ctx context.Context, client edges.PinServiceClient) {
 	request := &edges.PinListRequest{
 		Page: &page,
 		// NodeId: "017a053b3f7be81caa209b8e",
-		// SourceId: "017a9b416ef270dbd799c1f5",
+		// WireId: "017a9b416ef270dbd799c1f5",
 		// Tags: "aaa,bbb",
 	}
 
@@ -58,7 +58,7 @@ func PinName(ctx context.Context, client edges.PinServiceClient) {
 
 func PinCreate(ctx context.Context, client edges.PinServiceClient) {
 	request := &pb.Pin{
-		SourceId: "0187712e361544594841b6fb",
+		WireId:   "0187712e361544594841b6fb",
 		Name:     "pin1",
 		Desc:     "",
 		Address:  "test_address",

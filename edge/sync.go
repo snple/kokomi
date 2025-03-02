@@ -132,7 +132,7 @@ func (s *SyncService) GetSlotUpdated(ctx context.Context, in *pb.MyEmpty) (*edge
 	return &output, nil
 }
 
-func (s *SyncService) SetSourceUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetWireUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -147,7 +147,7 @@ func (s *SyncService) SetSourceUpdated(ctx context.Context, in *edges.SyncUpdate
 		}
 	}
 
-	err = s.setSourceUpdated(ctx, time.UnixMicro(in.GetUpdated()))
+	err = s.setWireUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -157,7 +157,7 @@ func (s *SyncService) SetSourceUpdated(ctx context.Context, in *edges.SyncUpdate
 	return &output, nil
 }
 
-func (s *SyncService) GetSourceUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
+func (s *SyncService) GetWireUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
 	var output edges.SyncUpdated
 	var err error
 
@@ -168,7 +168,7 @@ func (s *SyncService) GetSourceUpdated(ctx context.Context, in *pb.MyEmpty) (*ed
 		}
 	}
 
-	t, err := s.getSourceUpdated(ctx)
+	t, err := s.getWireUpdated(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -397,12 +397,12 @@ func (s *SyncService) setSlotUpdated(ctx context.Context, updated time.Time) err
 	return s.setUpdated(ctx, model.SYNC_SLOT, updated)
 }
 
-func (s *SyncService) getSourceUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_SOURCE)
+func (s *SyncService) getWireUpdated(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_WIRE)
 }
 
-func (s *SyncService) setSourceUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_SOURCE, updated)
+func (s *SyncService) setWireUpdated(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_WIRE, updated)
 }
 
 func (s *SyncService) getPinUpdated(ctx context.Context) (time.Time, error) {

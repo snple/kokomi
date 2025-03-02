@@ -50,7 +50,7 @@ func (s *PinService) list(ctx *gin.Context) {
 		return
 	}
 
-	source, err := s.as.Edge().GetSource().Name(ctx,
+	wire, err := s.as.Edge().GetWire().Name(ctx,
 		&pb.Name{Name: params.Name})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
@@ -77,9 +77,9 @@ func (s *PinService) list(ctx *gin.Context) {
 	}
 
 	request := &edges.PinListRequest{
-		Page:     page,
-		SourceId: source.Id,
-		Tags:     params.Tags,
+		Page:   page,
+		WireId: wire.Id,
+		Tags:   params.Tags,
 	}
 
 	reply, err := s.as.Edge().GetPin().List(ctx, request)
@@ -93,9 +93,9 @@ func (s *PinService) list(ctx *gin.Context) {
 	shiftime.Pins(items)
 
 	ctx.JSON(util.Success(gin.H{
-		"source": source,
-		"items":  items,
-		"total":  reply.GetCount(),
+		"wire":  wire,
+		"items": items,
+		"total": reply.GetCount(),
 	}))
 }
 

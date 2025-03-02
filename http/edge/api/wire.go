@@ -10,18 +10,18 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type SourceService struct {
+type WireService struct {
 	as *ApiService
 }
 
-func newSourceService(as *ApiService) *SourceService {
-	return &SourceService{
+func newWireService(as *ApiService) *WireService {
+	return &WireService{
 		as: as,
 	}
 }
 
-func (s *SourceService) register(router gin.IRouter) {
-	group := router.Group("/source")
+func (s *WireService) register(router gin.IRouter) {
+	group := router.Group("/wire")
 
 	group.GET("/", s.list)
 
@@ -33,7 +33,7 @@ func (s *SourceService) register(router gin.IRouter) {
 	group.PATCH("/link", s.link)
 }
 
-func (s *SourceService) list(ctx *gin.Context) {
+func (s *WireService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
 		Tags      string `form:"tags"`
@@ -57,21 +57,21 @@ func (s *SourceService) list(ctx *gin.Context) {
 		page.Sort = pb.Page_DESC
 	}
 
-	request := &edges.SourceListRequest{
+	request := &edges.WireListRequest{
 		Page:   page,
 		Tags:   params.Tags,
 		Source: params.Source,
 	}
 
-	reply, err := s.as.Edge().GetSource().List(ctx, request)
+	reply, err := s.as.Edge().GetWire().List(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	items := reply.GetSource()
+	items := reply.GetWire()
 
-	shiftime.Sources(items)
+	shiftime.Wires(items)
 
 	ctx.JSON(util.Success(gin.H{
 		"items": items,
@@ -79,10 +79,10 @@ func (s *SourceService) list(ctx *gin.Context) {
 	}))
 }
 
-func (s *SourceService) getById(ctx *gin.Context) {
+func (s *WireService) getById(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	reply, err := s.as.Edge().GetSource().View(ctx, request)
+	reply, err := s.as.Edge().GetWire().View(ctx, request)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -95,17 +95,17 @@ func (s *SourceService) getById(ctx *gin.Context) {
 		return
 	}
 
-	shiftime.Source(reply)
+	shiftime.Wire(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
 	}))
 }
 
-func (s *SourceService) getByName(ctx *gin.Context) {
+func (s *WireService) getByName(ctx *gin.Context) {
 	name := ctx.Param("name")
 
-	reply, err := s.as.Edge().GetSource().Name(ctx,
+	reply, err := s.as.Edge().GetWire().Name(ctx,
 		&pb.Name{Name: name})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
@@ -119,14 +119,14 @@ func (s *SourceService) getByName(ctx *gin.Context) {
 		return
 	}
 
-	shiftime.Source(reply)
+	shiftime.Wire(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
 	}))
 }
 
-func (s *SourceService) getByNames(ctx *gin.Context) {
+func (s *WireService) getByNames(ctx *gin.Context) {
 	var params struct {
 		Name []string `json:"name"`
 	}
@@ -135,10 +135,10 @@ func (s *SourceService) getByNames(ctx *gin.Context) {
 		return
 	}
 
-	ret := make([]*pb.Source, 0, len(params.Name))
+	ret := make([]*pb.Wire, 0, len(params.Name))
 
 	for _, name := range params.Name {
-		reply, err := s.as.Edge().GetSource().Name(ctx,
+		reply, err := s.as.Edge().GetWire().Name(ctx,
 			&pb.Name{Name: name})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
@@ -151,7 +151,7 @@ func (s *SourceService) getByNames(ctx *gin.Context) {
 			return
 		}
 
-		shiftime.Source(reply)
+		shiftime.Wire(reply)
 
 		ret = append(ret, reply)
 	}
@@ -159,7 +159,7 @@ func (s *SourceService) getByNames(ctx *gin.Context) {
 	ctx.JSON(util.Success(ret))
 }
 
-func (s *SourceService) link(ctx *gin.Context) {
+func (s *WireService) link(ctx *gin.Context) {
 	var params struct {
 		Id     string `json:"id"`
 		Status int    `json:"status"`
@@ -170,8 +170,8 @@ func (s *SourceService) link(ctx *gin.Context) {
 		return
 	}
 
-	reply, err := s.as.Edge().GetSource().Link(ctx,
-		&edges.SourceLinkRequest{Id: params.Id, Status: int32(params.Status)})
+	reply, err := s.as.Edge().GetWire().Link(ctx,
+		&edges.WireLinkRequest{Id: params.Id, Status: int32(params.Status)})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {

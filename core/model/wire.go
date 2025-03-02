@@ -8,9 +8,10 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type Source struct {
-	bun.BaseModel `bun:"source"`
+type Wire struct {
+	bun.BaseModel `bun:"wire"`
 	ID            string    `bun:"type:TEXT,pk" json:"id"`
+	NodeID        string    `bun:"node_id,type:TEXT" json:"node_id"`
 	Name          string    `bun:"name,type:TEXT" json:"name"`
 	Desc          string    `bun:"desc,type:TEXT" json:"desc"`
 	Tags          string    `bun:"tags,type:TEXT" json:"tags"`
@@ -26,7 +27,8 @@ type Source struct {
 type Pin struct {
 	bun.BaseModel `bun:"pin"`
 	ID            string    `bun:"type:TEXT,pk" json:"id"`
-	SourceID      string    `bun:"source_id,type:TEXT" json:"source_id"`
+	NodeID        string    `bun:"node_id,type:TEXT" json:"node_id"`
+	WireID        string    `bun:"wire_id,type:TEXT" json:"wire_id"`
 	Name          string    `bun:"name,type:TEXT" json:"name"`
 	Desc          string    `bun:"desc,type:TEXT" json:"desc"`
 	Tags          string    `bun:"tags,type:TEXT" json:"tags"`
@@ -49,19 +51,21 @@ func (p *Pin) ValueTag() uint8 {
 }
 
 type PinValue struct {
-	ID       string    `bun:"type:TEXT,pk" json:"id"`
-	SourceID string    `bun:"source_id,type:TEXT" json:"source_id"`
-	Value    string    `bun:"value,type:TEXT" json:"value"`
-	Updated  time.Time `bun:"updated" json:"updated"`
+	bun.BaseModel `bun:"pin_value"`
+	ID            string    `bun:"type:TEXT,pk" json:"id"`
+	NodeID        string    `bun:"node_id,type:TEXT" json:"node_id"`
+	WireID        string    `bun:"wire_id,type:TEXT" json:"wire_id"`
+	Value         string    `bun:"value,type:TEXT" json:"value"`
+	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
+	Updated       time.Time `bun:"updated" json:"updated"`
 }
 
-type SortPinValue []PinValue
-
-func (a SortPinValue) Len() int           { return len(a) }
-func (a SortPinValue) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a SortPinValue) Less(i, j int) bool { return a[i].Updated.Before(a[j].Updated) }
-
-const (
-	PIN_VALUE_PREFIX = "pv_"
-	PIN_WRITE_PREFIX = "pw_"
-)
+type PinWrite struct {
+	bun.BaseModel `bun:"pin_write"`
+	ID            string    `bun:"type:TEXT,pk" json:"id"`
+	NodeID        string    `bun:"node_id,type:TEXT" json:"node_id"`
+	WireID        string    `bun:"wire_id,type:TEXT" json:"wire_id"`
+	Value         string    `bun:"value,type:TEXT" json:"value"`
+	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
+	Updated       time.Time `bun:"updated" json:"updated"`
+}

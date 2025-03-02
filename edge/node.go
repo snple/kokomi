@@ -173,7 +173,7 @@ func (s *NodeService) Destory(ctx context.Context, in *pb.MyEmpty) (*pb.MyBool, 
 	err = func() error {
 		models := []any{
 			(*model.Slot)(nil),
-			(*model.Source)(nil),
+			(*model.Wire)(nil),
 			(*model.Pin)(nil),
 			(*model.Const)(nil),
 		}

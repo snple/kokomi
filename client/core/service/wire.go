@@ -9,14 +9,14 @@ import (
 	"github.com/snple/beacon/pb/cores"
 )
 
-func SourceList(ctx context.Context, client cores.SourceServiceClient) {
+func WireList(ctx context.Context, client cores.WireServiceClient) {
 	page := pb.Page{
 		Limit:   10,
 		Offset:  0,
 		OrderBy: "name",
 	}
 
-	request := &cores.SourceListRequest{
+	request := &cores.WireListRequest{
 		Page: &page,
 	}
 
@@ -28,7 +28,7 @@ func SourceList(ctx context.Context, client cores.SourceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func SourceView(ctx context.Context, client cores.SourceServiceClient) {
+func WireView(ctx context.Context, client cores.WireServiceClient) {
 	request := &pb.Id{Id: "01946a0cabdabc925941e98a"}
 
 	reply, err := client.View(ctx, request)
@@ -39,10 +39,10 @@ func SourceView(ctx context.Context, client cores.SourceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func SourceName(ctx context.Context, client cores.SourceServiceClient) {
-	request := &cores.SourceNameRequest{
+func WireName(ctx context.Context, client cores.WireServiceClient) {
+	request := &cores.WireNameRequest{
 		NodeId: "01946a0cabdabc925941e98a",
-		Name:   "source",
+		Name:   "wire",
 	}
 
 	reply, err := client.Name(ctx, request)
@@ -53,11 +53,11 @@ func SourceName(ctx context.Context, client cores.SourceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func SourceCreate(ctx context.Context, client cores.SourceServiceClient) {
-	request := &pb.Source{
+func WireCreate(ctx context.Context, client cores.WireServiceClient) {
+	request := &pb.Wire{
 		NodeId: "01946a0cabdabc925941e98a",
-		Name:   "source",
-		Desc:   "source",
+		Name:   "wire",
+		Desc:   "wire",
 		Source: "source",
 		Params: "params",
 		Config: "config",
@@ -73,11 +73,11 @@ func SourceCreate(ctx context.Context, client cores.SourceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func SourceUpdate(ctx context.Context, client cores.SourceServiceClient) {
-	request := &pb.Source{
+func WireUpdate(ctx context.Context, client cores.WireServiceClient) {
+	request := &pb.Wire{
 		Id:     "01946a51cd5bc0cd7a776f35",
-		Name:   "source",
-		Desc:   "source",
+		Name:   "wire",
+		Desc:   "wire",
 		Source: "source",
 		Params: "params",
 		Config: "config",
@@ -93,7 +93,7 @@ func SourceUpdate(ctx context.Context, client cores.SourceServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func SourceDelete(ctx context.Context, client cores.SourceServiceClient) {
+func WireDelete(ctx context.Context, client cores.WireServiceClient) {
 	request := &pb.Id{Id: "01946a51cd5bc0cd7a776f35"}
 
 	reply, err := client.Delete(ctx, request)

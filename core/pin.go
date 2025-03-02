@@ -44,8 +44,8 @@ func (s *PinService) Create(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid argument")
 		}
 
-		if len(in.GetSourceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.SourceID")
+		if len(in.GetWireId()) == 0 {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.WireID")
 		}
 
 		if in.GetName() == "" {
@@ -59,7 +59,7 @@ func (s *PinService) Create(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
 			return &output, status.Error(codes.InvalidArgument, "Pin.Name min 2 character")
 		}
 
-		err = s.cs.GetDB().NewSelect().Model(&model.Pin{}).Where("name = ?", in.GetName()).Where("source_id = ?", in.GetSourceId()).Scan(ctx)
+		err = s.cs.GetDB().NewSelect().Model(&model.Pin{}).Where("name = ?", in.GetName()).Where("wire_id = ?", in.GetWireId()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
@@ -71,7 +71,7 @@ func (s *PinService) Create(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
 
 	item := model.Pin{
 		ID:       in.GetId(),
-		SourceID: in.GetSourceId(),
+		WireID:   in.GetWireId(),
 		Name:     in.GetName(),
 		Desc:     in.GetDesc(),
 		Tags:     in.GetTags(),
@@ -84,14 +84,14 @@ func (s *PinService) Create(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
 		Updated:  time.Now(),
 	}
 
-	// source validation
+	// wire validation
 	{
-		source, err := s.cs.GetSource().ViewByID(ctx, in.GetSourceId())
+		wire, err := s.cs.GetWire().ViewByID(ctx, in.GetWireId())
 		if err != nil {
 			return &output, err
 		}
 
-		item.NodeID = source.NodeID
+		item.NodeID = wire.NodeID
 	}
 
 	if item.ID == "" {
@@ -148,7 +148,7 @@ func (s *PinService) Update(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
 		}
 
 		modelItem := model.Pin{}
-		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("source_id = ?", item.SourceID).Where("name = ?", in.GetName()).Scan(ctx)
+		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("wire_id = ?", item.WireID).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
@@ -271,7 +271,7 @@ func (s *PinService) NameFull(ctx context.Context, in *pb.Name) (*pb.Pin, error)
 	}
 
 	nodeName := consts.DEFAULT_NODE
-	sourceName := consts.DEFAULT_SOURCE
+	wireName := consts.DEFAULT_WIRE
 	itemName := in.GetName()
 
 	if strings.Contains(itemName, ".") {
@@ -279,11 +279,11 @@ func (s *PinService) NameFull(ctx context.Context, in *pb.Name) (*pb.Pin, error)
 
 		switch len(splits) {
 		case 2:
-			sourceName = splits[0]
+			wireName = splits[0]
 			itemName = splits[1]
 		case 3:
 			nodeName = splits[0]
-			sourceName = splits[1]
+			wireName = splits[1]
 			itemName = splits[2]
 		default:
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
@@ -295,12 +295,12 @@ func (s *PinService) NameFull(ctx context.Context, in *pb.Name) (*pb.Pin, error)
 		return &output, err
 	}
 
-	source, err := s.cs.GetSource().ViewByNodeIDAndName(ctx, node.ID, sourceName)
+	wire, err := s.cs.GetWire().ViewByNodeIDAndName(ctx, node.ID, wireName)
 	if err != nil {
 		return &output, err
 	}
 
-	item, err := s.ViewBySourceIDAndName(ctx, source.ID, itemName)
+	item, err := s.ViewByWireIDAndName(ctx, wire.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -384,8 +384,8 @@ func (s *PinService) List(ctx context.Context, in *cores.PinListRequest) (*cores
 		query.Where("node_id = ?", in.GetNodeId())
 	}
 
-	if len(in.GetSourceId()) > 0 {
-		query.Where("source_id = ?", in.GetSourceId())
+	if len(in.GetWireId()) > 0 {
+		query.Where("wire_id = ?", in.GetWireId())
 	}
 
 	if in.GetPage().GetSearch() != "" {
@@ -465,7 +465,7 @@ func (s *PinService) Clone(ctx context.Context, in *cores.PinCloneRequest) (*pb.
 		}
 	}
 
-	err = s.cs.getClone().pin(ctx, s.cs.GetDB(), in.GetId(), in.GetSourceId())
+	err = s.cs.getClone().pin(ctx, s.cs.GetDB(), in.GetId(), in.GetWireId())
 	if err != nil {
 		return &output, err
 	}
@@ -495,7 +495,7 @@ func (s *PinService) ViewByID(ctx context.Context, id string) (model.Pin, error)
 func (s *PinService) ViewByNodeIDAndName(ctx context.Context, nodeID, name string) (model.Pin, error) {
 	item := model.Pin{}
 
-	sourceName := consts.DEFAULT_SOURCE
+	wireName := consts.DEFAULT_WIRE
 	itemName := name
 
 	if strings.Contains(itemName, ".") {
@@ -504,25 +504,25 @@ func (s *PinService) ViewByNodeIDAndName(ctx context.Context, nodeID, name strin
 			return item, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 
-		sourceName = splits[0]
+		wireName = splits[0]
 		itemName = splits[1]
 	}
 
-	source, err := s.cs.GetSource().ViewByNodeIDAndName(ctx, nodeID, sourceName)
+	wire, err := s.cs.GetWire().ViewByNodeIDAndName(ctx, nodeID, wireName)
 	if err != nil {
 		return item, err
 	}
 
-	return s.ViewBySourceIDAndName(ctx, source.ID, itemName)
+	return s.ViewByWireIDAndName(ctx, wire.ID, itemName)
 }
 
-func (s *PinService) ViewBySourceIDAndName(ctx context.Context, sourceID, name string) (model.Pin, error) {
+func (s *PinService) ViewByWireIDAndName(ctx context.Context, wireID, name string) (model.Pin, error) {
 	item := model.Pin{}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).Where("source_id = ?", sourceID).Where("name = ?", name).Scan(ctx)
+	err := s.cs.GetDB().NewSelect().Model(&item).Where("wire_id = ?", wireID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v, Pin.Name: %v", err, sourceID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, WireID: %v, Pin.Name: %v", err, wireID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -531,13 +531,13 @@ func (s *PinService) ViewBySourceIDAndName(ctx context.Context, sourceID, name s
 	return item, nil
 }
 
-func (s *PinService) ViewBySourceIDAndAddress(ctx context.Context, sourceID, address string) (model.Pin, error) {
+func (s *PinService) ViewByWireIDAndAddress(ctx context.Context, wireID, address string) (model.Pin, error) {
 	item := model.Pin{}
 
-	err := s.cs.GetDB().NewSelect().Model(&item).Where("source_id = ?", sourceID).Where("address = ?", address).Scan(ctx)
+	err := s.cs.GetDB().NewSelect().Model(&item).Where("wire_id = ?", wireID).Where("address = ?", address).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v, Pin.Address: %v", err, sourceID, address)
+			return item, status.Errorf(codes.NotFound, "Query: %v, WireID: %v, Pin.Address: %v", err, wireID, address)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -549,7 +549,7 @@ func (s *PinService) ViewBySourceIDAndAddress(ctx context.Context, sourceID, add
 func (s *PinService) copyModelToOutput(output *pb.Pin, item *model.Pin) {
 	output.Id = item.ID
 	output.NodeId = item.NodeID
-	output.SourceId = item.SourceID
+	output.WireId = item.WireID
 	output.Name = item.Name
 	output.Desc = item.Desc
 	output.Tags = item.Tags
@@ -661,8 +661,8 @@ func (s *PinService) Pull(ctx context.Context, in *cores.PinPullRequest) (*cores
 		query.Where("node_id = ?", in.GetNodeId())
 	}
 
-	if in.GetSourceId() != "" {
-		query.Where("source_id = ?", in.GetSourceId())
+	if in.GetWireId() != "" {
+		query.Where("wire_id = ?", in.GetWireId())
 	}
 
 	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).WhereAllWithDeleted().Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
@@ -733,15 +733,15 @@ SKIP:
 			}
 		}
 
-		// source validation
+		// wire validation
 		{
-			source, err := s.cs.GetSource().viewWithDeleted(ctx, in.GetSourceId())
+			wire, err := s.cs.GetWire().viewWithDeleted(ctx, in.GetWireId())
 			if err != nil {
 				return &output, err
 			}
 
-			if source.NodeID != in.GetNodeId() {
-				return &output, status.Error(codes.NotFound, "Query: source.NodeID != in.GetNodeId()")
+			if wire.NodeID != in.GetNodeId() {
+				return &output, status.Error(codes.NotFound, "Query: wire.NodeID != in.GetNodeId()")
 			}
 		}
 
@@ -751,7 +751,7 @@ SKIP:
 				return &output, status.Error(codes.InvalidArgument, "Pin.Name min 2 character")
 			}
 
-			err = s.cs.GetDB().NewSelect().Model(&model.Pin{}).Where("name = ?", in.GetName()).Where("source_id = ?", in.GetSourceId()).Scan(ctx)
+			err = s.cs.GetDB().NewSelect().Model(&model.Pin{}).Where("name = ?", in.GetName()).Where("wire_id = ?", in.GetWireId()).Scan(ctx)
 			if err != nil {
 				if err != sql.ErrNoRows {
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
@@ -764,7 +764,7 @@ SKIP:
 		item := model.Pin{
 			ID:       in.GetId(),
 			NodeID:   in.GetNodeId(),
-			SourceID: in.GetSourceId(),
+			WireID:   in.GetWireId(),
 			Name:     in.GetName(),
 			Desc:     in.GetDesc(),
 			Tags:     in.GetTags(),
@@ -801,7 +801,7 @@ SKIP:
 			}
 
 			modelItem := model.Pin{}
-			err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("source_id = ?", item.SourceID).Where("name = ?", in.GetName()).Scan(ctx)
+			err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("wire_id = ?", item.WireID).Where("name = ?", in.GetName()).Scan(ctx)
 			if err != nil {
 				if err != sql.ErrNoRows {
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
@@ -885,18 +885,18 @@ func (s *PinService) ViewFromCacheByNodeIDAndName(ctx context.Context, nodeID, n
 	return item, nil
 }
 
-func (s *PinService) ViewFromCacheBySourceIDAndName(ctx context.Context, sourceID, name string) (model.Pin, error) {
+func (s *PinService) ViewFromCacheByWireIDAndName(ctx context.Context, wireID, name string) (model.Pin, error) {
 	if !s.cs.dopts.cache {
-		return s.ViewBySourceIDAndName(ctx, sourceID, name)
+		return s.ViewByWireIDAndName(ctx, wireID, name)
 	}
 
-	id := sourceID + name
+	id := wireID + name
 
 	if option := s.cache.Get(id); option.IsSome() {
 		return option.Unwrap(), nil
 	}
 
-	item, err := s.ViewBySourceIDAndName(ctx, sourceID, name)
+	item, err := s.ViewByWireIDAndName(ctx, wireID, name)
 	if err != nil {
 		return item, err
 	}
@@ -906,18 +906,18 @@ func (s *PinService) ViewFromCacheBySourceIDAndName(ctx context.Context, sourceI
 	return item, nil
 }
 
-func (s *PinService) ViewFromCacheBySourceIDAndAddress(ctx context.Context, sourceID, address string) (model.Pin, error) {
+func (s *PinService) ViewFromCacheByWireIDAndAddress(ctx context.Context, wireID, address string) (model.Pin, error) {
 	if !s.cs.dopts.cache {
-		return s.ViewBySourceIDAndAddress(ctx, sourceID, address)
+		return s.ViewByWireIDAndAddress(ctx, wireID, address)
 	}
 
-	id := sourceID + address
+	id := wireID + address
 
 	if option := s.cache.Get(id); option.IsSome() {
 		return option.Unwrap(), nil
 	}
 
-	item, err := s.ViewBySourceIDAndAddress(ctx, sourceID, address)
+	item, err := s.ViewByWireIDAndAddress(ctx, wireID, address)
 	if err != nil {
 		return item, err
 	}
@@ -997,7 +997,7 @@ func (s *PinService) SetValue(ctx context.Context, in *pb.PinValue) (*pb.MyBool,
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	// validation node and source
+	// validation node and wire
 	{
 		// node
 		{
@@ -1011,15 +1011,15 @@ func (s *PinService) SetValue(ctx context.Context, in *pb.PinValue) (*pb.MyBool,
 			}
 		}
 
-		// source
+		// wire
 		{
-			source, err := s.cs.GetSource().ViewFromCacheByID(ctx, item.SourceID)
+			wire, err := s.cs.GetWire().ViewFromCacheByID(ctx, item.WireID)
 			if err != nil {
 				return &output, err
 			}
 
-			if source.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
+			if wire.Status != consts.ON {
+				return &output, status.Errorf(codes.FailedPrecondition, "Wire.Status != ON")
 			}
 		}
 	}
@@ -1129,18 +1129,18 @@ func (s *PinService) SetValueByName(ctx context.Context, in *cores.PinNameValue)
 		itemName = splits[1]
 	}
 
-	// source
-	source, err := s.cs.GetSource().ViewFromCacheByNodeIDAndName(ctx, node.ID, nodeName)
+	// wire
+	wire, err := s.cs.GetWire().ViewFromCacheByNodeIDAndName(ctx, node.ID, nodeName)
 	if err != nil {
 		return &output, err
 	}
 
-	if source.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
+	if wire.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Wire.Status != ON")
 	}
 
 	// pin
-	item, err := s.ViewFromCacheBySourceIDAndName(ctx, source.ID, itemName)
+	item, err := s.ViewFromCacheByWireIDAndName(ctx, wire.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -1272,8 +1272,8 @@ func (s *PinService) PullValue(ctx context.Context, in *cores.PinPullValueReques
 		query.Where("node_id = ?", in.GetNodeId())
 	}
 
-	if len(in.GetSourceId()) > 0 {
-		query.Where("source_id = ?", in.GetSourceId())
+	if len(in.GetWireId()) > 0 {
+		query.Where("wire_id = ?", in.GetWireId())
 	}
 
 	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
@@ -1359,11 +1359,11 @@ func (s *PinService) setPinValueUpdated(ctx context.Context, item *model.Pin, va
 	var err error
 
 	item2 := model.PinValue{
-		ID:       item.ID,
-		NodeID:   item.NodeID,
-		SourceID: item.SourceID,
-		Value:    value,
-		Updated:  updated,
+		ID:      item.ID,
+		NodeID:  item.NodeID,
+		WireID:  item.WireID,
+		Value:   value,
+		Updated: updated,
 	}
 
 	ret, err := s.cs.GetDB().NewUpdate().Model(&item2).WherePK().WhereAllWithDeleted().Exec(ctx)
@@ -1406,7 +1406,7 @@ func (s *PinService) getPinValueUpdated(ctx context.Context, id string) (model.P
 func (s *PinService) copyModelToOutputPinValue(output *pb.PinValueUpdated, item *model.PinValue) {
 	output.Id = item.ID
 	output.NodeId = item.NodeID
-	output.SourceId = item.SourceID
+	output.WireId = item.WireID
 	output.Value = item.Value
 	output.Updated = item.Updated.UnixMicro()
 }
@@ -1485,7 +1485,7 @@ func (s *PinService) SetWrite(ctx context.Context, in *pb.PinValue) (*pb.MyBool,
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	// validation node and source
+	// validation node and wire
 	{
 		// node
 		{
@@ -1499,15 +1499,15 @@ func (s *PinService) SetWrite(ctx context.Context, in *pb.PinValue) (*pb.MyBool,
 			}
 		}
 
-		// source
+		// wire
 		{
-			source, err := s.cs.GetSource().ViewFromCacheByID(ctx, item.SourceID)
+			wire, err := s.cs.GetWire().ViewFromCacheByID(ctx, item.WireID)
 			if err != nil {
 				return &output, err
 			}
 
-			if source.Status != consts.ON {
-				return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
+			if wire.Status != consts.ON {
+				return &output, status.Errorf(codes.FailedPrecondition, "Wire.Status != ON")
 			}
 		}
 	}
@@ -1617,18 +1617,18 @@ func (s *PinService) SetWriteByName(ctx context.Context, in *cores.PinNameValue)
 		itemName = splits[1]
 	}
 
-	// source
-	source, err := s.cs.GetSource().ViewFromCacheByNodeIDAndName(ctx, node.ID, nodeName)
+	// wire
+	wire, err := s.cs.GetWire().ViewFromCacheByNodeIDAndName(ctx, node.ID, nodeName)
 	if err != nil {
 		return &output, err
 	}
 
-	if source.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
+	if wire.Status != consts.ON {
+		return &output, status.Errorf(codes.FailedPrecondition, "Wire.Status != ON")
 	}
 
 	// pin
-	item, err := s.ViewFromCacheBySourceIDAndName(ctx, source.ID, itemName)
+	item, err := s.ViewFromCacheByWireIDAndName(ctx, wire.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
@@ -1764,8 +1764,8 @@ func (s *PinService) PullWrite(ctx context.Context, in *cores.PinPullValueReques
 		query.Where("node_id = ?", in.GetNodeId())
 	}
 
-	if len(in.GetSourceId()) > 0 {
-		query.Where("source_id = ?", in.GetSourceId())
+	if len(in.GetWireId()) > 0 {
+		query.Where("wire_id = ?", in.GetWireId())
 	}
 
 	err = query.Where("updated > ?", time.UnixMicro(in.GetAfter())).Order("updated ASC").Limit(int(in.GetLimit())).Scan(ctx)
@@ -1851,11 +1851,11 @@ func (s *PinService) setPinWriteUpdated(ctx context.Context, item *model.Pin, va
 	var err error
 
 	item2 := model.PinWrite{
-		ID:       item.ID,
-		NodeID:   item.NodeID,
-		SourceID: item.SourceID,
-		Value:    value,
-		Updated:  updated,
+		ID:      item.ID,
+		NodeID:  item.NodeID,
+		WireID:  item.WireID,
+		Value:   value,
+		Updated: updated,
 	}
 
 	ret, err := s.cs.GetDB().NewUpdate().Model(&item2).WherePK().WhereAllWithDeleted().Exec(ctx)
@@ -1898,7 +1898,7 @@ func (s *PinService) getPinWriteUpdated(ctx context.Context, id string) (model.P
 func (s *PinService) copyModelToOutputPinWrite(output *pb.PinValueUpdated, item *model.PinWrite) {
 	output.Id = item.ID
 	output.NodeId = item.NodeID
-	output.SourceId = item.SourceID
+	output.WireId = item.WireID
 	output.Value = item.Value
 	output.Updated = item.Updated.UnixMicro()
 }

@@ -9,8 +9,8 @@ const (
 )
 
 const (
-	DEFAULT_NODE   = "node"
-	DEFAULT_SOURCE = "source"
-	DEFAULT_TAG    = "tag"
-	DEFAULT_CONST  = "const"
+	DEFAULT_NODE  = "node"
+	DEFAULT_WIRE  = "wire"
+	DEFAULT_TAG   = "tag"
+	DEFAULT_CONST = "const"
 )

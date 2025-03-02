@@ -59,7 +59,7 @@ func PinName(ctx context.Context, client cores.PinServiceClient) {
 
 func PinCreate(ctx context.Context, client cores.PinServiceClient) {
 	request := &pb.Pin{
-		SourceId: "01946a51cd5bc0cd7a776f35",
+		WireId:   "01946a51cd5bc0cd7a776f35",
 		Name:     "pin1",
 		Desc:     "",
 		Address:  "",

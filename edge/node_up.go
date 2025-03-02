@@ -282,8 +282,8 @@ func (s *NodeUpService) SlotServiceClient() nodes.SlotServiceClient {
 	return nodes.NewSlotServiceClient(s.NodeConn)
 }
 
-func (s *NodeUpService) SourceServiceClient() nodes.SourceServiceClient {
-	return nodes.NewSourceServiceClient(s.NodeConn)
+func (s *NodeUpService) WireServiceClient() nodes.WireServiceClient {
+	return nodes.NewWireServiceClient(s.NodeConn)
 }
 
 func (s *NodeUpService) PinServiceClient() nodes.PinServiceClient {
@@ -662,19 +662,19 @@ func (s *NodeUpService) syncRemoteToLocal(ctx context.Context) error {
 		}
 	}
 
-	// source
+	// wire
 	{
 		after := nodeUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.SourceServiceClient().Pull(ctx, &nodes.SourcePullRequest{After: after, Limit: limit})
+			remotes, err := s.WireServiceClient().Pull(ctx, &nodes.WirePullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
 
-			for _, remote := range remotes.GetSource() {
-				_, err = s.es.GetSource().Sync(ctx, remote)
+			for _, remote := range remotes.GetWire() {
+				_, err = s.es.GetWire().Sync(ctx, remote)
 				if err != nil {
 					return err
 				}
@@ -682,7 +682,7 @@ func (s *NodeUpService) syncRemoteToLocal(ctx context.Context) error {
 				after = remote.GetUpdated()
 			}
 
-			if len(remotes.GetSource()) < int(limit) {
+			if len(remotes.GetWire()) < int(limit) {
 				break
 			}
 		}
@@ -797,19 +797,19 @@ func (s *NodeUpService) syncLocalToRemote(ctx context.Context) error {
 		}
 	}
 
-	// source
+	// wire
 	{
 		after := nodeUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
-			locals, err := s.es.GetSource().Pull(ctx, &edges.SourcePullRequest{After: after, Limit: limit})
+			locals, err := s.es.GetWire().Pull(ctx, &edges.WirePullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
 
-			for _, local := range locals.GetSource() {
-				_, err = s.SourceServiceClient().Sync(ctx, local)
+			for _, local := range locals.GetWire() {
+				_, err = s.WireServiceClient().Sync(ctx, local)
 				if err != nil {
 					return err
 				}
@@ -817,7 +817,7 @@ func (s *NodeUpService) syncLocalToRemote(ctx context.Context) error {
 				after = local.GetUpdated()
 			}
 
-			if len(locals.GetSource()) < int(limit) {
+			if len(locals.GetWire()) < int(limit) {
 				break
 			}
 		}

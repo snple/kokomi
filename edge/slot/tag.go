@@ -134,9 +134,9 @@ func (s *PinService) List(ctx context.Context, in *slots.PinListRequest) (*slots
 	}
 
 	request := &edges.PinListRequest{
-		Page:     in.GetPage(),
-		SourceId: in.GetSourceId(),
-		Tags:     in.GetTags(),
+		Page:   in.GetPage(),
+		WireId: in.GetWireId(),
+		Tags:   in.GetTags(),
 	}
 
 	reply, err := s.ss.Edge().GetPin().List(ctx, request)
@@ -195,9 +195,9 @@ func (s *PinService) Pull(ctx context.Context, in *slots.PinPullRequest) (*slots
 	}
 
 	request := &edges.PinPullRequest{
-		After:    in.GetAfter(),
-		Limit:    in.GetLimit(),
-		SourceId: in.GetSourceId(),
+		After:  in.GetAfter(),
+		Limit:  in.GetLimit(),
+		WireId: in.GetWireId(),
 	}
 
 	reply, err := s.ss.Edge().GetPin().Pull(ctx, request)
@@ -370,9 +370,9 @@ func (s *PinService) PullValue(ctx context.Context, in *slots.PinPullValueReques
 	}
 
 	request := &edges.PinPullValueRequest{
-		After:    in.GetAfter(),
-		Limit:    in.GetLimit(),
-		SourceId: in.GetSourceId(),
+		After:  in.GetAfter(),
+		Limit:  in.GetLimit(),
+		WireId: in.GetWireId(),
 	}
 
 	reply, err := s.ss.Edge().GetPin().PullValue(ctx, request)
@@ -545,9 +545,9 @@ func (s *PinService) PullWrite(ctx context.Context, in *slots.PinPullValueReques
 	}
 
 	request := &edges.PinPullValueRequest{
-		After:    in.GetAfter(),
-		Limit:    in.GetLimit(),
-		SourceId: in.GetSourceId(),
+		After:  in.GetAfter(),
+		Limit:  in.GetLimit(),
+		WireId: in.GetWireId(),
 	}
 
 	reply, err := s.ss.Edge().GetPin().PullWrite(ctx, request)

@@ -18,7 +18,7 @@ type WebService struct {
 	user     *UserService
 	node     *NodeService
 	slot     *SlotService
-	source   *SourceService
+	wire     *WireService
 	pin      *PinService
 	constant *ConstService
 
@@ -56,7 +56,7 @@ func NewWebService(cs *core.CoreService, opts ...WebApiOption) (*WebService, err
 	s.user = newUserService(s)
 	s.node = newNodeService(s)
 	s.slot = newSlotService(s)
-	s.source = newSourceService(s)
+	s.wire = newWireService(s)
 	s.pin = newPinService(s)
 	s.constant = newConstService(s)
 
@@ -76,7 +76,7 @@ func (s *WebService) Register(router gin.IRouter) {
 	s.user.register(router)
 	s.node.register(router)
 	s.slot.register(router)
-	s.source.register(router)
+	s.wire.register(router)
 	s.pin.register(router)
 	s.constant.register(router)
 }

@@ -140,7 +140,7 @@ func (s *SyncService) GetSlotUpdated(ctx context.Context, in *pb.MyEmpty) (*slot
 	return &output, nil
 }
 
-func (s *SyncService) SetSourceUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetWireUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -160,11 +160,11 @@ func (s *SyncService) SetSourceUpdated(ctx context.Context, in *slots.SyncUpdate
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSync().SetSourceUpdated(ctx,
+	return s.ss.Edge().GetSync().SetWireUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
-func (s *SyncService) GetSourceUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
+func (s *SyncService) GetWireUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
 	var output slots.SyncUpdated
 	var err error
 
@@ -180,7 +180,7 @@ func (s *SyncService) GetSourceUpdated(ctx context.Context, in *pb.MyEmpty) (*sl
 		return &output, err
 	}
 
-	reply, err := s.ss.Edge().GetSync().GetSourceUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetWireUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}

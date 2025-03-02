@@ -15,7 +15,7 @@ type ApiService struct {
 	es *edge.EdgeService
 
 	node     *NodeService
-	source   *SourceService
+	wire     *WireService
 	pin      *PinService
 	constant *ConstService
 
@@ -45,7 +45,7 @@ func NewApiService(es *edge.EdgeService, opts ...ApiOption) (*ApiService, error)
 	}
 
 	s.node = newNodeService(s)
-	s.source = newSourceService(s)
+	s.wire = newWireService(s)
 	s.pin = newPinService(s)
 	s.constant = newConstService(s)
 
@@ -54,7 +54,7 @@ func NewApiService(es *edge.EdgeService, opts ...ApiOption) (*ApiService, error)
 
 func (s *ApiService) Register(router gin.IRouter) {
 	s.node.register(router)
-	s.source.register(router)
+	s.wire.register(router)
 	s.pin.register(router)
 	s.constant.register(router)
 }
