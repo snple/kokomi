@@ -24,8 +24,8 @@ type Source struct {
 	Updated       time.Time `bun:"updated" json:"updated"`
 }
 
-type Tag struct {
-	bun.BaseModel `bun:"tag"`
+type Pin struct {
+	bun.BaseModel `bun:"pin"`
 	ID            string    `bun:"type:TEXT,pk" json:"id"`
 	NodeID        string    `bun:"node_id,type:TEXT" json:"node_id"`
 	SourceID      string    `bun:"source_id,type:TEXT" json:"source_id"`
@@ -42,16 +42,16 @@ type Tag struct {
 	Updated       time.Time `bun:"updated" json:"updated"`
 }
 
-func (t *Tag) DefaultValue() nson.Value {
-	return datatype.DataType(t.DataType).DefaultValue()
+func (p *Pin) DefaultValue() nson.Value {
+	return datatype.DataType(p.DataType).DefaultValue()
 }
 
-func (t *Tag) ValueTag() uint8 {
-	return datatype.DataType(t.DataType).Tag()
+func (p *Pin) ValueTag() uint8 {
+	return datatype.DataType(p.DataType).Tag()
 }
 
-type TagValue struct {
-	bun.BaseModel `bun:"tag_value"`
+type PinValue struct {
+	bun.BaseModel `bun:"pin_value"`
 	ID            string    `bun:"type:TEXT,pk" json:"id"`
 	NodeID        string    `bun:"node_id,type:TEXT" json:"node_id"`
 	SourceID      string    `bun:"source_id,type:TEXT" json:"source_id"`
@@ -60,8 +60,8 @@ type TagValue struct {
 	Updated       time.Time `bun:"updated" json:"updated"`
 }
 
-type TagWrite struct {
-	bun.BaseModel `bun:"tag_write"`
+type PinWrite struct {
+	bun.BaseModel `bun:"pin_write"`
 	ID            string    `bun:"type:TEXT,pk" json:"id"`
 	NodeID        string    `bun:"node_id,type:TEXT" json:"node_id"`
 	SourceID      string    `bun:"source_id,type:TEXT" json:"source_id"`

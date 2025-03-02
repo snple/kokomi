@@ -540,1089 +540,1089 @@ var SourceService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	TagService_Create_FullMethodName          = "/cores.TagService/Create"
-	TagService_Update_FullMethodName          = "/cores.TagService/Update"
-	TagService_View_FullMethodName            = "/cores.TagService/View"
-	TagService_Name_FullMethodName            = "/cores.TagService/Name"
-	TagService_NameFull_FullMethodName        = "/cores.TagService/NameFull"
-	TagService_Delete_FullMethodName          = "/cores.TagService/Delete"
-	TagService_List_FullMethodName            = "/cores.TagService/List"
-	TagService_Clone_FullMethodName           = "/cores.TagService/Clone"
-	TagService_ViewWithDeleted_FullMethodName = "/cores.TagService/ViewWithDeleted"
-	TagService_Pull_FullMethodName            = "/cores.TagService/Pull"
-	TagService_Sync_FullMethodName            = "/cores.TagService/Sync"
-	TagService_GetValue_FullMethodName        = "/cores.TagService/GetValue"
-	TagService_SetValue_FullMethodName        = "/cores.TagService/SetValue"
-	TagService_GetValueByName_FullMethodName  = "/cores.TagService/GetValueByName"
-	TagService_SetValueByName_FullMethodName  = "/cores.TagService/SetValueByName"
-	TagService_ViewValue_FullMethodName       = "/cores.TagService/ViewValue"
-	TagService_DeleteValue_FullMethodName     = "/cores.TagService/DeleteValue"
-	TagService_PullValue_FullMethodName       = "/cores.TagService/PullValue"
-	TagService_SyncValue_FullMethodName       = "/cores.TagService/SyncValue"
-	TagService_GetWrite_FullMethodName        = "/cores.TagService/GetWrite"
-	TagService_SetWrite_FullMethodName        = "/cores.TagService/SetWrite"
-	TagService_GetWriteByName_FullMethodName  = "/cores.TagService/GetWriteByName"
-	TagService_SetWriteByName_FullMethodName  = "/cores.TagService/SetWriteByName"
-	TagService_ViewWrite_FullMethodName       = "/cores.TagService/ViewWrite"
-	TagService_DeleteWrite_FullMethodName     = "/cores.TagService/DeleteWrite"
-	TagService_PullWrite_FullMethodName       = "/cores.TagService/PullWrite"
-	TagService_SyncWrite_FullMethodName       = "/cores.TagService/SyncWrite"
+	PinService_Create_FullMethodName          = "/cores.PinService/Create"
+	PinService_Update_FullMethodName          = "/cores.PinService/Update"
+	PinService_View_FullMethodName            = "/cores.PinService/View"
+	PinService_Name_FullMethodName            = "/cores.PinService/Name"
+	PinService_NameFull_FullMethodName        = "/cores.PinService/NameFull"
+	PinService_Delete_FullMethodName          = "/cores.PinService/Delete"
+	PinService_List_FullMethodName            = "/cores.PinService/List"
+	PinService_Clone_FullMethodName           = "/cores.PinService/Clone"
+	PinService_ViewWithDeleted_FullMethodName = "/cores.PinService/ViewWithDeleted"
+	PinService_Pull_FullMethodName            = "/cores.PinService/Pull"
+	PinService_Sync_FullMethodName            = "/cores.PinService/Sync"
+	PinService_GetValue_FullMethodName        = "/cores.PinService/GetValue"
+	PinService_SetValue_FullMethodName        = "/cores.PinService/SetValue"
+	PinService_GetValueByName_FullMethodName  = "/cores.PinService/GetValueByName"
+	PinService_SetValueByName_FullMethodName  = "/cores.PinService/SetValueByName"
+	PinService_ViewValue_FullMethodName       = "/cores.PinService/ViewValue"
+	PinService_DeleteValue_FullMethodName     = "/cores.PinService/DeleteValue"
+	PinService_PullValue_FullMethodName       = "/cores.PinService/PullValue"
+	PinService_SyncValue_FullMethodName       = "/cores.PinService/SyncValue"
+	PinService_GetWrite_FullMethodName        = "/cores.PinService/GetWrite"
+	PinService_SetWrite_FullMethodName        = "/cores.PinService/SetWrite"
+	PinService_GetWriteByName_FullMethodName  = "/cores.PinService/GetWriteByName"
+	PinService_SetWriteByName_FullMethodName  = "/cores.PinService/SetWriteByName"
+	PinService_ViewWrite_FullMethodName       = "/cores.PinService/ViewWrite"
+	PinService_DeleteWrite_FullMethodName     = "/cores.PinService/DeleteWrite"
+	PinService_PullWrite_FullMethodName       = "/cores.PinService/PullWrite"
+	PinService_SyncWrite_FullMethodName       = "/cores.PinService/SyncWrite"
 )
 
-// TagServiceClient is the client API for TagService service.
+// PinServiceClient is the client API for PinService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type TagServiceClient interface {
-	Create(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.Tag, error)
-	Update(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.Tag, error)
-	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Tag, error)
-	Name(ctx context.Context, in *TagNameRequest, opts ...grpc.CallOption) (*pb.Tag, error)
-	NameFull(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Tag, error)
+type PinServiceClient interface {
+	Create(ctx context.Context, in *pb.Pin, opts ...grpc.CallOption) (*pb.Pin, error)
+	Update(ctx context.Context, in *pb.Pin, opts ...grpc.CallOption) (*pb.Pin, error)
+	View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Pin, error)
+	Name(ctx context.Context, in *PinNameRequest, opts ...grpc.CallOption) (*pb.Pin, error)
+	NameFull(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Pin, error)
 	Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	List(ctx context.Context, in *TagListRequest, opts ...grpc.CallOption) (*TagListResponse, error)
-	Clone(ctx context.Context, in *TagCloneRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
-	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Tag, error)
-	Pull(ctx context.Context, in *TagPullRequest, opts ...grpc.CallOption) (*TagPullResponse, error)
-	Sync(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValue, error)
-	SetValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetValueByName(ctx context.Context, in *TagGetValueByNameRequest, opts ...grpc.CallOption) (*TagNameValue, error)
-	SetValueByName(ctx context.Context, in *TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
-	ViewValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValueUpdated, error)
+	List(ctx context.Context, in *PinListRequest, opts ...grpc.CallOption) (*PinListResponse, error)
+	Clone(ctx context.Context, in *PinCloneRequest, opts ...grpc.CallOption) (*pb.MyBool, error)
+	ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Pin, error)
+	Pull(ctx context.Context, in *PinPullRequest, opts ...grpc.CallOption) (*PinPullResponse, error)
+	Sync(ctx context.Context, in *pb.Pin, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.PinValue, error)
+	SetValue(ctx context.Context, in *pb.PinValue, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetValueByName(ctx context.Context, in *PinGetValueByNameRequest, opts ...grpc.CallOption) (*PinNameValue, error)
+	SetValueByName(ctx context.Context, in *PinNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
+	ViewValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.PinValueUpdated, error)
 	DeleteValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	PullValue(ctx context.Context, in *TagPullValueRequest, opts ...grpc.CallOption) (*TagPullValueResponse, error)
-	SyncValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValue, error)
-	SetWrite(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetWriteByName(ctx context.Context, in *TagGetValueByNameRequest, opts ...grpc.CallOption) (*TagNameValue, error)
-	SetWriteByName(ctx context.Context, in *TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
-	ViewWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValueUpdated, error)
+	PullValue(ctx context.Context, in *PinPullValueRequest, opts ...grpc.CallOption) (*PinPullValueResponse, error)
+	SyncValue(ctx context.Context, in *pb.PinValue, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.PinValue, error)
+	SetWrite(ctx context.Context, in *pb.PinValue, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetWriteByName(ctx context.Context, in *PinGetValueByNameRequest, opts ...grpc.CallOption) (*PinNameValue, error)
+	SetWriteByName(ctx context.Context, in *PinNameValue, opts ...grpc.CallOption) (*pb.MyBool, error)
+	ViewWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.PinValueUpdated, error)
 	DeleteWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error)
-	PullWrite(ctx context.Context, in *TagPullValueRequest, opts ...grpc.CallOption) (*TagPullValueResponse, error)
-	SyncWrite(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error)
+	PullWrite(ctx context.Context, in *PinPullValueRequest, opts ...grpc.CallOption) (*PinPullValueResponse, error)
+	SyncWrite(ctx context.Context, in *pb.PinValue, opts ...grpc.CallOption) (*pb.MyBool, error)
 }
 
-type tagServiceClient struct {
+type pinServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewTagServiceClient(cc grpc.ClientConnInterface) TagServiceClient {
-	return &tagServiceClient{cc}
+func NewPinServiceClient(cc grpc.ClientConnInterface) PinServiceClient {
+	return &pinServiceClient{cc}
 }
 
-func (c *tagServiceClient) Create(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.Tag, error) {
+func (c *pinServiceClient) Create(ctx context.Context, in *pb.Pin, opts ...grpc.CallOption) (*pb.Pin, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.Tag)
-	err := c.cc.Invoke(ctx, TagService_Create_FullMethodName, in, out, cOpts...)
+	out := new(pb.Pin)
+	err := c.cc.Invoke(ctx, PinService_Create_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) Update(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.Tag, error) {
+func (c *pinServiceClient) Update(ctx context.Context, in *pb.Pin, opts ...grpc.CallOption) (*pb.Pin, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.Tag)
-	err := c.cc.Invoke(ctx, TagService_Update_FullMethodName, in, out, cOpts...)
+	out := new(pb.Pin)
+	err := c.cc.Invoke(ctx, PinService_Update_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Tag, error) {
+func (c *pinServiceClient) View(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Pin, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.Tag)
-	err := c.cc.Invoke(ctx, TagService_View_FullMethodName, in, out, cOpts...)
+	out := new(pb.Pin)
+	err := c.cc.Invoke(ctx, PinService_View_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) Name(ctx context.Context, in *TagNameRequest, opts ...grpc.CallOption) (*pb.Tag, error) {
+func (c *pinServiceClient) Name(ctx context.Context, in *PinNameRequest, opts ...grpc.CallOption) (*pb.Pin, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.Tag)
-	err := c.cc.Invoke(ctx, TagService_Name_FullMethodName, in, out, cOpts...)
+	out := new(pb.Pin)
+	err := c.cc.Invoke(ctx, PinService_Name_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) NameFull(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Tag, error) {
+func (c *pinServiceClient) NameFull(ctx context.Context, in *pb.Name, opts ...grpc.CallOption) (*pb.Pin, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.Tag)
-	err := c.cc.Invoke(ctx, TagService_NameFull_FullMethodName, in, out, cOpts...)
+	out := new(pb.Pin)
+	err := c.cc.Invoke(ctx, PinService_NameFull_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_Delete_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) List(ctx context.Context, in *TagListRequest, opts ...grpc.CallOption) (*TagListResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TagListResponse)
-	err := c.cc.Invoke(ctx, TagService_List_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) Clone(ctx context.Context, in *TagCloneRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *pinServiceClient) Delete(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_Clone_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PinService_Delete_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Tag, error) {
+func (c *pinServiceClient) List(ctx context.Context, in *PinListRequest, opts ...grpc.CallOption) (*PinListResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.Tag)
-	err := c.cc.Invoke(ctx, TagService_ViewWithDeleted_FullMethodName, in, out, cOpts...)
+	out := new(PinListResponse)
+	err := c.cc.Invoke(ctx, PinService_List_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) Pull(ctx context.Context, in *TagPullRequest, opts ...grpc.CallOption) (*TagPullResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TagPullResponse)
-	err := c.cc.Invoke(ctx, TagService_Pull_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) Sync(ctx context.Context, in *pb.Tag, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *pinServiceClient) Clone(ctx context.Context, in *PinCloneRequest, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_Sync_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PinService_Clone_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValue, error) {
+func (c *pinServiceClient) ViewWithDeleted(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.Pin, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.TagValue)
-	err := c.cc.Invoke(ctx, TagService_GetValue_FullMethodName, in, out, cOpts...)
+	out := new(pb.Pin)
+	err := c.cc.Invoke(ctx, PinService_ViewWithDeleted_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) SetValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *pinServiceClient) Pull(ctx context.Context, in *PinPullRequest, opts ...grpc.CallOption) (*PinPullResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_SetValue_FullMethodName, in, out, cOpts...)
+	out := new(PinPullResponse)
+	err := c.cc.Invoke(ctx, PinService_Pull_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) GetValueByName(ctx context.Context, in *TagGetValueByNameRequest, opts ...grpc.CallOption) (*TagNameValue, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TagNameValue)
-	err := c.cc.Invoke(ctx, TagService_GetValueByName_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) SetValueByName(ctx context.Context, in *TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *pinServiceClient) Sync(ctx context.Context, in *pb.Pin, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_SetValueByName_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PinService_Sync_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) ViewValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValueUpdated, error) {
+func (c *pinServiceClient) GetValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.PinValue, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.TagValueUpdated)
-	err := c.cc.Invoke(ctx, TagService_ViewValue_FullMethodName, in, out, cOpts...)
+	out := new(pb.PinValue)
+	err := c.cc.Invoke(ctx, PinService_GetValue_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) DeleteValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_DeleteValue_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) PullValue(ctx context.Context, in *TagPullValueRequest, opts ...grpc.CallOption) (*TagPullValueResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TagPullValueResponse)
-	err := c.cc.Invoke(ctx, TagService_PullValue_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) SyncValue(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *pinServiceClient) SetValue(ctx context.Context, in *pb.PinValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_SyncValue_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PinService_SetValue_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) GetWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValue, error) {
+func (c *pinServiceClient) GetValueByName(ctx context.Context, in *PinGetValueByNameRequest, opts ...grpc.CallOption) (*PinNameValue, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.TagValue)
-	err := c.cc.Invoke(ctx, TagService_GetWrite_FullMethodName, in, out, cOpts...)
+	out := new(PinNameValue)
+	err := c.cc.Invoke(ctx, PinService_GetValueByName_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) SetWrite(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_SetWrite_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) GetWriteByName(ctx context.Context, in *TagGetValueByNameRequest, opts ...grpc.CallOption) (*TagNameValue, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TagNameValue)
-	err := c.cc.Invoke(ctx, TagService_GetWriteByName_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) SetWriteByName(ctx context.Context, in *TagNameValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *pinServiceClient) SetValueByName(ctx context.Context, in *PinNameValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_SetWriteByName_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PinService_SetValueByName_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) ViewWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.TagValueUpdated, error) {
+func (c *pinServiceClient) ViewValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.PinValueUpdated, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.TagValueUpdated)
-	err := c.cc.Invoke(ctx, TagService_ViewWrite_FullMethodName, in, out, cOpts...)
+	out := new(pb.PinValueUpdated)
+	err := c.cc.Invoke(ctx, PinService_ViewValue_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tagServiceClient) DeleteWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_DeleteWrite_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) PullWrite(ctx context.Context, in *TagPullValueRequest, opts ...grpc.CallOption) (*TagPullValueResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TagPullValueResponse)
-	err := c.cc.Invoke(ctx, TagService_PullWrite_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tagServiceClient) SyncWrite(ctx context.Context, in *pb.TagValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *pinServiceClient) DeleteValue(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, TagService_SyncWrite_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PinService_DeleteValue_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// TagServiceServer is the server API for TagService service.
-// All implementations must embed UnimplementedTagServiceServer
+func (c *pinServiceClient) PullValue(ctx context.Context, in *PinPullValueRequest, opts ...grpc.CallOption) (*PinPullValueResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PinPullValueResponse)
+	err := c.cc.Invoke(ctx, PinService_PullValue_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pinServiceClient) SyncValue(ctx context.Context, in *pb.PinValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, PinService_SyncValue_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pinServiceClient) GetWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.PinValue, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.PinValue)
+	err := c.cc.Invoke(ctx, PinService_GetWrite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pinServiceClient) SetWrite(ctx context.Context, in *pb.PinValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, PinService_SetWrite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pinServiceClient) GetWriteByName(ctx context.Context, in *PinGetValueByNameRequest, opts ...grpc.CallOption) (*PinNameValue, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PinNameValue)
+	err := c.cc.Invoke(ctx, PinService_GetWriteByName_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pinServiceClient) SetWriteByName(ctx context.Context, in *PinNameValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, PinService_SetWriteByName_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pinServiceClient) ViewWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.PinValueUpdated, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.PinValueUpdated)
+	err := c.cc.Invoke(ctx, PinService_ViewWrite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pinServiceClient) DeleteWrite(ctx context.Context, in *pb.Id, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, PinService_DeleteWrite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pinServiceClient) PullWrite(ctx context.Context, in *PinPullValueRequest, opts ...grpc.CallOption) (*PinPullValueResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PinPullValueResponse)
+	err := c.cc.Invoke(ctx, PinService_PullWrite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pinServiceClient) SyncWrite(ctx context.Context, in *pb.PinValue, opts ...grpc.CallOption) (*pb.MyBool, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(pb.MyBool)
+	err := c.cc.Invoke(ctx, PinService_SyncWrite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// PinServiceServer is the server API for PinService service.
+// All implementations must embed UnimplementedPinServiceServer
 // for forward compatibility.
-type TagServiceServer interface {
-	Create(context.Context, *pb.Tag) (*pb.Tag, error)
-	Update(context.Context, *pb.Tag) (*pb.Tag, error)
-	View(context.Context, *pb.Id) (*pb.Tag, error)
-	Name(context.Context, *TagNameRequest) (*pb.Tag, error)
-	NameFull(context.Context, *pb.Name) (*pb.Tag, error)
+type PinServiceServer interface {
+	Create(context.Context, *pb.Pin) (*pb.Pin, error)
+	Update(context.Context, *pb.Pin) (*pb.Pin, error)
+	View(context.Context, *pb.Id) (*pb.Pin, error)
+	Name(context.Context, *PinNameRequest) (*pb.Pin, error)
+	NameFull(context.Context, *pb.Name) (*pb.Pin, error)
 	Delete(context.Context, *pb.Id) (*pb.MyBool, error)
-	List(context.Context, *TagListRequest) (*TagListResponse, error)
-	Clone(context.Context, *TagCloneRequest) (*pb.MyBool, error)
-	ViewWithDeleted(context.Context, *pb.Id) (*pb.Tag, error)
-	Pull(context.Context, *TagPullRequest) (*TagPullResponse, error)
-	Sync(context.Context, *pb.Tag) (*pb.MyBool, error)
-	GetValue(context.Context, *pb.Id) (*pb.TagValue, error)
-	SetValue(context.Context, *pb.TagValue) (*pb.MyBool, error)
-	GetValueByName(context.Context, *TagGetValueByNameRequest) (*TagNameValue, error)
-	SetValueByName(context.Context, *TagNameValue) (*pb.MyBool, error)
-	ViewValue(context.Context, *pb.Id) (*pb.TagValueUpdated, error)
+	List(context.Context, *PinListRequest) (*PinListResponse, error)
+	Clone(context.Context, *PinCloneRequest) (*pb.MyBool, error)
+	ViewWithDeleted(context.Context, *pb.Id) (*pb.Pin, error)
+	Pull(context.Context, *PinPullRequest) (*PinPullResponse, error)
+	Sync(context.Context, *pb.Pin) (*pb.MyBool, error)
+	GetValue(context.Context, *pb.Id) (*pb.PinValue, error)
+	SetValue(context.Context, *pb.PinValue) (*pb.MyBool, error)
+	GetValueByName(context.Context, *PinGetValueByNameRequest) (*PinNameValue, error)
+	SetValueByName(context.Context, *PinNameValue) (*pb.MyBool, error)
+	ViewValue(context.Context, *pb.Id) (*pb.PinValueUpdated, error)
 	DeleteValue(context.Context, *pb.Id) (*pb.MyBool, error)
-	PullValue(context.Context, *TagPullValueRequest) (*TagPullValueResponse, error)
-	SyncValue(context.Context, *pb.TagValue) (*pb.MyBool, error)
-	GetWrite(context.Context, *pb.Id) (*pb.TagValue, error)
-	SetWrite(context.Context, *pb.TagValue) (*pb.MyBool, error)
-	GetWriteByName(context.Context, *TagGetValueByNameRequest) (*TagNameValue, error)
-	SetWriteByName(context.Context, *TagNameValue) (*pb.MyBool, error)
-	ViewWrite(context.Context, *pb.Id) (*pb.TagValueUpdated, error)
+	PullValue(context.Context, *PinPullValueRequest) (*PinPullValueResponse, error)
+	SyncValue(context.Context, *pb.PinValue) (*pb.MyBool, error)
+	GetWrite(context.Context, *pb.Id) (*pb.PinValue, error)
+	SetWrite(context.Context, *pb.PinValue) (*pb.MyBool, error)
+	GetWriteByName(context.Context, *PinGetValueByNameRequest) (*PinNameValue, error)
+	SetWriteByName(context.Context, *PinNameValue) (*pb.MyBool, error)
+	ViewWrite(context.Context, *pb.Id) (*pb.PinValueUpdated, error)
 	DeleteWrite(context.Context, *pb.Id) (*pb.MyBool, error)
-	PullWrite(context.Context, *TagPullValueRequest) (*TagPullValueResponse, error)
-	SyncWrite(context.Context, *pb.TagValue) (*pb.MyBool, error)
-	mustEmbedUnimplementedTagServiceServer()
+	PullWrite(context.Context, *PinPullValueRequest) (*PinPullValueResponse, error)
+	SyncWrite(context.Context, *pb.PinValue) (*pb.MyBool, error)
+	mustEmbedUnimplementedPinServiceServer()
 }
 
-// UnimplementedTagServiceServer must be embedded to have
+// UnimplementedPinServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedTagServiceServer struct{}
+type UnimplementedPinServiceServer struct{}
 
-func (UnimplementedTagServiceServer) Create(context.Context, *pb.Tag) (*pb.Tag, error) {
+func (UnimplementedPinServiceServer) Create(context.Context, *pb.Pin) (*pb.Pin, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedTagServiceServer) Update(context.Context, *pb.Tag) (*pb.Tag, error) {
+func (UnimplementedPinServiceServer) Update(context.Context, *pb.Pin) (*pb.Pin, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedTagServiceServer) View(context.Context, *pb.Id) (*pb.Tag, error) {
+func (UnimplementedPinServiceServer) View(context.Context, *pb.Id) (*pb.Pin, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method View not implemented")
 }
-func (UnimplementedTagServiceServer) Name(context.Context, *TagNameRequest) (*pb.Tag, error) {
+func (UnimplementedPinServiceServer) Name(context.Context, *PinNameRequest) (*pb.Pin, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Name not implemented")
 }
-func (UnimplementedTagServiceServer) NameFull(context.Context, *pb.Name) (*pb.Tag, error) {
+func (UnimplementedPinServiceServer) NameFull(context.Context, *pb.Name) (*pb.Pin, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NameFull not implemented")
 }
-func (UnimplementedTagServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
+func (UnimplementedPinServiceServer) Delete(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedTagServiceServer) List(context.Context, *TagListRequest) (*TagListResponse, error) {
+func (UnimplementedPinServiceServer) List(context.Context, *PinListRequest) (*PinListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedTagServiceServer) Clone(context.Context, *TagCloneRequest) (*pb.MyBool, error) {
+func (UnimplementedPinServiceServer) Clone(context.Context, *PinCloneRequest) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Clone not implemented")
 }
-func (UnimplementedTagServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Tag, error) {
+func (UnimplementedPinServiceServer) ViewWithDeleted(context.Context, *pb.Id) (*pb.Pin, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewWithDeleted not implemented")
 }
-func (UnimplementedTagServiceServer) Pull(context.Context, *TagPullRequest) (*TagPullResponse, error) {
+func (UnimplementedPinServiceServer) Pull(context.Context, *PinPullRequest) (*PinPullResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pull not implemented")
 }
-func (UnimplementedTagServiceServer) Sync(context.Context, *pb.Tag) (*pb.MyBool, error) {
+func (UnimplementedPinServiceServer) Sync(context.Context, *pb.Pin) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
-func (UnimplementedTagServiceServer) GetValue(context.Context, *pb.Id) (*pb.TagValue, error) {
+func (UnimplementedPinServiceServer) GetValue(context.Context, *pb.Id) (*pb.PinValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValue not implemented")
 }
-func (UnimplementedTagServiceServer) SetValue(context.Context, *pb.TagValue) (*pb.MyBool, error) {
+func (UnimplementedPinServiceServer) SetValue(context.Context, *pb.PinValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetValue not implemented")
 }
-func (UnimplementedTagServiceServer) GetValueByName(context.Context, *TagGetValueByNameRequest) (*TagNameValue, error) {
+func (UnimplementedPinServiceServer) GetValueByName(context.Context, *PinGetValueByNameRequest) (*PinNameValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValueByName not implemented")
 }
-func (UnimplementedTagServiceServer) SetValueByName(context.Context, *TagNameValue) (*pb.MyBool, error) {
+func (UnimplementedPinServiceServer) SetValueByName(context.Context, *PinNameValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetValueByName not implemented")
 }
-func (UnimplementedTagServiceServer) ViewValue(context.Context, *pb.Id) (*pb.TagValueUpdated, error) {
+func (UnimplementedPinServiceServer) ViewValue(context.Context, *pb.Id) (*pb.PinValueUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewValue not implemented")
 }
-func (UnimplementedTagServiceServer) DeleteValue(context.Context, *pb.Id) (*pb.MyBool, error) {
+func (UnimplementedPinServiceServer) DeleteValue(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteValue not implemented")
 }
-func (UnimplementedTagServiceServer) PullValue(context.Context, *TagPullValueRequest) (*TagPullValueResponse, error) {
+func (UnimplementedPinServiceServer) PullValue(context.Context, *PinPullValueRequest) (*PinPullValueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PullValue not implemented")
 }
-func (UnimplementedTagServiceServer) SyncValue(context.Context, *pb.TagValue) (*pb.MyBool, error) {
+func (UnimplementedPinServiceServer) SyncValue(context.Context, *pb.PinValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SyncValue not implemented")
 }
-func (UnimplementedTagServiceServer) GetWrite(context.Context, *pb.Id) (*pb.TagValue, error) {
+func (UnimplementedPinServiceServer) GetWrite(context.Context, *pb.Id) (*pb.PinValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWrite not implemented")
 }
-func (UnimplementedTagServiceServer) SetWrite(context.Context, *pb.TagValue) (*pb.MyBool, error) {
+func (UnimplementedPinServiceServer) SetWrite(context.Context, *pb.PinValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetWrite not implemented")
 }
-func (UnimplementedTagServiceServer) GetWriteByName(context.Context, *TagGetValueByNameRequest) (*TagNameValue, error) {
+func (UnimplementedPinServiceServer) GetWriteByName(context.Context, *PinGetValueByNameRequest) (*PinNameValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWriteByName not implemented")
 }
-func (UnimplementedTagServiceServer) SetWriteByName(context.Context, *TagNameValue) (*pb.MyBool, error) {
+func (UnimplementedPinServiceServer) SetWriteByName(context.Context, *PinNameValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetWriteByName not implemented")
 }
-func (UnimplementedTagServiceServer) ViewWrite(context.Context, *pb.Id) (*pb.TagValueUpdated, error) {
+func (UnimplementedPinServiceServer) ViewWrite(context.Context, *pb.Id) (*pb.PinValueUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ViewWrite not implemented")
 }
-func (UnimplementedTagServiceServer) DeleteWrite(context.Context, *pb.Id) (*pb.MyBool, error) {
+func (UnimplementedPinServiceServer) DeleteWrite(context.Context, *pb.Id) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteWrite not implemented")
 }
-func (UnimplementedTagServiceServer) PullWrite(context.Context, *TagPullValueRequest) (*TagPullValueResponse, error) {
+func (UnimplementedPinServiceServer) PullWrite(context.Context, *PinPullValueRequest) (*PinPullValueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PullWrite not implemented")
 }
-func (UnimplementedTagServiceServer) SyncWrite(context.Context, *pb.TagValue) (*pb.MyBool, error) {
+func (UnimplementedPinServiceServer) SyncWrite(context.Context, *pb.PinValue) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SyncWrite not implemented")
 }
-func (UnimplementedTagServiceServer) mustEmbedUnimplementedTagServiceServer() {}
-func (UnimplementedTagServiceServer) testEmbeddedByValue()                    {}
+func (UnimplementedPinServiceServer) mustEmbedUnimplementedPinServiceServer() {}
+func (UnimplementedPinServiceServer) testEmbeddedByValue()                    {}
 
-// UnsafeTagServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to TagServiceServer will
+// UnsafePinServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PinServiceServer will
 // result in compilation errors.
-type UnsafeTagServiceServer interface {
-	mustEmbedUnimplementedTagServiceServer()
+type UnsafePinServiceServer interface {
+	mustEmbedUnimplementedPinServiceServer()
 }
 
-func RegisterTagServiceServer(s grpc.ServiceRegistrar, srv TagServiceServer) {
-	// If the following call pancis, it indicates UnimplementedTagServiceServer was
+func RegisterPinServiceServer(s grpc.ServiceRegistrar, srv PinServiceServer) {
+	// If the following call pancis, it indicates UnimplementedPinServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&TagService_ServiceDesc, srv)
+	s.RegisterService(&PinService_ServiceDesc, srv)
 }
 
-func _TagService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.Tag)
+func _PinService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Pin)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).Create(ctx, in)
+		return srv.(PinServiceServer).Create(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_Create_FullMethodName,
+		FullMethod: PinService_Create_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).Create(ctx, req.(*pb.Tag))
+		return srv.(PinServiceServer).Create(ctx, req.(*pb.Pin))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.Tag)
+func _PinService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Pin)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).Update(ctx, in)
+		return srv.(PinServiceServer).Update(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_Update_FullMethodName,
+		FullMethod: PinService_Update_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).Update(ctx, req.(*pb.Tag))
+		return srv.(PinServiceServer).Update(ctx, req.(*pb.Pin))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_View_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PinService_View_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).View(ctx, in)
+		return srv.(PinServiceServer).View(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_View_FullMethodName,
+		FullMethod: PinService_View_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).View(ctx, req.(*pb.Id))
+		return srv.(PinServiceServer).View(ctx, req.(*pb.Id))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TagNameRequest)
+func _PinService_Name_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinNameRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).Name(ctx, in)
+		return srv.(PinServiceServer).Name(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_Name_FullMethodName,
+		FullMethod: PinService_Name_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).Name(ctx, req.(*TagNameRequest))
+		return srv.(PinServiceServer).Name(ctx, req.(*PinNameRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_NameFull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PinService_NameFull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Name)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).NameFull(ctx, in)
+		return srv.(PinServiceServer).NameFull(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_NameFull_FullMethodName,
+		FullMethod: PinService_NameFull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).NameFull(ctx, req.(*pb.Name))
+		return srv.(PinServiceServer).NameFull(ctx, req.(*pb.Name))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PinService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).Delete(ctx, in)
+		return srv.(PinServiceServer).Delete(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_Delete_FullMethodName,
+		FullMethod: PinService_Delete_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).Delete(ctx, req.(*pb.Id))
+		return srv.(PinServiceServer).Delete(ctx, req.(*pb.Id))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TagListRequest)
+func _PinService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).List(ctx, in)
+		return srv.(PinServiceServer).List(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_List_FullMethodName,
+		FullMethod: PinService_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).List(ctx, req.(*TagListRequest))
+		return srv.(PinServiceServer).List(ctx, req.(*PinListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_Clone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TagCloneRequest)
+func _PinService_Clone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinCloneRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).Clone(ctx, in)
+		return srv.(PinServiceServer).Clone(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_Clone_FullMethodName,
+		FullMethod: PinService_Clone_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).Clone(ctx, req.(*TagCloneRequest))
+		return srv.(PinServiceServer).Clone(ctx, req.(*PinCloneRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PinService_ViewWithDeleted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).ViewWithDeleted(ctx, in)
+		return srv.(PinServiceServer).ViewWithDeleted(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_ViewWithDeleted_FullMethodName,
+		FullMethod: PinService_ViewWithDeleted_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).ViewWithDeleted(ctx, req.(*pb.Id))
+		return srv.(PinServiceServer).ViewWithDeleted(ctx, req.(*pb.Id))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TagPullRequest)
+func _PinService_Pull_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinPullRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).Pull(ctx, in)
+		return srv.(PinServiceServer).Pull(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_Pull_FullMethodName,
+		FullMethod: PinService_Pull_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).Pull(ctx, req.(*TagPullRequest))
+		return srv.(PinServiceServer).Pull(ctx, req.(*PinPullRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.Tag)
+func _PinService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.Pin)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).Sync(ctx, in)
+		return srv.(PinServiceServer).Sync(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_Sync_FullMethodName,
+		FullMethod: PinService_Sync_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).Sync(ctx, req.(*pb.Tag))
+		return srv.(PinServiceServer).Sync(ctx, req.(*pb.Pin))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_GetValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PinService_GetValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).GetValue(ctx, in)
+		return srv.(PinServiceServer).GetValue(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_GetValue_FullMethodName,
+		FullMethod: PinService_GetValue_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).GetValue(ctx, req.(*pb.Id))
+		return srv.(PinServiceServer).GetValue(ctx, req.(*pb.Id))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_SetValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.TagValue)
+func _PinService_SetValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.PinValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).SetValue(ctx, in)
+		return srv.(PinServiceServer).SetValue(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_SetValue_FullMethodName,
+		FullMethod: PinService_SetValue_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).SetValue(ctx, req.(*pb.TagValue))
+		return srv.(PinServiceServer).SetValue(ctx, req.(*pb.PinValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_GetValueByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TagGetValueByNameRequest)
+func _PinService_GetValueByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinGetValueByNameRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).GetValueByName(ctx, in)
+		return srv.(PinServiceServer).GetValueByName(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_GetValueByName_FullMethodName,
+		FullMethod: PinService_GetValueByName_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).GetValueByName(ctx, req.(*TagGetValueByNameRequest))
+		return srv.(PinServiceServer).GetValueByName(ctx, req.(*PinGetValueByNameRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_SetValueByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TagNameValue)
+func _PinService_SetValueByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinNameValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).SetValueByName(ctx, in)
+		return srv.(PinServiceServer).SetValueByName(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_SetValueByName_FullMethodName,
+		FullMethod: PinService_SetValueByName_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).SetValueByName(ctx, req.(*TagNameValue))
+		return srv.(PinServiceServer).SetValueByName(ctx, req.(*PinNameValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_ViewValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PinService_ViewValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).ViewValue(ctx, in)
+		return srv.(PinServiceServer).ViewValue(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_ViewValue_FullMethodName,
+		FullMethod: PinService_ViewValue_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).ViewValue(ctx, req.(*pb.Id))
+		return srv.(PinServiceServer).ViewValue(ctx, req.(*pb.Id))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_DeleteValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PinService_DeleteValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).DeleteValue(ctx, in)
+		return srv.(PinServiceServer).DeleteValue(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_DeleteValue_FullMethodName,
+		FullMethod: PinService_DeleteValue_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).DeleteValue(ctx, req.(*pb.Id))
+		return srv.(PinServiceServer).DeleteValue(ctx, req.(*pb.Id))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_PullValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TagPullValueRequest)
+func _PinService_PullValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinPullValueRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).PullValue(ctx, in)
+		return srv.(PinServiceServer).PullValue(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_PullValue_FullMethodName,
+		FullMethod: PinService_PullValue_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).PullValue(ctx, req.(*TagPullValueRequest))
+		return srv.(PinServiceServer).PullValue(ctx, req.(*PinPullValueRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_SyncValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.TagValue)
+func _PinService_SyncValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.PinValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).SyncValue(ctx, in)
+		return srv.(PinServiceServer).SyncValue(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_SyncValue_FullMethodName,
+		FullMethod: PinService_SyncValue_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).SyncValue(ctx, req.(*pb.TagValue))
+		return srv.(PinServiceServer).SyncValue(ctx, req.(*pb.PinValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_GetWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PinService_GetWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).GetWrite(ctx, in)
+		return srv.(PinServiceServer).GetWrite(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_GetWrite_FullMethodName,
+		FullMethod: PinService_GetWrite_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).GetWrite(ctx, req.(*pb.Id))
+		return srv.(PinServiceServer).GetWrite(ctx, req.(*pb.Id))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_SetWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.TagValue)
+func _PinService_SetWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.PinValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).SetWrite(ctx, in)
+		return srv.(PinServiceServer).SetWrite(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_SetWrite_FullMethodName,
+		FullMethod: PinService_SetWrite_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).SetWrite(ctx, req.(*pb.TagValue))
+		return srv.(PinServiceServer).SetWrite(ctx, req.(*pb.PinValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_GetWriteByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TagGetValueByNameRequest)
+func _PinService_GetWriteByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinGetValueByNameRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).GetWriteByName(ctx, in)
+		return srv.(PinServiceServer).GetWriteByName(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_GetWriteByName_FullMethodName,
+		FullMethod: PinService_GetWriteByName_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).GetWriteByName(ctx, req.(*TagGetValueByNameRequest))
+		return srv.(PinServiceServer).GetWriteByName(ctx, req.(*PinGetValueByNameRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_SetWriteByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TagNameValue)
+func _PinService_SetWriteByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinNameValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).SetWriteByName(ctx, in)
+		return srv.(PinServiceServer).SetWriteByName(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_SetWriteByName_FullMethodName,
+		FullMethod: PinService_SetWriteByName_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).SetWriteByName(ctx, req.(*TagNameValue))
+		return srv.(PinServiceServer).SetWriteByName(ctx, req.(*PinNameValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_ViewWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PinService_ViewWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).ViewWrite(ctx, in)
+		return srv.(PinServiceServer).ViewWrite(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_ViewWrite_FullMethodName,
+		FullMethod: PinService_ViewWrite_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).ViewWrite(ctx, req.(*pb.Id))
+		return srv.(PinServiceServer).ViewWrite(ctx, req.(*pb.Id))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_DeleteWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PinService_DeleteWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.Id)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).DeleteWrite(ctx, in)
+		return srv.(PinServiceServer).DeleteWrite(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_DeleteWrite_FullMethodName,
+		FullMethod: PinService_DeleteWrite_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).DeleteWrite(ctx, req.(*pb.Id))
+		return srv.(PinServiceServer).DeleteWrite(ctx, req.(*pb.Id))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_PullWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TagPullValueRequest)
+func _PinService_PullWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PinPullValueRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).PullWrite(ctx, in)
+		return srv.(PinServiceServer).PullWrite(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_PullWrite_FullMethodName,
+		FullMethod: PinService_PullWrite_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).PullWrite(ctx, req.(*TagPullValueRequest))
+		return srv.(PinServiceServer).PullWrite(ctx, req.(*PinPullValueRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_SyncWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(pb.TagValue)
+func _PinService_SyncWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(pb.PinValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).SyncWrite(ctx, in)
+		return srv.(PinServiceServer).SyncWrite(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TagService_SyncWrite_FullMethodName,
+		FullMethod: PinService_SyncWrite_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).SyncWrite(ctx, req.(*pb.TagValue))
+		return srv.(PinServiceServer).SyncWrite(ctx, req.(*pb.PinValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// TagService_ServiceDesc is the grpc.ServiceDesc for TagService service.
+// PinService_ServiceDesc is the grpc.ServiceDesc for PinService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var TagService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "cores.TagService",
-	HandlerType: (*TagServiceServer)(nil),
+var PinService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "cores.PinService",
+	HandlerType: (*PinServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Create",
-			Handler:    _TagService_Create_Handler,
+			Handler:    _PinService_Create_Handler,
 		},
 		{
 			MethodName: "Update",
-			Handler:    _TagService_Update_Handler,
+			Handler:    _PinService_Update_Handler,
 		},
 		{
 			MethodName: "View",
-			Handler:    _TagService_View_Handler,
+			Handler:    _PinService_View_Handler,
 		},
 		{
 			MethodName: "Name",
-			Handler:    _TagService_Name_Handler,
+			Handler:    _PinService_Name_Handler,
 		},
 		{
 			MethodName: "NameFull",
-			Handler:    _TagService_NameFull_Handler,
+			Handler:    _PinService_NameFull_Handler,
 		},
 		{
 			MethodName: "Delete",
-			Handler:    _TagService_Delete_Handler,
+			Handler:    _PinService_Delete_Handler,
 		},
 		{
 			MethodName: "List",
-			Handler:    _TagService_List_Handler,
+			Handler:    _PinService_List_Handler,
 		},
 		{
 			MethodName: "Clone",
-			Handler:    _TagService_Clone_Handler,
+			Handler:    _PinService_Clone_Handler,
 		},
 		{
 			MethodName: "ViewWithDeleted",
-			Handler:    _TagService_ViewWithDeleted_Handler,
+			Handler:    _PinService_ViewWithDeleted_Handler,
 		},
 		{
 			MethodName: "Pull",
-			Handler:    _TagService_Pull_Handler,
+			Handler:    _PinService_Pull_Handler,
 		},
 		{
 			MethodName: "Sync",
-			Handler:    _TagService_Sync_Handler,
+			Handler:    _PinService_Sync_Handler,
 		},
 		{
 			MethodName: "GetValue",
-			Handler:    _TagService_GetValue_Handler,
+			Handler:    _PinService_GetValue_Handler,
 		},
 		{
 			MethodName: "SetValue",
-			Handler:    _TagService_SetValue_Handler,
+			Handler:    _PinService_SetValue_Handler,
 		},
 		{
 			MethodName: "GetValueByName",
-			Handler:    _TagService_GetValueByName_Handler,
+			Handler:    _PinService_GetValueByName_Handler,
 		},
 		{
 			MethodName: "SetValueByName",
-			Handler:    _TagService_SetValueByName_Handler,
+			Handler:    _PinService_SetValueByName_Handler,
 		},
 		{
 			MethodName: "ViewValue",
-			Handler:    _TagService_ViewValue_Handler,
+			Handler:    _PinService_ViewValue_Handler,
 		},
 		{
 			MethodName: "DeleteValue",
-			Handler:    _TagService_DeleteValue_Handler,
+			Handler:    _PinService_DeleteValue_Handler,
 		},
 		{
 			MethodName: "PullValue",
-			Handler:    _TagService_PullValue_Handler,
+			Handler:    _PinService_PullValue_Handler,
 		},
 		{
 			MethodName: "SyncValue",
-			Handler:    _TagService_SyncValue_Handler,
+			Handler:    _PinService_SyncValue_Handler,
 		},
 		{
 			MethodName: "GetWrite",
-			Handler:    _TagService_GetWrite_Handler,
+			Handler:    _PinService_GetWrite_Handler,
 		},
 		{
 			MethodName: "SetWrite",
-			Handler:    _TagService_SetWrite_Handler,
+			Handler:    _PinService_SetWrite_Handler,
 		},
 		{
 			MethodName: "GetWriteByName",
-			Handler:    _TagService_GetWriteByName_Handler,
+			Handler:    _PinService_GetWriteByName_Handler,
 		},
 		{
 			MethodName: "SetWriteByName",
-			Handler:    _TagService_SetWriteByName_Handler,
+			Handler:    _PinService_SetWriteByName_Handler,
 		},
 		{
 			MethodName: "ViewWrite",
-			Handler:    _TagService_ViewWrite_Handler,
+			Handler:    _PinService_ViewWrite_Handler,
 		},
 		{
 			MethodName: "DeleteWrite",
-			Handler:    _TagService_DeleteWrite_Handler,
+			Handler:    _PinService_DeleteWrite_Handler,
 		},
 		{
 			MethodName: "PullWrite",
-			Handler:    _TagService_PullWrite_Handler,
+			Handler:    _PinService_PullWrite_Handler,
 		},
 		{
 			MethodName: "SyncWrite",
-			Handler:    _TagService_SyncWrite_Handler,
+			Handler:    _PinService_SyncWrite_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

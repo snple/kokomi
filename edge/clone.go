@@ -96,23 +96,23 @@ func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID string) 
 		return status.Errorf(codes.Internal, "Insert: %v", err)
 	}
 
-	// clone tags
+	// clone pins
 	{
-		var tags []model.Tag
+		var pins []model.Pin
 
-		err = db.NewSelect().Model(&tags).Where("source_id = ?", sourceID).Order("id ASC").Scan(ctx)
+		err = db.NewSelect().Model(&pins).Where("source_id = ?", sourceID).Order("id ASC").Scan(ctx)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Query: %v", err)
 		}
 
-		for _, tag := range tags {
-			tag.ID = util.RandomID()
-			tag.SourceID = item.ID
+		for _, pin := range pins {
+			pin.ID = util.RandomID()
+			pin.SourceID = item.ID
 
-			tag.Created = time.Now()
-			tag.Updated = time.Now()
+			pin.Created = time.Now()
+			pin.Updated = time.Now()
 
-			_, err = db.NewInsert().Model(&tag).Exec(ctx)
+			_, err = db.NewInsert().Model(&pin).Exec(ctx)
 			if err != nil {
 				return status.Errorf(codes.Internal, "Insert: %v", err)
 			}
@@ -134,11 +134,11 @@ func (s *cloneService) source(ctx context.Context, db bun.IDB, sourceID string) 
 	return nil
 }
 
-func (s *cloneService) tag(ctx context.Context, db bun.IDB, tagID, sourceID string) error {
+func (s *cloneService) pin(ctx context.Context, db bun.IDB, pinID, sourceID string) error {
 	var err error
 
-	item := model.Tag{
-		ID: tagID,
+	item := model.Pin{
+		ID: pinID,
 	}
 
 	err = db.NewSelect().Model(&item).WherePK().Scan(ctx)
@@ -185,7 +185,7 @@ func (s *cloneService) tag(ctx context.Context, db bun.IDB, tagID, sourceID stri
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}
 
-		err = s.es.GetSync().setTagUpdated(ctx, time.Now())
+		err = s.es.GetSync().setPinUpdated(ctx, time.Now())
 		if err != nil {
 			return status.Errorf(codes.Internal, "Insert: %v", err)
 		}

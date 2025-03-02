@@ -11,7 +11,7 @@ import (
 	"github.com/snple/beacon/pb/edges"
 )
 
-func TagList(ctx context.Context, client edges.TagServiceClient) {
+func PinList(ctx context.Context, client edges.PinServiceClient) {
 	page := pb.Page{
 		Limit:   10,
 		Offset:  0,
@@ -19,7 +19,7 @@ func TagList(ctx context.Context, client edges.TagServiceClient) {
 		// Search:  "t",
 	}
 
-	request := &edges.TagListRequest{
+	request := &edges.PinListRequest{
 		Page: &page,
 		// NodeId: "017a053b3f7be81caa209b8e",
 		// SourceId: "017a9b416ef270dbd799c1f5",
@@ -34,7 +34,7 @@ func TagList(ctx context.Context, client edges.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagView(ctx context.Context, client edges.TagServiceClient) {
+func PinView(ctx context.Context, client edges.PinServiceClient) {
 	request := &pb.Id{Id: "017a9b416ef270dc2380ce54"}
 
 	reply, err := client.View(ctx, request)
@@ -45,8 +45,8 @@ func TagView(ctx context.Context, client edges.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagName(ctx context.Context, client edges.TagServiceClient) {
-	request := &pb.Name{Name: "TAG"}
+func PinName(ctx context.Context, client edges.PinServiceClient) {
+	request := &pb.Name{Name: "PIN"}
 
 	reply, err := client.Name(ctx, request)
 
@@ -56,10 +56,10 @@ func TagName(ctx context.Context, client edges.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagCreate(ctx context.Context, client edges.TagServiceClient) {
-	request := &pb.Tag{
+func PinCreate(ctx context.Context, client edges.PinServiceClient) {
+	request := &pb.Pin{
 		SourceId: "0187712e361544594841b6fb",
-		Name:     "tag1",
+		Name:     "pin1",
 		Desc:     "",
 		Address:  "test_address",
 		DataType: "F32",
@@ -74,10 +74,10 @@ func TagCreate(ctx context.Context, client edges.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagUpdate(ctx context.Context, client edges.TagServiceClient) {
-	request := &pb.Tag{
+func PinUpdate(ctx context.Context, client edges.PinServiceClient) {
+	request := &pb.Pin{
 		Id:     "017b213669a4984d98b160a6",
-		Name:   "TAG",
+		Name:   "PIN",
 		Desc:   "",
 		Status: -1,
 		Tags:   "aaa,bbb",
@@ -91,7 +91,7 @@ func TagUpdate(ctx context.Context, client edges.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagDelete(ctx context.Context, client edges.TagServiceClient) {
+func PinDelete(ctx context.Context, client edges.PinServiceClient) {
 	request := &pb.Id{Id: "017a9b776bda0c0c7bcd3435"}
 
 	reply, err := client.Delete(ctx, request)
@@ -102,7 +102,7 @@ func TagDelete(ctx context.Context, client edges.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagGetValue(ctx context.Context, client edges.TagServiceClient) {
+func PinGetValue(ctx context.Context, client edges.PinServiceClient) {
 	request := &pb.Id{Id: "01946a5aae65c0ceeaa257db"}
 
 	reply, err := client.GetValue(ctx, request)
@@ -113,8 +113,8 @@ func TagGetValue(ctx context.Context, client edges.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagSetValue(ctx context.Context, client edges.TagServiceClient) {
-	request := &pb.TagValue{
+func PinSetValue(ctx context.Context, client edges.PinServiceClient) {
+	request := &pb.PinValue{
 		Id:    "01946a5aae65c0ceeaa257db",
 		Value: fmt.Sprintf("%v", rand.Float64()*100),
 		// Value: "1",
@@ -128,8 +128,8 @@ func TagSetValue(ctx context.Context, client edges.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagSetWrite(ctx context.Context, client edges.TagServiceClient) {
-	request := &pb.TagValue{
+func PinSetWrite(ctx context.Context, client edges.PinServiceClient) {
+	request := &pb.PinValue{
 		Id:    "01946a5aae65c0ceeaa257db",
 		Value: fmt.Sprintf("%v", rand.Float64()*100),
 	}
@@ -142,7 +142,7 @@ func TagSetWrite(ctx context.Context, client edges.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagGetWrite(ctx context.Context, client edges.TagServiceClient) {
+func PinGetWrite(ctx context.Context, client edges.PinServiceClient) {
 	request := &pb.Id{Id: "01946a5aae65c0ceeaa257db"}
 
 	reply, err := client.GetWrite(ctx, request)

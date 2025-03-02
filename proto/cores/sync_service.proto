@@ -15,13 +15,13 @@ service SyncService {
     rpc GetNodeUpdated(pb.Id) returns (SyncUpdated) {}
     rpc WaitNodeUpdated(pb.Id) returns (stream pb.MyBool) {}
 
-    rpc SetTagValueUpdated(SyncUpdated) returns (pb.MyBool) {}
-    rpc GetTagValueUpdated(pb.Id) returns (SyncUpdated) {}
-    rpc WaitTagValueUpdated(pb.Id) returns (stream pb.MyBool) {}
+    rpc SetPinValueUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetPinValueUpdated(pb.Id) returns (SyncUpdated) {}
+    rpc WaitPinValueUpdated(pb.Id) returns (stream pb.MyBool) {}
 
-    rpc SetTagWriteUpdated(SyncUpdated) returns (pb.MyBool) {}
-    rpc GetTagWriteUpdated(pb.Id) returns (SyncUpdated) {}
-    rpc WaitTagWriteUpdated(pb.Id) returns (stream pb.MyBool) {}
+    rpc SetPinWriteUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetPinWriteUpdated(pb.Id) returns (SyncUpdated) {}
+    rpc WaitPinWriteUpdated(pb.Id) returns (stream pb.MyBool) {}
 }
 
 message SyncGlobalUpdated {

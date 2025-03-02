@@ -11,7 +11,7 @@ import (
 	"github.com/snple/beacon/pb/cores"
 )
 
-func TagList(ctx context.Context, client cores.TagServiceClient) {
+func PinList(ctx context.Context, client cores.PinServiceClient) {
 	page := pb.Page{
 		Limit:   10,
 		Offset:  0,
@@ -19,7 +19,7 @@ func TagList(ctx context.Context, client cores.TagServiceClient) {
 		// Search:  "t",
 	}
 
-	request := &cores.TagListRequest{
+	request := &cores.PinListRequest{
 		NodeId: "01946a0cabdabc925941e98a",
 		Page:   &page,
 	}
@@ -32,7 +32,7 @@ func TagList(ctx context.Context, client cores.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagView(ctx context.Context, client cores.TagServiceClient) {
+func PinView(ctx context.Context, client cores.PinServiceClient) {
 	request := &pb.Id{Id: "01880166c70f451c041bb351"}
 
 	reply, err := client.View(ctx, request)
@@ -43,10 +43,10 @@ func TagView(ctx context.Context, client cores.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagName(ctx context.Context, client cores.TagServiceClient) {
-	request := &cores.TagNameRequest{
+func PinName(ctx context.Context, client cores.PinServiceClient) {
+	request := &cores.PinNameRequest{
 		NodeId: "01946a0cabdabc925941e98a",
-		Name:   "tag",
+		Name:   "pin",
 	}
 
 	reply, err := client.Name(ctx, request)
@@ -57,10 +57,10 @@ func TagName(ctx context.Context, client cores.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagCreate(ctx context.Context, client cores.TagServiceClient) {
-	request := &pb.Tag{
+func PinCreate(ctx context.Context, client cores.PinServiceClient) {
+	request := &pb.Pin{
 		SourceId: "01946a51cd5bc0cd7a776f35",
-		Name:     "tag1",
+		Name:     "pin1",
 		Desc:     "",
 		Address:  "",
 		DataType: "F32",
@@ -76,10 +76,10 @@ func TagCreate(ctx context.Context, client cores.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagUpdate(ctx context.Context, client cores.TagServiceClient) {
-	request := &pb.Tag{
+func PinUpdate(ctx context.Context, client cores.PinServiceClient) {
+	request := &pb.Pin{
 		Id:     "01880166c70f451c041bb351",
-		Name:   "TAG",
+		Name:   "PIN",
 		Desc:   "",
 		Status: consts.ON,
 		Tags:   "aaa,bbb",
@@ -93,7 +93,7 @@ func TagUpdate(ctx context.Context, client cores.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagDelete(ctx context.Context, client cores.TagServiceClient) {
+func PinDelete(ctx context.Context, client cores.PinServiceClient) {
 	request := &pb.Id{Id: "01880166c70f451c041bb351"}
 
 	reply, err := client.Delete(ctx, request)
@@ -104,7 +104,7 @@ func TagDelete(ctx context.Context, client cores.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagGetValue(ctx context.Context, client cores.TagServiceClient) {
+func PinGetValue(ctx context.Context, client cores.PinServiceClient) {
 	request := &pb.Id{Id: "01880166c70f451c041bb351"}
 
 	reply, err := client.GetValue(ctx, request)
@@ -115,8 +115,8 @@ func TagGetValue(ctx context.Context, client cores.TagServiceClient) {
 	log.Printf("Resp received: %v", reply)
 }
 
-func TagSetValue(ctx context.Context, client cores.TagServiceClient) {
-	request := &pb.TagValue{
+func PinSetValue(ctx context.Context, client cores.PinServiceClient) {
+	request := &pb.PinValue{
 		Id: "01880166c70f451c041bb351",
 		// Value: fmt.Sprintf("%v", rand.Float64()*100),
 		Value: fmt.Sprintf("%v", rand.Int31()),

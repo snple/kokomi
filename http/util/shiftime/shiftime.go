@@ -46,7 +46,7 @@ func Sources(items []*pb.Source) {
 	}
 }
 
-func Tag(item *pb.Tag) {
+func Pin(item *pb.Pin) {
 	if item != nil {
 		item.Created = item.Created / 1000
 		item.Updated = item.Updated / 1000
@@ -54,27 +54,27 @@ func Tag(item *pb.Tag) {
 	}
 }
 
-func Tags(items []*pb.Tag) {
+func Pins(items []*pb.Pin) {
 	for _, item := range items {
-		Tag(item)
+		Pin(item)
 	}
 }
 
-func TagValue(item *pb.TagValue) {
+func PinValue(item *pb.PinValue) {
 	if item != nil {
 		item.Updated = item.Updated / 1000
 	}
 }
 
-func TagNameValue(item *pb.TagNameValue) {
+func PinNameValue(item *pb.PinNameValue) {
 	if item != nil {
 		item.Updated = item.Updated / 1000
 	}
 }
 
-func TagNameValues(items []*pb.TagNameValue) {
+func PinNameValues(items []*pb.PinNameValue) {
 	for _, item := range items {
-		TagNameValue(item)
+		PinNameValue(item)
 	}
 }
 

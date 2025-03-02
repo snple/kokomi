@@ -63,36 +63,36 @@ service SourceService {
     rpc Sync(pb.Source) returns (pb.MyBool) {}
 }
 
-// tag
-message TagListRequest {
+// pin
+message PinListRequest {
     pb.Page page = 1;
     string node_id = 2;
     string source_id = 3;
     string tags = 4;
 }
 
-message TagListResponse {
+message PinListResponse {
     pb.Page page = 1;
     uint32 count = 2;
-    repeated pb.Tag tag = 3;
+    repeated pb.Pin pin = 3;
 }
 
-message TagNameRequest {
+message PinNameRequest {
     string node_id = 1;
     string name = 2;
 }
 
-message TagCloneRequest {
+message PinCloneRequest {
     string id = 1;
     string source_id = 2;
 }
 
-message TagGetValueByNameRequest {
+message PinGetValueByNameRequest {
     string node_id = 1;
     string name = 2;
 }
 
-message TagNameValue {
+message PinNameValue {
     string node_id = 1;
     string id = 2;
     string name = 3;
@@ -100,60 +100,60 @@ message TagNameValue {
     int64 updated = 5;
 }
 
-message TagPullRequest {
+message PinPullRequest {
     int64 after = 1;
     uint32 limit = 2;
     string node_id = 3;
     string source_id = 4;
 }
 
-message TagPullResponse {
+message PinPullResponse {
     int64 after = 1;
     uint32 limit = 2;
-    repeated pb.Tag tag = 3;
+    repeated pb.Pin pin = 3;
 }
 
-message TagPullValueRequest {
+message PinPullValueRequest {
     int64 after = 1;
     uint32 limit = 2;
     string node_id = 3;
     string source_id = 4;
 }
 
-message TagPullValueResponse {
+message PinPullValueResponse {
     int64 after = 1;
     uint32 limit = 2;
-    repeated pb.TagValueUpdated tag = 3;
+    repeated pb.PinValueUpdated pin = 3;
 }
 
-service TagService {
-    rpc Create(pb.Tag) returns (pb.Tag) {}
-    rpc Update(pb.Tag) returns (pb.Tag) {}
-    rpc View(pb.Id) returns (pb.Tag) {}
-    rpc Name(TagNameRequest) returns (pb.Tag) {}
-    rpc NameFull(pb.Name) returns (pb.Tag) {}
+service PinService {
+    rpc Create(pb.Pin) returns (pb.Pin) {}
+    rpc Update(pb.Pin) returns (pb.Pin) {}
+    rpc View(pb.Id) returns (pb.Pin) {}
+    rpc Name(PinNameRequest) returns (pb.Pin) {}
+    rpc NameFull(pb.Name) returns (pb.Pin) {}
     rpc Delete(pb.Id) returns (pb.MyBool) {}
-    rpc List(TagListRequest) returns (TagListResponse) {}
-    rpc Clone(TagCloneRequest) returns (pb.MyBool) {}
-    rpc ViewWithDeleted(pb.Id) returns (pb.Tag) {}
-    rpc Pull(TagPullRequest) returns (TagPullResponse) {}
-    rpc Sync(pb.Tag) returns (pb.MyBool) {}
+    rpc List(PinListRequest) returns (PinListResponse) {}
+    rpc Clone(PinCloneRequest) returns (pb.MyBool) {}
+    rpc ViewWithDeleted(pb.Id) returns (pb.Pin) {}
+    rpc Pull(PinPullRequest) returns (PinPullResponse) {}
+    rpc Sync(pb.Pin) returns (pb.MyBool) {}
 
-    rpc GetValue(pb.Id) returns (pb.TagValue) {}
-    rpc SetValue(pb.TagValue) returns (pb.MyBool) {}
-    rpc GetValueByName(TagGetValueByNameRequest) returns (TagNameValue) {}
-    rpc SetValueByName(TagNameValue) returns (pb.MyBool) {}
-    rpc ViewValue(pb.Id) returns (pb.TagValueUpdated) {}
+    rpc GetValue(pb.Id) returns (pb.PinValue) {}
+    rpc SetValue(pb.PinValue) returns (pb.MyBool) {}
+    rpc GetValueByName(PinGetValueByNameRequest) returns (PinNameValue) {}
+    rpc SetValueByName(PinNameValue) returns (pb.MyBool) {}
+    rpc ViewValue(pb.Id) returns (pb.PinValueUpdated) {}
     rpc DeleteValue(pb.Id) returns (pb.MyBool) {}
-    rpc PullValue(TagPullValueRequest) returns (TagPullValueResponse) {}
-    rpc SyncValue(pb.TagValue) returns (pb.MyBool) {}
+    rpc PullValue(PinPullValueRequest) returns (PinPullValueResponse) {}
+    rpc SyncValue(pb.PinValue) returns (pb.MyBool) {}
 
-    rpc GetWrite(pb.Id) returns (pb.TagValue) {}
-    rpc SetWrite(pb.TagValue) returns (pb.MyBool) {}
-    rpc GetWriteByName(TagGetValueByNameRequest) returns (TagNameValue) {}
-    rpc SetWriteByName(TagNameValue) returns (pb.MyBool) {}
-    rpc ViewWrite(pb.Id) returns (pb.TagValueUpdated) {}
+    rpc GetWrite(pb.Id) returns (pb.PinValue) {}
+    rpc SetWrite(pb.PinValue) returns (pb.MyBool) {}
+    rpc GetWriteByName(PinGetValueByNameRequest) returns (PinNameValue) {}
+    rpc SetWriteByName(PinNameValue) returns (pb.MyBool) {}
+    rpc ViewWrite(pb.Id) returns (pb.PinValueUpdated) {}
     rpc DeleteWrite(pb.Id) returns (pb.MyBool) {}
-    rpc PullWrite(TagPullValueRequest) returns (TagPullValueResponse) {}
-    rpc SyncWrite(pb.TagValue) returns (pb.MyBool) {}
+    rpc PullWrite(PinPullValueRequest) returns (PinPullValueResponse) {}
+    rpc SyncWrite(pb.PinValue) returns (pb.MyBool) {}
 }

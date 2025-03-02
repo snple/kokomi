@@ -24,7 +24,7 @@ type EdgeService struct {
 	node     *NodeService
 	slot     *SlotService
 	source   *SourceService
-	tag      *TagService
+	pin      *PinService
 	constant *ConstService
 
 	nodeUp types.Option[*NodeUpService]
@@ -80,7 +80,7 @@ func EdgeContext(ctx context.Context, db *bun.DB, opts ...EdgeOption) (*EdgeServ
 	es.node = newNodeService(es)
 	es.slot = newSlotService(es)
 	es.source = newSourceService(es)
-	es.tag = newTagService(es)
+	es.pin = newPinService(es)
 	es.constant = newConstService(es)
 
 	if es.dopts.NodeOptions.Enable {
@@ -179,8 +179,8 @@ func (es *EdgeService) GetSource() *SourceService {
 	return es.source
 }
 
-func (es *EdgeService) GetTag() *TagService {
-	return es.tag
+func (es *EdgeService) GetPin() *PinService {
+	return es.pin
 }
 
 func (es *EdgeService) GetConst() *ConstService {
@@ -216,7 +216,7 @@ func (es *EdgeService) cacheGC() {
 		case <-ticker.C:
 			{
 				es.GetSource().GC()
-				es.GetTag().GC()
+				es.GetPin().GC()
 				es.GetConst().GC()
 			}
 		}
@@ -228,7 +228,7 @@ func (es *EdgeService) Register(server *grpc.Server) {
 	edges.RegisterNodeServiceServer(server, es.node)
 	edges.RegisterSlotServiceServer(server, es.slot)
 	edges.RegisterSourceServiceServer(server, es.source)
-	edges.RegisterTagServiceServer(server, es.tag)
+	edges.RegisterPinServiceServer(server, es.pin)
 	edges.RegisterConstServiceServer(server, es.constant)
 }
 
@@ -237,7 +237,7 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Node)(nil),
 		(*model.Slot)(nil),
 		(*model.Source)(nil),
-		(*model.Tag)(nil),
+		(*model.Pin)(nil),
 		(*model.Const)(nil),
 	}
 

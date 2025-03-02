@@ -19,8 +19,8 @@ type SyncService struct {
 
 	lock    sync.RWMutex
 	waits   map[chan struct{}]struct{}
-	waitsTV map[chan struct{}]struct{}
-	waitsTW map[chan struct{}]struct{}
+	waitsPV map[chan struct{}]struct{}
+	waitsPW map[chan struct{}]struct{}
 
 	edges.UnimplementedSyncServiceServer
 }
@@ -29,8 +29,8 @@ func newSyncService(es *EdgeService) *SyncService {
 	return &SyncService{
 		es:      es,
 		waits:   make(map[chan struct{}]struct{}),
-		waitsTV: make(map[chan struct{}]struct{}),
-		waitsTW: make(map[chan struct{}]struct{}),
+		waitsPV: make(map[chan struct{}]struct{}),
+		waitsPW: make(map[chan struct{}]struct{}),
 	}
 }
 
@@ -178,7 +178,7 @@ func (s *SyncService) GetSourceUpdated(ctx context.Context, in *pb.MyEmpty) (*ed
 	return &output, nil
 }
 
-func (s *SyncService) SetTagUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetPinUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -189,11 +189,11 @@ func (s *SyncService) SetTagUpdated(ctx context.Context, in *edges.SyncUpdated) 
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Updated")
 		}
 	}
 
-	err = s.setTagUpdated(ctx, time.UnixMicro(in.GetUpdated()))
+	err = s.setPinUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -203,7 +203,7 @@ func (s *SyncService) SetTagUpdated(ctx context.Context, in *edges.SyncUpdated) 
 	return &output, nil
 }
 
-func (s *SyncService) GetTagUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
+func (s *SyncService) GetPinUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
 	var output edges.SyncUpdated
 	var err error
 
@@ -214,7 +214,7 @@ func (s *SyncService) GetTagUpdated(ctx context.Context, in *pb.MyEmpty) (*edges
 		}
 	}
 
-	t, err := s.getTagUpdated(ctx)
+	t, err := s.getPinUpdated(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -235,7 +235,7 @@ func (s *SyncService) SetConstUpdated(ctx context.Context, in *edges.SyncUpdated
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Updated")
 		}
 	}
 
@@ -270,7 +270,7 @@ func (s *SyncService) GetConstUpdated(ctx context.Context, in *pb.MyEmpty) (*edg
 	return &output, nil
 }
 
-func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetPinValueUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -281,11 +281,11 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *edges.SyncUpda
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Value.Updated")
 		}
 	}
 
-	err = s.setTagValueUpdated(ctx, time.UnixMicro(in.GetUpdated()))
+	err = s.setPinValueUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -295,7 +295,7 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *edges.SyncUpda
 	return &output, nil
 }
 
-func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
+func (s *SyncService) GetPinValueUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
 	var output edges.SyncUpdated
 	var err error
 
@@ -306,7 +306,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*
 		}
 	}
 
-	t, err := s.getTagValueUpdated(ctx)
+	t, err := s.getPinValueUpdated(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -316,13 +316,13 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*
 	return &output, nil
 }
 
-func (s *SyncService) WaitTagValueUpdated(in *pb.MyEmpty,
-	stream edges.SyncService_WaitTagValueUpdatedServer) error {
+func (s *SyncService) WaitPinValueUpdated(in *pb.MyEmpty,
+	stream edges.SyncService_WaitPinValueUpdatedServer) error {
 
-	return s.waitUpdated(in, stream, NOTIFY_TV)
+	return s.waitUpdated(in, stream, NOTIFY_PV)
 }
 
-func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetPinWriteUpdated(ctx context.Context, in *edges.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -333,11 +333,11 @@ func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *edges.SyncUpda
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Write.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Write.Updated")
 		}
 	}
 
-	err = s.setTagWriteUpdated(ctx, time.UnixMicro(in.GetUpdated()))
+	err = s.setPinWriteUpdated(ctx, time.UnixMicro(in.GetUpdated()))
 	if err != nil {
 		return &output, err
 	}
@@ -347,7 +347,7 @@ func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *edges.SyncUpda
 	return &output, nil
 }
 
-func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
+func (s *SyncService) GetPinWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*edges.SyncUpdated, error) {
 	var output edges.SyncUpdated
 	var err error
 
@@ -358,7 +358,7 @@ func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*
 		}
 	}
 
-	t, err := s.getTagWriteUpdated(ctx)
+	t, err := s.getPinWriteUpdated(ctx)
 	if err != nil {
 		return &output, err
 	}
@@ -368,10 +368,10 @@ func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*
 	return &output, nil
 }
 
-func (s *SyncService) WaitTagWriteUpdated(in *pb.MyEmpty,
-	stream edges.SyncService_WaitTagWriteUpdatedServer) error {
+func (s *SyncService) WaitPinWriteUpdated(in *pb.MyEmpty,
+	stream edges.SyncService_WaitPinWriteUpdatedServer) error {
 
-	return s.waitUpdated(in, stream, NOTIFY_TW)
+	return s.waitUpdated(in, stream, NOTIFY_PW)
 }
 
 func (s *SyncService) getNodeUpdated(ctx context.Context) (time.Time, error) {
@@ -405,12 +405,12 @@ func (s *SyncService) setSourceUpdated(ctx context.Context, updated time.Time) e
 	return s.setUpdated(ctx, model.SYNC_SOURCE, updated)
 }
 
-func (s *SyncService) getTagUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_TAG)
+func (s *SyncService) getPinUpdated(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_PIN)
 }
 
-func (s *SyncService) setTagUpdated(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_TAG, updated)
+func (s *SyncService) setPinUpdated(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_PIN, updated)
 }
 
 func (s *SyncService) getConstUpdated(ctx context.Context) (time.Time, error) {
@@ -421,32 +421,32 @@ func (s *SyncService) setConstUpdated(ctx context.Context, updated time.Time) er
 	return s.setUpdated(ctx, model.SYNC_CONST, updated)
 }
 
-func (s *SyncService) getTagValueUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_TAG_VALUE)
+func (s *SyncService) getPinValueUpdated(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_PIN_VALUE)
 }
 
-func (s *SyncService) setTagValueUpdated(ctx context.Context, updated time.Time) error {
-	err := s.setUpdated(ctx, model.SYNC_TAG_VALUE, updated)
+func (s *SyncService) setPinValueUpdated(ctx context.Context, updated time.Time) error {
+	err := s.setUpdated(ctx, model.SYNC_PIN_VALUE, updated)
 	if err != nil {
 		return err
 	}
 
-	s.notifyUpdated(NOTIFY_TV)
+	s.notifyUpdated(NOTIFY_PV)
 
 	return nil
 }
 
-func (s *SyncService) getTagWriteUpdated(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_TAG_WRITE)
+func (s *SyncService) getPinWriteUpdated(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_PIN_WRITE)
 }
 
-func (s *SyncService) setTagWriteUpdated(ctx context.Context, updated time.Time) error {
-	err := s.setUpdated(ctx, model.SYNC_TAG_WRITE, updated)
+func (s *SyncService) setPinWriteUpdated(ctx context.Context, updated time.Time) error {
+	err := s.setUpdated(ctx, model.SYNC_PIN_WRITE, updated)
 	if err != nil {
 		return err
 	}
 
-	s.notifyUpdated(NOTIFY_TW)
+	s.notifyUpdated(NOTIFY_PW)
 
 	return nil
 }
@@ -471,38 +471,38 @@ func (s *SyncService) setNodeUpdatedLocalToRemote(ctx context.Context, updated t
 
 // value
 
-func (s *SyncService) getTagValueUpdatedRemoteToLocal(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_TAG_VALUE_REMOTE_TO_LOCAL)
+func (s *SyncService) getPinValueUpdatedRemoteToLocal(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_PIN_VALUE_REMOTE_TO_LOCAL)
 }
 
-func (s *SyncService) setTagValueUpdatedRemoteToLocal(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_TAG_VALUE_REMOTE_TO_LOCAL, updated)
+func (s *SyncService) setPinValueUpdatedRemoteToLocal(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_PIN_VALUE_REMOTE_TO_LOCAL, updated)
 }
 
-func (s *SyncService) getTagValueUpdatedLocalToRemote(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_TAG_VALUE_LOCAL_TO_REMOTE)
+func (s *SyncService) getPinValueUpdatedLocalToRemote(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_PIN_VALUE_LOCAL_TO_REMOTE)
 }
 
-func (s *SyncService) setTagValueUpdatedLocalToRemote(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_TAG_VALUE_LOCAL_TO_REMOTE, updated)
+func (s *SyncService) setPinValueUpdatedLocalToRemote(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_PIN_VALUE_LOCAL_TO_REMOTE, updated)
 }
 
 // write
 
-func (s *SyncService) getTagWriteUpdatedRemoteToLocal(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_TAG_WRITE_REMOTE_TO_LOCAL)
+func (s *SyncService) getPinWriteUpdatedRemoteToLocal(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_PIN_WRITE_REMOTE_TO_LOCAL)
 }
 
-func (s *SyncService) setTagWriteUpdatedRemoteToLocal(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_TAG_WRITE_REMOTE_TO_LOCAL, updated)
+func (s *SyncService) setPinWriteUpdatedRemoteToLocal(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_PIN_WRITE_REMOTE_TO_LOCAL, updated)
 }
 
-func (s *SyncService) getTagWriteUpdatedLocalToRemote(ctx context.Context) (time.Time, error) {
-	return s.getUpdated(ctx, model.SYNC_TAG_WRITE_LOCAL_TO_REMOTE)
+func (s *SyncService) getPinWriteUpdatedLocalToRemote(ctx context.Context) (time.Time, error) {
+	return s.getUpdated(ctx, model.SYNC_PIN_WRITE_LOCAL_TO_REMOTE)
 }
 
-func (s *SyncService) setTagWriteUpdatedLocalToRemote(ctx context.Context, updated time.Time) error {
-	return s.setUpdated(ctx, model.SYNC_TAG_WRITE_LOCAL_TO_REMOTE, updated)
+func (s *SyncService) setPinWriteUpdatedLocalToRemote(ctx context.Context, updated time.Time) error {
+	return s.setUpdated(ctx, model.SYNC_PIN_WRITE_LOCAL_TO_REMOTE, updated)
 }
 
 func (s *SyncService) getUpdated(_ context.Context, key string) (time.Time, error) {
@@ -543,8 +543,8 @@ type NotifyType int
 
 const (
 	NOTIFY    NotifyType = 0
-	NOTIFY_TV NotifyType = 1
-	NOTIFY_TW NotifyType = 2
+	NOTIFY_PV NotifyType = 1
+	NOTIFY_PW NotifyType = 2
 )
 
 func (s *SyncService) notifyUpdated(nt NotifyType) {
@@ -559,15 +559,15 @@ func (s *SyncService) notifyUpdated(nt NotifyType) {
 			default:
 			}
 		}
-	case NOTIFY_TV:
-		for wait := range s.waitsTV {
+	case NOTIFY_PV:
+		for wait := range s.waitsPV {
 			select {
 			case wait <- struct{}{}:
 			default:
 			}
 		}
-	case NOTIFY_TW:
-		for wait := range s.waitsTW {
+	case NOTIFY_PW:
+		for wait := range s.waitsPW {
 			select {
 			case wait <- struct{}{}:
 			default:
@@ -583,10 +583,10 @@ func (s *SyncService) Notify(nt NotifyType) *Notify {
 	switch nt {
 	case NOTIFY:
 		s.waits[ch] = struct{}{}
-	case NOTIFY_TV:
-		s.waitsTV[ch] = struct{}{}
-	case NOTIFY_TW:
-		s.waitsTW[ch] = struct{}{}
+	case NOTIFY_PV:
+		s.waitsPV[ch] = struct{}{}
+	case NOTIFY_PW:
+		s.waitsPW[ch] = struct{}{}
 	}
 	s.lock.Unlock()
 
@@ -625,10 +625,10 @@ func (n *Notify) Close() {
 	switch n.nt {
 	case NOTIFY:
 		delete(n.ss.waits, n.ch)
-	case NOTIFY_TV:
-		delete(n.ss.waitsTV, n.ch)
-	case NOTIFY_TW:
-		delete(n.ss.waitsTW, n.ch)
+	case NOTIFY_PV:
+		delete(n.ss.waitsPV, n.ch)
+	case NOTIFY_PW:
+		delete(n.ss.waitsPW, n.ch)
 	}
 }
 

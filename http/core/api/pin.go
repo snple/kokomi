@@ -10,18 +10,18 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type TagService struct {
+type PinService struct {
 	as *ApiService
 }
 
-func newTagService(as *ApiService) *TagService {
-	return &TagService{
+func newPinService(as *ApiService) *PinService {
+	return &PinService{
 		as: as,
 	}
 }
 
-func (s *TagService) register(router gin.IRouter) {
-	group := router.Group("/tag")
+func (s *PinService) register(router gin.IRouter) {
+	group := router.Group("/pin")
 
 	group.GET("/", s.list)
 
@@ -39,7 +39,7 @@ func (s *TagService) register(router gin.IRouter) {
 	group.PATCH("/set_write", s.setWriteByNames)
 }
 
-func (s *TagService) list(ctx *gin.Context) {
+func (s *PinService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
 		NodeId    string `form:"node_id"`
@@ -77,22 +77,22 @@ func (s *TagService) list(ctx *gin.Context) {
 		page.Sort = pb.Page_DESC
 	}
 
-	request := &cores.TagListRequest{
+	request := &cores.PinListRequest{
 		Page:     page,
 		NodeId:   params.NodeId,
 		SourceId: source.Id,
 		Tags:     params.Tags,
 	}
 
-	reply, err := s.as.Core().GetTag().List(ctx, request)
+	reply, err := s.as.Core().GetPin().List(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	items := reply.GetTag()
+	items := reply.GetPin()
 
-	shiftime.Tags(items)
+	shiftime.Pins(items)
 
 	ctx.JSON(util.Success(gin.H{
 		"source": source,
@@ -101,10 +101,10 @@ func (s *TagService) list(ctx *gin.Context) {
 	}))
 }
 
-func (s *TagService) getById(ctx *gin.Context) {
+func (s *PinService) getById(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	reply, err := s.as.Core().GetTag().View(ctx, request)
+	reply, err := s.as.Core().GetPin().View(ctx, request)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -117,17 +117,17 @@ func (s *TagService) getById(ctx *gin.Context) {
 		return
 	}
 
-	shiftime.Tag(reply)
+	shiftime.Pin(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
 	}))
 }
 
-func (s *TagService) getValueById(ctx *gin.Context) {
+func (s *PinService) getValueById(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	reply, err := s.as.Core().GetTag().GetValue(ctx, request)
+	reply, err := s.as.Core().GetPin().GetValue(ctx, request)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -140,14 +140,14 @@ func (s *TagService) getValueById(ctx *gin.Context) {
 		return
 	}
 
-	shiftime.TagValue(reply)
+	shiftime.PinValue(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
 	}))
 }
 
-func (s *TagService) setValueById(ctx *gin.Context) {
+func (s *PinService) setValueById(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
 	var params struct {
@@ -158,8 +158,8 @@ func (s *TagService) setValueById(ctx *gin.Context) {
 		return
 	}
 
-	reply, err := s.as.Core().GetTag().SetValue(ctx,
-		&pb.TagValue{Id: request.Id, Value: params.Value})
+	reply, err := s.as.Core().GetPin().SetValue(ctx,
+		&pb.PinValue{Id: request.Id, Value: params.Value})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -177,7 +177,7 @@ func (s *TagService) setValueById(ctx *gin.Context) {
 	}))
 }
 
-func (s *TagService) getByName(ctx *gin.Context) {
+func (s *PinService) getByName(ctx *gin.Context) {
 	name := ctx.Param("name")
 
 	var params struct {
@@ -188,8 +188,8 @@ func (s *TagService) getByName(ctx *gin.Context) {
 		return
 	}
 
-	reply, err := s.as.Core().GetTag().Name(ctx,
-		&cores.TagNameRequest{NodeId: params.NodeId, Name: name})
+	reply, err := s.as.Core().GetPin().Name(ctx,
+		&cores.PinNameRequest{NodeId: params.NodeId, Name: name})
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -202,14 +202,14 @@ func (s *TagService) getByName(ctx *gin.Context) {
 		return
 	}
 
-	shiftime.Tag(reply)
+	shiftime.Pin(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
 	}))
 }
 
-func (s *TagService) getByNames(ctx *gin.Context) {
+func (s *PinService) getByNames(ctx *gin.Context) {
 	var params struct {
 		NodeId string   `json:"node_id"`
 		Name   []string `json:"name"`
@@ -219,11 +219,11 @@ func (s *TagService) getByNames(ctx *gin.Context) {
 		return
 	}
 
-	ret := make([]*pb.Tag, 0, len(params.Name))
+	ret := make([]*pb.Pin, 0, len(params.Name))
 
 	for _, name := range params.Name {
-		reply, err := s.as.Core().GetTag().Name(ctx,
-			&cores.TagNameRequest{NodeId: params.NodeId, Name: name})
+		reply, err := s.as.Core().GetPin().Name(ctx,
+			&cores.PinNameRequest{NodeId: params.NodeId, Name: name})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.NotFound {
@@ -235,7 +235,7 @@ func (s *TagService) getByNames(ctx *gin.Context) {
 			return
 		}
 
-		shiftime.Tag(reply)
+		shiftime.Pin(reply)
 
 		ret = append(ret, reply)
 	}
@@ -243,7 +243,7 @@ func (s *TagService) getByNames(ctx *gin.Context) {
 	ctx.JSON(util.Success(ret))
 }
 
-func (s *TagService) getValueByNames(ctx *gin.Context) {
+func (s *PinService) getValueByNames(ctx *gin.Context) {
 	var params struct {
 		NodeId string   `json:"node_id"`
 		Name   []string `json:"name"`
@@ -253,11 +253,11 @@ func (s *TagService) getValueByNames(ctx *gin.Context) {
 		return
 	}
 
-	ret := make([]*cores.TagNameValue, 0, len(params.Name))
+	ret := make([]*cores.PinNameValue, 0, len(params.Name))
 
 	for _, name := range params.Name {
-		reply, err := s.as.Core().GetTag().GetValueByName(ctx,
-			&cores.TagGetValueByNameRequest{NodeId: params.NodeId, Name: name})
+		reply, err := s.as.Core().GetPin().GetValueByName(ctx,
+			&cores.PinGetValueByNameRequest{NodeId: params.NodeId, Name: name})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.NotFound {
@@ -269,7 +269,7 @@ func (s *TagService) getValueByNames(ctx *gin.Context) {
 			return
 		}
 
-		shiftTimeForTagNameValue(reply)
+		shiftTimeForPinNameValue(reply)
 
 		ret = append(ret, reply)
 	}
@@ -277,7 +277,7 @@ func (s *TagService) getValueByNames(ctx *gin.Context) {
 	ctx.JSON(util.Success(ret))
 }
 
-func (s *TagService) setValueByNames(ctx *gin.Context) {
+func (s *PinService) setValueByNames(ctx *gin.Context) {
 	var params struct {
 		NodeId    string            `json:"node_id"`
 		NameValue map[string]string `json:"name_value"`
@@ -290,8 +290,8 @@ func (s *TagService) setValueByNames(ctx *gin.Context) {
 	errors := make(map[string]string)
 
 	for name, value := range params.NameValue {
-		_, err := s.as.Core().GetTag().SetValueByName(ctx,
-			&cores.TagNameValue{NodeId: params.NodeId, Name: name, Value: value})
+		_, err := s.as.Core().GetPin().SetValueByName(ctx,
+			&cores.PinNameValue{NodeId: params.NodeId, Name: name, Value: value})
 		if err != nil {
 			errors[name] = err.Error()
 		}
@@ -311,7 +311,7 @@ func (s *TagService) setValueByNames(ctx *gin.Context) {
 	}))
 }
 
-func (s *TagService) getWriteByNames(ctx *gin.Context) {
+func (s *PinService) getWriteByNames(ctx *gin.Context) {
 	var params struct {
 		NodeId string   `json:"node_id"`
 		Name   []string `json:"name"`
@@ -321,11 +321,11 @@ func (s *TagService) getWriteByNames(ctx *gin.Context) {
 		return
 	}
 
-	ret := make([]*cores.TagNameValue, 0, len(params.Name))
+	ret := make([]*cores.PinNameValue, 0, len(params.Name))
 
 	for _, name := range params.Name {
-		reply, err := s.as.Core().GetTag().GetWriteByName(ctx,
-			&cores.TagGetValueByNameRequest{NodeId: params.NodeId, Name: name})
+		reply, err := s.as.Core().GetPin().GetWriteByName(ctx,
+			&cores.PinGetValueByNameRequest{NodeId: params.NodeId, Name: name})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.NotFound {
@@ -337,7 +337,7 @@ func (s *TagService) getWriteByNames(ctx *gin.Context) {
 			return
 		}
 
-		shiftTimeForTagNameValue(reply)
+		shiftTimeForPinNameValue(reply)
 
 		ret = append(ret, reply)
 	}
@@ -345,7 +345,7 @@ func (s *TagService) getWriteByNames(ctx *gin.Context) {
 	ctx.JSON(util.Success(ret))
 }
 
-func (s *TagService) setWriteByNames(ctx *gin.Context) {
+func (s *PinService) setWriteByNames(ctx *gin.Context) {
 	var params struct {
 		NodeId    string            `json:"node_id"`
 		NameValue map[string]string `json:"name_value"`
@@ -358,8 +358,8 @@ func (s *TagService) setWriteByNames(ctx *gin.Context) {
 	errors := make(map[string]string)
 
 	for name, value := range params.NameValue {
-		_, err := s.as.Core().GetTag().SetWriteByName(ctx,
-			&cores.TagNameValue{NodeId: params.NodeId, Name: name, Value: value})
+		_, err := s.as.Core().GetPin().SetWriteByName(ctx,
+			&cores.PinNameValue{NodeId: params.NodeId, Name: name, Value: value})
 		if err != nil {
 			errors[name] = err.Error()
 		}
@@ -379,14 +379,14 @@ func (s *TagService) setWriteByNames(ctx *gin.Context) {
 	}))
 }
 
-func shiftTimeForTagNameValue(item *cores.TagNameValue) {
+func shiftTimeForPinNameValue(item *cores.PinNameValue) {
 	if item != nil {
 		item.Updated = item.Updated / 1000
 	}
 }
 
-func shiftTimeForTagNameValues(items []*cores.TagNameValue) {
+func shiftTimeForPinNameValues(items []*cores.PinNameValue) {
 	for _, item := range items {
-		shiftTimeForTagNameValue(item)
+		shiftTimeForPinNameValue(item)
 	}
 }

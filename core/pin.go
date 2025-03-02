@@ -19,23 +19,23 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type TagService struct {
+type PinService struct {
 	cs *CoreService
 
-	cache *cache.Cache[model.Tag]
+	cache *cache.Cache[model.Pin]
 
-	cores.UnimplementedTagServiceServer
+	cores.UnimplementedPinServiceServer
 }
 
-func newTagService(cs *CoreService) *TagService {
-	return &TagService{
+func newPinService(cs *CoreService) *PinService {
+	return &PinService{
 		cs:    cs,
-		cache: cache.NewCache[model.Tag](nil),
+		cache: cache.NewCache[model.Pin](nil),
 	}
 }
 
-func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) Create(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -45,31 +45,31 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		}
 
 		if len(in.GetSourceId()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.SourceID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.SourceID")
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 	}
 
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "Tag.Name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Pin.Name min 2 character")
 		}
 
-		err = s.cs.GetDB().NewSelect().Model(&model.Tag{}).Where("name = ?", in.GetName()).Where("source_id = ?", in.GetSourceId()).Scan(ctx)
+		err = s.cs.GetDB().NewSelect().Model(&model.Pin{}).Where("name = ?", in.GetName()).Where("source_id = ?", in.GetSourceId()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return &output, status.Errorf(codes.Internal, "Query: %v", err)
 			}
 		} else {
-			return &output, status.Error(codes.AlreadyExists, "Tag.Name must be unique")
+			return &output, status.Error(codes.AlreadyExists, "Pin.Name must be unique")
 		}
 	}
 
-	item := model.Tag{
+	item := model.Pin{
 		ID:       in.GetId(),
 		SourceID: in.GetSourceId(),
 		Name:     in.GetName(),
@@ -109,7 +109,7 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 
 	s.copyModelToOutput(&output, &item)
 
-	output.Value, err = s.getTagValue(ctx, item.ID)
+	output.Value, err = s.getPinValue(ctx, item.ID)
 	if err != nil {
 		return &output, err
 	}
@@ -117,8 +117,8 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 	return &output, nil
 }
 
-func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) Update(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -128,11 +128,11 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 	}
 
@@ -144,10 +144,10 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 	// name validation
 	{
 		if len(in.GetName()) < 2 {
-			return &output, status.Error(codes.InvalidArgument, "Tag.Name min 2 character")
+			return &output, status.Error(codes.InvalidArgument, "Pin.Name min 2 character")
 		}
 
-		modelItem := model.Tag{}
+		modelItem := model.Pin{}
 		err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("source_id = ?", item.SourceID).Where("name = ?", in.GetName()).Scan(ctx)
 		if err != nil {
 			if err != sql.ErrNoRows {
@@ -155,7 +155,7 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 			}
 		} else {
 			if modelItem.ID != item.ID {
-				return &output, status.Error(codes.AlreadyExists, "Tag.Name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Pin.Name must be unique")
 			}
 		}
 	}
@@ -181,7 +181,7 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 
 	s.copyModelToOutput(&output, &item)
 
-	output.Value, err = s.getTagValue(ctx, item.ID)
+	output.Value, err = s.getPinValue(ctx, item.ID)
 	if err != nil {
 		return &output, err
 	}
@@ -189,8 +189,8 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 	return &output, nil
 }
 
-func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) View(ctx context.Context, in *pb.Id) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -200,7 +200,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 	}
 
@@ -211,7 +211,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 
 	s.copyModelToOutput(&output, &item)
 
-	output.Value, err = s.getTagValue(ctx, item.ID)
+	output.Value, err = s.getPinValue(ctx, item.ID)
 	if err != nil {
 		return &output, err
 	}
@@ -219,8 +219,8 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 	return &output, nil
 }
 
-func (s *TagService) Name(ctx context.Context, in *cores.TagNameRequest) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) Name(ctx context.Context, in *cores.PinNameRequest) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -234,7 +234,7 @@ func (s *TagService) Name(ctx context.Context, in *cores.TagNameRequest) (*pb.Ta
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 	}
 
@@ -247,7 +247,7 @@ func (s *TagService) Name(ctx context.Context, in *cores.TagNameRequest) (*pb.Ta
 
 	output.Name = in.GetName()
 
-	output.Value, err = s.getTagValue(ctx, item.ID)
+	output.Value, err = s.getPinValue(ctx, item.ID)
 	if err != nil {
 		return &output, err
 	}
@@ -255,8 +255,8 @@ func (s *TagService) Name(ctx context.Context, in *cores.TagNameRequest) (*pb.Ta
 	return &output, nil
 }
 
-func (s *TagService) NameFull(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) NameFull(ctx context.Context, in *pb.Name) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -266,7 +266,7 @@ func (s *TagService) NameFull(ctx context.Context, in *pb.Name) (*pb.Tag, error)
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 	}
 
@@ -286,7 +286,7 @@ func (s *TagService) NameFull(ctx context.Context, in *pb.Name) (*pb.Tag, error)
 			sourceName = splits[1]
 			itemName = splits[2]
 		default:
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 	}
 
@@ -309,7 +309,7 @@ func (s *TagService) NameFull(ctx context.Context, in *pb.Name) (*pb.Tag, error)
 
 	output.Name = in.GetName()
 
-	output.Value, err = s.getTagValue(ctx, item.ID)
+	output.Value, err = s.getPinValue(ctx, item.ID)
 	if err != nil {
 		return &output, err
 	}
@@ -317,7 +317,7 @@ func (s *TagService) NameFull(ctx context.Context, in *pb.Name) (*pb.Tag, error)
 	return &output, nil
 }
 
-func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *PinService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -328,7 +328,7 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 	}
 
@@ -354,9 +354,9 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 	return &output, nil
 }
 
-func (s *TagService) List(ctx context.Context, in *cores.TagListRequest) (*cores.TagListResponse, error) {
+func (s *PinService) List(ctx context.Context, in *cores.PinListRequest) (*cores.PinListResponse, error) {
 	var err error
-	var output cores.TagListResponse
+	var output cores.PinListResponse
 
 	// basic validation
 	{
@@ -376,7 +376,7 @@ func (s *TagService) List(ctx context.Context, in *cores.TagListRequest) (*cores
 
 	output.Page = in.GetPage()
 
-	items := make([]model.Tag, 0, 10)
+	items := make([]model.Pin, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -435,22 +435,22 @@ func (s *TagService) List(ctx context.Context, in *cores.TagListRequest) (*cores
 	output.Count = uint32(count)
 
 	for i := 0; i < len(items); i++ {
-		item := pb.Tag{}
+		item := pb.Pin{}
 
 		s.copyModelToOutput(&item, &items[i])
 
-		item.Value, err = s.getTagValue(ctx, items[i].ID)
+		item.Value, err = s.getPinValue(ctx, items[i].ID)
 		if err != nil {
 			return &output, err
 		}
 
-		output.Tag = append(output.Tag, &item)
+		output.Pin = append(output.Pin, &item)
 	}
 
 	return &output, nil
 }
 
-func (s *TagService) Clone(ctx context.Context, in *cores.TagCloneRequest) (*pb.MyBool, error) {
+func (s *PinService) Clone(ctx context.Context, in *cores.PinCloneRequest) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -461,11 +461,11 @@ func (s *TagService) Clone(ctx context.Context, in *cores.TagCloneRequest) (*pb.
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 	}
 
-	err = s.cs.getClone().tag(ctx, s.cs.GetDB(), in.GetId(), in.GetSourceId())
+	err = s.cs.getClone().pin(ctx, s.cs.GetDB(), in.GetId(), in.GetSourceId())
 	if err != nil {
 		return &output, err
 	}
@@ -475,15 +475,15 @@ func (s *TagService) Clone(ctx context.Context, in *cores.TagCloneRequest) (*pb.
 	return &output, nil
 }
 
-func (s *TagService) ViewByID(ctx context.Context, id string) (model.Tag, error) {
-	item := model.Tag{
+func (s *PinService) ViewByID(ctx context.Context, id string) (model.Pin, error) {
+	item := model.Pin{
 		ID: id,
 	}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Tag.ID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Pin.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -492,8 +492,8 @@ func (s *TagService) ViewByID(ctx context.Context, id string) (model.Tag, error)
 	return item, nil
 }
 
-func (s *TagService) ViewByNodeIDAndName(ctx context.Context, nodeID, name string) (model.Tag, error) {
-	item := model.Tag{}
+func (s *PinService) ViewByNodeIDAndName(ctx context.Context, nodeID, name string) (model.Pin, error) {
+	item := model.Pin{}
 
 	sourceName := consts.DEFAULT_SOURCE
 	itemName := name
@@ -501,7 +501,7 @@ func (s *TagService) ViewByNodeIDAndName(ctx context.Context, nodeID, name strin
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return item, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return item, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 
 		sourceName = splits[0]
@@ -516,13 +516,13 @@ func (s *TagService) ViewByNodeIDAndName(ctx context.Context, nodeID, name strin
 	return s.ViewBySourceIDAndName(ctx, source.ID, itemName)
 }
 
-func (s *TagService) ViewBySourceIDAndName(ctx context.Context, sourceID, name string) (model.Tag, error) {
-	item := model.Tag{}
+func (s *PinService) ViewBySourceIDAndName(ctx context.Context, sourceID, name string) (model.Pin, error) {
+	item := model.Pin{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("source_id = ?", sourceID).Where("name = ?", name).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v, Tag.Name: %v", err, sourceID, name)
+			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v, Pin.Name: %v", err, sourceID, name)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -531,13 +531,13 @@ func (s *TagService) ViewBySourceIDAndName(ctx context.Context, sourceID, name s
 	return item, nil
 }
 
-func (s *TagService) ViewBySourceIDAndAddress(ctx context.Context, sourceID, address string) (model.Tag, error) {
-	item := model.Tag{}
+func (s *PinService) ViewBySourceIDAndAddress(ctx context.Context, sourceID, address string) (model.Pin, error) {
+	item := model.Pin{}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).Where("source_id = ?", sourceID).Where("address = ?", address).Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v, Tag.Address: %v", err, sourceID, address)
+			return item, status.Errorf(codes.NotFound, "Query: %v, SourceID: %v, Pin.Address: %v", err, sourceID, address)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -546,7 +546,7 @@ func (s *TagService) ViewBySourceIDAndAddress(ctx context.Context, sourceID, add
 	return item, nil
 }
 
-func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
+func (s *PinService) copyModelToOutput(output *pb.Pin, item *model.Pin) {
 	output.Id = item.ID
 	output.NodeId = item.NodeID
 	output.SourceId = item.SourceID
@@ -563,7 +563,7 @@ func (s *TagService) copyModelToOutput(output *pb.Tag, item *model.Tag) {
 	output.Deleted = item.Deleted.UnixMicro()
 }
 
-func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
+func (s *PinService) afterUpdate(ctx context.Context, item *model.Pin) error {
 	var err error
 
 	err = s.cs.GetSync().setNodeUpdated(ctx, s.cs.GetDB(), item.NodeID, time.Now())
@@ -571,7 +571,7 @@ func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
 		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
-	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_TAG, time.Now())
+	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_PIN, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "SyncGlobal.setUpdated: %v", err)
 	}
@@ -579,7 +579,7 @@ func (s *TagService) afterUpdate(ctx context.Context, item *model.Tag) error {
 	return nil
 }
 
-func (s *TagService) afterDelete(ctx context.Context, item *model.Tag) error {
+func (s *PinService) afterDelete(ctx context.Context, item *model.Pin) error {
 	var err error
 
 	err = s.cs.GetSync().setNodeUpdated(ctx, s.cs.GetDB(), item.NodeID, time.Now())
@@ -587,7 +587,7 @@ func (s *TagService) afterDelete(ctx context.Context, item *model.Tag) error {
 		return status.Errorf(codes.Internal, "Sync.setNodeUpdated: %v", err)
 	}
 
-	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_TAG, time.Now())
+	err = s.cs.GetSyncGlobal().setUpdated(ctx, s.cs.GetDB(), model.SYNC_GLOBAL_PIN, time.Now())
 	if err != nil {
 		return status.Errorf(codes.Internal, "SyncGlobal.setUpdated: %v", err)
 	}
@@ -597,8 +597,8 @@ func (s *TagService) afterDelete(ctx context.Context, item *model.Tag) error {
 
 // sync
 
-func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -608,7 +608,7 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 	}
 
@@ -622,15 +622,15 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 	return &output, nil
 }
 
-func (s *TagService) viewWithDeleted(ctx context.Context, id string) (model.Tag, error) {
-	item := model.Tag{
+func (s *PinService) viewWithDeleted(ctx context.Context, id string) (model.Pin, error) {
+	item := model.Pin{
 		ID: id,
 	}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().WhereAllWithDeleted().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Tag.ID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Pin.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -639,9 +639,9 @@ func (s *TagService) viewWithDeleted(ctx context.Context, id string) (model.Tag,
 	return item, nil
 }
 
-func (s *TagService) Pull(ctx context.Context, in *cores.TagPullRequest) (*cores.TagPullResponse, error) {
+func (s *PinService) Pull(ctx context.Context, in *cores.PinPullRequest) (*cores.PinPullResponse, error) {
 	var err error
-	var output cores.TagPullResponse
+	var output cores.PinPullResponse
 
 	// basic validation
 	{
@@ -653,7 +653,7 @@ func (s *TagService) Pull(ctx context.Context, in *cores.TagPullRequest) (*cores
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	items := make([]model.Tag, 0, 10)
+	items := make([]model.Pin, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -671,17 +671,17 @@ func (s *TagService) Pull(ctx context.Context, in *cores.TagPullRequest) (*cores
 	}
 
 	for i := 0; i < len(items); i++ {
-		item := pb.Tag{}
+		item := pb.Pin{}
 
 		s.copyModelToOutput(&item, &items[i])
 
-		output.Tag = append(output.Tag, &item)
+		output.Pin = append(output.Pin, &item)
 	}
 
 	return &output, nil
 }
 
-func (s *TagService) Sync(ctx context.Context, in *pb.Tag) (*pb.MyBool, error) {
+func (s *PinService) Sync(ctx context.Context, in *pb.Pin) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -692,15 +692,15 @@ func (s *TagService) Sync(ctx context.Context, in *pb.Tag) (*pb.MyBool, error) {
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Updated")
 		}
 	}
 
@@ -748,20 +748,20 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "Tag.Name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Pin.Name min 2 character")
 			}
 
-			err = s.cs.GetDB().NewSelect().Model(&model.Tag{}).Where("name = ?", in.GetName()).Where("source_id = ?", in.GetSourceId()).Scan(ctx)
+			err = s.cs.GetDB().NewSelect().Model(&model.Pin{}).Where("name = ?", in.GetName()).Where("source_id = ?", in.GetSourceId()).Scan(ctx)
 			if err != nil {
 				if err != sql.ErrNoRows {
 					return &output, status.Errorf(codes.Internal, "Query: %v", err)
 				}
 			} else {
-				return &output, status.Error(codes.AlreadyExists, "Tag.Name must be unique")
+				return &output, status.Error(codes.AlreadyExists, "Pin.Name must be unique")
 			}
 		}
 
-		item := model.Tag{
+		item := model.Pin{
 			ID:       in.GetId(),
 			NodeID:   in.GetNodeId(),
 			SourceID: in.GetSourceId(),
@@ -797,10 +797,10 @@ SKIP:
 		// name validation
 		{
 			if len(in.GetName()) < 2 {
-				return &output, status.Error(codes.InvalidArgument, "Tag.Name min 2 character")
+				return &output, status.Error(codes.InvalidArgument, "Pin.Name min 2 character")
 			}
 
-			modelItem := model.Tag{}
+			modelItem := model.Pin{}
 			err = s.cs.GetDB().NewSelect().Model(&modelItem).Where("source_id = ?", item.SourceID).Where("name = ?", in.GetName()).Scan(ctx)
 			if err != nil {
 				if err != sql.ErrNoRows {
@@ -808,7 +808,7 @@ SKIP:
 				}
 			} else {
 				if modelItem.ID != item.ID {
-					return &output, status.Error(codes.AlreadyExists, "Tag.Name must be unique")
+					return &output, status.Error(codes.AlreadyExists, "Pin.Name must be unique")
 				}
 			}
 		}
@@ -841,11 +841,11 @@ SKIP:
 
 // cache
 
-func (s *TagService) GC() {
+func (s *PinService) GC() {
 	s.cache.GC()
 }
 
-func (s *TagService) ViewFromCacheByID(ctx context.Context, id string) (model.Tag, error) {
+func (s *PinService) ViewFromCacheByID(ctx context.Context, id string) (model.Pin, error) {
 	if !s.cs.dopts.cache {
 		return s.ViewByID(ctx, id)
 	}
@@ -864,7 +864,7 @@ func (s *TagService) ViewFromCacheByID(ctx context.Context, id string) (model.Ta
 	return item, nil
 }
 
-func (s *TagService) ViewFromCacheByNodeIDAndName(ctx context.Context, nodeID, name string) (model.Tag, error) {
+func (s *PinService) ViewFromCacheByNodeIDAndName(ctx context.Context, nodeID, name string) (model.Pin, error) {
 	if !s.cs.dopts.cache {
 		return s.ViewByNodeIDAndName(ctx, nodeID, name)
 	}
@@ -885,7 +885,7 @@ func (s *TagService) ViewFromCacheByNodeIDAndName(ctx context.Context, nodeID, n
 	return item, nil
 }
 
-func (s *TagService) ViewFromCacheBySourceIDAndName(ctx context.Context, sourceID, name string) (model.Tag, error) {
+func (s *PinService) ViewFromCacheBySourceIDAndName(ctx context.Context, sourceID, name string) (model.Pin, error) {
 	if !s.cs.dopts.cache {
 		return s.ViewBySourceIDAndName(ctx, sourceID, name)
 	}
@@ -906,7 +906,7 @@ func (s *TagService) ViewFromCacheBySourceIDAndName(ctx context.Context, sourceI
 	return item, nil
 }
 
-func (s *TagService) ViewFromCacheBySourceIDAndAddress(ctx context.Context, sourceID, address string) (model.Tag, error) {
+func (s *PinService) ViewFromCacheBySourceIDAndAddress(ctx context.Context, sourceID, address string) (model.Pin, error) {
 	if !s.cs.dopts.cache {
 		return s.ViewBySourceIDAndAddress(ctx, sourceID, address)
 	}
@@ -929,9 +929,9 @@ func (s *TagService) ViewFromCacheBySourceIDAndAddress(ctx context.Context, sour
 
 // value
 
-func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, error) {
+func (s *PinService) GetValue(ctx context.Context, in *pb.Id) (*pb.PinValue, error) {
 	var err error
-	var output pb.TagValue
+	var output pb.PinValue
 
 	// basic validation
 	{
@@ -940,13 +940,13 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 	}
 
 	output.Id = in.GetId()
 
-	item2, err := s.getTagValueUpdated(ctx, in.GetId())
+	item2, err := s.getPinValueUpdated(ctx, in.GetId())
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -963,7 +963,7 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 	return &output, nil
 }
 
-func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *PinService) SetValue(ctx context.Context, in *pb.PinValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -974,22 +974,22 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Value")
 		}
 	}
 
-	// tag
+	// pin
 	item, err := s.ViewFromCacheByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Pin.Status != ON")
 	}
 
 	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
@@ -1024,7 +1024,7 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		}
 	}
 
-	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
+	if err = s.setPinValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
 		return &output, err
 	}
 
@@ -1037,9 +1037,9 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 	return &output, nil
 }
 
-func (s *TagService) GetValueByName(ctx context.Context, in *cores.TagGetValueByNameRequest) (*cores.TagNameValue, error) {
+func (s *PinService) GetValueByName(ctx context.Context, in *cores.PinGetValueByNameRequest) (*cores.PinNameValue, error) {
 	var err error
-	var output cores.TagNameValue
+	var output cores.PinNameValue
 
 	// basic validation
 	{
@@ -1052,7 +1052,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *cores.TagGetValueBy
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 	}
 
@@ -1065,7 +1065,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *cores.TagGetValueBy
 	output.Id = item.ID
 	output.Name = in.GetName()
 
-	item2, err := s.getTagValueUpdated(ctx, item.ID)
+	item2, err := s.getPinValueUpdated(ctx, item.ID)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1082,7 +1082,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *cores.TagGetValueBy
 	return &output, nil
 }
 
-func (s *TagService) SetValueByName(ctx context.Context, in *cores.TagNameValue) (*pb.MyBool, error) {
+func (s *PinService) SetValueByName(ctx context.Context, in *cores.PinNameValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -1097,11 +1097,11 @@ func (s *TagService) SetValueByName(ctx context.Context, in *cores.TagNameValue)
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Value")
 		}
 	}
 
@@ -1122,7 +1122,7 @@ func (s *TagService) SetValueByName(ctx context.Context, in *cores.TagNameValue)
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 
 		nodeName = splits[0]
@@ -1139,14 +1139,14 @@ func (s *TagService) SetValueByName(ctx context.Context, in *cores.TagNameValue)
 		return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
 	}
 
-	// tag
+	// pin
 	item, err := s.ViewFromCacheBySourceIDAndName(ctx, source.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Pin.Status != ON")
 	}
 
 	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
@@ -1154,7 +1154,7 @@ func (s *TagService) SetValueByName(ctx context.Context, in *cores.TagNameValue)
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
+	if err = s.setPinValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
 		return &output, err
 	}
 
@@ -1167,8 +1167,8 @@ func (s *TagService) SetValueByName(ctx context.Context, in *cores.TagNameValue)
 	return &output, nil
 }
 
-func (s *TagService) getTagValue(ctx context.Context, id string) (string, error) {
-	item2, err := s.getTagValueUpdated(ctx, id)
+func (s *PinService) getPinValue(ctx context.Context, id string) (string, error) {
+	item2, err := s.getPinValueUpdated(ctx, id)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1182,12 +1182,12 @@ func (s *TagService) getTagValue(ctx context.Context, id string) (string, error)
 	return item2.Value, nil
 }
 
-func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, _ string) error {
+func (s *PinService) afterUpdateValue(ctx context.Context, item *model.Pin, _ string) error {
 	var err error
 
-	err = s.cs.GetSync().setTagValueUpdated(ctx, s.cs.GetDB(), item.NodeID, time.Now())
+	err = s.cs.GetSync().setPinValueUpdated(ctx, s.cs.GetDB(), item.NodeID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setTagValueUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setPinValueUpdated: %v", err)
 	}
 
 	return nil
@@ -1195,8 +1195,8 @@ func (s *TagService) afterUpdateValue(ctx context.Context, item *model.Tag, _ st
 
 // sync value
 
-func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
-	var output pb.TagValueUpdated
+func (s *PinService) ViewValue(ctx context.Context, in *pb.Id) (*pb.PinValueUpdated, error) {
+	var output pb.PinValueUpdated
 	var err error
 
 	// basic validation
@@ -1206,21 +1206,21 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 	}
 
-	item, err := s.getTagValueUpdated(ctx, in.GetId())
+	item, err := s.getPinValueUpdated(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
 
-	s.copyModelToOutputTagValue(&output, &item)
+	s.copyModelToOutputPinValue(&output, &item)
 
 	return &output, nil
 }
 
-func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *PinService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -1231,11 +1231,11 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 	}
 
-	item, err := s.getTagValueUpdated(ctx, in.GetId())
+	item, err := s.getPinValueUpdated(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -1250,9 +1250,9 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 	return &output, nil
 }
 
-func (s *TagService) PullValue(ctx context.Context, in *cores.TagPullValueRequest) (*cores.TagPullValueResponse, error) {
+func (s *PinService) PullValue(ctx context.Context, in *cores.PinPullValueRequest) (*cores.PinPullValueResponse, error) {
 	var err error
-	var output cores.TagPullValueResponse
+	var output cores.PinPullValueResponse
 
 	// basic validation
 	{
@@ -1264,7 +1264,7 @@ func (s *TagService) PullValue(ctx context.Context, in *cores.TagPullValueReques
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	items := make([]model.TagValue, 0, 10)
+	items := make([]model.PinValue, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -1282,17 +1282,17 @@ func (s *TagService) PullValue(ctx context.Context, in *cores.TagPullValueReques
 	}
 
 	for i := 0; i < len(items); i++ {
-		item := pb.TagValueUpdated{}
+		item := pb.PinValueUpdated{}
 
-		s.copyModelToOutputTagValue(&item, &items[i])
+		s.copyModelToOutputPinValue(&item, &items[i])
 
-		output.Tag = append(output.Tag, &item)
+		output.Pin = append(output.Pin, &item)
 	}
 
 	return &output, nil
 }
 
-func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *PinService) SyncValue(ctx context.Context, in *pb.PinValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -1303,19 +1303,19 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Value")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Value.Updated")
 		}
 	}
 
-	// tag
+	// pin
 	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
@@ -1326,7 +1326,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	value, err := s.getTagValueUpdated(ctx, in.GetId())
+	value, err := s.getPinValueUpdated(ctx, in.GetId())
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1342,7 +1342,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 	}
 
 UPDATED:
-	if err = s.setTagValueUpdated(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
+	if err = s.setPinValueUpdated(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
 		return &output, err
 	}
 
@@ -1355,10 +1355,10 @@ UPDATED:
 	return &output, nil
 }
 
-func (s *TagService) setTagValueUpdated(ctx context.Context, item *model.Tag, value string, updated time.Time) error {
+func (s *PinService) setPinValueUpdated(ctx context.Context, item *model.Pin, value string, updated time.Time) error {
 	var err error
 
-	item2 := model.TagValue{
+	item2 := model.PinValue{
 		ID:       item.ID,
 		NodeID:   item.NodeID,
 		SourceID: item.SourceID,
@@ -1386,15 +1386,15 @@ func (s *TagService) setTagValueUpdated(ctx context.Context, item *model.Tag, va
 	return nil
 }
 
-func (s *TagService) getTagValueUpdated(ctx context.Context, id string) (model.TagValue, error) {
-	item := model.TagValue{
+func (s *PinService) getPinValueUpdated(ctx context.Context, id string) (model.PinValue, error) {
+	item := model.PinValue{
 		ID: id,
 	}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Tag.ID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Pin.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -1403,7 +1403,7 @@ func (s *TagService) getTagValueUpdated(ctx context.Context, id string) (model.T
 	return item, nil
 }
 
-func (s *TagService) copyModelToOutputTagValue(output *pb.TagValueUpdated, item *model.TagValue) {
+func (s *PinService) copyModelToOutputPinValue(output *pb.PinValueUpdated, item *model.PinValue) {
 	output.Id = item.ID
 	output.NodeId = item.NodeID
 	output.SourceId = item.SourceID
@@ -1413,9 +1413,9 @@ func (s *TagService) copyModelToOutputTagValue(output *pb.TagValueUpdated, item 
 
 // write
 
-func (s *TagService) GetWrite(ctx context.Context, in *pb.Id) (*pb.TagValue, error) {
+func (s *PinService) GetWrite(ctx context.Context, in *pb.Id) (*pb.PinValue, error) {
 	var err error
-	var output pb.TagValue
+	var output pb.PinValue
 
 	// basic validation
 	{
@@ -1424,13 +1424,13 @@ func (s *TagService) GetWrite(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 	}
 
 	output.Id = in.GetId()
 
-	item2, err := s.getTagWriteUpdated(ctx, in.GetId())
+	item2, err := s.getPinWriteUpdated(ctx, in.GetId())
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1447,7 +1447,7 @@ func (s *TagService) GetWrite(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 	return &output, nil
 }
 
-func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *PinService) SetWrite(ctx context.Context, in *pb.PinValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -1458,26 +1458,26 @@ func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Value")
 		}
 	}
 
-	// tag
+	// pin
 	item, err := s.ViewFromCacheByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Pin.Status != ON")
 	}
 
 	if item.Access != consts.WRITE {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != WRITE")
+		return &output, status.Errorf(codes.FailedPrecondition, "Pin.Access != WRITE")
 	}
 
 	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
@@ -1512,7 +1512,7 @@ func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		}
 	}
 
-	if err = s.setTagWriteUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
+	if err = s.setPinWriteUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
 		return &output, err
 	}
 
@@ -1525,9 +1525,9 @@ func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 	return &output, nil
 }
 
-func (s *TagService) GetWriteByName(ctx context.Context, in *cores.TagGetValueByNameRequest) (*cores.TagNameValue, error) {
+func (s *PinService) GetWriteByName(ctx context.Context, in *cores.PinGetValueByNameRequest) (*cores.PinNameValue, error) {
 	var err error
-	var output cores.TagNameValue
+	var output cores.PinNameValue
 
 	// basic validation
 	{
@@ -1540,7 +1540,7 @@ func (s *TagService) GetWriteByName(ctx context.Context, in *cores.TagGetValueBy
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 	}
 
@@ -1553,7 +1553,7 @@ func (s *TagService) GetWriteByName(ctx context.Context, in *cores.TagGetValueBy
 	output.Id = item.ID
 	output.Name = in.GetName()
 
-	item2, err := s.getTagWriteUpdated(ctx, item.ID)
+	item2, err := s.getPinWriteUpdated(ctx, item.ID)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1570,7 +1570,7 @@ func (s *TagService) GetWriteByName(ctx context.Context, in *cores.TagGetValueBy
 	return &output, nil
 }
 
-func (s *TagService) SetWriteByName(ctx context.Context, in *cores.TagNameValue) (*pb.MyBool, error) {
+func (s *PinService) SetWriteByName(ctx context.Context, in *cores.PinNameValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -1585,11 +1585,11 @@ func (s *TagService) SetWriteByName(ctx context.Context, in *cores.TagNameValue)
 		}
 
 		if in.GetName() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Value")
 		}
 	}
 
@@ -1610,7 +1610,7 @@ func (s *TagService) SetWriteByName(ctx context.Context, in *cores.TagNameValue)
 	if strings.Contains(itemName, ".") {
 		splits := strings.Split(itemName, ".")
 		if len(splits) != 2 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Name")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 
 		nodeName = splits[0]
@@ -1627,18 +1627,18 @@ func (s *TagService) SetWriteByName(ctx context.Context, in *cores.TagNameValue)
 		return &output, status.Errorf(codes.FailedPrecondition, "Source.Status != ON")
 	}
 
-	// tag
+	// pin
 	item, err := s.ViewFromCacheBySourceIDAndName(ctx, source.ID, itemName)
 	if err != nil {
 		return &output, err
 	}
 
 	if item.Status != consts.ON {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Status != ON")
+		return &output, status.Errorf(codes.FailedPrecondition, "Pin.Status != ON")
 	}
 
 	if item.Access != consts.WRITE {
-		return &output, status.Errorf(codes.FailedPrecondition, "Tag.Access != WRITE")
+		return &output, status.Errorf(codes.FailedPrecondition, "Pin.Access != WRITE")
 	}
 
 	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
@@ -1646,7 +1646,7 @@ func (s *TagService) SetWriteByName(ctx context.Context, in *cores.TagNameValue)
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	if err = s.setTagWriteUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
+	if err = s.setPinWriteUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
 		return &output, err
 	}
 
@@ -1659,8 +1659,8 @@ func (s *TagService) SetWriteByName(ctx context.Context, in *cores.TagNameValue)
 	return &output, nil
 }
 
-func (s *TagService) getTagWrite(ctx context.Context, id string) (string, error) {
-	item2, err := s.getTagWriteUpdated(ctx, id)
+func (s *PinService) getPinWrite(ctx context.Context, id string) (string, error) {
+	item2, err := s.getPinWriteUpdated(ctx, id)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1674,12 +1674,12 @@ func (s *TagService) getTagWrite(ctx context.Context, id string) (string, error)
 	return item2.Value, nil
 }
 
-func (s *TagService) afterUpdateWrite(ctx context.Context, item *model.Tag, _ string) error {
+func (s *PinService) afterUpdateWrite(ctx context.Context, item *model.Pin, _ string) error {
 	var err error
 
-	err = s.cs.GetSync().setTagWriteUpdated(ctx, s.cs.GetDB(), item.NodeID, time.Now())
+	err = s.cs.GetSync().setPinWriteUpdated(ctx, s.cs.GetDB(), item.NodeID, time.Now())
 	if err != nil {
-		return status.Errorf(codes.Internal, "Sync.setTagWriteUpdated: %v", err)
+		return status.Errorf(codes.Internal, "Sync.setPinWriteUpdated: %v", err)
 	}
 
 	return nil
@@ -1687,8 +1687,8 @@ func (s *TagService) afterUpdateWrite(ctx context.Context, item *model.Tag, _ st
 
 // sync value
 
-func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
-	var output pb.TagValueUpdated
+func (s *PinService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.PinValueUpdated, error) {
+	var output pb.PinValueUpdated
 	var err error
 
 	// basic validation
@@ -1698,21 +1698,21 @@ func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 	}
 
-	item, err := s.getTagWriteUpdated(ctx, in.GetId())
+	item, err := s.getPinWriteUpdated(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
 
-	s.copyModelToOutputTagWrite(&output, &item)
+	s.copyModelToOutputPinWrite(&output, &item)
 
 	return &output, nil
 }
 
-func (s *TagService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *PinService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -1723,11 +1723,11 @@ func (s *TagService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 	}
 
-	item, err := s.getTagWriteUpdated(ctx, in.GetId())
+	item, err := s.getPinWriteUpdated(ctx, in.GetId())
 	if err != nil {
 		return &output, err
 	}
@@ -1742,9 +1742,9 @@ func (s *TagService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 	return &output, nil
 }
 
-func (s *TagService) PullWrite(ctx context.Context, in *cores.TagPullValueRequest) (*cores.TagPullValueResponse, error) {
+func (s *PinService) PullWrite(ctx context.Context, in *cores.PinPullValueRequest) (*cores.PinPullValueResponse, error) {
 	var err error
-	var output cores.TagPullValueResponse
+	var output cores.PinPullValueResponse
 
 	// basic validation
 	{
@@ -1756,7 +1756,7 @@ func (s *TagService) PullWrite(ctx context.Context, in *cores.TagPullValueReques
 	output.After = in.GetAfter()
 	output.Limit = in.GetLimit()
 
-	items := make([]model.TagWrite, 0, 10)
+	items := make([]model.PinWrite, 0, 10)
 
 	query := s.cs.GetDB().NewSelect().Model(&items)
 
@@ -1774,17 +1774,17 @@ func (s *TagService) PullWrite(ctx context.Context, in *cores.TagPullValueReques
 	}
 
 	for i := 0; i < len(items); i++ {
-		item := pb.TagValueUpdated{}
+		item := pb.PinValueUpdated{}
 
-		s.copyModelToOutputTagWrite(&item, &items[i])
+		s.copyModelToOutputPinWrite(&item, &items[i])
 
-		output.Tag = append(output.Tag, &item)
+		output.Pin = append(output.Pin, &item)
 	}
 
 	return &output, nil
 }
 
-func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *PinService) SyncWrite(ctx context.Context, in *pb.PinValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -1795,19 +1795,19 @@ func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		}
 
 		if in.GetId() == "" {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.ID")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.ID")
 		}
 
 		if len(in.GetValue()) == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Value")
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Value.Updated")
 		}
 	}
 
-	// tag
+	// pin
 	item, err := s.ViewByID(ctx, in.GetId())
 	if err != nil {
 		return &output, err
@@ -1818,7 +1818,7 @@ func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
 	}
 
-	value, err := s.getTagWriteUpdated(ctx, in.GetId())
+	value, err := s.getPinWriteUpdated(ctx, in.GetId())
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -1834,7 +1834,7 @@ func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 	}
 
 UPDATED:
-	if err = s.setTagWriteUpdated(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
+	if err = s.setPinWriteUpdated(ctx, &item, in.GetValue(), time.UnixMicro(in.GetUpdated())); err != nil {
 		return &output, err
 	}
 
@@ -1847,10 +1847,10 @@ UPDATED:
 	return &output, nil
 }
 
-func (s *TagService) setTagWriteUpdated(ctx context.Context, item *model.Tag, value string, updated time.Time) error {
+func (s *PinService) setPinWriteUpdated(ctx context.Context, item *model.Pin, value string, updated time.Time) error {
 	var err error
 
-	item2 := model.TagWrite{
+	item2 := model.PinWrite{
 		ID:       item.ID,
 		NodeID:   item.NodeID,
 		SourceID: item.SourceID,
@@ -1878,15 +1878,15 @@ func (s *TagService) setTagWriteUpdated(ctx context.Context, item *model.Tag, va
 	return nil
 }
 
-func (s *TagService) getTagWriteUpdated(ctx context.Context, id string) (model.TagWrite, error) {
-	item := model.TagWrite{
+func (s *PinService) getPinWriteUpdated(ctx context.Context, id string) (model.PinWrite, error) {
+	item := model.PinWrite{
 		ID: id,
 	}
 
 	err := s.cs.GetDB().NewSelect().Model(&item).WherePK().Scan(ctx)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return item, status.Errorf(codes.NotFound, "Query: %v, Tag.ID: %v", err, item.ID)
+			return item, status.Errorf(codes.NotFound, "Query: %v, Pin.ID: %v", err, item.ID)
 		}
 
 		return item, status.Errorf(codes.Internal, "Query: %v", err)
@@ -1895,7 +1895,7 @@ func (s *TagService) getTagWriteUpdated(ctx context.Context, id string) (model.T
 	return item, nil
 }
 
-func (s *TagService) copyModelToOutputTagWrite(output *pb.TagValueUpdated, item *model.TagWrite) {
+func (s *PinService) copyModelToOutputPinWrite(output *pb.PinValueUpdated, item *model.PinWrite) {
 	output.Id = item.ID
 	output.NodeId = item.NodeID
 	output.SourceId = item.SourceID

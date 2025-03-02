@@ -24,7 +24,7 @@ type NodeService struct {
 	sync     *SyncService
 	slot     *SlotService
 	source   *SourceService
-	tag      *TagService
+	pin      *PinService
 	constant *ConstService
 
 	auth *AuthService
@@ -60,7 +60,7 @@ func Node(cs *core.CoreService, opts ...NodeOption) (*NodeService, error) {
 	ns.sync = newSyncService(ns)
 	ns.slot = newSlotService(ns)
 	ns.source = newSourceService(ns)
-	ns.tag = newTagService(ns)
+	ns.pin = newPinService(ns)
 	ns.constant = newConstService(ns)
 
 	ns.auth = newAuthService(ns)
@@ -95,7 +95,7 @@ func (ns *NodeService) RegisterGrpc(server *grpc.Server) {
 	nodes.RegisterNodeServiceServer(server, ns)
 	nodes.RegisterSlotServiceServer(server, ns.slot)
 	nodes.RegisterSourceServiceServer(server, ns.source)
-	nodes.RegisterTagServiceServer(server, ns.tag)
+	nodes.RegisterPinServiceServer(server, ns.pin)
 	nodes.RegisterConstServiceServer(server, ns.constant)
 
 	nodes.RegisterAuthServiceServer(server, ns.auth)

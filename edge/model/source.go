@@ -23,8 +23,8 @@ type Source struct {
 	Updated       time.Time `bun:"updated" json:"updated"`
 }
 
-type Tag struct {
-	bun.BaseModel `bun:"tag"`
+type Pin struct {
+	bun.BaseModel `bun:"pin"`
 	ID            string    `bun:"type:TEXT,pk" json:"id"`
 	SourceID      string    `bun:"source_id,type:TEXT" json:"source_id"`
 	Name          string    `bun:"name,type:TEXT" json:"name"`
@@ -40,28 +40,28 @@ type Tag struct {
 	Updated       time.Time `bun:"updated" json:"updated"`
 }
 
-func (t *Tag) DefaultValue() nson.Value {
-	return datatype.DataType(t.DataType).DefaultValue()
+func (p *Pin) DefaultValue() nson.Value {
+	return datatype.DataType(p.DataType).DefaultValue()
 }
 
-func (t *Tag) ValueTag() uint8 {
-	return datatype.DataType(t.DataType).Tag()
+func (p *Pin) ValueTag() uint8 {
+	return datatype.DataType(p.DataType).Tag()
 }
 
-type TagValue struct {
+type PinValue struct {
 	ID       string    `bun:"type:TEXT,pk" json:"id"`
 	SourceID string    `bun:"source_id,type:TEXT" json:"source_id"`
 	Value    string    `bun:"value,type:TEXT" json:"value"`
 	Updated  time.Time `bun:"updated" json:"updated"`
 }
 
-type SortTagValue []TagValue
+type SortPinValue []PinValue
 
-func (a SortTagValue) Len() int           { return len(a) }
-func (a SortTagValue) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a SortTagValue) Less(i, j int) bool { return a[i].Updated.Before(a[j].Updated) }
+func (a SortPinValue) Len() int           { return len(a) }
+func (a SortPinValue) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a SortPinValue) Less(i, j int) bool { return a[i].Updated.Before(a[j].Updated) }
 
 const (
-	TAG_VALUE_PREFIX = "tgv_"
-	TAG_WRITE_PREFIX = "tgw_"
+	PIN_VALUE_PREFIX = "pv_"
+	PIN_WRITE_PREFIX = "pw_"
 )

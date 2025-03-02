@@ -174,7 +174,7 @@ func (s *NodeService) Destory(ctx context.Context, in *pb.MyEmpty) (*pb.MyBool, 
 		models := []any{
 			(*model.Slot)(nil),
 			(*model.Source)(nil),
-			(*model.Tag)(nil),
+			(*model.Pin)(nil),
 			(*model.Const)(nil),
 		}
 

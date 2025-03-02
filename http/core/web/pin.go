@@ -10,18 +10,18 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type TagService struct {
+type PinService struct {
 	ws *WebService
 }
 
-func newTagService(ws *WebService) *TagService {
-	return &TagService{
+func newPinService(ws *WebService) *PinService {
+	return &PinService{
 		ws: ws,
 	}
 }
 
-func (s *TagService) register(router gin.IRouter) {
-	group := router.Group("/tag")
+func (s *PinService) register(router gin.IRouter) {
+	group := router.Group("/pin")
 
 	group.Use(s.ws.GetAuth().MiddlewareFunc())
 
@@ -33,7 +33,7 @@ func (s *TagService) register(router gin.IRouter) {
 	group.DELETE("/:id", s.delete)
 }
 
-func (s *TagService) list(ctx *gin.Context) {
+func (s *PinService) list(ctx *gin.Context) {
 	var params struct {
 		util.Page `form:",inline"`
 		NodeId    string `form:"node_id"`
@@ -58,22 +58,22 @@ func (s *TagService) list(ctx *gin.Context) {
 		page.Sort = pb.Page_DESC
 	}
 
-	request := &cores.TagListRequest{
+	request := &cores.PinListRequest{
 		Page:     page,
 		NodeId:   params.NodeId,
 		SourceId: params.SourceId,
 		Tags:     params.Tags,
 	}
 
-	reply, err := s.ws.Core().GetTag().List(ctx, request)
+	reply, err := s.ws.Core().GetPin().List(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	items := reply.GetTag()
+	items := reply.GetPin()
 
-	shiftime.Tags(items)
+	shiftime.Pins(items)
 
 	ctx.JSON(util.Success(gin.H{
 		"items": items,
@@ -81,7 +81,7 @@ func (s *TagService) list(ctx *gin.Context) {
 	}))
 }
 
-func (s *TagService) get(ctx *gin.Context) {
+func (s *PinService) get(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
 	var params struct {
@@ -93,7 +93,7 @@ func (s *TagService) get(ctx *gin.Context) {
 		return
 	}
 
-	reply, err := s.ws.Core().GetTag().View(ctx, request)
+	reply, err := s.ws.Core().GetPin().View(ctx, request)
 	if err != nil {
 		if code, ok := status.FromError(err); ok {
 			if code.Code() == codes.NotFound {
@@ -106,44 +106,44 @@ func (s *TagService) get(ctx *gin.Context) {
 		return
 	}
 
-	shiftime.Tag(reply)
+	shiftime.Pin(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
 	}))
 }
 
-func (s *TagService) post(ctx *gin.Context) {
-	var params pb.Tag
+func (s *PinService) post(ctx *gin.Context) {
+	var params pb.Pin
 
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	reply, err := s.ws.Core().GetTag().Create(ctx, &params)
+	reply, err := s.ws.Core().GetPin().Create(ctx, &params)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	shiftime.Tag(reply)
+	shiftime.Pin(reply)
 
 	ctx.JSON(util.Success(gin.H{
 		"item": reply,
 	}))
 }
 
-func (s *TagService) patch(ctx *gin.Context) {
+func (s *PinService) patch(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	reply, err := s.ws.Core().GetTag().View(ctx, request)
+	reply, err := s.ws.Core().GetPin().View(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
 	}
 
-	var params pb.Tag
+	var params pb.Pin
 
 	if err := ctx.Bind(&params); err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
@@ -159,7 +159,7 @@ func (s *TagService) patch(ctx *gin.Context) {
 	reply.Status = params.Status
 	reply.Access = params.Access
 
-	reply2, err := s.ws.Core().GetTag().Update(ctx, reply)
+	reply2, err := s.ws.Core().GetPin().Update(ctx, reply)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
@@ -168,10 +168,10 @@ func (s *TagService) patch(ctx *gin.Context) {
 	ctx.JSON(util.Success(gin.H{"id": reply2.GetId()}))
 }
 
-func (s *TagService) delete(ctx *gin.Context) {
+func (s *PinService) delete(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	_, err := s.ws.Core().GetTag().Delete(ctx, request)
+	_, err := s.ws.Core().GetPin().Delete(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
@@ -180,10 +180,10 @@ func (s *TagService) delete(ctx *gin.Context) {
 	ctx.JSON(util.Success(gin.H{"id": ctx.Param("id")}))
 }
 
-func (s *TagService) status(ctx *gin.Context) {
+func (s *PinService) status(ctx *gin.Context) {
 	request := &pb.Id{Id: ctx.Param("id")}
 
-	reply, err := s.ws.Core().GetTag().View(ctx, request)
+	reply, err := s.ws.Core().GetPin().View(ctx, request)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return
@@ -200,7 +200,7 @@ func (s *TagService) status(ctx *gin.Context) {
 
 	reply.Status = params.Status
 
-	reply2, err := s.ws.Core().GetTag().Update(ctx, reply)
+	reply2, err := s.ws.Core().GetPin().Update(ctx, reply)
 	if err != nil {
 		ctx.JSON(util.Error(400, err.Error()))
 		return

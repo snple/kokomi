@@ -27,16 +27,16 @@ const (
 	SyncService_GetSlotUpdated_FullMethodName      = "/slots.SyncService/GetSlotUpdated"
 	SyncService_SetSourceUpdated_FullMethodName    = "/slots.SyncService/SetSourceUpdated"
 	SyncService_GetSourceUpdated_FullMethodName    = "/slots.SyncService/GetSourceUpdated"
-	SyncService_SetTagUpdated_FullMethodName       = "/slots.SyncService/SetTagUpdated"
-	SyncService_GetTagUpdated_FullMethodName       = "/slots.SyncService/GetTagUpdated"
+	SyncService_SetPinUpdated_FullMethodName       = "/slots.SyncService/SetPinUpdated"
+	SyncService_GetPinUpdated_FullMethodName       = "/slots.SyncService/GetPinUpdated"
 	SyncService_SetConstUpdated_FullMethodName     = "/slots.SyncService/SetConstUpdated"
 	SyncService_GetConstUpdated_FullMethodName     = "/slots.SyncService/GetConstUpdated"
-	SyncService_SetTagValueUpdated_FullMethodName  = "/slots.SyncService/SetTagValueUpdated"
-	SyncService_GetTagValueUpdated_FullMethodName  = "/slots.SyncService/GetTagValueUpdated"
-	SyncService_WaitTagValueUpdated_FullMethodName = "/slots.SyncService/WaitTagValueUpdated"
-	SyncService_SetTagWriteUpdated_FullMethodName  = "/slots.SyncService/SetTagWriteUpdated"
-	SyncService_GetTagWriteUpdated_FullMethodName  = "/slots.SyncService/GetTagWriteUpdated"
-	SyncService_WaitTagWriteUpdated_FullMethodName = "/slots.SyncService/WaitTagWriteUpdated"
+	SyncService_SetPinValueUpdated_FullMethodName  = "/slots.SyncService/SetPinValueUpdated"
+	SyncService_GetPinValueUpdated_FullMethodName  = "/slots.SyncService/GetPinValueUpdated"
+	SyncService_WaitPinValueUpdated_FullMethodName = "/slots.SyncService/WaitPinValueUpdated"
+	SyncService_SetPinWriteUpdated_FullMethodName  = "/slots.SyncService/SetPinWriteUpdated"
+	SyncService_GetPinWriteUpdated_FullMethodName  = "/slots.SyncService/GetPinWriteUpdated"
+	SyncService_WaitPinWriteUpdated_FullMethodName = "/slots.SyncService/WaitPinWriteUpdated"
 )
 
 // SyncServiceClient is the client API for SyncService service.
@@ -50,16 +50,16 @@ type SyncServiceClient interface {
 	GetSlotUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetSourceUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetSourceUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetTagUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetTagUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
+	SetPinUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetPinUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
 	SetConstUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
 	GetConstUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	SetTagValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	WaitTagValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
-	SetTagWriteUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
-	GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
-	WaitTagWriteUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
+	SetPinValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetPinValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
+	WaitPinValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
+	SetPinWriteUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error)
+	GetPinWriteUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error)
+	WaitPinWriteUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error)
 }
 
 type syncServiceClient struct {
@@ -149,20 +149,20 @@ func (c *syncServiceClient) GetSourceUpdated(ctx context.Context, in *pb.MyEmpty
 	return out, nil
 }
 
-func (c *syncServiceClient) SetTagUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *syncServiceClient) SetPinUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetTagUpdated_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, SyncService_SetPinUpdated_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *syncServiceClient) GetTagUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
+func (c *syncServiceClient) GetPinUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetTagUpdated_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, SyncService_GetPinUpdated_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -189,29 +189,29 @@ func (c *syncServiceClient) GetConstUpdated(ctx context.Context, in *pb.MyEmpty,
 	return out, nil
 }
 
-func (c *syncServiceClient) SetTagValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *syncServiceClient) SetPinValueUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetTagValueUpdated_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, SyncService_SetPinValueUpdated_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *syncServiceClient) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
+func (c *syncServiceClient) GetPinValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetTagValueUpdated_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, SyncService_GetPinValueUpdated_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *syncServiceClient) WaitTagValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error) {
+func (c *syncServiceClient) WaitPinValueUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &SyncService_ServiceDesc.Streams[1], SyncService_WaitTagValueUpdated_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &SyncService_ServiceDesc.Streams[1], SyncService_WaitPinValueUpdated_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -226,31 +226,31 @@ func (c *syncServiceClient) WaitTagValueUpdated(ctx context.Context, in *pb.MyEm
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type SyncService_WaitTagValueUpdatedClient = grpc.ServerStreamingClient[pb.MyBool]
+type SyncService_WaitPinValueUpdatedClient = grpc.ServerStreamingClient[pb.MyBool]
 
-func (c *syncServiceClient) SetTagWriteUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
+func (c *syncServiceClient) SetPinWriteUpdated(ctx context.Context, in *SyncUpdated, opts ...grpc.CallOption) (*pb.MyBool, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(pb.MyBool)
-	err := c.cc.Invoke(ctx, SyncService_SetTagWriteUpdated_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, SyncService_SetPinWriteUpdated_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *syncServiceClient) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
+func (c *syncServiceClient) GetPinWriteUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (*SyncUpdated, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SyncUpdated)
-	err := c.cc.Invoke(ctx, SyncService_GetTagWriteUpdated_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, SyncService_GetPinWriteUpdated_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *syncServiceClient) WaitTagWriteUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error) {
+func (c *syncServiceClient) WaitPinWriteUpdated(ctx context.Context, in *pb.MyEmpty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.MyBool], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &SyncService_ServiceDesc.Streams[2], SyncService_WaitTagWriteUpdated_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &SyncService_ServiceDesc.Streams[2], SyncService_WaitPinWriteUpdated_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -265,7 +265,7 @@ func (c *syncServiceClient) WaitTagWriteUpdated(ctx context.Context, in *pb.MyEm
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type SyncService_WaitTagWriteUpdatedClient = grpc.ServerStreamingClient[pb.MyBool]
+type SyncService_WaitPinWriteUpdatedClient = grpc.ServerStreamingClient[pb.MyBool]
 
 // SyncServiceServer is the server API for SyncService service.
 // All implementations must embed UnimplementedSyncServiceServer
@@ -278,16 +278,16 @@ type SyncServiceServer interface {
 	GetSlotUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetSourceUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetSourceUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetTagUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetTagUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
+	SetPinUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
+	GetPinUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
 	SetConstUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
 	GetConstUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	SetTagValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetTagValueUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	WaitTagValueUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
-	SetTagWriteUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
-	GetTagWriteUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
-	WaitTagWriteUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
+	SetPinValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
+	GetPinValueUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
+	WaitPinValueUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
+	SetPinWriteUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error)
+	GetPinWriteUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error)
+	WaitPinWriteUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error
 	mustEmbedUnimplementedSyncServiceServer()
 }
 
@@ -319,11 +319,11 @@ func (UnimplementedSyncServiceServer) SetSourceUpdated(context.Context, *SyncUpd
 func (UnimplementedSyncServiceServer) GetSourceUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSourceUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) SetTagUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetTagUpdated not implemented")
+func (UnimplementedSyncServiceServer) SetPinUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetPinUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) GetTagUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTagUpdated not implemented")
+func (UnimplementedSyncServiceServer) GetPinUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPinUpdated not implemented")
 }
 func (UnimplementedSyncServiceServer) SetConstUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetConstUpdated not implemented")
@@ -331,23 +331,23 @@ func (UnimplementedSyncServiceServer) SetConstUpdated(context.Context, *SyncUpda
 func (UnimplementedSyncServiceServer) GetConstUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConstUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) SetTagValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetTagValueUpdated not implemented")
+func (UnimplementedSyncServiceServer) SetPinValueUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetPinValueUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) GetTagValueUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTagValueUpdated not implemented")
+func (UnimplementedSyncServiceServer) GetPinValueUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPinValueUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) WaitTagValueUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error {
-	return status.Errorf(codes.Unimplemented, "method WaitTagValueUpdated not implemented")
+func (UnimplementedSyncServiceServer) WaitPinValueUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error {
+	return status.Errorf(codes.Unimplemented, "method WaitPinValueUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) SetTagWriteUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetTagWriteUpdated not implemented")
+func (UnimplementedSyncServiceServer) SetPinWriteUpdated(context.Context, *SyncUpdated) (*pb.MyBool, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetPinWriteUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) GetTagWriteUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTagWriteUpdated not implemented")
+func (UnimplementedSyncServiceServer) GetPinWriteUpdated(context.Context, *pb.MyEmpty) (*SyncUpdated, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPinWriteUpdated not implemented")
 }
-func (UnimplementedSyncServiceServer) WaitTagWriteUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error {
-	return status.Errorf(codes.Unimplemented, "method WaitTagWriteUpdated not implemented")
+func (UnimplementedSyncServiceServer) WaitPinWriteUpdated(*pb.MyEmpty, grpc.ServerStreamingServer[pb.MyBool]) error {
+	return status.Errorf(codes.Unimplemented, "method WaitPinWriteUpdated not implemented")
 }
 func (UnimplementedSyncServiceServer) mustEmbedUnimplementedSyncServiceServer() {}
 func (UnimplementedSyncServiceServer) testEmbeddedByValue()                     {}
@@ -489,38 +489,38 @@ func _SyncService_GetSourceUpdated_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_SetTagUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SyncService_SetPinUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncUpdated)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SyncServiceServer).SetTagUpdated(ctx, in)
+		return srv.(SyncServiceServer).SetPinUpdated(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SyncService_SetTagUpdated_FullMethodName,
+		FullMethod: SyncService_SetPinUpdated_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetTagUpdated(ctx, req.(*SyncUpdated))
+		return srv.(SyncServiceServer).SetPinUpdated(ctx, req.(*SyncUpdated))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_GetTagUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SyncService_GetPinUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.MyEmpty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SyncServiceServer).GetTagUpdated(ctx, in)
+		return srv.(SyncServiceServer).GetPinUpdated(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SyncService_GetTagUpdated_FullMethodName,
+		FullMethod: SyncService_GetPinUpdated_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetTagUpdated(ctx, req.(*pb.MyEmpty))
+		return srv.(SyncServiceServer).GetPinUpdated(ctx, req.(*pb.MyEmpty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -561,99 +561,99 @@ func _SyncService_GetConstUpdated_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_SetTagValueUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SyncService_SetPinValueUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncUpdated)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SyncServiceServer).SetTagValueUpdated(ctx, in)
+		return srv.(SyncServiceServer).SetPinValueUpdated(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SyncService_SetTagValueUpdated_FullMethodName,
+		FullMethod: SyncService_SetPinValueUpdated_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetTagValueUpdated(ctx, req.(*SyncUpdated))
+		return srv.(SyncServiceServer).SetPinValueUpdated(ctx, req.(*SyncUpdated))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_GetTagValueUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SyncService_GetPinValueUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.MyEmpty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SyncServiceServer).GetTagValueUpdated(ctx, in)
+		return srv.(SyncServiceServer).GetPinValueUpdated(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SyncService_GetTagValueUpdated_FullMethodName,
+		FullMethod: SyncService_GetPinValueUpdated_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetTagValueUpdated(ctx, req.(*pb.MyEmpty))
+		return srv.(SyncServiceServer).GetPinValueUpdated(ctx, req.(*pb.MyEmpty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_WaitTagValueUpdated_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _SyncService_WaitPinValueUpdated_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(pb.MyEmpty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(SyncServiceServer).WaitTagValueUpdated(m, &grpc.GenericServerStream[pb.MyEmpty, pb.MyBool]{ServerStream: stream})
+	return srv.(SyncServiceServer).WaitPinValueUpdated(m, &grpc.GenericServerStream[pb.MyEmpty, pb.MyBool]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type SyncService_WaitTagValueUpdatedServer = grpc.ServerStreamingServer[pb.MyBool]
+type SyncService_WaitPinValueUpdatedServer = grpc.ServerStreamingServer[pb.MyBool]
 
-func _SyncService_SetTagWriteUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SyncService_SetPinWriteUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncUpdated)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SyncServiceServer).SetTagWriteUpdated(ctx, in)
+		return srv.(SyncServiceServer).SetPinWriteUpdated(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SyncService_SetTagWriteUpdated_FullMethodName,
+		FullMethod: SyncService_SetPinWriteUpdated_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).SetTagWriteUpdated(ctx, req.(*SyncUpdated))
+		return srv.(SyncServiceServer).SetPinWriteUpdated(ctx, req.(*SyncUpdated))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_GetTagWriteUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SyncService_GetPinWriteUpdated_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(pb.MyEmpty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SyncServiceServer).GetTagWriteUpdated(ctx, in)
+		return srv.(SyncServiceServer).GetPinWriteUpdated(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SyncService_GetTagWriteUpdated_FullMethodName,
+		FullMethod: SyncService_GetPinWriteUpdated_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncServiceServer).GetTagWriteUpdated(ctx, req.(*pb.MyEmpty))
+		return srv.(SyncServiceServer).GetPinWriteUpdated(ctx, req.(*pb.MyEmpty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SyncService_WaitTagWriteUpdated_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _SyncService_WaitPinWriteUpdated_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(pb.MyEmpty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(SyncServiceServer).WaitTagWriteUpdated(m, &grpc.GenericServerStream[pb.MyEmpty, pb.MyBool]{ServerStream: stream})
+	return srv.(SyncServiceServer).WaitPinWriteUpdated(m, &grpc.GenericServerStream[pb.MyEmpty, pb.MyBool]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type SyncService_WaitTagWriteUpdatedServer = grpc.ServerStreamingServer[pb.MyBool]
+type SyncService_WaitPinWriteUpdatedServer = grpc.ServerStreamingServer[pb.MyBool]
 
 // SyncService_ServiceDesc is the grpc.ServiceDesc for SyncService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -687,12 +687,12 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SyncService_GetSourceUpdated_Handler,
 		},
 		{
-			MethodName: "SetTagUpdated",
-			Handler:    _SyncService_SetTagUpdated_Handler,
+			MethodName: "SetPinUpdated",
+			Handler:    _SyncService_SetPinUpdated_Handler,
 		},
 		{
-			MethodName: "GetTagUpdated",
-			Handler:    _SyncService_GetTagUpdated_Handler,
+			MethodName: "GetPinUpdated",
+			Handler:    _SyncService_GetPinUpdated_Handler,
 		},
 		{
 			MethodName: "SetConstUpdated",
@@ -703,20 +703,20 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SyncService_GetConstUpdated_Handler,
 		},
 		{
-			MethodName: "SetTagValueUpdated",
-			Handler:    _SyncService_SetTagValueUpdated_Handler,
+			MethodName: "SetPinValueUpdated",
+			Handler:    _SyncService_SetPinValueUpdated_Handler,
 		},
 		{
-			MethodName: "GetTagValueUpdated",
-			Handler:    _SyncService_GetTagValueUpdated_Handler,
+			MethodName: "GetPinValueUpdated",
+			Handler:    _SyncService_GetPinValueUpdated_Handler,
 		},
 		{
-			MethodName: "SetTagWriteUpdated",
-			Handler:    _SyncService_SetTagWriteUpdated_Handler,
+			MethodName: "SetPinWriteUpdated",
+			Handler:    _SyncService_SetPinWriteUpdated_Handler,
 		},
 		{
-			MethodName: "GetTagWriteUpdated",
-			Handler:    _SyncService_GetTagWriteUpdated_Handler,
+			MethodName: "GetPinWriteUpdated",
+			Handler:    _SyncService_GetPinWriteUpdated_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
@@ -726,13 +726,13 @@ var SyncService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 		{
-			StreamName:    "WaitTagValueUpdated",
-			Handler:       _SyncService_WaitTagValueUpdated_Handler,
+			StreamName:    "WaitPinValueUpdated",
+			Handler:       _SyncService_WaitPinValueUpdated_Handler,
 			ServerStreams: true,
 		},
 		{
-			StreamName:    "WaitTagWriteUpdated",
-			Handler:       _SyncService_WaitTagWriteUpdated_Handler,
+			StreamName:    "WaitPinWriteUpdated",
+			Handler:       _SyncService_WaitPinWriteUpdated_Handler,
 			ServerStreams: true,
 		},
 	},

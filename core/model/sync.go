@@ -14,8 +14,8 @@ type Sync struct {
 
 const (
 	SYNC_NODE_SUFFIX      = ""
-	SYNC_TAG_VALUE_SUFFIX = "_tv"
-	SYNC_TAG_WRITE_SUFFIX = "_tw"
+	SYNC_PIN_VALUE_SUFFIX = "_pv"
+	SYNC_PIN_WRITE_SUFFIX = "_pw"
 )
 
 type SyncGlobal struct {
@@ -28,7 +28,7 @@ const (
 	SYNC_GLOBAL_NODE   = "node"
 	SYNC_GLOBAL_SLOT   = "slot"
 	SYNC_GLOBAL_SOURCE = "source"
-	SYNC_GLOBAL_TAG    = "tag"
+	SYNC_GLOBAL_PIN    = "pin"
 	SYNC_GLOBAL_CONST  = "const"
 	SYNC_GLOBAL_USER   = "user"
 )

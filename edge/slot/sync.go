@@ -190,7 +190,7 @@ func (s *SyncService) GetSourceUpdated(ctx context.Context, in *pb.MyEmpty) (*sl
 	return &output, nil
 }
 
-func (s *SyncService) SetTagUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetPinUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -201,7 +201,7 @@ func (s *SyncService) SetTagUpdated(ctx context.Context, in *slots.SyncUpdated) 
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Updated")
 		}
 	}
 
@@ -210,11 +210,11 @@ func (s *SyncService) SetTagUpdated(ctx context.Context, in *slots.SyncUpdated) 
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSync().SetTagUpdated(ctx,
+	return s.ss.Edge().GetSync().SetPinUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
-func (s *SyncService) GetTagUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
+func (s *SyncService) GetPinUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
 	var output slots.SyncUpdated
 	var err error
 
@@ -230,7 +230,7 @@ func (s *SyncService) GetTagUpdated(ctx context.Context, in *pb.MyEmpty) (*slots
 		return &output, err
 	}
 
-	reply, err := s.ss.Edge().GetSync().GetTagUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetPinUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -290,7 +290,7 @@ func (s *SyncService) GetConstUpdated(ctx context.Context, in *pb.MyEmpty) (*slo
 	return &output, nil
 }
 
-func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetPinValueUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -301,7 +301,7 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *slots.SyncUpda
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Value.Updated")
 		}
 	}
 
@@ -310,11 +310,11 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *slots.SyncUpda
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSync().SetTagValueUpdated(ctx,
+	return s.ss.Edge().GetSync().SetPinValueUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
-func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
+func (s *SyncService) GetPinValueUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
 	var output slots.SyncUpdated
 	var err error
 
@@ -330,7 +330,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*
 		return &output, err
 	}
 
-	reply, err := s.ss.Edge().GetSync().GetTagValueUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetPinValueUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -340,7 +340,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*
 	return &output, nil
 }
 
-func (s *SyncService) WaitTagValueUpdated(in *pb.MyEmpty, stream slots.SyncService_WaitTagValueUpdatedServer) error {
+func (s *SyncService) WaitPinValueUpdated(in *pb.MyEmpty, stream slots.SyncService_WaitPinValueUpdatedServer) error {
 	var err error
 
 	// basic validation
@@ -355,10 +355,10 @@ func (s *SyncService) WaitTagValueUpdated(in *pb.MyEmpty, stream slots.SyncServi
 		return err
 	}
 
-	return s.ss.Edge().GetSync().WaitTagValueUpdated(in, stream)
+	return s.ss.Edge().GetSync().WaitPinValueUpdated(in, stream)
 }
 
-func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetPinWriteUpdated(ctx context.Context, in *slots.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -369,7 +369,7 @@ func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *slots.SyncUpda
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Write.Updated")
 		}
 	}
 
@@ -378,11 +378,11 @@ func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *slots.SyncUpda
 		return &output, err
 	}
 
-	return s.ss.Edge().GetSync().SetTagWriteUpdated(ctx,
+	return s.ss.Edge().GetSync().SetPinWriteUpdated(ctx,
 		&edges.SyncUpdated{Updated: in.GetUpdated()})
 }
 
-func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
+func (s *SyncService) GetPinWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*slots.SyncUpdated, error) {
 	var output slots.SyncUpdated
 	var err error
 
@@ -398,7 +398,7 @@ func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*
 		return &output, err
 	}
 
-	reply, err := s.ss.Edge().GetSync().GetTagWriteUpdated(ctx, in)
+	reply, err := s.ss.Edge().GetSync().GetPinWriteUpdated(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -408,7 +408,7 @@ func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*
 	return &output, nil
 }
 
-func (s *SyncService) WaitTagWriteUpdated(in *pb.MyEmpty, stream slots.SyncService_WaitTagWriteUpdatedServer) error {
+func (s *SyncService) WaitPinWriteUpdated(in *pb.MyEmpty, stream slots.SyncService_WaitPinWriteUpdatedServer) error {
 	var err error
 
 	// basic validation
@@ -423,5 +423,5 @@ func (s *SyncService) WaitTagWriteUpdated(in *pb.MyEmpty, stream slots.SyncServi
 		return err
 	}
 
-	return s.ss.Edge().GetSync().WaitTagWriteUpdated(in, stream)
+	return s.ss.Edge().GetSync().WaitPinWriteUpdated(in, stream)
 }

@@ -24,7 +24,7 @@ type SlotService struct {
 	sync     *SyncService
 	node     *NodeService
 	source   *SourceService
-	tag      *TagService
+	pin      *PinService
 	constant *ConstService
 
 	ctx     context.Context
@@ -57,7 +57,7 @@ func Slot(es *edge.EdgeService, opts ...SlotOption) (*SlotService, error) {
 	ss.sync = newSyncService(ss)
 	ss.node = newNodeService(ss)
 	ss.source = newSourceService(ss)
-	ss.tag = newTagService(ss)
+	ss.pin = newPinService(ss)
 	ss.constant = newConstService(ss)
 
 	return ss, nil
@@ -89,7 +89,7 @@ func (ss *SlotService) RegisterGrpc(server *grpc.Server) {
 	slots.RegisterNodeServiceServer(server, ss.node)
 	slots.RegisterSlotServiceServer(server, ss)
 	slots.RegisterSourceServiceServer(server, ss.source)
-	slots.RegisterTagServiceServer(server, ss.tag)
+	slots.RegisterPinServiceServer(server, ss.pin)
 	slots.RegisterConstServiceServer(server, ss.constant)
 }
 

@@ -10,20 +10,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type TagService struct {
+type PinService struct {
 	ns *NodeService
 
-	nodes.UnimplementedTagServiceServer
+	nodes.UnimplementedPinServiceServer
 }
 
-func newTagService(ns *NodeService) *TagService {
-	return &TagService{
+func newPinService(ns *NodeService) *PinService {
+	return &PinService{
 		ns: ns,
 	}
 }
 
-func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) Create(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
+	var output pb.Pin
 
 	// basic validation
 	{
@@ -51,11 +51,11 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		}
 	}
 
-	return s.ns.Core().GetTag().Create(ctx, in)
+	return s.ns.Core().GetPin().Create(ctx, in)
 }
 
-func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) Update(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -72,7 +72,7 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.Core().GetTag().View(ctx, request)
+	reply, err := s.ns.Core().GetPin().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -81,11 +81,11 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	return s.ns.Core().GetTag().Update(ctx, in)
+	return s.ns.Core().GetPin().Update(ctx, in)
 }
 
-func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) View(ctx context.Context, in *pb.Id) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -100,7 +100,7 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetTag().View(ctx, in)
+	reply, err := s.ns.Core().GetPin().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -112,8 +112,8 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 	return reply, nil
 }
 
-func (s *TagService) Name(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) Name(ctx context.Context, in *pb.Name) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -128,9 +128,9 @@ func (s *TagService) Name(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
 		return &output, err
 	}
 
-	request := &cores.TagNameRequest{NodeId: nodeID, Name: in.GetName()}
+	request := &cores.PinNameRequest{NodeId: nodeID, Name: in.GetName()}
 
-	reply, err := s.ns.Core().GetTag().Name(ctx, request)
+	reply, err := s.ns.Core().GetPin().Name(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -142,7 +142,7 @@ func (s *TagService) Name(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
 	return reply, nil
 }
 
-func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *PinService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -158,7 +158,7 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetTag().View(ctx, in)
+	reply, err := s.ns.Core().GetPin().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -167,12 +167,12 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	return s.ns.Core().GetTag().Delete(ctx, in)
+	return s.ns.Core().GetPin().Delete(ctx, in)
 }
 
-func (s *TagService) List(ctx context.Context, in *nodes.TagListRequest) (*nodes.TagListResponse, error) {
+func (s *PinService) List(ctx context.Context, in *nodes.PinListRequest) (*nodes.PinListResponse, error) {
 	var err error
-	var output nodes.TagListResponse
+	var output nodes.PinListResponse
 
 	// basic validation
 	{
@@ -186,27 +186,27 @@ func (s *TagService) List(ctx context.Context, in *nodes.TagListRequest) (*nodes
 		return &output, err
 	}
 
-	request := &cores.TagListRequest{
+	request := &cores.PinListRequest{
 		Page:     in.GetPage(),
 		NodeId:   nodeID,
 		SourceId: in.GetSourceId(),
 		Tags:     in.GetTags(),
 	}
 
-	reply, err := s.ns.Core().GetTag().List(ctx, request)
+	reply, err := s.ns.Core().GetPin().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
 	output.Count = reply.Count
 	output.Page = reply.GetPage()
-	output.Tag = reply.GetTag()
+	output.Pin = reply.GetPin()
 
 	return &output, nil
 }
 
-func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -221,7 +221,7 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetTag().ViewWithDeleted(ctx, in)
+	reply, err := s.ns.Core().GetPin().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -233,9 +233,9 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 	return reply, nil
 }
 
-func (s *TagService) Pull(ctx context.Context, in *nodes.TagPullRequest) (*nodes.TagPullResponse, error) {
+func (s *PinService) Pull(ctx context.Context, in *nodes.PinPullRequest) (*nodes.PinPullResponse, error) {
 	var err error
-	var output nodes.TagPullResponse
+	var output nodes.PinPullResponse
 
 	// basic validation
 	{
@@ -252,24 +252,24 @@ func (s *TagService) Pull(ctx context.Context, in *nodes.TagPullRequest) (*nodes
 		return &output, err
 	}
 
-	request := &cores.TagPullRequest{
+	request := &cores.PinPullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		NodeId:   nodeID,
 		SourceId: in.GetSourceId(),
 	}
 
-	reply, err := s.ns.Core().GetTag().Pull(ctx, request)
+	reply, err := s.ns.Core().GetPin().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
-	output.Tag = reply.GetTag()
+	output.Pin = reply.GetPin()
 
 	return &output, nil
 }
 
-func (s *TagService) Sync(ctx context.Context, in *pb.Tag) (*pb.MyBool, error) {
+func (s *PinService) Sync(ctx context.Context, in *pb.Pin) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -287,14 +287,14 @@ func (s *TagService) Sync(ctx context.Context, in *pb.Tag) (*pb.MyBool, error) {
 
 	in.NodeId = nodeID
 
-	return s.ns.Core().GetTag().Sync(ctx, in)
+	return s.ns.Core().GetPin().Sync(ctx, in)
 }
 
 // value
 
-func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, error) {
+func (s *PinService) GetValue(ctx context.Context, in *pb.Id) (*pb.PinValue, error) {
 	var err error
-	var output pb.TagValue
+	var output pb.PinValue
 
 	// basic validation
 	{
@@ -308,7 +308,7 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetTag().View(ctx, in)
+	reply, err := s.ns.Core().GetPin().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -317,10 +317,10 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	return s.ns.Core().GetTag().GetValue(ctx, in)
+	return s.ns.Core().GetPin().GetValue(ctx, in)
 }
 
-func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *PinService) SetValue(ctx context.Context, in *pb.PinValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -338,7 +338,7 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.Core().GetTag().View(ctx, request)
+	reply, err := s.ns.Core().GetPin().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -347,12 +347,12 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	return s.ns.Core().GetTag().SetValue(ctx, in)
+	return s.ns.Core().GetPin().SetValue(ctx, in)
 }
 
-func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
+func (s *PinService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.PinNameValue, error) {
 	var err error
-	var output pb.TagNameValue
+	var output pb.PinNameValue
 
 	// basic validation
 	{
@@ -366,8 +366,8 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetTag().GetValueByName(ctx,
-		&cores.TagGetValueByNameRequest{NodeId: nodeID, Name: in.GetName()})
+	reply, err := s.ns.Core().GetPin().GetValueByName(ctx,
+		&cores.PinGetValueByNameRequest{NodeId: nodeID, Name: in.GetName()})
 	if err != nil {
 		return &output, err
 	}
@@ -380,7 +380,7 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 	return &output, nil
 }
 
-func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
+func (s *PinService) SetValueByName(ctx context.Context, in *pb.PinNameValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -396,12 +396,12 @@ func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*
 		return &output, err
 	}
 
-	return s.ns.Core().GetTag().SetValueByName(ctx,
-		&cores.TagNameValue{NodeId: nodeID, Name: in.GetName(), Value: in.GetValue()})
+	return s.ns.Core().GetPin().SetValueByName(ctx,
+		&cores.PinNameValue{NodeId: nodeID, Name: in.GetName(), Value: in.GetValue()})
 }
 
-func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
-	var output pb.TagValueUpdated
+func (s *PinService) ViewValue(ctx context.Context, in *pb.Id) (*pb.PinValueUpdated, error) {
+	var output pb.PinValueUpdated
 	var err error
 
 	// basic validation
@@ -416,7 +416,7 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetTag().ViewValue(ctx, in)
+	reply, err := s.ns.Core().GetPin().ViewValue(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -428,7 +428,7 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 	return reply, nil
 }
 
-func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *PinService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -444,7 +444,7 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetTag().ViewValue(ctx, in)
+	reply, err := s.ns.Core().GetPin().ViewValue(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -453,12 +453,12 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	return s.ns.Core().GetTag().DeleteValue(ctx, in)
+	return s.ns.Core().GetPin().DeleteValue(ctx, in)
 }
 
-func (s *TagService) PullValue(ctx context.Context, in *nodes.TagPullValueRequest) (*nodes.TagPullValueResponse, error) {
+func (s *PinService) PullValue(ctx context.Context, in *nodes.PinPullValueRequest) (*nodes.PinPullValueResponse, error) {
 	var err error
-	var output nodes.TagPullValueResponse
+	var output nodes.PinPullValueResponse
 
 	// basic validation
 	{
@@ -475,24 +475,24 @@ func (s *TagService) PullValue(ctx context.Context, in *nodes.TagPullValueReques
 		return &output, err
 	}
 
-	request := &cores.TagPullValueRequest{
+	request := &cores.PinPullValueRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		NodeId:   nodeID,
 		SourceId: in.GetSourceId(),
 	}
 
-	reply, err := s.ns.Core().GetTag().PullValue(ctx, request)
+	reply, err := s.ns.Core().GetPin().PullValue(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
-	output.Tag = reply.GetTag()
+	output.Pin = reply.GetPin()
 
 	return &output, nil
 }
 
-func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *PinService) SyncValue(ctx context.Context, in *pb.PinValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -510,7 +510,7 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.Core().GetTag().View(ctx, request)
+	reply, err := s.ns.Core().GetPin().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -519,14 +519,14 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	return s.ns.Core().GetTag().SyncValue(ctx, in)
+	return s.ns.Core().GetPin().SyncValue(ctx, in)
 }
 
 // write
 
-func (s *TagService) GetWrite(ctx context.Context, in *pb.Id) (*pb.TagValue, error) {
+func (s *PinService) GetWrite(ctx context.Context, in *pb.Id) (*pb.PinValue, error) {
 	var err error
-	var output pb.TagValue
+	var output pb.PinValue
 
 	// basic validation
 	{
@@ -540,7 +540,7 @@ func (s *TagService) GetWrite(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetTag().View(ctx, in)
+	reply, err := s.ns.Core().GetPin().View(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -549,10 +549,10 @@ func (s *TagService) GetWrite(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	return s.ns.Core().GetTag().GetWrite(ctx, in)
+	return s.ns.Core().GetPin().GetWrite(ctx, in)
 }
 
-func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *PinService) SetWrite(ctx context.Context, in *pb.PinValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -570,7 +570,7 @@ func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.Core().GetTag().View(ctx, request)
+	reply, err := s.ns.Core().GetPin().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -579,12 +579,12 @@ func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	return s.ns.Core().GetTag().SetWrite(ctx, in)
+	return s.ns.Core().GetPin().SetWrite(ctx, in)
 }
 
-func (s *TagService) GetWriteByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
+func (s *PinService) GetWriteByName(ctx context.Context, in *pb.Name) (*pb.PinNameValue, error) {
 	var err error
-	var output pb.TagNameValue
+	var output pb.PinNameValue
 
 	// basic validation
 	{
@@ -598,8 +598,8 @@ func (s *TagService) GetWriteByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetTag().GetWriteByName(ctx,
-		&cores.TagGetValueByNameRequest{NodeId: nodeID, Name: in.GetName()})
+	reply, err := s.ns.Core().GetPin().GetWriteByName(ctx,
+		&cores.PinGetValueByNameRequest{NodeId: nodeID, Name: in.GetName()})
 	if err != nil {
 		return &output, err
 	}
@@ -612,7 +612,7 @@ func (s *TagService) GetWriteByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 	return &output, nil
 }
 
-func (s *TagService) SetWriteByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
+func (s *PinService) SetWriteByName(ctx context.Context, in *pb.PinNameValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -628,12 +628,12 @@ func (s *TagService) SetWriteByName(ctx context.Context, in *pb.TagNameValue) (*
 		return &output, err
 	}
 
-	return s.ns.Core().GetTag().SetValueByName(ctx,
-		&cores.TagNameValue{NodeId: nodeID, Name: in.GetName(), Value: in.GetValue()})
+	return s.ns.Core().GetPin().SetValueByName(ctx,
+		&cores.PinNameValue{NodeId: nodeID, Name: in.GetName(), Value: in.GetValue()})
 }
 
-func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
-	var output pb.TagValueUpdated
+func (s *PinService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.PinValueUpdated, error) {
+	var output pb.PinValueUpdated
 	var err error
 
 	// basic validation
@@ -648,7 +648,7 @@ func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetTag().ViewWrite(ctx, in)
+	reply, err := s.ns.Core().GetPin().ViewWrite(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -660,7 +660,7 @@ func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 	return reply, nil
 }
 
-func (s *TagService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *PinService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -676,7 +676,7 @@ func (s *TagService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetTag().ViewWrite(ctx, in)
+	reply, err := s.ns.Core().GetPin().ViewWrite(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -685,12 +685,12 @@ func (s *TagService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	return s.ns.Core().GetTag().DeleteWrite(ctx, in)
+	return s.ns.Core().GetPin().DeleteWrite(ctx, in)
 }
 
-func (s *TagService) PullWrite(ctx context.Context, in *nodes.TagPullValueRequest) (*nodes.TagPullValueResponse, error) {
+func (s *PinService) PullWrite(ctx context.Context, in *nodes.PinPullValueRequest) (*nodes.PinPullValueResponse, error) {
 	var err error
-	var output nodes.TagPullValueResponse
+	var output nodes.PinPullValueResponse
 
 	// basic validation
 	{
@@ -707,24 +707,24 @@ func (s *TagService) PullWrite(ctx context.Context, in *nodes.TagPullValueReques
 		return &output, err
 	}
 
-	request := &cores.TagPullValueRequest{
+	request := &cores.PinPullValueRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		NodeId:   nodeID,
 		SourceId: in.GetSourceId(),
 	}
 
-	reply, err := s.ns.Core().GetTag().PullWrite(ctx, request)
+	reply, err := s.ns.Core().GetPin().PullWrite(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
-	output.Tag = reply.GetTag()
+	output.Pin = reply.GetPin()
 
 	return &output, nil
 }
 
-func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *PinService) SyncWrite(ctx context.Context, in *pb.PinValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -742,7 +742,7 @@ func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 
 	request := &pb.Id{Id: in.GetId()}
 
-	reply, err := s.ns.Core().GetTag().View(ctx, request)
+	reply, err := s.ns.Core().GetPin().View(ctx, request)
 	if err != nil {
 		return &output, err
 	}
@@ -751,5 +751,5 @@ func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, status.Error(codes.NotFound, "Query: reply.GetNodeId() != nodeID")
 	}
 
-	return s.ns.Core().GetTag().SyncWrite(ctx, in)
+	return s.ns.Core().GetPin().SyncWrite(ctx, in)
 }

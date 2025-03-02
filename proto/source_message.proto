@@ -19,7 +19,7 @@ message Source {
     int64 deleted = 13;
 }
 
-message Tag {
+message Pin {
     string id = 1;
     string node_id = 2;
     string source_id = 3;
@@ -37,20 +37,20 @@ message Tag {
     int64 deleted = 15;
 }
 
-message TagValue {
+message PinValue {
     string id = 1;
     string value = 2;
     int64 updated = 3;
 }
 
-message TagNameValue {
+message PinNameValue {
     string id = 1;
     string name = 2;
     string value = 3;
     int64 updated = 4;
 }
 
-message TagValueUpdated {
+message PinValueUpdated {
     string id = 1;
     string node_id = 2;
     string source_id = 3;

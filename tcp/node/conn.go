@@ -186,8 +186,8 @@ func (c *Conn) handleSetValue(req nson.Map) error {
 			continue
 		}
 
-		_, err = c.ns.Core().GetTag().SetValueByName(c.ctx,
-			&cores.TagNameValue{NodeId: c.id, Name: name, Value: valueStr})
+		_, err = c.ns.Core().GetPin().SetValueByName(c.ctx,
+			&cores.PinNameValue{NodeId: c.id, Name: name, Value: valueStr})
 		if err != nil {
 			errors[name] = nson.String(err.Error())
 		}

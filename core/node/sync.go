@@ -90,7 +90,7 @@ func (s *SyncService) WaitNodeUpdated(in *pb.MyEmpty, stream nodes.SyncService_W
 	return s.ns.Core().GetSync().WaitNodeUpdated(&pb.Id{Id: nodeID}, stream)
 }
 
-func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *nodes.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetPinValueUpdated(ctx context.Context, in *nodes.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -101,7 +101,7 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *nodes.SyncUpda
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Value.Updated")
 		}
 	}
 
@@ -110,11 +110,11 @@ func (s *SyncService) SetTagValueUpdated(ctx context.Context, in *nodes.SyncUpda
 		return &output, err
 	}
 
-	return s.ns.Core().GetSync().SetTagValueUpdated(ctx,
+	return s.ns.Core().GetSync().SetPinValueUpdated(ctx,
 		&cores.SyncUpdated{Id: nodeID, Updated: in.GetUpdated()})
 }
 
-func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*nodes.SyncUpdated, error) {
+func (s *SyncService) GetPinValueUpdated(ctx context.Context, in *pb.MyEmpty) (*nodes.SyncUpdated, error) {
 	var output nodes.SyncUpdated
 	var err error
 
@@ -130,7 +130,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetSync().GetTagValueUpdated(ctx, &pb.Id{Id: nodeID})
+	reply, err := s.ns.Core().GetSync().GetPinValueUpdated(ctx, &pb.Id{Id: nodeID})
 	if err != nil {
 		return &output, err
 	}
@@ -140,7 +140,7 @@ func (s *SyncService) GetTagValueUpdated(ctx context.Context, in *pb.MyEmpty) (*
 	return &output, nil
 }
 
-func (s *SyncService) WaitTagValueUpdated(in *pb.MyEmpty, stream nodes.SyncService_WaitTagValueUpdatedServer) error {
+func (s *SyncService) WaitPinValueUpdated(in *pb.MyEmpty, stream nodes.SyncService_WaitPinValueUpdatedServer) error {
 	var err error
 
 	// basic validation
@@ -155,10 +155,10 @@ func (s *SyncService) WaitTagValueUpdated(in *pb.MyEmpty, stream nodes.SyncServi
 		return err
 	}
 
-	return s.ns.Core().GetSync().WaitTagValueUpdated(&pb.Id{Id: nodeID}, stream)
+	return s.ns.Core().GetSync().WaitPinValueUpdated(&pb.Id{Id: nodeID}, stream)
 }
 
-func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *nodes.SyncUpdated) (*pb.MyBool, error) {
+func (s *SyncService) SetPinWriteUpdated(ctx context.Context, in *nodes.SyncUpdated) (*pb.MyBool, error) {
 	var output pb.MyBool
 	var err error
 
@@ -169,7 +169,7 @@ func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *nodes.SyncUpda
 		}
 
 		if in.GetUpdated() == 0 {
-			return &output, status.Error(codes.InvalidArgument, "Please supply valid Tag.Value.Updated")
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Write.Updated")
 		}
 	}
 
@@ -178,11 +178,11 @@ func (s *SyncService) SetTagWriteUpdated(ctx context.Context, in *nodes.SyncUpda
 		return &output, err
 	}
 
-	return s.ns.Core().GetSync().SetTagWriteUpdated(ctx,
+	return s.ns.Core().GetSync().SetPinWriteUpdated(ctx,
 		&cores.SyncUpdated{Id: nodeID, Updated: in.GetUpdated()})
 }
 
-func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*nodes.SyncUpdated, error) {
+func (s *SyncService) GetPinWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*nodes.SyncUpdated, error) {
 	var output nodes.SyncUpdated
 	var err error
 
@@ -198,7 +198,7 @@ func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*
 		return &output, err
 	}
 
-	reply, err := s.ns.Core().GetSync().GetTagWriteUpdated(ctx, &pb.Id{Id: nodeID})
+	reply, err := s.ns.Core().GetSync().GetPinWriteUpdated(ctx, &pb.Id{Id: nodeID})
 	if err != nil {
 		return &output, err
 	}
@@ -208,7 +208,7 @@ func (s *SyncService) GetTagWriteUpdated(ctx context.Context, in *pb.MyEmpty) (*
 	return &output, nil
 }
 
-func (s *SyncService) WaitTagWriteUpdated(in *pb.MyEmpty, stream nodes.SyncService_WaitTagWriteUpdatedServer) error {
+func (s *SyncService) WaitPinWriteUpdated(in *pb.MyEmpty, stream nodes.SyncService_WaitPinWriteUpdatedServer) error {
 	var err error
 
 	// basic validation
@@ -223,5 +223,5 @@ func (s *SyncService) WaitTagWriteUpdated(in *pb.MyEmpty, stream nodes.SyncServi
 		return err
 	}
 
-	return s.ns.Core().GetSync().WaitTagWriteUpdated(&pb.Id{Id: nodeID}, stream)
+	return s.ns.Core().GetSync().WaitPinWriteUpdated(&pb.Id{Id: nodeID}, stream)
 }

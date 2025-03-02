@@ -21,17 +21,17 @@ service SyncService {
     rpc SetSourceUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetSourceUpdated(pb.MyEmpty) returns (SyncUpdated) {}
 
-    rpc SetTagUpdated(SyncUpdated) returns (pb.MyBool) {}
-    rpc GetTagUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc SetPinUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetPinUpdated(pb.MyEmpty) returns (SyncUpdated) {}
 
     rpc SetConstUpdated(SyncUpdated) returns (pb.MyBool) {}
     rpc GetConstUpdated(pb.MyEmpty) returns (SyncUpdated) {}
 
-    rpc SetTagValueUpdated(SyncUpdated) returns (pb.MyBool) {}
-    rpc GetTagValueUpdated(pb.MyEmpty) returns (SyncUpdated) {}
-    rpc WaitTagValueUpdated(pb.MyEmpty) returns (stream pb.MyBool) {}
+    rpc SetPinValueUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetPinValueUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc WaitPinValueUpdated(pb.MyEmpty) returns (stream pb.MyBool) {}
 
-    rpc SetTagWriteUpdated(SyncUpdated) returns (pb.MyBool) {}
-    rpc GetTagWriteUpdated(pb.MyEmpty) returns (SyncUpdated) {}
-    rpc WaitTagWriteUpdated(pb.MyEmpty) returns (stream pb.MyBool) {}
+    rpc SetPinWriteUpdated(SyncUpdated) returns (pb.MyBool) {}
+    rpc GetPinWriteUpdated(pb.MyEmpty) returns (SyncUpdated) {}
+    rpc WaitPinWriteUpdated(pb.MyEmpty) returns (stream pb.MyBool) {}
 }

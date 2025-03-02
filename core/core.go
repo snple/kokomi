@@ -22,7 +22,7 @@ type CoreService struct {
 	node        *NodeService
 	slot        *SlotService
 	source      *SourceService
-	tag         *TagService
+	pin         *PinService
 	constant    *ConstService
 
 	clone *cloneService
@@ -69,7 +69,7 @@ func CoreContext(ctx context.Context, db *bun.DB, opts ...CoreOption) (*CoreServ
 	cs.node = newNodeService(cs)
 	cs.slot = newSlotService(cs)
 	cs.source = newSourceService(cs)
-	cs.tag = newTagService(cs)
+	cs.pin = newPinService(cs)
 	cs.constant = newConstService(cs)
 
 	cs.clone = newCloneService(cs)
@@ -121,8 +121,8 @@ func (cs *CoreService) GetSource() *SourceService {
 	return cs.source
 }
 
-func (cs *CoreService) GetTag() *TagService {
-	return cs.tag
+func (cs *CoreService) GetPin() *PinService {
+	return cs.pin
 }
 
 func (cs *CoreService) GetConst() *ConstService {
@@ -166,7 +166,7 @@ func (cs *CoreService) cacheGC() {
 			{
 				cs.GetNode().GC()
 				cs.GetSource().GC()
-				cs.GetTag().GC()
+				cs.GetPin().GC()
 				cs.GetConst().GC()
 				cs.GetUser().GC()
 			}
@@ -180,7 +180,7 @@ func (cs *CoreService) Register(server *grpc.Server) {
 	cores.RegisterNodeServiceServer(server, cs.node)
 	cores.RegisterSlotServiceServer(server, cs.slot)
 	cores.RegisterSourceServiceServer(server, cs.source)
-	cores.RegisterTagServiceServer(server, cs.tag)
+	cores.RegisterPinServiceServer(server, cs.pin)
 	cores.RegisterConstServiceServer(server, cs.constant)
 
 	cores.RegisterAuthServiceServer(server, cs.auth)
@@ -194,10 +194,10 @@ func CreateSchema(db bun.IDB) error {
 		(*model.Node)(nil),
 		(*model.Slot)(nil),
 		(*model.Source)(nil),
-		(*model.Tag)(nil),
+		(*model.Pin)(nil),
 		(*model.Const)(nil),
-		(*model.TagValue)(nil),
-		(*model.TagWrite)(nil),
+		(*model.PinValue)(nil),
+		(*model.PinWrite)(nil),
 		(*model.User)(nil),
 	}
 

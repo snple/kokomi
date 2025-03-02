@@ -376,10 +376,10 @@ func (s *NodeService) Destory(ctx context.Context, in *pb.Id) (*pb.MyBool, error
 		models := []interface{}{
 			(*model.Slot)(nil),
 			(*model.Source)(nil),
-			(*model.Tag)(nil),
+			(*model.Pin)(nil),
 			(*model.Const)(nil),
-			(*model.TagValue)(nil),
-			(*model.TagWrite)(nil),
+			(*model.PinValue)(nil),
+			(*model.PinWrite)(nil),
 		}
 
 		tx, err := s.cs.GetDB().BeginTx(ctx, nil)

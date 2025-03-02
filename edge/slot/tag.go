@@ -10,20 +10,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type TagService struct {
+type PinService struct {
 	ss *SlotService
 
-	slots.UnimplementedTagServiceServer
+	slots.UnimplementedPinServiceServer
 }
 
-func newTagService(ss *SlotService) *TagService {
-	return &TagService{
+func newPinService(ss *SlotService) *PinService {
+	return &PinService{
 		ss: ss,
 	}
 }
 
-func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) Create(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -38,11 +38,11 @@ func (s *TagService) Create(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().Create(ctx, in)
+	return s.ss.Edge().GetPin().Create(ctx, in)
 }
 
-func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) Update(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -57,11 +57,11 @@ func (s *TagService) Update(ctx context.Context, in *pb.Tag) (*pb.Tag, error) {
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().Update(ctx, in)
+	return s.ss.Edge().GetPin().Update(ctx, in)
 }
 
-func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) View(ctx context.Context, in *pb.Id) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -76,11 +76,11 @@ func (s *TagService) View(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().View(ctx, in)
+	return s.ss.Edge().GetPin().View(ctx, in)
 }
 
-func (s *TagService) Name(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) Name(ctx context.Context, in *pb.Name) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -95,10 +95,10 @@ func (s *TagService) Name(ctx context.Context, in *pb.Name) (*pb.Tag, error) {
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().Name(ctx, in)
+	return s.ss.Edge().GetPin().Name(ctx, in)
 }
 
-func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *PinService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -114,12 +114,12 @@ func (s *TagService) Delete(ctx context.Context, in *pb.Id) (*pb.MyBool, error) 
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().Delete(ctx, in)
+	return s.ss.Edge().GetPin().Delete(ctx, in)
 }
 
-func (s *TagService) List(ctx context.Context, in *slots.TagListRequest) (*slots.TagListResponse, error) {
+func (s *PinService) List(ctx context.Context, in *slots.PinListRequest) (*slots.PinListResponse, error) {
 	var err error
-	var output slots.TagListResponse
+	var output slots.PinListResponse
 
 	// basic validation
 	{
@@ -133,26 +133,26 @@ func (s *TagService) List(ctx context.Context, in *slots.TagListRequest) (*slots
 		return &output, err
 	}
 
-	request := &edges.TagListRequest{
+	request := &edges.PinListRequest{
 		Page:     in.GetPage(),
 		SourceId: in.GetSourceId(),
 		Tags:     in.GetTags(),
 	}
 
-	reply, err := s.ss.Edge().GetTag().List(ctx, request)
+	reply, err := s.ss.Edge().GetPin().List(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
 	output.Count = reply.Count
 	output.Page = reply.GetPage()
-	output.Tag = reply.GetTag()
+	output.Pin = reply.GetPin()
 
 	return &output, nil
 }
 
-func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, error) {
-	var output pb.Tag
+func (s *PinService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Pin, error) {
+	var output pb.Pin
 	var err error
 
 	// basic validation
@@ -167,7 +167,7 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 		return &output, err
 	}
 
-	reply, err := s.ss.Edge().GetTag().ViewWithDeleted(ctx, in)
+	reply, err := s.ss.Edge().GetPin().ViewWithDeleted(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -175,9 +175,9 @@ func (s *TagService) ViewWithDeleted(ctx context.Context, in *pb.Id) (*pb.Tag, e
 	return reply, nil
 }
 
-func (s *TagService) Pull(ctx context.Context, in *slots.TagPullRequest) (*slots.TagPullResponse, error) {
+func (s *PinService) Pull(ctx context.Context, in *slots.PinPullRequest) (*slots.PinPullResponse, error) {
 	var err error
-	var output slots.TagPullResponse
+	var output slots.PinPullResponse
 
 	// basic validation
 	{
@@ -194,23 +194,23 @@ func (s *TagService) Pull(ctx context.Context, in *slots.TagPullRequest) (*slots
 		return &output, err
 	}
 
-	request := &edges.TagPullRequest{
+	request := &edges.PinPullRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		SourceId: in.GetSourceId(),
 	}
 
-	reply, err := s.ss.Edge().GetTag().Pull(ctx, request)
+	reply, err := s.ss.Edge().GetPin().Pull(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
-	output.Tag = reply.GetTag()
+	output.Pin = reply.GetPin()
 
 	return &output, nil
 }
 
-func (s *TagService) Sync(ctx context.Context, in *pb.Tag) (*pb.MyBool, error) {
+func (s *PinService) Sync(ctx context.Context, in *pb.Pin) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -226,14 +226,14 @@ func (s *TagService) Sync(ctx context.Context, in *pb.Tag) (*pb.MyBool, error) {
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().Sync(ctx, in)
+	return s.ss.Edge().GetPin().Sync(ctx, in)
 }
 
 // value
 
-func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, error) {
+func (s *PinService) GetValue(ctx context.Context, in *pb.Id) (*pb.PinValue, error) {
 	var err error
-	var output pb.TagValue
+	var output pb.PinValue
 
 	// basic validation
 	{
@@ -247,10 +247,10 @@ func (s *TagService) GetValue(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().GetValue(ctx, in)
+	return s.ss.Edge().GetPin().GetValue(ctx, in)
 }
 
-func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *PinService) SetValue(ctx context.Context, in *pb.PinValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -266,12 +266,12 @@ func (s *TagService) SetValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().SetValue(ctx, in)
+	return s.ss.Edge().GetPin().SetValue(ctx, in)
 }
 
-func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
+func (s *PinService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.PinNameValue, error) {
 	var err error
-	var output pb.TagNameValue
+	var output pb.PinNameValue
 
 	// basic validation
 	{
@@ -285,10 +285,10 @@ func (s *TagService) GetValueByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().GetValueByName(ctx, in)
+	return s.ss.Edge().GetPin().GetValueByName(ctx, in)
 }
 
-func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
+func (s *PinService) SetValueByName(ctx context.Context, in *pb.PinNameValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -304,11 +304,11 @@ func (s *TagService) SetValueByName(ctx context.Context, in *pb.TagNameValue) (*
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().SetValueByName(ctx, in)
+	return s.ss.Edge().GetPin().SetValueByName(ctx, in)
 }
 
-func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
-	var output pb.TagValueUpdated
+func (s *PinService) ViewValue(ctx context.Context, in *pb.Id) (*pb.PinValueUpdated, error) {
+	var output pb.PinValueUpdated
 	var err error
 
 	// basic validation
@@ -323,7 +323,7 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		return &output, err
 	}
 
-	reply, err := s.ss.Edge().GetTag().ViewValue(ctx, in)
+	reply, err := s.ss.Edge().GetPin().ViewValue(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -331,7 +331,7 @@ func (s *TagService) ViewValue(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 	return reply, nil
 }
 
-func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *PinService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -347,12 +347,12 @@ func (s *TagService) DeleteValue(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().DeleteValue(ctx, in)
+	return s.ss.Edge().GetPin().DeleteValue(ctx, in)
 }
 
-func (s *TagService) PullValue(ctx context.Context, in *slots.TagPullValueRequest) (*slots.TagPullValueResponse, error) {
+func (s *PinService) PullValue(ctx context.Context, in *slots.PinPullValueRequest) (*slots.PinPullValueResponse, error) {
 	var err error
-	var output slots.TagPullValueResponse
+	var output slots.PinPullValueResponse
 
 	// basic validation
 	{
@@ -369,23 +369,23 @@ func (s *TagService) PullValue(ctx context.Context, in *slots.TagPullValueReques
 		return &output, err
 	}
 
-	request := &edges.TagPullValueRequest{
+	request := &edges.PinPullValueRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		SourceId: in.GetSourceId(),
 	}
 
-	reply, err := s.ss.Edge().GetTag().PullValue(ctx, request)
+	reply, err := s.ss.Edge().GetPin().PullValue(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
-	output.Tag = reply.GetTag()
+	output.Pin = reply.GetPin()
 
 	return &output, nil
 }
 
-func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *PinService) SyncValue(ctx context.Context, in *pb.PinValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -401,14 +401,14 @@ func (s *TagService) SyncValue(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().SyncValue(ctx, in)
+	return s.ss.Edge().GetPin().SyncValue(ctx, in)
 }
 
 // write
 
-func (s *TagService) GetWrite(ctx context.Context, in *pb.Id) (*pb.TagValue, error) {
+func (s *PinService) GetWrite(ctx context.Context, in *pb.Id) (*pb.PinValue, error) {
 	var err error
-	var output pb.TagValue
+	var output pb.PinValue
 
 	// basic validation
 	{
@@ -422,10 +422,10 @@ func (s *TagService) GetWrite(ctx context.Context, in *pb.Id) (*pb.TagValue, err
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().GetWrite(ctx, in)
+	return s.ss.Edge().GetPin().GetWrite(ctx, in)
 }
 
-func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *PinService) SetWrite(ctx context.Context, in *pb.PinValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -441,12 +441,12 @@ func (s *TagService) SetWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool,
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().SetWrite(ctx, in)
+	return s.ss.Edge().GetPin().SetWrite(ctx, in)
 }
 
-func (s *TagService) GetWriteByName(ctx context.Context, in *pb.Name) (*pb.TagNameValue, error) {
+func (s *PinService) GetWriteByName(ctx context.Context, in *pb.Name) (*pb.PinNameValue, error) {
 	var err error
-	var output pb.TagNameValue
+	var output pb.PinNameValue
 
 	// basic validation
 	{
@@ -460,10 +460,10 @@ func (s *TagService) GetWriteByName(ctx context.Context, in *pb.Name) (*pb.TagNa
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().GetWriteByName(ctx, in)
+	return s.ss.Edge().GetPin().GetWriteByName(ctx, in)
 }
 
-func (s *TagService) SetWriteByName(ctx context.Context, in *pb.TagNameValue) (*pb.MyBool, error) {
+func (s *PinService) SetWriteByName(ctx context.Context, in *pb.PinNameValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -479,11 +479,11 @@ func (s *TagService) SetWriteByName(ctx context.Context, in *pb.TagNameValue) (*
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().SetWriteByName(ctx, in)
+	return s.ss.Edge().GetPin().SetWriteByName(ctx, in)
 }
 
-func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpdated, error) {
-	var output pb.TagValueUpdated
+func (s *PinService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.PinValueUpdated, error) {
+	var output pb.PinValueUpdated
 	var err error
 
 	// basic validation
@@ -498,7 +498,7 @@ func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 		return &output, err
 	}
 
-	reply, err := s.ss.Edge().GetTag().ViewWrite(ctx, in)
+	reply, err := s.ss.Edge().GetPin().ViewWrite(ctx, in)
 	if err != nil {
 		return &output, err
 	}
@@ -506,7 +506,7 @@ func (s *TagService) ViewWrite(ctx context.Context, in *pb.Id) (*pb.TagValueUpda
 	return reply, nil
 }
 
-func (s *TagService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
+func (s *PinService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -522,12 +522,12 @@ func (s *TagService) DeleteWrite(ctx context.Context, in *pb.Id) (*pb.MyBool, er
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().DeleteWrite(ctx, in)
+	return s.ss.Edge().GetPin().DeleteWrite(ctx, in)
 }
 
-func (s *TagService) PullWrite(ctx context.Context, in *slots.TagPullValueRequest) (*slots.TagPullValueResponse, error) {
+func (s *PinService) PullWrite(ctx context.Context, in *slots.PinPullValueRequest) (*slots.PinPullValueResponse, error) {
 	var err error
-	var output slots.TagPullValueResponse
+	var output slots.PinPullValueResponse
 
 	// basic validation
 	{
@@ -544,23 +544,23 @@ func (s *TagService) PullWrite(ctx context.Context, in *slots.TagPullValueReques
 		return &output, err
 	}
 
-	request := &edges.TagPullValueRequest{
+	request := &edges.PinPullValueRequest{
 		After:    in.GetAfter(),
 		Limit:    in.GetLimit(),
 		SourceId: in.GetSourceId(),
 	}
 
-	reply, err := s.ss.Edge().GetTag().PullWrite(ctx, request)
+	reply, err := s.ss.Edge().GetPin().PullWrite(ctx, request)
 	if err != nil {
 		return &output, err
 	}
 
-	output.Tag = reply.GetTag()
+	output.Pin = reply.GetPin()
 
 	return &output, nil
 }
 
-func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool, error) {
+func (s *PinService) SyncWrite(ctx context.Context, in *pb.PinValue) (*pb.MyBool, error) {
 	var err error
 	var output pb.MyBool
 
@@ -576,5 +576,5 @@ func (s *TagService) SyncWrite(ctx context.Context, in *pb.TagValue) (*pb.MyBool
 		return &output, err
 	}
 
-	return s.ss.Edge().GetTag().SyncWrite(ctx, in)
+	return s.ss.Edge().GetPin().SyncWrite(ctx, in)
 }

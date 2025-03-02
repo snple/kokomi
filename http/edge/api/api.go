@@ -16,7 +16,7 @@ type ApiService struct {
 
 	node     *NodeService
 	source   *SourceService
-	tag      *TagService
+	pin      *PinService
 	constant *ConstService
 
 	ctx     context.Context
@@ -46,7 +46,7 @@ func NewApiService(es *edge.EdgeService, opts ...ApiOption) (*ApiService, error)
 
 	s.node = newNodeService(s)
 	s.source = newSourceService(s)
-	s.tag = newTagService(s)
+	s.pin = newPinService(s)
 	s.constant = newConstService(s)
 
 	return s, nil
@@ -55,7 +55,7 @@ func NewApiService(es *edge.EdgeService, opts ...ApiOption) (*ApiService, error)
 func (s *ApiService) Register(router gin.IRouter) {
 	s.node.register(router)
 	s.source.register(router)
-	s.tag.register(router)
+	s.pin.register(router)
 	s.constant.register(router)
 }
 

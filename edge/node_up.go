@@ -99,7 +99,7 @@ func (s *NodeUpService) push() error {
 		return err
 	}
 
-	if err := s.syncTagValue2(s.ctx); err != nil {
+	if err := s.syncPinValue2(s.ctx); err != nil {
 		return err
 	}
 
@@ -133,7 +133,7 @@ func (s *NodeUpService) pull() error {
 		return err
 	}
 
-	if err := s.syncTagValue1(s.ctx); err != nil {
+	if err := s.syncPinValue1(s.ctx); err != nil {
 		return err
 	}
 
@@ -181,10 +181,10 @@ func (s *NodeUpService) try() {
 	if s.es.dopts.SyncOptions.Realtime {
 		go s.waitRemoteNodeUpdated(ctx)
 		go s.waitLocalNodeUpdated(ctx)
-		go s.waitRemoteTagValueUpdated(ctx)
-		go s.waitLocalTagValueUpdated(ctx)
-		go s.waitRemoteTagWriteUpdated(ctx)
-		go s.waitLocalTagWriteUpdated(ctx)
+		go s.waitRemotePinValueUpdated(ctx)
+		go s.waitLocalPinValueUpdated(ctx)
+		go s.waitRemotePinWriteUpdated(ctx)
+		go s.waitLocalPinWriteUpdated(ctx)
 	}
 
 	// keep alive
@@ -286,8 +286,8 @@ func (s *NodeUpService) SourceServiceClient() nodes.SourceServiceClient {
 	return nodes.NewSourceServiceClient(s.NodeConn)
 }
 
-func (s *NodeUpService) TagServiceClient() nodes.TagServiceClient {
-	return nodes.NewTagServiceClient(s.NodeConn)
+func (s *NodeUpService) PinServiceClient() nodes.PinServiceClient {
+	return nodes.NewPinServiceClient(s.NodeConn)
 }
 
 func (s *NodeUpService) ConstServiceClient() nodes.ConstServiceClient {
@@ -418,14 +418,14 @@ func (s *NodeUpService) waitLocalNodeUpdated(ctx context.Context) {
 	}
 }
 
-func (s *NodeUpService) waitRemoteTagValueUpdated(ctx context.Context) {
+func (s *NodeUpService) waitRemotePinValueUpdated(ctx context.Context) {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
 	for {
 		ctx := metadata.SetToken(ctx, s.GetToken())
 
-		stream, err := s.SyncServiceClient().WaitTagValueUpdated(ctx, &pb.MyEmpty{})
+		stream, err := s.SyncServiceClient().WaitPinValueUpdated(ctx, &pb.MyEmpty{})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.Canceled {
@@ -433,7 +433,7 @@ func (s *NodeUpService) waitRemoteTagValueUpdated(ctx context.Context) {
 				}
 			}
 
-			s.es.Logger().Sugar().Errorf("WaitTagValueUpdated: %v", err)
+			s.es.Logger().Sugar().Errorf("WaitPinValueUpdated: %v", err)
 
 			// retry
 			time.Sleep(s.es.dopts.SyncOptions.Retry)
@@ -452,25 +452,25 @@ func (s *NodeUpService) waitRemoteTagValueUpdated(ctx context.Context) {
 					}
 				}
 
-				s.es.Logger().Sugar().Errorf("WaitTagValueUpdated.Recv(): %v", err)
+				s.es.Logger().Sugar().Errorf("WaitPinValueUpdated.Recv(): %v", err)
 				return
 			}
 
 			ctx = metadata.SetToken(ctx, s.GetToken())
 
-			err = s.syncTagValue1(ctx)
+			err = s.syncPinValue1(ctx)
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("syncTagValue1: %v", err)
+				s.es.Logger().Sugar().Errorf("syncPinValue1: %v", err)
 			}
 		}
 	}
 }
 
-func (s *NodeUpService) waitLocalTagValueUpdated(ctx context.Context) {
+func (s *NodeUpService) waitLocalPinValueUpdated(ctx context.Context) {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
-	notify := s.es.GetSync().Notify(NOTIFY_TV)
+	notify := s.es.GetSync().Notify(NOTIFY_PV)
 	defer notify.Close()
 
 	for {
@@ -480,22 +480,22 @@ func (s *NodeUpService) waitLocalTagValueUpdated(ctx context.Context) {
 		case <-notify.Wait():
 			ctx = metadata.SetToken(ctx, s.GetToken())
 
-			err := s.syncTagValue2(ctx)
+			err := s.syncPinValue2(ctx)
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("syncTagValue2: %v", err)
+				s.es.Logger().Sugar().Errorf("syncPinValue2: %v", err)
 			}
 		}
 	}
 }
 
-func (s *NodeUpService) waitRemoteTagWriteUpdated(ctx context.Context) {
+func (s *NodeUpService) waitRemotePinWriteUpdated(ctx context.Context) {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
 	for {
 		ctx := metadata.SetToken(ctx, s.GetToken())
 
-		stream, err := s.SyncServiceClient().WaitTagWriteUpdated(ctx, &pb.MyEmpty{})
+		stream, err := s.SyncServiceClient().WaitPinWriteUpdated(ctx, &pb.MyEmpty{})
 		if err != nil {
 			if code, ok := status.FromError(err); ok {
 				if code.Code() == codes.Canceled {
@@ -503,7 +503,7 @@ func (s *NodeUpService) waitRemoteTagWriteUpdated(ctx context.Context) {
 				}
 			}
 
-			s.es.Logger().Sugar().Errorf("WaitTagWriteUpdated: %v", err)
+			s.es.Logger().Sugar().Errorf("WaitPinWriteUpdated: %v", err)
 
 			// retry
 			time.Sleep(s.es.dopts.SyncOptions.Retry)
@@ -522,25 +522,25 @@ func (s *NodeUpService) waitRemoteTagWriteUpdated(ctx context.Context) {
 					}
 				}
 
-				s.es.Logger().Sugar().Errorf("WaitTagWriteUpdated.Recv(): %v", err)
+				s.es.Logger().Sugar().Errorf("WaitPinWriteUpdated.Recv(): %v", err)
 				return
 			}
 
 			ctx = metadata.SetToken(ctx, s.GetToken())
 
-			err = s.syncTagWrite1(ctx)
+			err = s.syncPinWrite1(ctx)
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("syncTagWrite1: %v", err)
+				s.es.Logger().Sugar().Errorf("syncPinWrite1: %v", err)
 			}
 		}
 	}
 }
 
-func (s *NodeUpService) waitLocalTagWriteUpdated(ctx context.Context) {
+func (s *NodeUpService) waitLocalPinWriteUpdated(ctx context.Context) {
 	s.closeWG.Add(1)
 	defer s.closeWG.Done()
 
-	notify := s.es.GetSync().Notify(NOTIFY_TW)
+	notify := s.es.GetSync().Notify(NOTIFY_PW)
 	defer notify.Close()
 
 	for {
@@ -550,9 +550,9 @@ func (s *NodeUpService) waitLocalTagWriteUpdated(ctx context.Context) {
 		case <-notify.Wait():
 			ctx = metadata.SetToken(ctx, s.GetToken())
 
-			err := s.syncTagWrite2(ctx)
+			err := s.syncPinWrite2(ctx)
 			if err != nil {
-				s.es.Logger().Sugar().Errorf("syncTagWrite2: %v", err)
+				s.es.Logger().Sugar().Errorf("syncPinWrite2: %v", err)
 			}
 		}
 	}
@@ -569,19 +569,19 @@ func (s *NodeUpService) sync(ctx context.Context) error {
 		return err
 	}
 
-	if err := s.syncTagValue1(ctx); err != nil {
+	if err := s.syncPinValue1(ctx); err != nil {
 		return err
 	}
 
-	if err := s.syncTagValue2(ctx); err != nil {
+	if err := s.syncPinValue2(ctx); err != nil {
 		return err
 	}
 
-	if err := s.syncTagWrite1(ctx); err != nil {
+	if err := s.syncPinWrite1(ctx); err != nil {
 		return err
 	}
 
-	return s.syncTagWrite2(ctx)
+	return s.syncPinWrite2(ctx)
 }
 
 func (s *NodeUpService) sync1(ctx context.Context) error {
@@ -592,20 +592,20 @@ func (s *NodeUpService) sync2(ctx context.Context) error {
 	return s.syncLocalToRemote(ctx)
 }
 
-func (s *NodeUpService) syncTagValue1(ctx context.Context) error {
-	return s.syncTagValueRemoteToLocal(ctx)
+func (s *NodeUpService) syncPinValue1(ctx context.Context) error {
+	return s.syncPinValueRemoteToLocal(ctx)
 }
 
-func (s *NodeUpService) syncTagValue2(ctx context.Context) error {
-	return s.syncTagValueLocalToRemote(ctx)
+func (s *NodeUpService) syncPinValue2(ctx context.Context) error {
+	return s.syncPinValueLocalToRemote(ctx)
 }
 
-func (s *NodeUpService) syncTagWrite1(ctx context.Context) error {
-	return s.syncTagWriteRemoteToLocal(ctx)
+func (s *NodeUpService) syncPinWrite1(ctx context.Context) error {
+	return s.syncPinWriteRemoteToLocal(ctx)
 }
 
-func (s *NodeUpService) syncTagWrite2(ctx context.Context) error {
-	return s.syncTagWriteLocalToRemote(ctx)
+func (s *NodeUpService) syncPinWrite2(ctx context.Context) error {
+	return s.syncPinWriteLocalToRemote(ctx)
 }
 
 func (s *NodeUpService) syncRemoteToLocal(ctx context.Context) error {
@@ -688,19 +688,19 @@ func (s *NodeUpService) syncRemoteToLocal(ctx context.Context) error {
 		}
 	}
 
-	// tag
+	// pin
 	{
 		after := nodeUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
-			remotes, err := s.TagServiceClient().Pull(ctx, &nodes.TagPullRequest{After: after, Limit: limit})
+			remotes, err := s.PinServiceClient().Pull(ctx, &nodes.PinPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
 
-			for _, remote := range remotes.GetTag() {
-				_, err := s.es.GetTag().Sync(ctx, remote)
+			for _, remote := range remotes.GetPin() {
+				_, err := s.es.GetPin().Sync(ctx, remote)
 				if err != nil {
 					return err
 				}
@@ -708,7 +708,7 @@ func (s *NodeUpService) syncRemoteToLocal(ctx context.Context) error {
 				after = remote.GetUpdated()
 			}
 
-			if len(remotes.GetTag()) < int(limit) {
+			if len(remotes.GetPin()) < int(limit) {
 				break
 			}
 		}
@@ -823,19 +823,19 @@ func (s *NodeUpService) syncLocalToRemote(ctx context.Context) error {
 		}
 	}
 
-	// tag
+	// pin
 	{
 		after := nodeUpdated2.UnixMicro()
 		limit := uint32(10)
 
 		for {
-			locals, err := s.es.GetTag().Pull(ctx, &edges.TagPullRequest{After: after, Limit: limit})
+			locals, err := s.es.GetPin().Pull(ctx, &edges.PinPullRequest{After: after, Limit: limit})
 			if err != nil {
 				return err
 			}
 
-			for _, local := range locals.GetTag() {
-				_, err = s.TagServiceClient().Sync(ctx, local)
+			for _, local := range locals.GetPin() {
+				_, err = s.PinServiceClient().Sync(ctx, local)
 				if err != nil {
 					return err
 				}
@@ -843,7 +843,7 @@ func (s *NodeUpService) syncLocalToRemote(ctx context.Context) error {
 				after = local.GetUpdated()
 			}
 
-			if len(locals.GetTag()) < int(limit) {
+			if len(locals.GetPin()) < int(limit) {
 				break
 			}
 		}
@@ -878,38 +878,38 @@ func (s *NodeUpService) syncLocalToRemote(ctx context.Context) error {
 	return s.es.GetSync().setNodeUpdatedLocalToRemote(ctx, nodeUpdated)
 }
 
-func (s *NodeUpService) syncTagValueRemoteToLocal(ctx context.Context) error {
-	tagValueUpdated, err := s.SyncServiceClient().GetTagValueUpdated(ctx, &pb.MyEmpty{})
+func (s *NodeUpService) syncPinValueRemoteToLocal(ctx context.Context) error {
+	pinValueUpdated, err := s.SyncServiceClient().GetPinValueUpdated(ctx, &pb.MyEmpty{})
 	if err != nil {
 		return err
 	}
 
-	tagValueUpdated2, err := s.es.GetSync().getTagValueUpdatedRemoteToLocal(ctx)
+	pinValueUpdated2, err := s.es.GetSync().getPinValueUpdatedRemoteToLocal(ctx)
 	if err != nil {
 		return err
 	}
 
-	if tagValueUpdated.GetUpdated() <= tagValueUpdated2.UnixMicro() {
+	if pinValueUpdated.GetUpdated() <= pinValueUpdated2.UnixMicro() {
 		return nil
 	}
 
-	after := tagValueUpdated2.UnixMicro()
+	after := pinValueUpdated2.UnixMicro()
 	limit := uint32(100)
 
 PULL:
 	for {
-		remotes, err := s.TagServiceClient().PullValue(ctx, &nodes.TagPullValueRequest{After: after, Limit: limit})
+		remotes, err := s.PinServiceClient().PullValue(ctx, &nodes.PinPullValueRequest{After: after, Limit: limit})
 		if err != nil {
 			return err
 		}
 
-		for _, remote := range remotes.GetTag() {
-			if remote.GetUpdated() > tagValueUpdated.GetUpdated() {
+		for _, remote := range remotes.GetPin() {
+			if remote.GetUpdated() > pinValueUpdated.GetUpdated() {
 				break PULL
 			}
 
-			_, err = s.es.GetTag().SyncValue(ctx,
-				&pb.TagValue{Id: remote.GetId(), Value: remote.GetValue(), Updated: remote.GetUpdated()})
+			_, err = s.es.GetPin().SyncValue(ctx,
+				&pb.PinValue{Id: remote.GetId(), Value: remote.GetValue(), Updated: remote.GetUpdated()})
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("SyncValue: %v", err)
 				return err
@@ -918,46 +918,46 @@ PULL:
 			after = remote.GetUpdated()
 		}
 
-		if len(remotes.GetTag()) < int(limit) {
+		if len(remotes.GetPin()) < int(limit) {
 			break
 		}
 	}
 
-	return s.es.GetSync().setTagValueUpdatedRemoteToLocal(ctx, time.UnixMicro(tagValueUpdated.GetUpdated()))
+	return s.es.GetSync().setPinValueUpdatedRemoteToLocal(ctx, time.UnixMicro(pinValueUpdated.GetUpdated()))
 }
 
-func (s *NodeUpService) syncTagValueLocalToRemote(ctx context.Context) error {
-	tagValueUpdated, err := s.es.GetSync().getTagValueUpdated(ctx)
+func (s *NodeUpService) syncPinValueLocalToRemote(ctx context.Context) error {
+	pinValueUpdated, err := s.es.GetSync().getPinValueUpdated(ctx)
 	if err != nil {
 		return err
 	}
 
-	tagValueUpdated2, err := s.es.GetSync().getTagValueUpdatedLocalToRemote(ctx)
+	pinValueUpdated2, err := s.es.GetSync().getPinValueUpdatedLocalToRemote(ctx)
 	if err != nil {
 		return err
 	}
 
-	if tagValueUpdated.UnixMicro() <= tagValueUpdated2.UnixMicro() {
+	if pinValueUpdated.UnixMicro() <= pinValueUpdated2.UnixMicro() {
 		return nil
 	}
 
-	after := tagValueUpdated2.UnixMicro()
+	after := pinValueUpdated2.UnixMicro()
 	limit := uint32(100)
 
 PULL:
 	for {
-		locals, err := s.es.GetTag().PullValue(ctx, &edges.TagPullValueRequest{After: after, Limit: limit})
+		locals, err := s.es.GetPin().PullValue(ctx, &edges.PinPullValueRequest{After: after, Limit: limit})
 		if err != nil {
 			return err
 		}
 
-		for _, local := range locals.GetTag() {
-			if local.GetUpdated() > tagValueUpdated.UnixMicro() {
+		for _, local := range locals.GetPin() {
+			if local.GetUpdated() > pinValueUpdated.UnixMicro() {
 				break PULL
 			}
 
-			_, err = s.TagServiceClient().SyncValue(ctx,
-				&pb.TagValue{Id: local.GetId(), Value: local.GetValue(), Updated: local.GetUpdated()})
+			_, err = s.PinServiceClient().SyncValue(ctx,
+				&pb.PinValue{Id: local.GetId(), Value: local.GetValue(), Updated: local.GetUpdated()})
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("SyncValue: %v", err)
 				return err
@@ -966,46 +966,46 @@ PULL:
 			after = local.GetUpdated()
 		}
 
-		if len(locals.GetTag()) < int(limit) {
+		if len(locals.GetPin()) < int(limit) {
 			break
 		}
 	}
 
-	return s.es.GetSync().setTagValueUpdatedLocalToRemote(ctx, tagValueUpdated)
+	return s.es.GetSync().setPinValueUpdatedLocalToRemote(ctx, pinValueUpdated)
 }
 
-func (s *NodeUpService) syncTagWriteRemoteToLocal(ctx context.Context) error {
-	tagWriteUpdated, err := s.SyncServiceClient().GetTagWriteUpdated(ctx, &pb.MyEmpty{})
+func (s *NodeUpService) syncPinWriteRemoteToLocal(ctx context.Context) error {
+	pinWriteUpdated, err := s.SyncServiceClient().GetPinWriteUpdated(ctx, &pb.MyEmpty{})
 	if err != nil {
 		return err
 	}
 
-	tagWriteUpdated2, err := s.es.GetSync().getTagWriteUpdatedRemoteToLocal(ctx)
+	pinWriteUpdated2, err := s.es.GetSync().getPinWriteUpdatedRemoteToLocal(ctx)
 	if err != nil {
 		return err
 	}
 
-	if tagWriteUpdated.GetUpdated() <= tagWriteUpdated2.UnixMicro() {
+	if pinWriteUpdated.GetUpdated() <= pinWriteUpdated2.UnixMicro() {
 		return nil
 	}
 
-	after := tagWriteUpdated2.UnixMicro()
+	after := pinWriteUpdated2.UnixMicro()
 	limit := uint32(100)
 
 PULL:
 	for {
-		remotes, err := s.TagServiceClient().PullWrite(ctx, &nodes.TagPullValueRequest{After: after, Limit: limit})
+		remotes, err := s.PinServiceClient().PullWrite(ctx, &nodes.PinPullValueRequest{After: after, Limit: limit})
 		if err != nil {
 			return err
 		}
 
-		for _, remote := range remotes.GetTag() {
-			if remote.GetUpdated() > tagWriteUpdated.GetUpdated() {
+		for _, remote := range remotes.GetPin() {
+			if remote.GetUpdated() > pinWriteUpdated.GetUpdated() {
 				break PULL
 			}
 
-			_, err = s.es.GetTag().SyncWrite(ctx,
-				&pb.TagValue{Id: remote.GetId(), Value: remote.GetValue(), Updated: remote.GetUpdated()})
+			_, err = s.es.GetPin().SyncWrite(ctx,
+				&pb.PinValue{Id: remote.GetId(), Value: remote.GetValue(), Updated: remote.GetUpdated()})
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("SyncWrite: %v", err)
 				return err
@@ -1014,46 +1014,46 @@ PULL:
 			after = remote.GetUpdated()
 		}
 
-		if len(remotes.GetTag()) < int(limit) {
+		if len(remotes.GetPin()) < int(limit) {
 			break
 		}
 	}
 
-	return s.es.GetSync().setTagWriteUpdatedRemoteToLocal(ctx, time.UnixMicro(tagWriteUpdated.GetUpdated()))
+	return s.es.GetSync().setPinWriteUpdatedRemoteToLocal(ctx, time.UnixMicro(pinWriteUpdated.GetUpdated()))
 }
 
-func (s *NodeUpService) syncTagWriteLocalToRemote(ctx context.Context) error {
-	tagWriteUpdated, err := s.es.GetSync().getTagWriteUpdated(ctx)
+func (s *NodeUpService) syncPinWriteLocalToRemote(ctx context.Context) error {
+	pinWriteUpdated, err := s.es.GetSync().getPinWriteUpdated(ctx)
 	if err != nil {
 		return err
 	}
 
-	tagWriteUpdated2, err := s.es.GetSync().getTagWriteUpdatedLocalToRemote(ctx)
+	pinWriteUpdated2, err := s.es.GetSync().getPinWriteUpdatedLocalToRemote(ctx)
 	if err != nil {
 		return err
 	}
 
-	if tagWriteUpdated.UnixMicro() <= tagWriteUpdated2.UnixMicro() {
+	if pinWriteUpdated.UnixMicro() <= pinWriteUpdated2.UnixMicro() {
 		return nil
 	}
 
-	after := tagWriteUpdated2.UnixMicro()
+	after := pinWriteUpdated2.UnixMicro()
 	limit := uint32(100)
 
 PULL:
 	for {
-		locals, err := s.es.GetTag().PullWrite(ctx, &edges.TagPullValueRequest{After: after, Limit: limit})
+		locals, err := s.es.GetPin().PullWrite(ctx, &edges.PinPullValueRequest{After: after, Limit: limit})
 		if err != nil {
 			return err
 		}
 
-		for _, local := range locals.GetTag() {
-			if local.GetUpdated() > tagWriteUpdated.UnixMicro() {
+		for _, local := range locals.GetPin() {
+			if local.GetUpdated() > pinWriteUpdated.UnixMicro() {
 				break PULL
 			}
 
-			_, err = s.TagServiceClient().SyncWrite(ctx,
-				&pb.TagValue{Id: local.GetId(), Value: local.GetValue(), Updated: local.GetUpdated()})
+			_, err = s.PinServiceClient().SyncWrite(ctx,
+				&pb.PinValue{Id: local.GetId(), Value: local.GetValue(), Updated: local.GetUpdated()})
 			if err != nil {
 				s.es.Logger().Sugar().Errorf("SyncWrite: %v", err)
 				return err
@@ -1062,10 +1062,10 @@ PULL:
 			after = local.GetUpdated()
 		}
 
-		if len(locals.GetTag()) < int(limit) {
+		if len(locals.GetPin()) < int(limit) {
 			break
 		}
 	}
 
-	return s.es.GetSync().setTagWriteUpdatedLocalToRemote(ctx, tagWriteUpdated)
+	return s.es.GetSync().setPinWriteUpdatedLocalToRemote(ctx, pinWriteUpdated)
 }

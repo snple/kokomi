@@ -160,7 +160,7 @@ func (x *Source) GetDeleted() int64 {
 	return 0
 }
 
-type Tag struct {
+type Pin struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	NodeId        string                 `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
@@ -181,20 +181,20 @@ type Tag struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Tag) Reset() {
-	*x = Tag{}
+func (x *Pin) Reset() {
+	*x = Pin{}
 	mi := &file_source_message_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Tag) String() string {
+func (x *Pin) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Tag) ProtoMessage() {}
+func (*Pin) ProtoMessage() {}
 
-func (x *Tag) ProtoReflect() protoreflect.Message {
+func (x *Pin) ProtoReflect() protoreflect.Message {
 	mi := &file_source_message_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -206,117 +206,117 @@ func (x *Tag) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Tag.ProtoReflect.Descriptor instead.
-func (*Tag) Descriptor() ([]byte, []int) {
+// Deprecated: Use Pin.ProtoReflect.Descriptor instead.
+func (*Pin) Descriptor() ([]byte, []int) {
 	return file_source_message_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Tag) GetId() string {
+func (x *Pin) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *Tag) GetNodeId() string {
+func (x *Pin) GetNodeId() string {
 	if x != nil {
 		return x.NodeId
 	}
 	return ""
 }
 
-func (x *Tag) GetSourceId() string {
+func (x *Pin) GetSourceId() string {
 	if x != nil {
 		return x.SourceId
 	}
 	return ""
 }
 
-func (x *Tag) GetName() string {
+func (x *Pin) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *Tag) GetDesc() string {
+func (x *Pin) GetDesc() string {
 	if x != nil {
 		return x.Desc
 	}
 	return ""
 }
 
-func (x *Tag) GetTags() string {
+func (x *Pin) GetTags() string {
 	if x != nil {
 		return x.Tags
 	}
 	return ""
 }
 
-func (x *Tag) GetDataType() string {
+func (x *Pin) GetDataType() string {
 	if x != nil {
 		return x.DataType
 	}
 	return ""
 }
 
-func (x *Tag) GetAddress() string {
+func (x *Pin) GetAddress() string {
 	if x != nil {
 		return x.Address
 	}
 	return ""
 }
 
-func (x *Tag) GetValue() string {
+func (x *Pin) GetValue() string {
 	if x != nil {
 		return x.Value
 	}
 	return ""
 }
 
-func (x *Tag) GetConfig() string {
+func (x *Pin) GetConfig() string {
 	if x != nil {
 		return x.Config
 	}
 	return ""
 }
 
-func (x *Tag) GetStatus() int32 {
+func (x *Pin) GetStatus() int32 {
 	if x != nil {
 		return x.Status
 	}
 	return 0
 }
 
-func (x *Tag) GetAccess() int32 {
+func (x *Pin) GetAccess() int32 {
 	if x != nil {
 		return x.Access
 	}
 	return 0
 }
 
-func (x *Tag) GetCreated() int64 {
+func (x *Pin) GetCreated() int64 {
 	if x != nil {
 		return x.Created
 	}
 	return 0
 }
 
-func (x *Tag) GetUpdated() int64 {
+func (x *Pin) GetUpdated() int64 {
 	if x != nil {
 		return x.Updated
 	}
 	return 0
 }
 
-func (x *Tag) GetDeleted() int64 {
+func (x *Pin) GetDeleted() int64 {
 	if x != nil {
 		return x.Deleted
 	}
 	return 0
 }
 
-type TagValue struct {
+type PinValue struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
@@ -325,20 +325,20 @@ type TagValue struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TagValue) Reset() {
-	*x = TagValue{}
+func (x *PinValue) Reset() {
+	*x = PinValue{}
 	mi := &file_source_message_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TagValue) String() string {
+func (x *PinValue) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TagValue) ProtoMessage() {}
+func (*PinValue) ProtoMessage() {}
 
-func (x *TagValue) ProtoReflect() protoreflect.Message {
+func (x *PinValue) ProtoReflect() protoreflect.Message {
 	mi := &file_source_message_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -350,33 +350,33 @@ func (x *TagValue) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TagValue.ProtoReflect.Descriptor instead.
-func (*TagValue) Descriptor() ([]byte, []int) {
+// Deprecated: Use PinValue.ProtoReflect.Descriptor instead.
+func (*PinValue) Descriptor() ([]byte, []int) {
 	return file_source_message_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *TagValue) GetId() string {
+func (x *PinValue) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *TagValue) GetValue() string {
+func (x *PinValue) GetValue() string {
 	if x != nil {
 		return x.Value
 	}
 	return ""
 }
 
-func (x *TagValue) GetUpdated() int64 {
+func (x *PinValue) GetUpdated() int64 {
 	if x != nil {
 		return x.Updated
 	}
 	return 0
 }
 
-type TagNameValue struct {
+type PinNameValue struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -386,20 +386,20 @@ type TagNameValue struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TagNameValue) Reset() {
-	*x = TagNameValue{}
+func (x *PinNameValue) Reset() {
+	*x = PinNameValue{}
 	mi := &file_source_message_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TagNameValue) String() string {
+func (x *PinNameValue) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TagNameValue) ProtoMessage() {}
+func (*PinNameValue) ProtoMessage() {}
 
-func (x *TagNameValue) ProtoReflect() protoreflect.Message {
+func (x *PinNameValue) ProtoReflect() protoreflect.Message {
 	mi := &file_source_message_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -411,40 +411,40 @@ func (x *TagNameValue) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TagNameValue.ProtoReflect.Descriptor instead.
-func (*TagNameValue) Descriptor() ([]byte, []int) {
+// Deprecated: Use PinNameValue.ProtoReflect.Descriptor instead.
+func (*PinNameValue) Descriptor() ([]byte, []int) {
 	return file_source_message_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *TagNameValue) GetId() string {
+func (x *PinNameValue) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *TagNameValue) GetName() string {
+func (x *PinNameValue) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *TagNameValue) GetValue() string {
+func (x *PinNameValue) GetValue() string {
 	if x != nil {
 		return x.Value
 	}
 	return ""
 }
 
-func (x *TagNameValue) GetUpdated() int64 {
+func (x *PinNameValue) GetUpdated() int64 {
 	if x != nil {
 		return x.Updated
 	}
 	return 0
 }
 
-type TagValueUpdated struct {
+type PinValueUpdated struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	NodeId        string                 `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
@@ -455,20 +455,20 @@ type TagValueUpdated struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TagValueUpdated) Reset() {
-	*x = TagValueUpdated{}
+func (x *PinValueUpdated) Reset() {
+	*x = PinValueUpdated{}
 	mi := &file_source_message_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TagValueUpdated) String() string {
+func (x *PinValueUpdated) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TagValueUpdated) ProtoMessage() {}
+func (*PinValueUpdated) ProtoMessage() {}
 
-func (x *TagValueUpdated) ProtoReflect() protoreflect.Message {
+func (x *PinValueUpdated) ProtoReflect() protoreflect.Message {
 	mi := &file_source_message_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -480,40 +480,40 @@ func (x *TagValueUpdated) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TagValueUpdated.ProtoReflect.Descriptor instead.
-func (*TagValueUpdated) Descriptor() ([]byte, []int) {
+// Deprecated: Use PinValueUpdated.ProtoReflect.Descriptor instead.
+func (*PinValueUpdated) Descriptor() ([]byte, []int) {
 	return file_source_message_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *TagValueUpdated) GetId() string {
+func (x *PinValueUpdated) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *TagValueUpdated) GetNodeId() string {
+func (x *PinValueUpdated) GetNodeId() string {
 	if x != nil {
 		return x.NodeId
 	}
 	return ""
 }
 
-func (x *TagValueUpdated) GetSourceId() string {
+func (x *PinValueUpdated) GetSourceId() string {
 	if x != nil {
 		return x.SourceId
 	}
 	return ""
 }
 
-func (x *TagValueUpdated) GetValue() string {
+func (x *PinValueUpdated) GetValue() string {
 	if x != nil {
 		return x.Value
 	}
 	return ""
 }
 
-func (x *TagValueUpdated) GetUpdated() int64 {
+func (x *PinValueUpdated) GetUpdated() int64 {
 	if x != nil {
 		return x.Updated
 	}
@@ -544,7 +544,7 @@ var file_source_message_proto_rawDesc = []byte{
 	0x74, 0x65, 0x64, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x03, 0x52, 0x07, 0x75, 0x70, 0x64, 0x61, 0x74,
 	0x65, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x64, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x64, 0x18, 0x0d, 0x20,
 	0x01, 0x28, 0x03, 0x52, 0x07, 0x64, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x64, 0x22, 0xea, 0x02, 0x0a,
-	0x03, 0x54, 0x61, 0x67, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x03, 0x50, 0x69, 0x6e, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
 	0x52, 0x02, 0x69, 0x64, 0x12, 0x17, 0x0a, 0x07, 0x6e, 0x6f, 0x64, 0x65, 0x5f, 0x69, 0x64, 0x18,
 	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x6e, 0x6f, 0x64, 0x65, 0x49, 0x64, 0x12, 0x1b, 0x0a,
 	0x09, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09,
@@ -566,19 +566,19 @@ var file_source_message_proto_rawDesc = []byte{
 	0x65, 0x61, 0x74, 0x65, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64,
 	0x18, 0x0e, 0x20, 0x01, 0x28, 0x03, 0x52, 0x07, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x12,
 	0x18, 0x0a, 0x07, 0x64, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x64, 0x18, 0x0f, 0x20, 0x01, 0x28, 0x03,
-	0x52, 0x07, 0x64, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x64, 0x22, 0x4a, 0x0a, 0x08, 0x54, 0x61, 0x67,
+	0x52, 0x07, 0x64, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x64, 0x22, 0x4a, 0x0a, 0x08, 0x50, 0x69, 0x6e,
 	0x56, 0x61, 0x6c, 0x75, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02,
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x75,
 	0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x07, 0x75, 0x70,
-	0x64, 0x61, 0x74, 0x65, 0x64, 0x22, 0x62, 0x0a, 0x0c, 0x54, 0x61, 0x67, 0x4e, 0x61, 0x6d, 0x65,
+	0x64, 0x61, 0x74, 0x65, 0x64, 0x22, 0x62, 0x0a, 0x0c, 0x50, 0x69, 0x6e, 0x4e, 0x61, 0x6d, 0x65,
 	0x56, 0x61, 0x6c, 0x75, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20,
 	0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c,
 	0x75, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x12,
 	0x18, 0x0a, 0x07, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x03,
-	0x52, 0x07, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x22, 0x87, 0x01, 0x0a, 0x0f, 0x54, 0x61,
-	0x67, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x12, 0x0e, 0x0a,
+	0x52, 0x07, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x22, 0x87, 0x01, 0x0a, 0x0f, 0x50, 0x69,
+	0x6e, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x12, 0x0e, 0x0a,
 	0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x17, 0x0a,
 	0x07, 0x6e, 0x6f, 0x64, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06,
 	0x6e, 0x6f, 0x64, 0x65, 0x49, 0x64, 0x12, 0x1b, 0x0a, 0x09, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65,
@@ -606,10 +606,10 @@ func file_source_message_proto_rawDescGZIP() []byte {
 var file_source_message_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_source_message_proto_goTypes = []any{
 	(*Source)(nil),          // 0: pb.Source
-	(*Tag)(nil),             // 1: pb.Tag
-	(*TagValue)(nil),        // 2: pb.TagValue
-	(*TagNameValue)(nil),    // 3: pb.TagNameValue
-	(*TagValueUpdated)(nil), // 4: pb.TagValueUpdated
+	(*Pin)(nil),             // 1: pb.Pin
+	(*PinValue)(nil),        // 2: pb.PinValue
+	(*PinNameValue)(nil),    // 3: pb.PinNameValue
+	(*PinValueUpdated)(nil), // 4: pb.PinValueUpdated
 }
 var file_source_message_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
