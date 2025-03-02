@@ -13,7 +13,6 @@ type Device struct {
 	Desc          string    `bun:"desc,type:TEXT" json:"desc"`
 	Tags          string    `bun:"tags,type:TEXT" json:"tags"`
 	Config        string    `bun:"config,type:TEXT" json:"config"`
-	Status        int32     `bun:"status" json:"status"`
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
 	Created       time.Time `bun:"created" json:"created"`
 	Updated       time.Time `bun:"updated" json:"updated"`

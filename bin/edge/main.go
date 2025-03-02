@@ -324,7 +324,7 @@ func cli(command string, bundb *bun.DB) error {
 
 		grpcOpts := []grpc.DialOption{
 			grpc.WithKeepaliveParams(kacp),
-			// grpc.WithDefaultCallOptions(grpc.UseCompressor(zstd.Name)),
+			grpc.WithDefaultCallOptions(grpc.UseCompressor(zstd.Name)),
 		}
 
 		if config.Config.NodeClient.TLS {

@@ -122,7 +122,6 @@ func (s *DeviceService) Update(ctx context.Context, in *pb.Device) (*pb.Device, 
 	item.Desc = in.GetDesc()
 	item.Tags = in.GetTags()
 	item.Config = in.GetConfig()
-	item.Status = in.GetStatus()
 	item.Updated = time.Now()
 
 	_, err = s.es.GetDB().NewUpdate().Model(&item).WherePK().Exec(ctx)
@@ -173,7 +172,7 @@ func (s *DeviceService) Destory(ctx context.Context, in *pb.MyEmpty) (*pb.MyBool
 	var output pb.MyBool
 
 	err = func() error {
-		models := []interface{}{
+		models := []any{
 			(*model.Slot)(nil),
 			(*model.Source)(nil),
 			(*model.Tag)(nil),
@@ -237,7 +236,6 @@ func (s *DeviceService) copyModelToOutput(output *pb.Device, item *model.Device)
 	output.Desc = item.Desc
 	output.Tags = item.Tags
 	output.Config = item.Config
-	output.Status = item.Status
 	output.Link = s.es.GetStatus().GetDeviceLink()
 	output.Created = item.Created.UnixMicro()
 	output.Updated = item.Updated.UnixMicro()
@@ -357,7 +355,6 @@ SKIP:
 			Desc:    in.GetDesc(),
 			Tags:    in.GetTags(),
 			Config:  in.GetConfig(),
-			Status:  in.GetStatus(),
 			Created: time.UnixMicro(in.GetCreated()),
 			Updated: time.UnixMicro(in.GetUpdated()),
 			Deleted: time.UnixMicro(in.GetDeleted()),
@@ -398,7 +395,6 @@ SKIP:
 		item.Desc = in.GetDesc()
 		item.Tags = in.GetTags()
 		item.Config = in.GetConfig()
-		item.Status = in.GetStatus()
 		item.Updated = time.UnixMicro(in.GetUpdated())
 		item.Deleted = time.UnixMicro(in.GetDeleted())
 
@@ -446,7 +442,7 @@ func (s *DeviceService) ViewFromCacheByID(ctx context.Context) (model.Device, er
 
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	value := cache.NewValue[model.Device](item, s.es.dopts.cacheTTL)
+	value := cache.NewValue(item, s.es.dopts.cacheTTL)
 	s.cache = &value
 
 	return item, nil

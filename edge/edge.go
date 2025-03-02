@@ -233,7 +233,7 @@ func (es *EdgeService) Register(server *grpc.Server) {
 }
 
 func CreateSchema(db bun.IDB) error {
-	models := []interface{}{
+	models := []any{
 		(*model.Device)(nil),
 		(*model.Slot)(nil),
 		(*model.Source)(nil),

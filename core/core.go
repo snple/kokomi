@@ -188,7 +188,7 @@ func (cs *CoreService) Register(server *grpc.Server) {
 }
 
 func CreateSchema(db bun.IDB) error {
-	models := []interface{}{
+	models := []any{
 		(*model.Sync)(nil),
 		(*model.SyncGlobal)(nil),
 		(*model.Device)(nil),
