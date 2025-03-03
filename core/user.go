@@ -313,7 +313,7 @@ func (s *UserService) List(ctx context.Context, in *cores.UserListRequest) (*cor
 
 	output.Count = uint32(count)
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.User{}
 
 		s.copyModelToOutput(&item, &items[i])
@@ -455,7 +455,7 @@ func (s *UserService) Pull(ctx context.Context, in *cores.UserPullRequest) (*cor
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
 	}
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.User{}
 
 		s.copyModelToOutput(&item, &items[i])

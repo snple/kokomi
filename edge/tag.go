@@ -12,11 +12,11 @@ import (
 	"github.com/danclive/nson-go"
 	"github.com/dgraph-io/badger/v4"
 	"github.com/snple/beacon/consts"
+	"github.com/snple/beacon/dt"
 	"github.com/snple/beacon/edge/model"
 	"github.com/snple/beacon/pb"
 	"github.com/snple/beacon/pb/edges"
 	"github.com/snple/beacon/util"
-	"github.com/snple/beacon/util/datatype"
 	"github.com/snple/types/cache"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
@@ -54,6 +54,10 @@ func (s *PinService) Create(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
 
 		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
+		}
+
+		if !dt.ValidateType(in.GetDataType()) {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.DataType")
 		}
 	}
 
@@ -135,6 +139,10 @@ func (s *PinService) Update(ctx context.Context, in *pb.Pin) (*pb.Pin, error) {
 
 		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
+		}
+
+		if !dt.ValidateType(in.GetDataType()) {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.DataType")
 		}
 	}
 
@@ -366,7 +374,7 @@ func (s *PinService) List(ctx context.Context, in *edges.PinListRequest) (*edges
 
 	output.Count = uint32(count)
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.Pin{}
 
 		s.copyModelToOutput(&item, &items[i])
@@ -597,7 +605,7 @@ func (s *PinService) Pull(ctx context.Context, in *edges.PinPullRequest) (*edges
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
 	}
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.Pin{}
 
 		s.copyModelToOutput(&item, &items[i])
@@ -624,6 +632,10 @@ func (s *PinService) Sync(ctx context.Context, in *pb.Pin) (*pb.MyBool, error) {
 
 		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
+		}
+
+		if !dt.ValidateType(in.GetDataType()) {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.DataType")
 		}
 
 		if in.GetUpdated() == 0 {
@@ -900,9 +912,8 @@ func (s *PinService) SetValue(ctx context.Context, in *pb.PinValue) (*pb.MyBool,
 		return &output, status.Errorf(codes.FailedPrecondition, "Pin.Status != ON")
 	}
 
-	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	if !dt.ValidateValue(in.GetValue(), item.DataType) {
+		return &output, status.Errorf(codes.InvalidArgument, "Please supply valid Pin.Value")
 	}
 
 	// validation wire and wire
@@ -1026,9 +1037,8 @@ func (s *PinService) SetValueByName(ctx context.Context, in *pb.PinNameValue) (*
 		return &output, status.Errorf(codes.FailedPrecondition, "Pin.Status != ON")
 	}
 
-	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	if !dt.ValidateValue(in.GetValue(), item.DataType) {
+		return &output, status.Errorf(codes.InvalidArgument, "Please supply valid Pin.Value")
 	}
 
 	if err = s.setPinValueUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
@@ -1195,14 +1205,16 @@ func (s *PinService) PullValue(ctx context.Context, in *edges.PinPullValueReques
 			items = append(items, item)
 		}
 
-		sort.Sort(model.SortPinValue(items))
+		sort.Slice(items, func(i, j int) bool {
+			return items[i].Updated.Before(items[j].Updated)
+		})
 
 		if len(items) > int(in.GetLimit()) {
 			items = items[0:in.GetLimit()]
 		}
 	}
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.PinValueUpdated{}
 
 		s.copyModelToOutputPinValue(&item, &items[i])
@@ -1242,9 +1254,8 @@ func (s *PinService) SyncValue(ctx context.Context, in *pb.PinValue) (*pb.MyBool
 		return &output, err
 	}
 
-	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	if !dt.ValidateValue(in.GetValue(), item.DataType) {
+		return &output, status.Errorf(codes.InvalidArgument, "Please supply valid Pin.Value")
 	}
 
 	value, err := s.getPinValueUpdated(ctx, in.GetId())
@@ -1421,9 +1432,8 @@ func (s *PinService) SetWrite(ctx context.Context, in *pb.PinValue) (*pb.MyBool,
 		return &output, status.Errorf(codes.FailedPrecondition, "Pin.Access != WRITE")
 	}
 
-	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	if !dt.ValidateValue(in.GetValue(), item.DataType) {
+		return &output, status.Errorf(codes.InvalidArgument, "Please supply valid Pin.Value")
 	}
 
 	// validation wire and wire
@@ -1551,9 +1561,8 @@ func (s *PinService) SetWriteByName(ctx context.Context, in *pb.PinNameValue) (*
 		return &output, status.Errorf(codes.FailedPrecondition, "Pin.Access != WRITE")
 	}
 
-	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	if !dt.ValidateValue(in.GetValue(), item.DataType) {
+		return &output, status.Errorf(codes.InvalidArgument, "Please supply valid Pin.Value")
 	}
 
 	if err = s.setPinWriteUpdated(ctx, &item, in.GetValue(), time.Now()); err != nil {
@@ -1720,14 +1729,16 @@ func (s *PinService) PullWrite(ctx context.Context, in *edges.PinPullValueReques
 			items = append(items, item)
 		}
 
-		sort.Sort(model.SortPinValue(items))
+		sort.Slice(items, func(i, j int) bool {
+			return items[i].Updated.Before(items[j].Updated)
+		})
 
 		if len(items) > int(in.GetLimit()) {
 			items = items[0:in.GetLimit()]
 		}
 	}
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.PinValueUpdated{}
 
 		s.copyModelToOutputPinValue(&item, &items[i])
@@ -1767,9 +1778,8 @@ func (s *PinService) SyncWrite(ctx context.Context, in *pb.PinValue) (*pb.MyBool
 		return &output, err
 	}
 
-	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	if !dt.ValidateValue(in.GetValue(), item.DataType) {
+		return &output, status.Errorf(codes.InvalidArgument, "Please supply valid Pin.Value")
 	}
 
 	value, err := s.getPinWriteUpdated(ctx, in.GetId())

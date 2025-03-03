@@ -379,7 +379,7 @@ func (s *SlotService) List(ctx context.Context, in *cores.SlotListRequest) (*cor
 
 	output.Count = uint32(count)
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.Slot{}
 
 		s.copyModelToOutput(&item, &items[i])
@@ -590,7 +590,7 @@ func (s *SlotService) Pull(ctx context.Context, in *cores.SlotPullRequest) (*cor
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
 	}
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.Slot{}
 
 		s.copyModelToOutput(&item, &items[i])

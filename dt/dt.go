@@ -1,4 +1,4 @@
-package datatype
+package dt
 
 import (
 	"errors"
@@ -8,29 +8,68 @@ import (
 	"github.com/danclive/nson-go"
 )
 
-func NsonValueToFloat64(value nson.Value) (float64, bool) {
-	switch value.Tag() {
-	case nson.TAG_I32:
-		return float64(value.(nson.I32)), true
-	case nson.TAG_U32:
-		return float64(value.(nson.U32)), true
-	case nson.TAG_I64:
-		return float64(value.(nson.I64)), true
-	case nson.TAG_U64:
-		return float64(value.(nson.U64)), true
-	case nson.TAG_F32:
-		return float64(value.(nson.F32)), true
-	case nson.TAG_F64:
-		return float64(value.(nson.F64)), true
-	case nson.TAG_BOOL:
-		if value.(nson.Bool) {
-			return 1, true
-		}
+const (
+	I32       = "I32"
+	I64       = "I64"
+	U32       = "U32"
+	U64       = "U64"
+	F32       = "F32"
+	F64       = "F64"
+	BOOL      = "BOOL"
+	STRING    = "STRING"
+	NULL      = "NULL"
+	BINARY    = "BINARY"
+	TIMESTAMP = "TIMESTAMP"
+	ID        = "ID"
+)
 
-		return 0, true
+func ValidateType(typeName string) bool {
+	switch typeName {
+	case I32, I64, U32, U64, F32, F64, BOOL, STRING, NULL, BINARY, TIMESTAMP, ID:
+		return true
+	default:
+		return false
+	}
+}
+
+func ValidateValue(value, typeName string) bool {
+	tag := uint8(0)
+
+	switch typeName {
+	case I32:
+		tag = nson.TAG_I32
+	case I64:
+		tag = nson.TAG_I64
+	case U32:
+		tag = nson.TAG_U32
+	case U64:
+		tag = nson.TAG_U64
+	case F32:
+		tag = nson.TAG_F32
+	case F64:
+		tag = nson.TAG_F64
+	case BOOL:
+		tag = nson.TAG_BOOL
+	case STRING:
+		tag = nson.TAG_STRING
+	case NULL:
+		tag = nson.TAG_NULL
+	case BINARY:
+		tag = nson.TAG_BINARY
+	case TIMESTAMP:
+		tag = nson.TAG_TIMESTAMP
+	case ID:
+		tag = nson.TAG_ID
+	default:
+		return false
 	}
 
-	return 0, false
+	_, err := DecodeNsonValue(value, tag)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 func EncodeNsonValue(value nson.Value) (string, error) {

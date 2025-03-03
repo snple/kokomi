@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/snple/beacon/consts"
+	"github.com/snple/beacon/dt"
 	"github.com/snple/beacon/edge/model"
 	"github.com/snple/beacon/pb"
 	"github.com/snple/beacon/pb/edges"
 	"github.com/snple/beacon/util"
-	"github.com/snple/beacon/util/datatype"
 	"github.com/snple/types/cache"
 	"github.com/uptrace/bun"
 	"google.golang.org/grpc/codes"
@@ -46,6 +46,14 @@ func (s *ConstService) Create(ctx context.Context, in *pb.Const) (*pb.Const, err
 
 		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
+		}
+
+		if !dt.ValidateType(in.GetDataType()) {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.DataType")
+		}
+
+		if !dt.ValidateValue(in.GetValue(), in.GetDataType()) {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Value")
 		}
 	}
 
@@ -112,6 +120,14 @@ func (s *ConstService) Update(ctx context.Context, in *pb.Const) (*pb.Const, err
 
 		if in.GetName() == "" {
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Name")
+		}
+
+		if !dt.ValidateType(in.GetDataType()) {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.DataType")
+		}
+
+		if !dt.ValidateValue(in.GetValue(), in.GetDataType()) {
+			return &output, status.Error(codes.InvalidArgument, "Please supply valid Const.Value")
 		}
 	}
 
@@ -320,7 +336,7 @@ func (s *ConstService) List(ctx context.Context, in *edges.ConstListRequest) (*e
 
 	output.Count = uint32(count)
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.Const{}
 
 		s.copyModelToOutput(&item, &items[i])
@@ -501,7 +517,7 @@ func (s *ConstService) Pull(ctx context.Context, in *edges.ConstPullRequest) (*e
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
 	}
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.Const{}
 
 		s.copyModelToOutput(&item, &items[i])
@@ -739,9 +755,8 @@ func (s *ConstService) SetValue(ctx context.Context, in *pb.ConstValue) (*pb.MyB
 		return &output, status.Errorf(codes.FailedPrecondition, "Const.Status != ON")
 	}
 
-	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	if !dt.ValidateValue(in.GetValue(), item.DataType) {
+		return &output, status.Errorf(codes.InvalidArgument, "Please supply valid Const.Value")
 	}
 
 	item.Value = in.GetValue()
@@ -816,9 +831,8 @@ func (s *ConstService) SetValueByName(ctx context.Context, in *pb.ConstNameValue
 		return &output, status.Errorf(codes.FailedPrecondition, "Const.Status != ON")
 	}
 
-	_, err = datatype.DecodeNsonValue(in.GetValue(), item.ValueTag())
-	if err != nil {
-		return &output, status.Errorf(codes.InvalidArgument, "DecodeValue: %v", err)
+	if !dt.ValidateValue(in.GetValue(), item.DataType) {
+		return &output, status.Errorf(codes.InvalidArgument, "Please supply valid Const.Value")
 	}
 
 	item.Value = in.GetValue()

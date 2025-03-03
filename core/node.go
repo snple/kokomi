@@ -318,7 +318,7 @@ func (s *NodeService) List(ctx context.Context, in *cores.NodeListRequest) (*cor
 
 	output.Count = uint32(count)
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.Node{}
 
 		s.copyModelToOutput(&item, &items[i])
@@ -610,7 +610,7 @@ func (s *NodeService) Pull(ctx context.Context, in *cores.NodePullRequest) (*cor
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
 	}
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.Node{}
 
 		s.copyModelToOutput(&item, &items[i])

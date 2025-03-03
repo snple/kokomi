@@ -3,7 +3,6 @@ package model
 import (
 	"time"
 
-	"github.com/snple/beacon/util/datatype"
 	"github.com/uptrace/bun"
 )
 
@@ -39,10 +38,6 @@ type Pin struct {
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
 	Created       time.Time `bun:"created" json:"created"`
 	Updated       time.Time `bun:"updated" json:"updated"`
-}
-
-func (p *Pin) ValueTag() uint8 {
-	return datatype.DataType(p.DataType).Tag()
 }
 
 type PinValue struct {

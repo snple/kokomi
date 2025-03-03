@@ -3,7 +3,6 @@ package model
 import (
 	"time"
 
-	"github.com/snple/beacon/util/datatype"
 	"github.com/uptrace/bun"
 )
 
@@ -39,22 +38,12 @@ type Pin struct {
 	Updated       time.Time `bun:"updated" json:"updated"`
 }
 
-func (p *Pin) ValueTag() uint8 {
-	return datatype.DataType(p.DataType).Tag()
-}
-
 type PinValue struct {
 	ID      string    `bun:"type:TEXT,pk" json:"id"`
 	WireID  string    `bun:"wire_id,type:TEXT" json:"wire_id"`
 	Value   string    `bun:"value,type:TEXT" json:"value"`
 	Updated time.Time `bun:"updated" json:"updated"`
 }
-
-type SortPinValue []PinValue
-
-func (a SortPinValue) Len() int           { return len(a) }
-func (a SortPinValue) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a SortPinValue) Less(i, j int) bool { return a[i].Updated.Before(a[j].Updated) }
 
 const (
 	PIN_VALUE_PREFIX = "pv_"

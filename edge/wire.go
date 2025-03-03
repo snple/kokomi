@@ -323,7 +323,7 @@ func (s *WireService) List(ctx context.Context, in *edges.WireListRequest) (*edg
 
 	output.Count = uint32(count)
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.Wire{}
 
 		s.copyModelToOutput(&item, &items[i])
@@ -562,7 +562,7 @@ func (s *WireService) Pull(ctx context.Context, in *edges.WirePullRequest) (*edg
 		return &output, status.Errorf(codes.Internal, "Query: %v", err)
 	}
 
-	for i := 0; i < len(items); i++ {
+	for i := range items {
 		item := pb.Wire{}
 
 		s.copyModelToOutput(&item, &items[i])

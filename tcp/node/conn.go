@@ -9,9 +9,9 @@ import (
 
 	"github.com/danclive/nson-go"
 	"github.com/snple/beacon/consts"
+	"github.com/snple/beacon/dt"
 	"github.com/snple/beacon/pb"
 	"github.com/snple/beacon/pb/cores"
-	"github.com/snple/beacon/util/datatype"
 )
 
 type Conn struct {
@@ -180,7 +180,7 @@ func (c *Conn) handleSetValue(req nson.Map) error {
 	errors := nson.Map{}
 
 	for name, value := range nameValues {
-		valueStr, err := datatype.EncodeNsonValue(value)
+		valueStr, err := dt.EncodeNsonValue(value)
 		if err != nil {
 			errors[name] = nson.String(err.Error())
 			continue
