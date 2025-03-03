@@ -1127,7 +1127,7 @@ func (s *PinService) SetValueByName(ctx context.Context, in *cores.PinNameValue)
 	}
 
 	// name
-	nodeName := consts.DEFAULT_NODE
+	wireName := consts.DEFAULT_WIRE
 	itemName := in.GetName()
 
 	if strings.Contains(itemName, ".") {
@@ -1136,12 +1136,12 @@ func (s *PinService) SetValueByName(ctx context.Context, in *cores.PinNameValue)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 
-		nodeName = splits[0]
+		wireName = splits[0]
 		itemName = splits[1]
 	}
 
 	// wire
-	wire, err := s.cs.GetWire().ViewFromCacheByNodeIDAndName(ctx, node.ID, nodeName)
+	wire, err := s.cs.GetWire().ViewFromCacheByNodeIDAndName(ctx, node.ID, wireName)
 	if err != nil {
 		return &output, err
 	}
@@ -1612,7 +1612,7 @@ func (s *PinService) SetWriteByName(ctx context.Context, in *cores.PinNameValue)
 	}
 
 	// name
-	nodeName := consts.DEFAULT_NODE
+	wireName := consts.DEFAULT_WIRE
 	itemName := in.GetName()
 
 	if strings.Contains(itemName, ".") {
@@ -1621,12 +1621,12 @@ func (s *PinService) SetWriteByName(ctx context.Context, in *cores.PinNameValue)
 			return &output, status.Error(codes.InvalidArgument, "Please supply valid Pin.Name")
 		}
 
-		nodeName = splits[0]
+		wireName = splits[0]
 		itemName = splits[1]
 	}
 
 	// wire
-	wire, err := s.cs.GetWire().ViewFromCacheByNodeIDAndName(ctx, node.ID, nodeName)
+	wire, err := s.cs.GetWire().ViewFromCacheByNodeIDAndName(ctx, node.ID, wireName)
 	if err != nil {
 		return &output, err
 	}
