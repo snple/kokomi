@@ -4,20 +4,20 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // NodeClaims struct
 type NodeClaims struct {
 	NodeID string `json:"node_id"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 var NodeTokenSigningKey = []byte(os.Getenv("TOKEN_SALT"))
 
 // ValidateToken func
 func ValidateNodeToken(myToken string) (bool, string) {
-	token, err := jwt.ParseWithClaims(myToken, &NodeClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(myToken, &NodeClaims{}, func(token *jwt.Token) (any, error) {
 		return []byte(NodeTokenSigningKey), nil
 	})
 
@@ -33,8 +33,8 @@ func ValidateNodeToken(myToken string) (bool, string) {
 func ClaimNodeToken(nodeID string) (string, error) {
 	claims := NodeClaims{
 		nodeID,
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 5).Unix(),
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 5)),
 		},
 	}
 
@@ -45,15 +45,15 @@ func ClaimNodeToken(nodeID string) (string, error) {
 }
 
 type SlotClaims struct {
-	SlotID string `json:"Slot_id"`
-	jwt.StandardClaims
+	SlotID string `json:"slot_id"`
+	jwt.RegisteredClaims
 }
 
 var SlotTokenSigningKey = []byte(os.Getenv("TOKEN_SALT"))
 
 // ValidateToken func
 func ValidateSlotToken(myToken string) (bool, string) {
-	token, err := jwt.ParseWithClaims(myToken, &SlotClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(myToken, &SlotClaims{}, func(token *jwt.Token) (any, error) {
 		return []byte(SlotTokenSigningKey), nil
 	})
 
@@ -69,8 +69,8 @@ func ValidateSlotToken(myToken string) (bool, string) {
 func ClaimSlotToken(slotID string) (string, error) {
 	claims := SlotClaims{
 		slotID,
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 5).Unix(),
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Second * 5)),
 		},
 	}
 

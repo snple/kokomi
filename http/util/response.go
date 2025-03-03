@@ -10,7 +10,7 @@ type Response struct {
 	Message string `json:"message,omitempty"`
 }
 
-func Success(data interface{}) (int, Response) {
+func Success(data any) (int, Response) {
 	return http.StatusOK, Response{
 		Code: 0,
 		Data: data,

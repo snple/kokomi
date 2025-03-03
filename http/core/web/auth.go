@@ -2,8 +2,6 @@ package web
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,8 +11,6 @@ import (
 	"github.com/snple/beacon/pb"
 	"github.com/snple/beacon/pb/cores"
 	"github.com/snple/types/cache"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type AuthService struct {
@@ -41,12 +37,12 @@ func newAuthService(ws *WebService) (*AuthService, error) {
 	}
 
 	jwt, err := jwt.New(&jwt.GinJWTMiddleware{
-		Realm:       "ayaka",
+		Realm:       "beacon",
 		Key:         []byte(ws.dopts.jwtSecretKey),
 		Timeout:     ws.dopts.jwtTimeout,
 		MaxRefresh:  ws.dopts.jwtMaxRefresh,
 		IdentityKey: identityKey,
-		PayloadFunc: func(data interface{}) jwt.MapClaims {
+		PayloadFunc: func(data any) jwt.MapClaims {
 			if v, ok := data.(*pb.User); ok {
 				return jwt.MapClaims{
 					identityKey: v.GetId(),
@@ -54,14 +50,14 @@ func newAuthService(ws *WebService) (*AuthService, error) {
 			}
 			return jwt.MapClaims{}
 		},
-		IdentityHandler: func(c *gin.Context) interface{} {
+		IdentityHandler: func(c *gin.Context) any {
 			claims := jwt.ExtractClaims(c)
 			return &pb.User{
 				Id: claims[identityKey].(string),
 			}
 		},
-		Authenticator: s.Authenticator,
-		Authorizator:  s.Authorizator,
+		Authenticator: s.authenticator,
+		Authorizator:  s.authorizator,
 	})
 	if err != nil {
 		return nil, err
@@ -92,7 +88,7 @@ func (s *AuthService) register(router gin.IRouter) {
 	group.POST("/force_change_pass", s.forceChangePass)
 }
 
-func (s *AuthService) Authenticator(ctx *gin.Context) (interface{}, error) {
+func (s *AuthService) authenticator(ctx *gin.Context) (any, error) {
 	var loginVals login
 	if err := ctx.ShouldBind(&loginVals); err != nil {
 		return nil, jwt.ErrMissingLoginValues
@@ -115,30 +111,30 @@ func (s *AuthService) Authenticator(ctx *gin.Context) (interface{}, error) {
 	return reply.User, nil
 }
 
-func (s *AuthService) Authorizator(data interface{}, ctx *gin.Context) error {
+func (s *AuthService) authorizator(data any, ctx *gin.Context) bool {
 	if v, ok := data.(*pb.User); ok {
 		option, err := s.cache.GetWithMiss(ctx, v.GetId())
 		if err != nil {
-			return err
+			return false
 		}
 
 		if option.IsNone() {
-			return status.Errorf(codes.NotFound, "Query: NotFound, User.ID: %v", v.GetId())
+			return false
 		}
 
 		user := option.Unwrap()
 
 		if user.GetStatus() != consts.ON {
-			return fmt.Errorf("user %v is not enable", v.GetId())
+			return false
 		}
 
 		ctx.Set("user_id", user.GetId())
 		ctx.Set("user", user)
 
-		return nil
+		return true
 	}
 
-	return errors.New("unknow error")
+	return false
 }
 
 func (s *AuthService) MiddlewareFunc() gin.HandlerFunc {

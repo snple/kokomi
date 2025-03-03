@@ -11,7 +11,7 @@ require (
 	github.com/dgraph-io/badger/v4 v4.5.0
 	github.com/gin-contrib/cors v1.7.3
 	github.com/gin-gonic/gin v1.10.0
-	github.com/golang-jwt/jwt/v4 v4.5.1
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/klauspost/compress v1.17.11
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/onsi/ginkgo/v2 v2.22.2
@@ -20,6 +20,7 @@ require (
 	github.com/uptrace/bun v1.2.8
 	github.com/uptrace/bun/dialect/sqlitedialect v1.2.8
 	github.com/uptrace/bun/extra/bundebug v1.2.8
+	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.32.0
 	google.golang.org/grpc v1.69.4
