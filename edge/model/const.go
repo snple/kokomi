@@ -3,7 +3,6 @@ package model
 import (
 	"time"
 
-	"github.com/danclive/nson-go"
 	"github.com/snple/beacon/util/datatype"
 	"github.com/uptrace/bun"
 )
@@ -21,10 +20,6 @@ type Const struct {
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
 	Created       time.Time `bun:"created" json:"created"`
 	Updated       time.Time `bun:"updated" json:"updated"`
-}
-
-func (t *Const) DefaultValue() nson.Value {
-	return datatype.DataType(t.DataType).DefaultValue()
 }
 
 func (t *Const) ValueTag() uint8 {

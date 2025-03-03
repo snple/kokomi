@@ -14,3 +14,18 @@ const (
 	DEFAULT_TAG   = "tag"
 	DEFAULT_CONST = "const"
 )
+
+const (
+	TYPE_I32       = "I32"
+	TYPE_I64       = "I64"
+	TYPE_U32       = "U32"
+	TYPE_U64       = "U64"
+	TYPE_F32       = "F32"
+	TYPE_F64       = "F64"
+	TYPE_BOOL      = "BOOL"
+	TYPE_STRING    = "STRING"
+	TYPE_NULL      = "NULL"
+	TYPE_BINARY    = "BINARY"
+	TYPE_TIMESTAMP = "TIMESTAMP"
+	TYPE_ID        = "ID"
+)

@@ -19,56 +19,6 @@ const (
 	DataTypeString DataType = "STRING"
 )
 
-func (t DataType) Size() int {
-	switch t {
-	case DataTypeBool, DataTypeI8, DataTypeU8:
-		return 1
-	case DataTypeI16, DataTypeU16:
-		return 2
-	case DataTypeI32, DataTypeU32, DataTypeF32:
-		return 4
-	case DataTypeI64, DataTypeU64, DataTypeF64:
-		return 8
-	}
-
-	return 0
-}
-
-func (t DataType) IsNumber() bool {
-	switch t {
-	case DataTypeI8, DataTypeI16, DataTypeI32,
-		DataTypeU8, DataTypeU16, DataTypeU32,
-		DataTypeI64, DataTypeU64,
-		DataTypeF32, DataTypeF64:
-		return true
-	}
-
-	return false
-}
-
-func (t DataType) DefaultValue() nson.Value {
-	switch t {
-	case DataTypeI8, DataTypeI16, DataTypeI32:
-		return nson.I32(0)
-	case DataTypeU8, DataTypeU16, DataTypeU32:
-		return nson.U32(0)
-	case DataTypeI64:
-		return nson.I64(0)
-	case DataTypeU64:
-		return nson.U64(0)
-	case DataTypeF32:
-		return nson.F32(0)
-	case DataTypeF64:
-		return nson.F64(0)
-	case DataTypeBool:
-		return nson.Bool(false)
-	case DataTypeString:
-		return nson.String("")
-	default:
-		return nson.Null{}
-	}
-}
-
 func (t DataType) Tag() uint8 {
 	switch t {
 	case DataTypeI8, DataTypeI16, DataTypeI32:

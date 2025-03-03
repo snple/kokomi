@@ -3,7 +3,6 @@ package model
 import (
 	"time"
 
-	"github.com/danclive/nson-go"
 	"github.com/snple/beacon/util/datatype"
 	"github.com/uptrace/bun"
 )
@@ -40,10 +39,6 @@ type Pin struct {
 	Deleted       time.Time `bun:"deleted,soft_delete" json:"-"`
 	Created       time.Time `bun:"created" json:"created"`
 	Updated       time.Time `bun:"updated" json:"updated"`
-}
-
-func (p *Pin) DefaultValue() nson.Value {
-	return datatype.DataType(p.DataType).DefaultValue()
 }
 
 func (p *Pin) ValueTag() uint8 {
